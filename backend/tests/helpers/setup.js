@@ -21,6 +21,7 @@ beforeEach(async () => {
         // Use raw SQL for faster cleanup
         const tableNames = [
             'users',
+            'roles',
             'areas',
             'projects',
             'tasks',
@@ -41,6 +42,15 @@ beforeEach(async () => {
         for (const tableName of tableNames) {
             await sequelize.query(`DELETE FROM ${tableName}`);
         }
+
+        // Seed a role with is_admin=true (no matching user, FK checks are
+        // off) so the "first user becomes admin" hook in models/user.js
+        // never fires for test-created users, which would otherwise make
+        // whichever user a test happens to create first silently an admin.
+        await sequelize.query(
+            "INSERT INTO roles (user_id, is_admin, created_at, updated_at) VALUES (0, 1, datetime('now'), datetime('now'))"
+        );
+
         await sequelize.query('PRAGMA foreign_keys = ON');
     } catch (error) {
         // Ignore errors during cleanup
