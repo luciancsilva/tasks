@@ -278,7 +278,7 @@ Contributions to tududi are welcome! Whether it's bug fixes, new features, docum
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes following our [code standards](.github/CONTRIBUTING.md#code-standards)
-4. Run linting and tests: `npm run pre-push`
+4. Lint and format staged files: `npm run pre-push` (does not run tests — run `npm run backend:test` and `npm run frontend:test` separately)
 5. Commit your changes with a clear message
 6. Push to your fork and open a Pull Request
 

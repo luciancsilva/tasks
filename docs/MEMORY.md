@@ -47,8 +47,11 @@ This document contains preferences, patterns, and memory items specific to worki
 - Test files should be colocated in `backend/tests/unit/` matching the module structure
 
 ### Running Tests
-- Always run tests before pushing with `npm test`
-- Pre-push hooks will automatically run linting, formatting, and tests
+- Backend tests: `npm run backend:test` (aliased as `npm test`)
+- Frontend tests: `npm run frontend:test`
+- `npm run pre-push` only lints and formats staged files — it does NOT run
+  tests, and there is no automatic git pre-push hook installed. Run tests
+  manually before pushing; CI is the authoritative gate.
 
 ---
 
