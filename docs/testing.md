@@ -42,16 +42,13 @@
     └── ... (47+ test directories)
 
 /e2e/tests/                   # E2E tests (Playwright)
-├── login.spec.ts
-├── tasks.spec.ts
-├── projects.spec.ts
-├── subtasks.spec.ts
-└── ...
+├── caldav-client.spec.ts
+├── inbox.spec.ts
+├── registration.spec.ts
+└── today-view.spec.ts
 
-/frontend/__tests__/          # Frontend tests
-├── setup.ts                 # Test configuration
-└── components/
-    └── ... (component tests)
+/frontend/                    # Frontend tests
+└── (Frontend test coverage is currently limited — see the three existing tests under `frontend/`)
 ```
 
 ---

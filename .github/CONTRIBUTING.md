@@ -283,11 +283,11 @@ tududi supports multiple languages via i18next.
    git rebase main
    ```
 
-2. **Run the pre-push checks**
+2. **Run pre-push checks**
    ```bash
    npm run pre-push
    ```
-   This runs linting, formatting, and tests.
+   This lints and formats staged files only. It does NOT run tests. You should run tests separately.
 
 3. **Test your changes thoroughly**
    - Manual testing in the browser
