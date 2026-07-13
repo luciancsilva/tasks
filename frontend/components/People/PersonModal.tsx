@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { Person, RelationshipType } from '../../entities/Person';
 import ColorPicker from '../Shared/ColorPicker';
+import { useTranslation } from 'react-i18next';
 
 interface PersonModalProps {
     person: Person | null;
@@ -10,14 +11,15 @@ interface PersonModalProps {
     onClose: () => void;
 }
 
-const RELATIONSHIP_TYPES: { value: RelationshipType; label: string }[] = [
-    { value: 'family', label: 'Family' },
-    { value: 'work', label: 'Work' },
-    { value: 'friend', label: 'Friend' },
-    { value: 'other', label: 'Other' },
+const RELATIONSHIP_TYPES: { value: RelationshipType; labelKey: string; fallback: string }[] = [
+    { value: 'family', labelKey: 'people.relationships.family', fallback: 'Family' },
+    { value: 'work', labelKey: 'people.relationships.work', fallback: 'Work' },
+    { value: 'friend', labelKey: 'people.relationships.friend', fallback: 'Friend' },
+    { value: 'other', labelKey: 'people.relationships.other', fallback: 'Other' },
 ];
 
 const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) => {
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [relationshipType, setRelationshipType] = useState<RelationshipType>('other');
     const [email, setEmail] = useState('');
@@ -75,7 +77,7 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim()) {
-            setError('Name is required');
+            setError(t('people.nameRequired', 'Name is required'));
             return;
         }
         setSaving(true);
@@ -91,7 +93,7 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
             });
             onClose();
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Failed to save person';
+            const msg = err instanceof Error ? err.message : t('people.saveError', 'Failed to save person');
             setError(msg);
         } finally {
             setSaving(false);
@@ -103,7 +105,7 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {person ? 'Edit Person' : 'New Person'}
+                        {person ? t('people.editPerson', 'Edit Person') : t('people.newPerson', 'New Person')}
                     </h2>
                     <button
                         onClick={onClose}
@@ -123,21 +125,21 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Name <span className="text-red-500">*</span>
+                            {t('people.nameLabel', 'Name')} <span className="text-red-500">*</span>
                         </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Dad, Partner, Alice..."
+                            placeholder={t('people.namePlaceholder', 'Dad, Partner, Alice...')}
                             autoFocus
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Relationship
+                            {t('people.relationshipLabel', 'Relationship')}
                         </label>
                         <div ref={relationshipRef} className="relative w-full">
                             <button
@@ -146,7 +148,10 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
                                 className="inline-flex justify-between w-full px-3 py-2 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none"
                             >
                                 <span>
-                                    {RELATIONSHIP_TYPES.find((r) => r.value === relationshipType)?.label ?? 'Other'}
+                                    {(() => {
+                                        const found = RELATIONSHIP_TYPES.find((r) => r.value === relationshipType);
+                                        return found ? t(found.labelKey, found.fallback) : t('people.relationships.other', 'Other');
+                                    })()}
                                 </span>
                                 <ChevronDownIcon className="w-4 h-4 text-gray-500 dark:text-gray-300 ml-2 mt-0.5" />
                             </button>
@@ -175,7 +180,7 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
                                                         : 'text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600'
                                                 }`}
                                             >
-                                                {rt.label}
+                                                {t(rt.labelKey, rt.fallback)}
                                             </button>
                                         ))}
                                     </div>,
@@ -186,46 +191,46 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Email
+                            {t('people.emailLabel', 'Email')}
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="optional@example.com"
+                            placeholder={t('people.emailPlaceholder', 'optional@example.com')}
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Phone
+                            {t('people.phoneLabel', 'Phone')}
                         </label>
                         <input
                             type="tel"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="+1 555 000 0000"
+                            placeholder={t('people.phonePlaceholder', '+1 555 000 0000')}
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Notes
+                            {t('people.notesLabel', 'Notes')}
                         </label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             rows={3}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                            placeholder="Any notes about this person..."
+                            placeholder={t('people.notesPlaceholder', 'Any notes about this person...')}
                         />
                     </div>
 
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Color
+                            {t('people.colorLabel', 'Color')}
                         </label>
                         <ColorPicker value={color} onChange={setColor} />
                     </div>
@@ -236,14 +241,14 @@ const PersonModal: React.FC<PersonModalProps> = ({ person, onSave, onClose }) =>
                             onClick={onClose}
                             className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                         >
-                            Cancel
+                            {t('common.cancel', 'Cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={saving}
                             className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
                         >
-                            {saving ? 'Saving...' : person ? 'Save Changes' : 'Create Person'}
+                            {saving ? t('people.saving', 'Saving...') : person ? t('people.saveChanges', 'Save Changes') : t('people.createPerson', 'Create Person')}
                         </button>
                     </div>
                 </form>

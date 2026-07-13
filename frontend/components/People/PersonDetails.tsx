@@ -13,15 +13,17 @@ import { fetchPersonByUid, updatePerson, deletePerson } from '../../utils/people
 import { useToast } from '../Shared/ToastContext';
 import PersonModal from './PersonModal';
 import ConfirmDialog from '../Shared/ConfirmDialog';
+import { useTranslation } from 'react-i18next';
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
-    family: 'Family',
-    work: 'Work',
-    friend: 'Friend',
-    other: 'Other',
+    family: 'people.relationships.family',
+    work: 'people.relationships.work',
+    friend: 'people.relationships.friend',
+    other: 'people.relationships.other',
 };
 
 const PersonDetails: React.FC = () => {
+    const { t } = useTranslation();
     const { uid } = useParams<{ uid: string }>();
     const navigate = useNavigate();
     const { showSuccessToast, showErrorToast } = useToast();
@@ -48,7 +50,7 @@ const PersonDetails: React.FC = () => {
                 setAssignedTasks(data.tasks ?? []);
             }
         } catch {
-            showErrorToast('Failed to load person');
+            showErrorToast(t('people.loadError', 'Failed to load person'));
         } finally {
             setLoading(false);
         }
@@ -62,7 +64,7 @@ const PersonDetails: React.FC = () => {
         if (!person?.uid) return;
         const result = await updatePerson(person.uid, data);
         setPerson(result.person);
-        showSuccessToast('Person updated');
+        showSuccessToast(t('people.personUpdated', 'Person updated'));
     };
 
     const handleArchive = async () => {
@@ -70,9 +72,9 @@ const PersonDetails: React.FC = () => {
         try {
             const result = await updatePerson(person.uid, { archived: !person.archived });
             setPerson(result.person);
-            showSuccessToast(person.archived ? 'Person unarchived' : 'Person archived');
+            showSuccessToast(person.archived ? t('people.personUnarchived', 'Person unarchived') : t('people.personArchived', 'Person archived'));
         } catch (err: unknown) {
-            showErrorToast(err instanceof Error ? err.message : 'Failed to archive');
+            showErrorToast(err instanceof Error ? err.message : t('people.archiveError', 'Failed to archive'));
         }
     };
 
@@ -80,10 +82,10 @@ const PersonDetails: React.FC = () => {
         if (!person?.uid) return;
         try {
             await deletePerson(person.uid);
-            showSuccessToast('Person deleted');
+            showSuccessToast(t('people.personDeleted', 'Person deleted'));
             navigate('/people');
         } catch (err: unknown) {
-            showErrorToast(err instanceof Error ? err.message : 'Failed to delete person');
+            showErrorToast(err instanceof Error ? err.message : t('people.deleteError', 'Failed to delete person'));
         } finally {
             setIsConfirmDialogOpen(false);
         }
@@ -92,7 +94,7 @@ const PersonDetails: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-                Loading...
+                {t('common.loading', 'Loading...')}
             </div>
         );
     }
@@ -100,7 +102,7 @@ const PersonDetails: React.FC = () => {
     if (!person) {
         return (
             <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-                Person not found.
+                {t('people.personNotFound', 'Person not found.')}
             </div>
         );
     }
@@ -120,7 +122,7 @@ const PersonDetails: React.FC = () => {
                             <p className={`text-xs font-medium uppercase tracking-widest mb-1 ${
                                 hasColor ? 'text-white/60' : 'text-gray-400 dark:text-gray-500'
                             }`}>
-                                Person
+                                {t('people.personSubtitle', 'Person')}
                             </p>
                             <h1 className={`text-3xl font-light ${
                                 hasColor ? 'text-white' : 'text-gray-900 dark:text-gray-100'
@@ -130,13 +132,13 @@ const PersonDetails: React.FC = () => {
                             <div className={`mt-3 flex flex-wrap gap-4 text-xs ${
                                 hasColor ? 'text-white/70' : 'text-gray-500 dark:text-gray-400'
                             }`}>
-                                <span>{RELATIONSHIP_LABELS[person.relationship_type ?? 'other']}</span>
+                                <span>{t(RELATIONSHIP_LABELS[person.relationship_type ?? 'other'], person.relationship_type ?? 'other')}</span>
                                 {assignedTasks.length > 0 && (
-                                    <span>{assignedTasks.length} assigned {assignedTasks.length === 1 ? 'task' : 'tasks'}</span>
+                                    <span>{assignedTasks.length} {assignedTasks.length === 1 ? t('people.assignedTask', 'assigned task') : t('people.assignedTasks', 'assigned tasks')}</span>
                                 )}
                                 {person.archived && (
                                     <span className={hasColor ? 'text-white/90' : 'text-amber-600 dark:text-amber-400'}>
-                                        Archived
+                                        {t('people.archived', 'Archived')}
                                     </span>
                                 )}
                             </div>
@@ -149,7 +151,7 @@ const PersonDetails: React.FC = () => {
                                         ? 'text-white/80 hover:text-white hover:bg-white/10'
                                         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
-                                title="Edit person"
+                                title={t('people.editPerson', 'Edit person')}
                             >
                                 <PencilSquareIcon className="h-5 w-5" />
                             </button>
@@ -160,7 +162,7 @@ const PersonDetails: React.FC = () => {
                                         ? 'text-white/80 hover:text-white hover:bg-white/10'
                                         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
-                                title={person.archived ? 'Unarchive' : 'Archive'}
+                                title={person.archived ? t('people.unarchive', 'Unarchive') : t('people.archive', 'Archive')}
                             >
                                 <ArchiveBoxIcon className="h-5 w-5" />
                             </button>
@@ -171,7 +173,7 @@ const PersonDetails: React.FC = () => {
                                         ? 'text-white/80 hover:text-white hover:bg-white/10'
                                         : 'text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
-                                title="Delete person"
+                                title={t('common.delete', 'Delete person')}
                             >
                                 <TrashIcon className="h-5 w-5" />
                             </button>
@@ -214,7 +216,7 @@ const PersonDetails: React.FC = () => {
             {/* Assigned Tasks */}
             <div>
                 <h2 className="text-lg font-light text-gray-700 dark:text-gray-300 mb-3">
-                    Assigned Tasks
+                    {t('people.assignedTasksTitle', 'Assigned Tasks')}
                     {assignedTasks.length > 0 && (
                         <span className="ml-2 text-sm font-normal text-gray-400">
                             ({assignedTasks.length})
@@ -224,7 +226,7 @@ const PersonDetails: React.FC = () => {
 
                 {assignedTasks.length === 0 ? (
                     <p className="text-sm text-gray-400 dark:text-gray-500">
-                        No tasks assigned to {person.name}.
+                        {t('people.noAssignedTasks', 'No tasks assigned to {{name}}.', { name: person.name })}
                     </p>
                 ) : (
                     <ul className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -256,8 +258,8 @@ const PersonDetails: React.FC = () => {
 
             {isConfirmDialogOpen && (
                 <ConfirmDialog
-                    title="Delete Person"
-                    message={`Are you sure you want to delete "${person.name}"? This cannot be undone.`}
+                    title={t('people.deleteConfirmTitle', 'Delete Person')}
+                    message={t('people.deleteConfirmMessage', 'Are you sure you want to delete "{{name}}"? This cannot be undone.', { name: person.name })}
                     onConfirm={handleDelete}
                     onCancel={() => setIsConfirmDialogOpen(false)}
                 />

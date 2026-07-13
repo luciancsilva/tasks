@@ -1,6 +1,7 @@
 import React from 'react';
 import { Location } from 'react-router-dom';
 import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarPeopleProps {
     handleNavClick: (path: string, title: string, icon: JSX.Element) => void;
@@ -8,6 +9,7 @@ interface SidebarPeopleProps {
 }
 
 const SidebarPeople: React.FC<SidebarPeopleProps> = ({ handleNavClick, location }) => {
+    const { t } = useTranslation();
     const isActive = () =>
         location.pathname.startsWith('/people') || location.pathname.startsWith('/person/')
             ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
@@ -20,13 +22,13 @@ const SidebarPeople: React.FC<SidebarPeopleProps> = ({ handleNavClick, location 
                 onClick={() =>
                     handleNavClick(
                         '/people',
-                        'People',
+                        t('people.title', 'People'),
                         <UserGroupIcon className="h-5 w-5 mr-2" />
                     )
                 }
             >
                 <UserGroupIcon className="h-5 w-5 mr-2" />
-                People
+                {t('sidebar.people', 'PEOPLE')}
             </li>
         </ul>
     );

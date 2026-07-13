@@ -57,7 +57,7 @@ const HabitModal: React.FC<HabitModalProps> = ({
 
     const handleDelete = async () => {
         if (!habit?.uid) return;
-        if (!confirm('Are you sure you want to delete this habit?')) return;
+        if (!confirm(t('habits.confirmDelete', 'Are you sure you want to delete this habit? All completion history will be permanently deleted.'))) return;
 
         try {
             await deleteHabit(habit.uid);

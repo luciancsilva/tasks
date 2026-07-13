@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Person } from '../../entities/Person';
+import { useTranslation } from 'react-i18next';
 
 interface PersonDropdownProps {
     personUid: string | null;
@@ -9,6 +10,13 @@ interface PersonDropdownProps {
     onChange: (personUid: string | null) => void;
     placeholder?: string;
 }
+
+const RELATIONSHIP_KEYS: Record<string, string> = {
+    family: 'people.relationships.family',
+    work: 'people.relationships.work',
+    friend: 'people.relationships.friend',
+    other: 'people.relationships.other',
+};
 
 const PersonAvatar: React.FC<{ person: Person | null; size?: 'sm' | 'md' }> = ({
     person,
@@ -31,8 +39,10 @@ const PersonDropdown: React.FC<PersonDropdownProps> = ({
     personUid,
     people,
     onChange,
-    placeholder = 'Unassigned',
+    placeholder,
 }) => {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder && placeholder !== 'Unassigned' ? placeholder : t('people.unassigned', 'Unassigned');
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,7 +98,7 @@ const PersonDropdown: React.FC<PersonDropdownProps> = ({
                 <span className="flex items-center space-x-2">
                     <PersonAvatar person={selectedPerson} />
                     <span className={selectedPerson ? '' : 'text-gray-400 dark:text-gray-500'}>
-                        {selectedPerson ? selectedPerson.name : placeholder}
+                        {selectedPerson ? selectedPerson.name : resolvedPlaceholder}
                     </span>
                 </span>
                 <div className="flex items-center gap-1">
@@ -107,7 +117,7 @@ const PersonDropdown: React.FC<PersonDropdownProps> = ({
                                 }
                             }}
                             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
-                            aria-label="Clear assignment"
+                            aria-label={t('people.clearAssignment', 'Clear assignment')}
                         >
                             <XMarkIcon className="w-4 h-4" />
                         </span>
@@ -132,7 +142,7 @@ const PersonDropdown: React.FC<PersonDropdownProps> = ({
                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600 w-full first:rounded-t-md"
                         >
                             <span className="inline-block w-3 h-3 rounded-full flex-shrink-0 border border-gray-300 dark:border-gray-600" />
-                            {placeholder}
+                            {resolvedPlaceholder}
                         </button>
                         {activePeople.map((p) => (
                             <button
@@ -148,14 +158,14 @@ const PersonDropdown: React.FC<PersonDropdownProps> = ({
                                 <span>{p.name}</span>
                                 {p.relationship_type && p.relationship_type !== 'other' && (
                                     <span className="ml-1 text-xs text-gray-400 dark:text-gray-500">
-                                        {p.relationship_type}
+                                        {t(RELATIONSHIP_KEYS[p.relationship_type] ?? p.relationship_type, p.relationship_type)}
                                     </span>
                                 )}
                             </button>
                         ))}
                         {activePeople.length === 0 && (
                             <div className="px-4 py-2 text-sm text-gray-400 dark:text-gray-500">
-                                No people yet
+                                {t('people.noPeopleYet', 'No people yet')}
                             </div>
                         )}
                     </div>,

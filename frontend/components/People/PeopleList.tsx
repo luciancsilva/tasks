@@ -10,15 +10,17 @@ import PersonModal from './PersonModal';
 import { Person } from '../../entities/Person';
 import { fetchPeople, createPerson, updatePerson, deletePerson } from '../../utils/peopleService';
 import { useToast } from '../Shared/ToastContext';
+import { useTranslation } from 'react-i18next';
 
 const RELATIONSHIP_LABELS: Record<string, string> = {
-    family: 'Family',
-    work: 'Work',
-    friend: 'Friend',
-    other: 'Other',
+    family: 'people.relationships.family',
+    work: 'people.relationships.work',
+    friend: 'people.relationships.friend',
+    other: 'people.relationships.other',
 };
 
 const PeopleList: React.FC = () => {
+    const { t } = useTranslation();
     const { showSuccessToast, showErrorToast } = useToast();
     const [people, setPeople] = useState<Person[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +38,7 @@ const PeopleList: React.FC = () => {
             const all = await fetchPeople({ archived: false } as any);
             setPeople(all);
         } catch {
-            showErrorToast('Failed to load people');
+            showErrorToast(t('people.loadError', 'Failed to load people'));
         } finally {
             setIsLoading(false);
         }
@@ -76,11 +78,11 @@ const PeopleList: React.FC = () => {
         if (editingPerson?.uid) {
             const result = await updatePerson(editingPerson.uid, data);
             setPeople((prev) => prev.map((p) => (p.uid === editingPerson.uid ? result.person : p)));
-            showSuccessToast('Person updated');
+            showSuccessToast(t('people.personUpdated', 'Person updated'));
         } else {
             const result = await createPerson(data as any);
             setPeople((prev) => [...prev, result.person].sort((a, b) => a.name.localeCompare(b.name)));
-            showSuccessToast('Person created');
+            showSuccessToast(t('people.personCreated', 'Person created'));
         }
     };
 
@@ -88,9 +90,9 @@ const PeopleList: React.FC = () => {
         try {
             const result = await updatePerson(person.uid!, { archived: !person.archived });
             setPeople((prev) => prev.map((p) => (p.uid === person.uid ? result.person : p)));
-            showSuccessToast(person.archived ? 'Person unarchived' : 'Person archived');
+            showSuccessToast(person.archived ? t('people.personUnarchived', 'Person unarchived') : t('people.personArchived', 'Person archived'));
         } catch (err: unknown) {
-            showErrorToast(err instanceof Error ? err.message : 'Failed to archive person');
+            showErrorToast(err instanceof Error ? err.message : t('people.archiveError', 'Failed to archive person'));
         }
     };
 
@@ -99,9 +101,9 @@ const PeopleList: React.FC = () => {
         try {
             await deletePerson(personToDelete.uid!);
             setPeople((prev) => prev.filter((p) => p.uid !== personToDelete.uid));
-            showSuccessToast('Person deleted');
+            showSuccessToast(t('people.personDeleted', 'Person deleted'));
         } catch (err: unknown) {
-            showErrorToast(err instanceof Error ? err.message : 'Failed to delete person');
+            showErrorToast(err instanceof Error ? err.message : t('people.deleteError', 'Failed to delete person'));
         } finally {
             setIsConfirmDialogOpen(false);
             setPersonToDelete(null);
@@ -145,28 +147,28 @@ const PeopleList: React.FC = () => {
             <div className="w-full">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-light">People</h2>
+                    <h2 className="text-2xl font-light">{t('people.title', 'People')}</h2>
                     <button
                         onClick={openCreate}
                         className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
                     >
                         <PlusIcon className="w-4 h-4" />
-                        New Person
+                        {t('people.newPerson', 'New Person')}
                     </button>
                 </div>
 
                 {isLoading ? (
-                    <div className="text-center py-12 text-gray-400 dark:text-gray-500">Loading...</div>
+                    <div className="text-center py-12 text-gray-400 dark:text-gray-500">{t('common.loading', 'Loading...')}</div>
                 ) : displayPeople.length === 0 ? (
                     <div className="text-center py-16">
                         <p className="text-gray-500 dark:text-gray-400 text-sm">
-                            No people yet. Add family, colleagues, or friends.
+                            {t('people.empty', 'No people yet. Add family, colleagues, or friends.')}
                         </p>
                         <button
                             onClick={openCreate}
                             className="mt-4 text-blue-600 dark:text-blue-400 text-sm hover:underline"
                         >
-                            Add your first person
+                            {t('people.addFirst', 'Add your first person')}
                         </button>
                     </div>
                 ) : (
@@ -217,7 +219,7 @@ const PeopleList: React.FC = () => {
                                                             }}
                                                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left rounded-t-md"
                                                         >
-                                                            Edit
+                                                            {t('common.edit', 'Edit')}
                                                         </button>
                                                         <button
                                                             onClick={(e) => {
@@ -228,7 +230,7 @@ const PeopleList: React.FC = () => {
                                                             }}
                                                             className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left"
                                                         >
-                                                            {person.archived ? 'Unarchive' : 'Archive'}
+                                                            {person.archived ? t('people.unarchive', 'Unarchive') : t('people.archive', 'Archive')}
                                                         </button>
                                                         <button
                                                             onClick={(e) => {
@@ -239,7 +241,7 @@ const PeopleList: React.FC = () => {
                                                             }}
                                                             className="block px-4 py-2 text-sm text-red-500 dark:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left rounded-b-md"
                                                         >
-                                                            Delete
+                                                            {t('common.delete', 'Delete')}
                                                         </button>
                                                     </div>
                                                 )}
@@ -257,7 +259,7 @@ const PeopleList: React.FC = () => {
                                                         <span className={`mt-1 inline-block text-[10px] uppercase tracking-wide ${
                                                             person.color ? 'text-white/60' : 'text-gray-400 dark:text-gray-500'
                                                         }`}>
-                                                            archived
+                                                            {t('people.archived', 'archived')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -273,7 +275,7 @@ const PeopleList: React.FC = () => {
                                                     <span className={`text-[10px] leading-none uppercase tracking-wide ${
                                                         person.color ? 'text-white/55' : 'text-gray-400 dark:text-gray-500'
                                                     }`}>
-                                                        {RELATIONSHIP_LABELS[person.relationship_type ?? 'other']}
+                                                        {t(RELATIONSHIP_LABELS[person.relationship_type ?? 'other'], person.relationship_type ?? 'other')}
                                                     </span>
                                                 </div>
                                                 {person.email && (
@@ -305,8 +307,8 @@ const PeopleList: React.FC = () => {
 
                 {isConfirmDialogOpen && personToDelete && (
                     <ConfirmDialog
-                        title="Delete Person"
-                        message={`Are you sure you want to delete "${personToDelete.name}"? This cannot be undone.`}
+                        title={t('people.deleteConfirmTitle', 'Delete Person')}
+                        message={t('people.deleteConfirmMessage', 'Are you sure you want to delete "{{name}}"? This cannot be undone.', { name: personToDelete.name })}
                         onConfirm={handleDelete}
                         onCancel={() => {
                             setIsConfirmDialogOpen(false);

@@ -69,9 +69,18 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onComplete, onEdit }) => {
         );
     })();
 
+    const periodLabel =
+        habit.habit_frequency_period === 'daily'
+            ? t('habits.day', 'day')
+            : habit.habit_frequency_period === 'weekly'
+              ? t('habits.week', 'week')
+              : habit.habit_frequency_period === 'monthly'
+                ? t('habits.month', 'month')
+                : habit.habit_frequency_period;
+
     const frequencyLabel =
         habit.habit_target_count && habit.habit_frequency_period
-            ? `${habit.habit_target_count}× per ${habit.habit_frequency_period}`
+            ? `${habit.habit_target_count}× ${t('habits.timesPer', 'per')} ${periodLabel?.toLowerCase()}`
             : null;
 
     const stats = [

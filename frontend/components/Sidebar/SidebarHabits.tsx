@@ -32,7 +32,7 @@ const SidebarHabits: React.FC<SidebarHabitsProps> = ({
                     onClick={() =>
                         handleNavClick(
                             '/habits',
-                            'Habits',
+                            t('habits.title', 'Habits'),
                             <FireIcon className="h-5 w-5 mr-2" />
                         )
                     }
