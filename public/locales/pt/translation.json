@@ -66,8 +66,8 @@
         "kanban": "Quadro Kanban",
         "addHabitAriaLabel": "Adicionar hábito",
         "addHabitTitle": "Adicionar hábito",
-        "people": "PESSOAS",
-        "habits": "HÁBITOS",
+        "people": "Pessoas",
+        "habits": "Hábitos",
         "toggleDarkMode": "Alternar modo escuro"
     },
     "navigation": {
@@ -95,7 +95,8 @@
         "showNextTaskSuggestion": "Sugestão da próxima tarefa",
         "showSuggestions": "Mostrar sugeridos",
         "showDueToday": "Mostrar tarefas vencendo hoje",
-        "showCompleted": "Mostrar tarefas concluídas"
+        "showCompleted": "Mostrar tarefas concluídas",
+        "showAiAssistant": "Mostrar resumo diário de IA"
     },
     "dashboard": {
         "overview": "Visão geral",
@@ -560,7 +561,52 @@
             "updateError": "Falha ao atualizar calendário"
         },
         "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-        "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+        "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+        "habitsDescription": "Ative a seção de Hábitos para acompanhar comportamentos recorrentes e sequências.",
+        "eisenhowerDescription": "Ative a página da Matriz de Eisenhower para priorizar tarefas por urgência e importância.",
+        "calendarDescription": "Ative a visão de Calendário para visualizar tarefas por data de vencimento em dia, semana e mês.",
+        "aiAssistantLabel": "Assistente de IA (Resumo Diário e Insights)",
+        "aiAssistantDescription": "Ative o resumo diário com IA na página Hoje e os insights de tarefas/projetos. Requer OPENAI_API_KEY configurada no servidor.",
+        "apiKeys": {
+            "title": "Chaves de API",
+            "description": "Gere tokens de acesso pessoal para integrações ou uso via CLI. Você pode revogar ou excluir chaves a qualquer momento.",
+            "nameLabel": "Nome da chave",
+            "namePlaceholder": "ex.: Notebook pessoal",
+            "expirationLabel": "Expira em (opcional)",
+            "generateButton": "Gerar chave",
+            "copyNotice": "Copie este token agora. Ele não será exibido novamente.",
+            "copyButton": "Copiar chave",
+            "loading": "Carregando chaves de API...",
+            "empty": "Nenhuma chave de API ainda. Gere uma para começar.",
+            "table": {
+                "name": "Nome",
+                "prefix": "Prefixo",
+                "status": "Situação",
+                "lastUsed": "Último uso",
+                "expires": "Expira",
+                "actions": "Ações"
+            },
+            "createdAt": "Criada em {{date}}",
+            "noExpiry": "Nenhuma",
+            "revokedLabel": "Revogada",
+            "revokeButton": "Revogar",
+            "deleteAria": "Excluir chave de API",
+            "nameRequired": "O nome da chave de API é obrigatório.",
+            "invalidExpiration": "A data de expiração é inválida.",
+            "created": "Chave de API criada com sucesso.",
+            "revokedMessage": "Chave de API revogada.",
+            "deleted": "Chave de API excluída.",
+            "copied": "Chave de API copiada para a área de transferência.",
+            "copyFailed": "Não foi possível copiar a chave de API.",
+            "status": {
+                "revoked": "Revogada",
+                "expired": "Expirada",
+                "active": "Ativa"
+            },
+            "never": "Nunca",
+            "deleteTitle": "Excluir chave de API",
+            "deleteConfirm": "Excluir esta chave de API? Esta ação não pode ser desfeita."
+        }
     },
     "productivity": {
         "stalledProjects": "Projetos parados",
@@ -771,7 +817,8 @@
         "editBanner": "Editar banner do projeto",
         "currentBanner": "Banner atual",
         "choosePreset": "Escolha um banner predefinido:",
-        "orUploadOwn": "Ou carregue o seu próprio:"
+        "orUploadOwn": "Ou carregue o seu próprio:",
+        "showCompleted": "Mostrar concluídas"
     },
     "errors": {
         "required": "Este campo é obrigatório",
@@ -929,7 +976,10 @@
         },
         "nameHelper": {
             "title": "Torne-o mais descritivo!",
-            "suggestion": "Tente adicionar mais detalhes como \"Ligar para o dentista para agendar a limpeza\" em vez de apenas \"Ligar para o dentista\""
+            "suggestion": "Tente adicionar mais detalhes como \"Ligar para o dentista para agendar a limpeza\" em vez de apenas \"Ligar para o dentista\"",
+            "short": "Torne mais descritivo!",
+            "noVerb": "Adicione um verbo de ação!",
+            "vague": "Seja mais específico!"
         },
         "overdueAlert": "Esta tarefa estava no seu plano ontem e não foi concluída.",
         "overdueYesterday": "Considere priorizar esta tarefa ou dividi-la em etapas menores.",
@@ -1740,6 +1790,19 @@
         "statDone": "Concluído",
         "statActive": "Ativo",
         "statOverdue": "Atrasado",
-        "pastBriefWarning": "Este resumo é de {{date}} e pode não refletir mais as tarefas de hoje. Clique em regenerar para um resumo atualizado."
+        "pastBriefWarning": "Este resumo é de {{date}} e pode não refletir mais as tarefas de hoje. Clique em regenerar para um resumo atualizado.",
+        "show": "Mostrar",
+        "goalAlignment": "Alinhamento de metas",
+        "keyInsights": "Principais insights",
+        "taskInsightsEmpty": "Clique em \"Gerar\" para obter sugestões de IA sobre esta tarefa."
+    },
+    "weekdaysShort": {
+        "monday": "Seg",
+        "tuesday": "Ter",
+        "wednesday": "Qua",
+        "thursday": "Qui",
+        "friday": "Sex",
+        "saturday": "Sáb",
+        "sunday": "Dom"
     }
 }
