@@ -4,15 +4,16 @@ const { User } = require('../../models');
 const { logError } = require('../../services/logService');
 const telegramPoller = require('./telegramPoller');
 const { getBotInfo } = require('./telegramApi');
+const { getWelcomeMessage } = require('./telegramMessages');
 const {
     NotFoundError,
     ValidationError,
     UnauthorizedError,
 } = require('../../shared/errors');
 
-async function sendWelcomeMessage(token, chatId) {
+async function sendWelcomeMessage(token, chatId, language = 'en') {
     return new Promise((resolve) => {
-        const welcomeText = `🎉 Welcome to tududi!\n\nYour personal task management bot is now connected and ready to help!\n\n📝 Simply send me any message and I'll add it to your tududi inbox as an item.\n\n✨ Commands:\n• /help - Show help information\n• Just type any text - Add it as an inbox item\n\nLet's get organized! 🚀`;
+        const welcomeText = getWelcomeMessage(language, false);
 
         const postData = JSON.stringify({
             chat_id: chatId,
@@ -161,7 +162,8 @@ class TelegramService {
         // Send welcome message
         const success = await sendWelcomeMessage(
             user.telegram_bot_token,
-            chatId
+            chatId,
+            user.language
         );
 
         if (success) {

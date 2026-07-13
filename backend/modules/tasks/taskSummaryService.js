@@ -1,6 +1,7 @@
 const { User, Task, Project, Tag } = require('../../models');
 const { Op } = require('sequelize');
 const TelegramPoller = require('../telegram/telegramPoller');
+const { isPtLanguage } = require('../telegram/telegramMessages');
 
 // escape markdown special characters
 const escapeMarkdown = (text) => {
@@ -57,10 +58,12 @@ const buildTaskSection = (tasks, title, includeStatus = false) => {
 };
 
 // build summary message
-const buildSummaryMessage = (taskSections) => {
-    let message = "📋 *Today's Task Summary*\n\n";
+const buildSummaryMessage = (taskSections, isPt = false) => {
+    let message = isPt
+        ? '📋 *Resumo de Tarefas de Hoje*\n\n'
+        : "📋 *Today's Task Summary*\n\n";
     message += '━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-    message += "✏️ *Today's Plan*\n\n";
+    message += isPt ? '✏️ *Plano de Hoje*\n\n' : "✏️ *Today's Plan*\n\n";
 
     message += taskSections.dueToday;
     message += taskSections.inProgress;
@@ -68,7 +71,9 @@ const buildSummaryMessage = (taskSections) => {
     message += taskSections.completed;
 
     message += '━━━━━━━━━━━━━━━━━━━━━━━━\n';
-    message += '🎯 *Stay focused and make it happen\\!*';
+    message += isPt
+        ? '🎯 *Mantenha o foco e faça acontecer\\!*'
+        : '🎯 *Stay focused and make it happen\\!*';
 
     return message;
 };
@@ -261,22 +266,30 @@ const generateSummaryForUser = async (userId) => {
         ];
         const suggestedTasks = await fetchSuggestedTasks(userId, excludedIds);
 
+        const isPt = isPtLanguage(user.language);
+
         // Build task sections
         const taskSections = {
-            dueToday: buildTaskSection(dueToday, '🚀 *Tasks Due Today:*'),
-            inProgress: buildTaskSection(inProgress, '⚙️ *In Progress Tasks:*'),
+            dueToday: buildTaskSection(
+                dueToday,
+                isPt ? '🚀 *Tarefas para Hoje:*' : '🚀 *Tasks Due Today:*'
+            ),
+            inProgress: buildTaskSection(
+                inProgress,
+                isPt ? '⚙️ *Tarefas em Andamento:*' : '⚙️ *In Progress Tasks:*'
+            ),
             suggested: buildTaskSection(
                 suggestedTasks,
-                '💡 *Suggested Tasks:*'
+                isPt ? '💡 *Tarefas Sugeridas:*' : '💡 *Suggested Tasks:*'
             ),
             completed: buildTaskSection(
                 completedToday,
-                '✅ *Completed Today:*',
+                isPt ? '✅ *Concluídas Hoje:*' : '✅ *Completed Today:*',
                 true
             ),
         };
 
-        return buildSummaryMessage(taskSections);
+        return buildSummaryMessage(taskSections, isPt);
     } catch (error) {
         console.error('Error generating task summary:', error);
         return null;

@@ -1,4 +1,5 @@
 const { sendTelegramMessage } = require('./telegramPoller');
+const { isPtLanguage } = require('./telegramMessages');
 
 /**
  * Check if user has Telegram properly configured
@@ -18,8 +19,9 @@ function isTelegramConfigured(user) {
 function formatNotificationMessage(user, notification) {
     const { title, message } = notification;
 
-    // Get user's name (use name field, fallback to 'there')
-    const userName = user.name || 'there';
+    // Get user's name (use name field, fallback to 'Olá' or 'there')
+    const isPt = isPtLanguage(user?.language);
+    const userName = (user && user.name) || (isPt ? 'Olá' : 'there');
 
     // Build the message with user name
     let formattedMessage = `${userName}, ${message || title}`;

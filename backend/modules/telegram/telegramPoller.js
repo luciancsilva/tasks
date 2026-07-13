@@ -1,5 +1,12 @@
 const https = require('https');
 const { User, InboxItem } = require('../../models');
+const {
+    getWelcomeMessage,
+    getHelpMessage,
+    getUnknownCommandMessage,
+    getAddedToInboxMessage,
+    getFailedToAddMessage,
+} = require('./telegramMessages');
 
 // Create poller state
 const createPollerState = () => ({
@@ -326,13 +333,14 @@ const isAuthorizedTelegramUser = (user, message) => {
 // Function to handle bot commands
 const handleBotCommand = async (command, user, chatId, messageId) => {
     const botToken = user.telegram_bot_token;
+    const lang = user.language;
 
     switch (command.toLowerCase()) {
         case '/start':
             await sendTelegramMessage(
                 botToken,
                 chatId,
-                `🎉 Welcome to tududi!\n\nYour personal task management bot is now connected and ready to help!\n\n📝 Simply send me any message and I'll add it to your tududi inbox as an item.\n\n✨ Commands:\n• /help - Show help information\n• /start - Show welcome message\n• Just type any text - Add it as an inbox item\n\nLet's get organized! 🚀`,
+                getWelcomeMessage(lang, true),
                 messageId
             );
             break;
@@ -340,7 +348,7 @@ const handleBotCommand = async (command, user, chatId, messageId) => {
             await sendTelegramMessage(
                 botToken,
                 chatId,
-                `📋 tududi Bot Help\n\nSend me any text message and I'll add it to your tududi inbox as an inbox item.\n\nCommands:\n/start - Welcome message\n/help - Show this help message\n\nJust type your item and I'll take care of the rest!`,
+                getHelpMessage(lang),
                 messageId
             );
             break;
@@ -348,7 +356,7 @@ const handleBotCommand = async (command, user, chatId, messageId) => {
             await sendTelegramMessage(
                 botToken,
                 chatId,
-                `❓ Unknown command: ${command}\n\nUse /help to see available commands or just send a regular message to add it to your inbox.`,
+                getUnknownCommandMessage(command, lang),
                 messageId
             );
             break;
@@ -402,7 +410,7 @@ const processMessage = async (user, update) => {
         await sendTelegramMessage(
             user.telegram_bot_token,
             chatId,
-            `🎉 Welcome to tududi!\n\nYour personal task management bot is now connected and ready to help!\n\n📝 Simply send me any message and I'll add it to your tududi inbox as an inbox item.\n\n✨ Commands:\n• /help - Show help information\n• /start - Show welcome message\n• Just type any text - Add it as an inbox item\n\nLet's get organized! 🚀`
+            getWelcomeMessage(user.language, true)
         );
 
         console.log(
@@ -432,7 +440,7 @@ const processMessage = async (user, update) => {
         await sendTelegramMessage(
             user.telegram_bot_token,
             chatId,
-            `✅ Added to tududi inbox: "${text}"`,
+            getAddedToInboxMessage(text, user.language),
             messageId
         );
 
@@ -444,7 +452,7 @@ const processMessage = async (user, update) => {
         await sendTelegramMessage(
             user.telegram_bot_token,
             chatId,
-            `❌ Failed to add to inbox: ${error.message}`,
+            getFailedToAddMessage(error.message, user.language),
             messageId
         );
     }
