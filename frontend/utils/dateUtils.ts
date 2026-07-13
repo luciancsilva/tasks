@@ -1,8 +1,6 @@
 import { format, Locale } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { enUS } from 'date-fns/locale/en-US';
-import { es } from 'date-fns/locale/es';
-import { el } from 'date-fns/locale/el';
+import { el, enUS, es, ja, uk, de, ptBR } from 'date-fns/locale';
 import i18n from '../i18n';
 import {
     isTaskInProgress,
@@ -87,8 +85,30 @@ export const convertToUserTimezone = (date: Date | number): Date => {
  */
 const localeMap: Record<string, Locale> = {
     en: enUS,
+    'en-US': enUS,
     es: es,
     el: el,
+    pt: ptBR,
+    'pt-BR': ptBR,
+    pt_BR: ptBR,
+    'pt-PT': ptBR,
+    jp: ja,
+    ja: ja,
+    ua: uk,
+    uk: uk,
+    de: de,
+};
+
+/**
+ * Returns the date-fns locale object based on a language string
+ */
+export const getLocale = (language?: string): Locale => {
+    if (!language) return enUS;
+    if (localeMap[language]) {
+        return localeMap[language];
+    }
+    const baseLang = language.split('-')[0].split('_')[0];
+    return localeMap[baseLang] || enUS;
 };
 
 /**
@@ -96,8 +116,7 @@ const localeMap: Record<string, Locale> = {
  * Falls back to English if the current language is not supported
  */
 export const getCurrentLocale = (): Locale => {
-    const language = i18n.language || 'en';
-    return localeMap[language] || enUS;
+    return getLocale(i18n.language || 'en');
 };
 
 /**

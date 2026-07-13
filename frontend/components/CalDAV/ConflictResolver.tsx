@@ -14,6 +14,7 @@ import {
     type ConflictDetail,
 } from '../../utils/caldavService';
 import { format } from 'date-fns';
+import { getCurrentLocale } from '../../utils/dateUtils';
 
 interface ConflictResolverProps {
     isOpen: boolean;
@@ -197,7 +198,9 @@ const ConflictResolver: React.FC<ConflictResolverProps> = ({
 
         if (field === 'due_date_at' || field === 'completed_at') {
             try {
-                return format(new Date(value), 'PPP');
+                return format(new Date(value), 'PPP', {
+                    locale: getCurrentLocale(),
+                });
             } catch {
                 return String(value);
             }
@@ -324,7 +327,8 @@ const ConflictResolver: React.FC<ConflictResolverProps> = ({
                                         new Date(
                                             currentConflict.conflict_detected_at
                                         ),
-                                        'PPpp'
+                                        'PPpp',
+                                        { locale: getCurrentLocale() }
                                     ),
                                 }
                             )}
@@ -494,10 +498,7 @@ const ConflictResolver: React.FC<ConflictResolverProps> = ({
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                             }`}
                         >
-                            {t(
-                                'profile.conflictResolver.nextConflict',
-                                'Next'
-                            )}
+                            {t('profile.conflictResolver.nextConflict', 'Next')}
                             <ChevronRightIcon className="w-5 h-5 ml-1" />
                         </button>
                     </div>
