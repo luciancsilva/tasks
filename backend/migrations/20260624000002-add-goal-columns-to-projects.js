@@ -10,7 +10,10 @@ module.exports = {
                 definition: {
                     type: Sequelize.INTEGER,
                     allowNull: true,
-                    references: { model: 'goals', key: 'id' },
+                    references: {
+                        model: 'goals',
+                        key: 'id',
+                    },
                     onUpdate: 'CASCADE',
                     onDelete: 'SET NULL',
                 },
