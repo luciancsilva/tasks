@@ -88,17 +88,17 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${TUDUDI_PORT:-3002}:3002"
+      - "3002:3002"
 
     environment:
-      TUDUDI_USER_EMAIL: ${TUDUDI_USER_EMAIL}
-      TUDUDI_USER_PASSWORD: ${TUDUDI_USER_PASSWORD}
-      TUDUDI_SESSION_SECRET: ${TUDUDI_SESSION_SECRET}
-      TUDUDI_ALLOWED_ORIGINS: ${TUDUDI_ALLOWED_ORIGINS}
-      TUDUDI_TRUST_PROXY: ${TUDUDI_TRUST_PROXY}
-      TZ: ${TZ:-America/Sao_Paulo}
+      TUDUDI_USER_EMAIL: admin@exemplo.com.br
+      TUDUDI_USER_PASSWORD: senha-segura-aqui
+      TUDUDI_SESSION_SECRET: changeme-please-use-openssl
+      TUDUDI_ALLOWED_ORIGINS: http://localhost:3002
+      TUDUDI_TRUST_PROXY: "true"
+      TZ: America/Sao_Paulo
 
-#    user: "${PUID}:${PGID}"
+#    user: "1001:1001"
 
     volumes:
       - tududi_db:/app/db
@@ -109,7 +109,7 @@ volumes:
   tududi_uploads:
 ```
 
-Acesse **http://localhost:${TUDUDI_PORT:-3002}** para utilizar o sistema.
+Acesse **http://localhost:3002** para utilizar o sistema.
 
 ### Desenvolvimento Local (Modo Código Fonte)
 ```bash
