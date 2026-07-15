@@ -1,4 +1,5 @@
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 let csrfToken: string | null = null;
 let tokenPromise: Promise<string> | null = null;
@@ -17,7 +18,12 @@ export const getCsrfToken = async (): Promise<string> => {
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error('Failed to fetch CSRF token');
+                throw new Error(
+                    i18n.t(
+                        'errors.fetchCsrfTokenError',
+                        'Failed to fetch CSRF token'
+                    )
+                );
             }
             return response.json();
         })

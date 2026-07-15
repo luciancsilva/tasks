@@ -3,6 +3,7 @@ import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { extractUidFromSlug } from './slugUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const fetchTags = async (): Promise<Tag[]> => {
     try {
@@ -13,7 +14,10 @@ export const fetchTags = async (): Promise<Tag[]> => {
                 'Cache-Control': 'no-cache',
             },
         });
-        await handleAuthResponse(response, 'Failed to fetch tags.');
+        await handleAuthResponse(
+            response,
+            i18n.t('tags.error', 'Failed to fetch tags.')
+        );
         return await response.json();
     } catch (error) {
         console.error('Tags fetch error:', error);
@@ -33,12 +37,17 @@ export const createTag = async (tagData: Tag): Promise<Tag> => {
     if (!response.ok) {
         // Handle authentication errors first
         if (response.status === 401) {
-            await handleAuthResponse(response, 'Failed to create tag.');
-            return Promise.reject(new Error('Authentication required'));
+            await handleAuthResponse(
+                response,
+                i18n.t('tags.createError', 'Failed to create tag.')
+            );
+            return Promise.reject(
+                new Error(i18n.t('auth.required', 'Authentication required'))
+            );
         }
 
         // Try to get the specific error message from the response
-        let errorMessage = 'Failed to create tag.';
+        let errorMessage = i18n.t('tags.createError', 'Failed to create tag.');
         try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorMessage;
@@ -62,11 +71,14 @@ export const updateTag = async (tagUid: string, tagData: Tag): Promise<Tag> => {
     if (!response.ok) {
         // Handle authentication errors first
         if (response.status === 401) {
-            await handleAuthResponse(response, 'Failed to update tag.');
+            await handleAuthResponse(
+                response,
+                i18n.t('tags.updateError', 'Failed to update tag.')
+            );
         }
 
         // Try to get the specific error message from the response
-        let errorMessage = 'Failed to update tag.';
+        let errorMessage = i18n.t('tags.updateError', 'Failed to update tag.');
         try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorMessage;
@@ -89,7 +101,10 @@ export const deleteTag = async (tagUid: string): Promise<void> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to delete tag.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToDeleteTag', 'Failed to delete tag.')
+    );
 };
 
 export const fetchTagBySlug = async (uidSlug: string): Promise<Tag> => {
@@ -106,6 +121,9 @@ export const fetchTagBySlug = async (uidSlug: string): Promise<Tag> => {
         }
     );
 
-    await handleAuthResponse(response, 'Failed to fetch tag.');
+    await handleAuthResponse(
+        response,
+        i18n.t('tags.error', 'Failed to fetch tag.')
+    );
     return await response.json();
 };

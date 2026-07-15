@@ -688,7 +688,7 @@ const ViewDetail: React.FC = () => {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-xl font-semibold text-gray-700 dark:text-gray-200">
-                    Loading view...
+                    {t('viewDetail.loading', 'Loading view...')}
                 </div>
             </div>
         );
@@ -1249,8 +1249,16 @@ const ViewDetail: React.FC = () => {
                                                 () => {} // Edit functionality not implemented yet
                                             }
                                             className={`text-gray-500 hover:text-blue-700 dark:hover:text-blue-300 focus:outline-none transition-opacity ${hoveredNoteId === note.uid ? 'opacity-100' : 'opacity-0'}`}
-                                            aria-label={`Edit ${note.title}`}
-                                            title={`Edit ${note.title}`}
+                                            aria-label={t(
+                                                'notes.editNoteAria',
+                                                'Edit {{noteTitle}}',
+                                                { noteTitle: note.title }
+                                            )}
+                                            title={t(
+                                                'notes.editNoteTitle',
+                                                'Edit {{noteTitle}}',
+                                                { noteTitle: note.title }
+                                            )}
                                         >
                                             <PencilSquareIcon className="h-5 w-5" />
                                         </button>
@@ -1259,8 +1267,16 @@ const ViewDetail: React.FC = () => {
                                                 () => {} // Delete functionality not implemented yet
                                             }
                                             className={`text-gray-500 hover:text-red-700 dark:hover:text-red-300 focus:outline-none transition-opacity ${hoveredNoteId === note.uid ? 'opacity-100' : 'opacity-0'}`}
-                                            aria-label={`Delete ${note.title}`}
-                                            title={`Delete ${note.title}`}
+                                            aria-label={t(
+                                                'notes.deleteNoteAria',
+                                                'Delete {{noteTitle}}',
+                                                { noteTitle: note.title }
+                                            )}
+                                            title={t(
+                                                'notes.deleteNoteTitle',
+                                                'Delete {{noteTitle}}',
+                                                { noteTitle: note.title }
+                                            )}
                                         >
                                             <TrashIcon className="h-5 w-5" />
                                         </button>

@@ -245,7 +245,7 @@ const Views: React.FC = () => {
                                                 }}
                                                 className="block px-4 py-2 text-sm text-red-500 dark:text-red-300 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left rounded-b-md"
                                             >
-                                                {t('areas.delete', 'Delete')}
+                                                {t('common.delete', 'Delete')}
                                             </button>
                                         </div>
                                     )}

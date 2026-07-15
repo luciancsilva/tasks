@@ -5,6 +5,7 @@ import {
     getPostHeadersWithCsrf,
 } from './authUtils';
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 export const fetchNotes = async (): Promise<Note[]> => {
     const response = await fetch(getApiPath('notes'), {
@@ -15,7 +16,10 @@ export const fetchNotes = async (): Promise<Note[]> => {
         },
         cache: 'no-store',
     });
-    await handleAuthResponse(response, 'Failed to fetch notes.');
+    await handleAuthResponse(
+        response,
+        i18n.t('notes.error', 'Failed to fetch notes.')
+    );
 
     return await response.json();
 };
@@ -42,7 +46,10 @@ export const createNote = async (noteData: Note): Promise<Note> => {
         body: JSON.stringify(requestData),
     });
 
-    await handleAuthResponse(response, 'Failed to create note.');
+    await handleAuthResponse(
+        response,
+        i18n.t('notes.createError', 'Failed to create note.')
+    );
     return await response.json();
 };
 
@@ -74,7 +81,10 @@ export const updateNote = async (
         body: JSON.stringify(requestData),
     });
 
-    await handleAuthResponse(response, 'Failed to update note.');
+    await handleAuthResponse(
+        response,
+        i18n.t('notes.updateError', 'Failed to update note.')
+    );
     return await response.json();
 };
 
@@ -85,7 +95,10 @@ export const deleteNote = async (noteUid: string): Promise<void> => {
         headers: await getPostHeadersWithCsrf(),
     });
 
-    await handleAuthResponse(response, 'Failed to delete note.');
+    await handleAuthResponse(
+        response,
+        i18n.t('notes.deleteError', 'Failed to delete note.')
+    );
 };
 
 export const fetchNoteBySlug = async (uidSlug: string): Promise<Note> => {
@@ -98,6 +111,9 @@ export const fetchNoteBySlug = async (uidSlug: string): Promise<Note> => {
         cache: 'no-store',
     });
 
-    await handleAuthResponse(response, 'Failed to fetch note.');
+    await handleAuthResponse(
+        response,
+        i18n.t('notes.loadError', 'Failed to fetch note.')
+    );
     return await response.json();
 };

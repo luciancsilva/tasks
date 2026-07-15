@@ -1,4 +1,5 @@
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 interface ServerConfig {
     fileUploadLimitMB: number;
@@ -17,7 +18,12 @@ export async function getServerConfig(): Promise<ServerConfig> {
     });
 
     if (!response.ok) {
-        throw new Error('Failed to fetch server configuration');
+        throw new Error(
+            i18n.t(
+                'errors.fetchConfigError',
+                'Failed to fetch server configuration'
+            )
+        );
     }
 
     cachedConfig = await response.json();

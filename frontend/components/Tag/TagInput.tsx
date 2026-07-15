@@ -243,7 +243,11 @@ const TagInput: React.FC<TagInputProps> = ({
                                 type="button"
                                 onClick={() => removeTag(index)}
                                 className="ml-1 text-gray-600 hover:text-gray-800 focus:outline-none"
-                                aria-label={`Remove tag ${tag}`}
+                                aria-label={t(
+                                    'tags.removeTag',
+                                    'Remove tag {{tag}}',
+                                    { tag }
+                                )}
                             >
                                 &times;
                             </button>
@@ -257,7 +261,10 @@ const TagInput: React.FC<TagInputProps> = ({
                     value={inputValue}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    placeholder={t('tags.typeToAdd')}
+                    placeholder={t(
+                        'tags.typeToAdd',
+                        'Type to add tags...'
+                    )}
                     className="flex-grow bg-transparent border-none outline-none text-sm text-gray-900 dark:text-gray-100"
                     onFocus={() => {
                         onFocus?.();
@@ -325,7 +332,10 @@ const TagInput: React.FC<TagInputProps> = ({
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                             role="option"
                         >
-                            + Create &quot;{inputValue.trim()}&quot;
+                            +{' '}
+                            {t('tags.createTagNamed', 'Create "{{name}}"', {
+                                name: inputValue.trim(),
+                            })}
                         </button>
                     )}
                 </div>

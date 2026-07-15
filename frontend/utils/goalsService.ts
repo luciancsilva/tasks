@@ -2,6 +2,7 @@ import { Goal } from '../entities/Goal';
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const fetchGoals = async (areaUid?: string): Promise<Goal[]> => {
     const url = areaUid ? `goals?area_uid=${areaUid}` : 'goals';
@@ -9,7 +10,10 @@ export const fetchGoals = async (areaUid?: string): Promise<Goal[]> => {
         credentials: 'include',
         headers: { Accept: 'application/json' },
     });
-    await handleAuthResponse(response, 'Failed to fetch goals.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.fetchGoalsError', 'Failed to fetch goals.')
+    );
     const data = await response.json();
     return data.goals;
 };
@@ -23,7 +27,10 @@ export const createGoal = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(data),
     });
-    await handleAuthResponse(response, 'Failed to create goal.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.createGoalError', 'Failed to create goal.')
+    );
     return response.json();
 };
 
@@ -37,7 +44,10 @@ export const updateGoal = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(data),
     });
-    await handleAuthResponse(response, 'Failed to update goal.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.updateGoalError', 'Failed to update goal.')
+    );
     return response.json();
 };
 
@@ -50,5 +60,8 @@ export const deleteGoal = async (uid: string): Promise<void> => {
             'x-csrf-token': await getCsrfToken(),
         },
     });
-    await handleAuthResponse(response, 'Failed to delete goal.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.deleteGoalError', 'Failed to delete goal.')
+    );
 };

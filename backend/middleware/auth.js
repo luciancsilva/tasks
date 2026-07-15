@@ -13,7 +13,7 @@ const getBearerToken = (req) => {
 
 // Sends a 401 and, when OIDC is enabled, sets WWW-Authenticate so OAuth2 clients
 // can discover the authorization server (RFC 9728).
-const unauthorized = (res, message) => {
+const unauthorized = (res, message, req = null) => {
     if ((process.env.OIDC_ENABLED || '').toLowerCase() === 'true') {
         const baseUrl = process.env.BASE_URL?.replace(/\/$/, ''); // trim trailing slash
         if (baseUrl) {
@@ -22,6 +22,18 @@ const unauthorized = (res, message) => {
                 `Bearer resource_metadata="${baseUrl}/.well-known/oauth-protected-resource"`
             );
         }
+    }
+    if (
+        req &&
+        req.headers &&
+        req.headers['content-type'] &&
+        req.headers['content-type'].includes('multipart/form-data')
+    ) {
+        req.on('end', () => {
+            res.status(401).json({ error: message });
+        });
+        req.resume();
+        return;
     }
     return res.status(401).json({ error: message });
 };
@@ -38,7 +50,7 @@ const requireAuth = async (req, res, next) => {
             const user = await User.findByPk(req.session.userId);
             if (!user) {
                 req.session.destroy();
-                return res.status(401).json({ error: 'User not found' });
+                return unauthorized(res, 'User not found', req);
             }
             req.currentUser = user;
             return next();
@@ -46,19 +58,19 @@ const requireAuth = async (req, res, next) => {
 
         const bearerToken = getBearerToken(req);
         if (!bearerToken) {
-            return unauthorized(res, 'Authentication required');
+            return unauthorized(res, 'Authentication required', req);
         }
 
         if (bearerToken.startsWith('tt_')) {
             // Tududi API key - validate via bcrypt
             const apiToken = await findValidTokenByValue(bearerToken);
             if (!apiToken) {
-                return unauthorized(res, 'Invalid or expired API token');
+                return unauthorized(res, 'Invalid or expired API token', req);
             }
 
             const user = await User.findByPk(apiToken.user_id);
             if (!user) {
-                return unauthorized(res, 'User not found');
+                return unauthorized(res, 'User not found', req);
             }
 
             req.currentUser = user;
@@ -87,7 +99,11 @@ const requireAuth = async (req, res, next) => {
                 payload = await validateAccessToken(bearerToken);
             } catch (err) {
                 console.error('JWT validation failed:', err);
-                return unauthorized(res, 'Invalid or expired access token');
+                return unauthorized(
+                    res,
+                    'Invalid or expired access token',
+                    req
+                );
             }
 
             const identity = await OIDCIdentity.findOne({
@@ -98,7 +114,8 @@ const requireAuth = async (req, res, next) => {
             if (!identity?.User) {
                 return unauthorized(
                     res,
-                    'No account found for this identity. Please log in via OIDC first.'
+                    'No account found for this identity. Please log in via OIDC first.',
+                    req
                 );
             }
 
@@ -106,7 +123,7 @@ const requireAuth = async (req, res, next) => {
             return next();
         }
 
-        return unauthorized(res, 'Invalid or expired API token');
+        return unauthorized(res, 'Invalid or expired API token', req);
     } catch (error) {
         console.error('Authentication error:', error);
         res.status(500).json({ error: 'Authentication error' });

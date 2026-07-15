@@ -148,7 +148,7 @@ const LifeBalance: React.FC<Props> = ({ projects }) => {
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-4 shadow-sm h-full">
             <div>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
-                    Area Balance
+                    {t('charts.areaBalance')}
                 </h3>
                 <div className="space-y-2">
                     {areas.map((area) => (

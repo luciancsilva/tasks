@@ -24,54 +24,59 @@ const filterTypes = [
     {
         value: 'Task',
         labelKey: 'search.entityTypes.task',
+        fallback: 'task',
         color: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     },
     {
         value: 'Project',
         labelKey: 'search.entityTypes.project',
+        fallback: 'project',
         color: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
     },
     {
         value: 'Area',
         labelKey: 'search.entityTypes.area',
+        fallback: 'area',
         color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     },
     {
         value: 'Note',
         labelKey: 'search.entityTypes.note',
+        fallback: 'note',
         color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     },
 ];
 
 const priorityOptions = [
-    { value: 'high', labelKey: 'priority.high' },
-    { value: 'medium', labelKey: 'priority.medium' },
-    { value: 'low', labelKey: 'priority.low' },
+    { value: 'high', labelKey: 'priority.high', fallback: 'High' },
+    { value: 'medium', labelKey: 'priority.medium', fallback: 'Medium' },
+    { value: 'low', labelKey: 'priority.low', fallback: 'Low' },
 ];
 
 const dueOptions = [
-    { value: 'today', labelKey: 'dateIndicators.today' },
-    { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow' },
-    { value: 'next_week', labelKey: 'dateIndicators.nextWeek' },
-    { value: 'next_month', labelKey: 'dateIndicators.nextMonth' },
+    { value: 'today', labelKey: 'dateIndicators.today', fallback: 'Today' },
+    { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow', fallback: 'Tomorrow' },
+    { value: 'next_week', labelKey: 'dateIndicators.nextWeek', fallback: 'Next Week' },
+    { value: 'next_month', labelKey: 'dateIndicators.nextMonth', fallback: 'Next Month' },
 ];
 
 const deferOptions = [
-    { value: 'today', labelKey: 'dateIndicators.today' },
-    { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow' },
-    { value: 'next_week', labelKey: 'dateIndicators.nextWeek' },
-    { value: 'next_month', labelKey: 'dateIndicators.nextMonth' },
+    { value: 'today', labelKey: 'dateIndicators.today', fallback: 'Today' },
+    { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow', fallback: 'Tomorrow' },
+    { value: 'next_week', labelKey: 'dateIndicators.nextWeek', fallback: 'Next Week' },
+    { value: 'next_month', labelKey: 'dateIndicators.nextMonth', fallback: 'Next Month' },
 ];
 
 const extrasOptions = [
-    { value: 'recurring', labelKey: 'search.extrasFilter.isRecurring' },
-    { value: 'overdue', labelKey: 'search.extrasFilter.isOverdue' },
-    { value: 'has_content', labelKey: 'search.extrasFilter.hasContent' },
-    { value: 'deferred', labelKey: 'search.extrasFilter.isDeferred' },
-    { value: 'has_tags', labelKey: 'search.extrasFilter.hasTags' },
+    { value: 'recurring', labelKey: 'search.extrasFilter.isRecurring', fallback: 'is Recurring' },
+    { value: 'overdue', labelKey: 'search.extrasFilter.isOverdue', fallback: 'is Overdue' },
+    { value: 'has_content', labelKey: 'search.extrasFilter.hasContent', fallback: 'has Content' },
+    { value: 'deferred', labelKey: 'search.extrasFilter.isDeferred', fallback: 'is Deferred' },
+    { value: 'has_tags', labelKey: 'search.extrasFilter.hasTags', fallback: 'has Tags' },
     {
         value: 'assigned_to_project',
         labelKey: 'search.extrasFilter.isAssignedToProject',
+        fallback: 'is Assigned to Project',
     },
 ];
 
@@ -147,7 +152,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
 
     const handleSaveView = async () => {
         if (!viewName.trim()) {
-            setSaveError(t('search.viewNameRequired'));
+            setSaveError(t('search.viewNameRequired', 'View name is required'));
             return;
         }
 
@@ -175,7 +180,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save view');
+                throw new Error(t('errors.failedToSaveView', 'Failed to save view'));
             }
 
             const savedView = await response.json();
@@ -188,13 +193,13 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             // Show success toast with link to the view
             showSuccessToast(
                 <div className="flex items-center gap-2">
-                    <span>View saved successfully!</span>
+                    <span>{t('views.viewSavedSuccessfully', 'View saved successfully!')}</span>
                     <Link
                         to={`/views/${savedView.uid}`}
                         className="underline font-semibold hover:text-green-100"
                         onClick={onClose}
                     >
-                        View now
+                        {t('search.viewNow', 'View now')}
                     </Link>
                 </div>
             );
@@ -202,8 +207,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             // Notify sidebar to refresh
             window.dispatchEvent(new CustomEvent('viewUpdated'));
         } catch (err) {
-            setSaveError(t('search.failedToSave'));
-            showErrorToast(t('views.saveError'));
+            setSaveError(t('search.failedToSave', 'Failed to save view. Please try again.'));
+            showErrorToast(t('views.saveError', 'Failed to save view'));
             console.error('Error saving view:', err);
         } finally {
             setIsSaving(false);
@@ -223,7 +228,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         if (selectedFilters.length > 0) {
             const entities = selectedFilters.map((f) => (
                 <span key={f} style={{ fontWeight: 800, fontStyle: 'normal' }}>
-                    {f.toLowerCase()}s
+                    {t(`search.entityTypes.${f.toLowerCase()}`, f.toLowerCase())}s
                 </span>
             ));
             const entitiesWithSeparators: React.ReactNode[] = [];
@@ -231,7 +236,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 if (index > 0) {
                     entitiesWithSeparators.push(
                         <span key={`sep-entity-${index}`}>
-                            {' ' + t('search.and') + ' '}
+                            {' ' + t('search.and', 'and') + ' '}
                         </span>
                     );
                 }
@@ -245,7 +250,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     key="all"
                     style={{ fontWeight: 800, fontStyle: 'normal' }}
                 >
-                    {t('search.allItems')}
+                    {t('search.allItems', 'all items')}
                 </span>
             );
         }
@@ -254,7 +259,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         if (searchQuery.trim()) {
             parts.push(
                 <span key="query-label">
-                    {t('search.containingText') + ' '}
+                    {t('search.containingText', ', containing the text') + ' '}
                 </span>
             );
             parts.push(
@@ -271,7 +276,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         if (selectedPriority) {
             parts.push(
                 <span key="priority-label">
-                    {t('search.withPriority') + ' '}
+                    {t('search.withPriority', ', with') + ' '}
                 </span>
             );
             parts.push(
@@ -283,7 +288,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 </span>
             );
             parts.push(
-                <span key="priority-suffix">{' ' + t('search.priority')}</span>
+                <span key="priority-suffix">{' ' + t('search.priority', 'priority')}</span>
             );
         }
 
@@ -292,8 +297,9 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             const dueOption = dueOptions.find(
                 (opt) => opt.value === selectedDue
             );
-            const dueLabel = dueOption ? t(dueOption.labelKey) : selectedDue;
-            parts.push(<span key="due-label">{t('search.due') + ' '}</span>);
+            const dueLabel = dueOption ? t(dueOption.labelKey, dueOption.fallback) : selectedDue;
+            const dueText = typeof t('search.due') === 'string' && t('search.due') !== 'search.due' ? t('search.due') : ', due';
+            parts.push(<span key="due-label">{dueText + ' '}</span>);
             parts.push(
                 <span
                     key="due"
@@ -310,10 +316,10 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 (opt) => opt.value === selectedDefer
             );
             const deferLabel = deferOption
-                ? t(deferOption.labelKey)
+                ? t(deferOption.labelKey, deferOption.fallback)
                 : selectedDefer;
             parts.push(
-                <span key="defer-label">{t('search.deferUntil') + ' '}</span>
+                <span key="defer-label">{t('search.deferUntil', ', defer until') + ' '}</span>
             );
             parts.push(
                 <span
@@ -328,7 +334,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         // Add tags filter
         if (selectedTags.length > 0) {
             parts.push(
-                <span key="tags-label">{t('search.taggedWith') + ' '}</span>
+                <span key="tags-label">{t('search.taggedWith', ', tagged with') + ' '}</span>
             );
             const tagElements = selectedTags.map((tag) => (
                 <span
@@ -344,7 +350,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     if (index === tagElements.length - 1) {
                         tagsWithSeparators.push(
                             <span key={`sep-tag-and-${index}`}>
-                                {' ' + t('search.and') + ' '}
+                                {' ' + t('search.and', 'and') + ' '}
                             </span>
                         );
                     } else {
@@ -361,14 +367,14 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         // Add extras filters
         if (selectedExtras.length > 0) {
             parts.push(
-                <span key="extras-label">{t('search.thatAre') + ' '}</span>
+                <span key="extras-label">{t('search.thatAre', ', that are') + ' '}</span>
             );
             const extrasElements = selectedExtras.map((extra) => {
                 const extraOption = extrasOptions.find(
                     (opt) => opt.value === extra
                 );
                 const extraLabel = extraOption
-                    ? t(extraOption.labelKey)
+                    ? t(extraOption.labelKey, extraOption.fallback)
                     : extra;
                 return (
                     <span
@@ -385,7 +391,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     if (index === extrasElements.length - 1) {
                         extrasWithSeparators.push(
                             <span key={`sep-extra-and-${index}`}>
-                                {' ' + t('search.and') + ' '}
+                                {' ' + t('search.and', 'and') + ' '}
                             </span>
                         );
                     } else {
@@ -404,7 +410,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         // Construct the sentence
         return (
             <>
-                {t('search.searchingFor')} {parts}
+                {t('search.searchingFor', 'You are searching for')} {parts}
             </>
         );
     };
@@ -458,7 +464,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                         onClick={() => setShowCriteria(!showCriteria)}
                         className="flex items-center justify-between w-full text-left text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                     >
-                        <span>{t('search.criteria')}</span>
+                        <span>{t('search.criteria', 'Search Criteria')}</span>
                         {showCriteria ? (
                             <ChevronUpIcon className="h-5 w-5" />
                         ) : (
@@ -479,7 +485,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                 return (
                                     <FilterBadge
                                         key={filter.value}
-                                        name={t(filter.labelKey)}
+                                        name={t(filter.labelKey, filter.fallback)}
                                         color={filter.color}
                                         isSelected={isSelected}
                                         onToggle={() =>
@@ -496,19 +502,19 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                         {/* Metadata Filters */}
                         <div className="space-y-3">
                             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                                {t('search.metadataFilters')}
+                                {t('search.metadataFilters', 'Metadata Filters')}
                             </div>
 
                             {/* Priority Filters */}
                             <div>
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-                                    {t('search.priorityFilter')}
+                                    {t('search.priorityFilter', 'Priority')}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {priorityOptions.map((option) => (
                                         <FilterBadge
                                             key={option.value}
-                                            name={t(option.labelKey)}
+                                            name={t(option.labelKey, option.fallback)}
                                             isSelected={
                                                 selectedPriority ===
                                                 option.value
@@ -526,13 +532,13 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                             {/* Due Date Filters */}
                             <div>
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-                                    {t('search.dueFilter')}
+                                    {t('search.dueFilter', 'Due')}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {dueOptions.map((option) => (
                                         <FilterBadge
                                             key={option.value}
-                                            name={t(option.labelKey)}
+                                            name={t(option.labelKey, option.fallback)}
                                             isSelected={
                                                 selectedDue === option.value
                                             }
@@ -547,13 +553,13 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                             {/* Defer Until Filters */}
                             <div>
                                 <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-                                    {t('search.deferUntilFilter')}
+                                    {t('search.deferUntilFilter', 'Defer Until')}
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {deferOptions.map((option) => (
                                         <FilterBadge
                                             key={option.value}
-                                            name={t(option.labelKey)}
+                                            name={t(option.labelKey, option.fallback)}
                                             isSelected={
                                                 selectedDefer === option.value
                                             }
@@ -569,7 +575,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                             {availableTags.length > 0 && (
                                 <div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-                                        {t('search.tagsFilter')}
+                                        {t('search.tagsFilter', 'Tags')}
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {availableTags.map((tag) => (
@@ -596,7 +602,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                         {/* Extras Section */}
                         <div className="space-y-3">
                             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                                {t('search.extras')}
+                                {t('search.extras', 'Extras')}
                             </div>
 
                             {/* Extras Filters */}
@@ -604,7 +610,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                 {extrasOptions.map((option) => (
                                     <FilterBadge
                                         key={option.value}
-                                        name={t(option.labelKey)}
+                                        name={t(option.labelKey, option.fallback)}
                                         color="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
                                         isSelected={selectedExtras.includes(
                                             option.value
@@ -627,7 +633,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                     >
                                         <BookmarkIcon className="h-4 w-4" />
                                         <span>
-                                            {t('search.saveAsSmartView')}
+                                            {t('search.saveAsSmartView', 'Save as Smart View')}
                                         </span>
                                     </button>
                                 ) : (
@@ -637,7 +643,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 htmlFor="viewName"
                                                 className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2"
                                             >
-                                                {t('search.viewName')}{' '}
+                                                {t('search.viewName', 'View Name')}{' '}
                                                 <span className="text-red-500">
                                                     *
                                                 </span>
@@ -661,7 +667,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 }}
                                                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 placeholder={t(
-                                                    'search.viewNamePlaceholder'
+                                                    'search.viewNamePlaceholder',
+                                                    'Enter view name'
                                                 )}
                                                 autoFocus
                                             />
@@ -678,7 +685,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 onClick={handleCancelSave}
                                                 className="px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
                                             >
-                                                {t('search.cancel')}
+                                                {t('search.cancel', 'Cancel')}
                                             </button>
                                             <button
                                                 type="button"
@@ -687,8 +694,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-md transition-colors"
                                             >
                                                 {isSaving
-                                                    ? t('search.saving')
-                                                    : t('search.saveView')}
+                                                    ? t('search.saving', 'Saving...')
+                                                    : t('search.saveView', 'Save View')}
                                             </button>
                                         </div>
                                     </div>

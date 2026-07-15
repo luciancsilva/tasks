@@ -83,7 +83,9 @@ const ProjectBanner: React.FC<ProjectBannerProps> = ({
                 )}
                 {creatorName && (
                     <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
-                        Photo by {creatorName}
+                        {t('projects.photoBy', 'Photo by {{creator}}', {
+                            creator: creatorName,
+                        })}
                     </div>
                 )}
 

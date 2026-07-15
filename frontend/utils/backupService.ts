@@ -1,6 +1,7 @@
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export interface BackupData {
     version: string;
@@ -99,7 +100,10 @@ export const createBackup = async (): Promise<SavedBackup> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to create backup.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.exportError', 'Failed to create backup.')
+    );
     const result = await response.json();
     return result.backup;
 };
@@ -116,7 +120,10 @@ export const listSavedBackups = async (): Promise<SavedBackup[]> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to list backups.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.listError', 'Failed to list backups.')
+    );
     const result: BackupListResult = await response.json();
     return result.backups;
 };
@@ -133,7 +140,10 @@ export const downloadSavedBackup = async (backupUid: string): Promise<void> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to download backup.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.downloadError', 'Failed to download backup.')
+    );
 
     // Get the blob (compressed file)
     const blob = await response.blob();
@@ -178,7 +188,10 @@ export const restoreSavedBackup = async (
         body: JSON.stringify({ merge }),
     });
 
-    await handleAuthResponse(response, 'Failed to restore backup.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.restoreError', 'Failed to restore backup.')
+    );
     return await response.json();
 };
 
@@ -195,7 +208,10 @@ export const deleteSavedBackup = async (backupUid: string): Promise<void> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to delete backup.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.deleteError', 'Failed to delete backup.')
+    );
 };
 
 /**
@@ -218,7 +234,10 @@ export const importBackup = async (
         body: formData,
     });
 
-    await handleAuthResponse(response, 'Failed to import backup.');
+    await handleAuthResponse(
+        response,
+        i18n.t('backup.importError', 'Failed to import backup.')
+    );
     return await response.json();
 };
 
@@ -242,7 +261,9 @@ export const validateBackup = async (file: File): Promise<ValidationResult> => {
         const error = await response.json();
         return {
             valid: false,
-            message: error.error || 'Validation failed',
+            message:
+                error.error ||
+                i18n.t('backup.validationFailed', 'Validation failed'),
             errors: error.errors || [error.message],
         };
     }

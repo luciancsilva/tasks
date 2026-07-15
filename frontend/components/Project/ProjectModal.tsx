@@ -634,7 +634,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                             {expandedSections.goal && (
                                                 <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 px-4">
                                                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                                                        Goal
+                                                        {t('goals.goalSingular')}
                                                     </h3>
                                                     {!formData.area_id ? (
                                                         <p className="text-sm text-gray-400 dark:text-gray-500">

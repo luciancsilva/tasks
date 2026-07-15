@@ -76,7 +76,31 @@
         "selectDate": "Select date",
         "selectDateTime": "Select date and time",
         "selectNumber": "Select number",
-        "selectOption": "Select option"
+        "selectOption": "Select option",
+        "previewNotAvailable": "Preview not available",
+        "today": "Today",
+        "clear": "Clear",
+        "time": "Time",
+        "now": "Now",
+        "apply": "Apply",
+        "uncategorised": "Uncategorised",
+        "collapse": "Collapse",
+        "expand": "Expand",
+        "searching": "Searching...",
+        "clearFilter": "Clear filter",
+        "removeColor": "Remove color",
+        "task": "Task",
+        "project": "Project",
+        "note": "Note",
+        "person": "Person",
+        "goal": "Goal",
+        "habit": "Habit",
+        "overdue": "overdue",
+        "overdueShort": "OVR",
+        "select": "Select...",
+        "dateTimeAt": "{{date}} at {{time}}",
+        "loadingApplication": "Loading application... Please wait.",
+        "loadingPreview": "Loading preview..."
     },
     "sidebar": {
         "dashboard": "Dashboard",
@@ -111,11 +135,29 @@
         "pinView": "Pin view",
         "addHabitAriaLabel": "Add Habit",
         "addHabitTitle": "Add Habit",
-        "people": "PEOPLE",
-        "habits": "HABITS",
+        "people": "People",
+        "habits": "Habits",
         "toggleDarkMode": "Toggle Dark Mode",
         "addTaskAriaLabel": "Add Task",
-        "addTaskTitle": "Add Task"
+        "addTaskTitle": "Add Task",
+        "syncing": "Syncing...",
+        "lastSynced": "Last synced",
+        "synced": "Synced",
+        "syncError": "Sync Error",
+        "openSettings": "Open Settings",
+        "profile": "Profile",
+        "helpAndGuide": "Help & Guide",
+        "collapseSidebar": "Collapse Sidebar",
+        "newTaskShort": "New Task (C)",
+        "commandPaletteShort": "Command Palette (Ctrl+K)",
+        "review": "Review",
+        "next7Days": "Next 7 Days",
+        "somedayMaybe": "Someday/Maybe",
+        "analytics": "Analytics",
+        "trash": "Trash",
+        "appTitle": "Tasks application",
+        "toggleThemeDark": "Toggle theme (currently dark)",
+        "toggleThemeLight": "Toggle theme (currently light)"
     },
     "navigation": {
         "home": "Home",
@@ -267,7 +309,13 @@
         "noPlanYet": "No plan yet - here are some ideas:",
         "undoError": "Failed to undo task completion.",
         "aboutTasks": "About Tasks",
-        "searchTasks": "Search Tasks"
+        "searchTasks": "Search Tasks",
+        "noTasksScheduled": "No tasks scheduled",
+        "markComplete": "Mark complete",
+        "markIncomplete": "Mark incomplete",
+        "dueTimestamp": "Due {{date}}",
+        "deleteError": "Failed to delete task",
+        "createError": "Failed to create task"
     },
     "timeline": {
         "activityTimeline": "Activity Timeline",
@@ -311,7 +359,8 @@
             "recurrenceType": "Recurrence type",
             "recurrenceTypeChanged": "Recurrence type changed",
             "none": "None"
-        }
+        },
+        "fetchError": "Failed to fetch task timeline"
     },
     "profile": {
         "settings": "Profile Settings",
@@ -644,7 +693,7 @@
         "pollingStatusError": "Failed to fetch polling status.",
         "mcp": {
             "title": "MCP Integration",
-            "description": "Connect tududi with any MCP-compatible application using the Model Context Protocol. This enables AI assistants to interact with your tasks, projects, and notes - works with both local and remote tududi servers.",
+            "description": "Connect tududi to any MCP-compatible application using the Model Context Protocol. This allows AI assistants to interact with your tasks, projects, and notes - works with both local and remote tududi servers.",
             "step1": {
                 "title": "1. Generate API Token",
                 "description": "You need an API token to authenticate the MCP server. Go to the API Keys tab to generate one.",
@@ -652,7 +701,7 @@
             },
             "step2": {
                 "title": "2. Configure Your MCP Client",
-                "description": "Add this configuration to your MCP client. Replace YOUR_API_TOKEN_HERE with the token you generated in step 1. This uses mcp-remote to connect to your tududi server via HTTP. Example shown for Claude Desktop:",
+                "description": "Add this configuration to your MCP client. Replace YOUR_API_TOKEN_HERE with the token you generated in step 1. This uses mcp-remote to connect to your tududi server over HTTP. Example shown for Claude Desktop:",
                 "copy": "Copy",
                 "loading": "Loading...",
                 "locationTitle": "Claude Desktop config file location:"
@@ -668,7 +717,31 @@
             },
             "loadError": "Failed to load MCP configuration",
             "copySuccess": "Configuration copied to clipboard",
-            "copyError": "Failed to copy to clipboard"
+            "copyError": "Failed to copy to clipboard",
+            "otherClientsNote": "Other MCP clients may use different configuration methods - check your client's documentation.",
+            "osMac": "Mac",
+            "osLinux": "Linux",
+            "remoteAccessEnabled": "✓ Remote Access Enabled",
+            "remoteAccessExplanation": "This configuration uses mcp-remote to connect via HTTP. This means you can:",
+            "accessLocal": "Access local tududi (localhost)",
+            "accessRemote": "Access remote tududi (cloud servers)",
+            "useDocker": "Use from Docker deployments",
+            "connectSecurely": "Connect securely with API tokens",
+            "examples": {
+                "tasksToday": "\"Show me my tasks for today\"",
+                "createTask": "\"Create a task to review the MCP integration\"",
+                "projectsInProgress": "\"What projects do I have in progress?\"",
+                "addReminder": "\"Add a reminder to my inbox to check emails\"",
+                "searchTasks": "\"Search for tasks related to documentation\""
+            },
+            "troubleshooting": {
+                "title": "💡 Troubleshooting",
+                "intro": "If your MCP client can't connect, check that:",
+                "tokenValid": "Your API token is valid and not expired",
+                "serverRunning": "The tududi server is running and accessible",
+                "clientRestarted": "You've restarted your MCP client completely",
+                "firewall": "For remote servers, check your firewall settings"
+            }
         },
         "telegramAllowedUsers": "Allowed Users",
         "telegramAllowedUsersDescription": "Control who can send messages to your bot. Leave empty to allow all users.",
@@ -679,7 +752,24 @@
         "telegramRequiredForSummaries": "Telegram integration must be set up to use task summaries.",
         "avatarRemovedSuccess": "Avatar removed successfully",
         "telegramConnectedPolling": "Telegram connected and polling",
-        "telegramConnectionProblem": "Telegram connection problem"
+        "telegramConnectionProblem": "Telegram connection problem",
+        "errors": {
+            "uploadAvatarFailed": "Failed to upload avatar",
+            "removeAvatarFailed": "Failed to remove avatar",
+            "updateProfileFailed": "Failed to update profile."
+        },
+        "updateError": "Failed to update profile.",
+        "schedulerStatusError": "Failed to fetch scheduler status.",
+        "sendTaskSummaryError": "Failed to send task summary.",
+        "telegram": {
+            "pollingStatusError": "Failed to fetch polling status.",
+            "setupError": "Failed to setup telegram.",
+            "startPollingError": "Failed to start telegram polling.",
+            "stopPollingError": "Failed to stop telegram polling.",
+            "testMessageError": "Failed to send test message."
+        },
+        "taskSummaryToggleError": "Failed to toggle task summary.",
+        "updateFrequencyError": "Failed to update task summary frequency."
     },
     "productivity": {
         "stalledProjects": "Stalled Projects",
@@ -740,7 +830,8 @@
         },
         "deleteNote": {
             "title": "Delete Note",
-            "message": "Are you sure you want to delete the note \"{{noteTitle}}\"?"
+            "message": "Are you sure you want to delete the note \"{{title}}\"?",
+            "confirmMessage": "Are you sure you want to delete the note \"{{title}}\"?"
         },
         "deleteProject": {
             "title": "Delete Project",
@@ -861,7 +952,12 @@
         "registration_successful": "Check Your Email",
         "registration_email_sent": "We have sent a verification link to your email address. Please check your inbox and click the link to verify your account.",
         "confirm_password": "Confirm Password",
-        "already_have_account": "Already have an account?"
+        "already_have_account": "Already have an account?",
+        "turnstileRequired": "Please verify you are a human.",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "registerError": "Registration failed",
+        "passwordPlaceholder": "Minimum 8 characters",
+        "logoutError": "Failed to logout"
     },
     "dropdown": {
         "createNew": "Create New",
@@ -923,8 +1019,9 @@
         "noTasks": "No tasks.",
         "uploadImageError": "Failed to upload image",
         "loadingDetails": "Loading project details...",
-        "shareError": "Failed to share",
-        "revokeShareError": "Failed to revoke share"
+        "shareError": "Failed to share resource",
+        "revokeShareError": "Failed to revoke share",
+        "loadSharesError": "Failed to load shares"
     },
     "errors": {
         "required": "This field is required",
@@ -963,7 +1060,14 @@
         "selectUser": "Please select a user",
         "userNotFound": "User not found",
         "projectStatusUpdateFailed": "Failed to update project status",
-        "failedToDeleteTag": "Failed to delete tag."
+        "failedToDeleteTag": "Failed to delete tag.",
+        "failedToLoadFileContent": "Failed to load file content",
+        "failedToLoadProjectDetails": "Failed to load project details.",
+        "projectNotFound": "Project not found.",
+        "failedToLoadUsers": "Failed to load users",
+        "failedToLoadShares": "Failed to load shares",
+        "fetchError": "An error occurred while fetching the data.",
+        "requestFailed": "Request failed"
     },
     "inbox": {
         "title": "Inbox",
@@ -1171,7 +1275,7 @@
         "attachments": {
             "limitReached": "Maximum 20 attachments allowed per task",
             "uploadSuccess": "File uploaded successfully",
-            "uploadError": "Failed to upload file",
+            "uploadError": "Failed to upload attachment",
             "deleteSuccess": "Attachment deleted successfully",
             "deleteError": "Failed to delete attachment",
             "title": "Attachments",
@@ -1183,7 +1287,10 @@
             "deleteConfirmMessage": "Are you sure you want to delete this attachment? This action cannot be undone.",
             "allowedTypes": "PDF, DOC, DOCX, TXT, MD, Images, XLS, XLSX, CSV, ZIP (max 10MB)",
             "count": "{{count}} / 20 files",
-            "invalidFile": "Invalid file"
+            "invalidFile": "Invalid file",
+            "fetchError": "Failed to fetch attachments",
+            "sizeLimitExceeded": "File size exceeds {{limit}}MB limit",
+            "fileTypeNotAllowed": "File type not allowed"
         },
         "attachmentsComingSoon": "Attachments feature coming soon",
         "activity": "Activity",
@@ -1226,7 +1333,11 @@
         "noTaskUid": "No task uid provided",
         "deferPlaceholder": "Select defer until date and time",
         "duePlaceholder": "Select due date",
-        "assignedTo": "Assigned To"
+        "assignedTo": "Assigned To",
+        "timelineAfterSaving": "Timeline will appear after saving",
+        "assignToPlaceholder": "Search users...",
+        "unassignUser": "Remove assignment",
+        "noAssignedUser": "Assign to a user"
     },
     "subtasks": {
         "placeholder": "Add a subtask...",
@@ -1285,7 +1396,18 @@
         "sortTasks": "Sort tasks",
         "status": "Project Status",
         "deleteError": "Failed to delete project",
-        "upcomingProjects": "Upcoming Projects"
+        "upcomingProjects": "Upcoming Projects",
+        "noActiveProjects": "No active projects",
+        "hideProjects": "Hide projects",
+        "showAllProjects": "Show all projects",
+        "noProjectsAvailable": "No projects available",
+        "bannerBy": "Banner by {{creator}}",
+        "photoBy": "Photo by {{creator}}",
+        "activeProjects": "Active Projects",
+        "summary": {
+            "criticallyBehind": "{{name}} is critically behind: only {{pct}}% done with {{daysLeft}} day(s) left",
+            "needsAttention": "{{name}} needs attention: {{pct}}% done with {{daysLeft}} day(s) to go"
+        }
     },
     "projectStatus": {
         "not_started": "Not Started",
@@ -1371,18 +1493,24 @@
             "projects": "projects",
             "goals": "goals",
             "tasks": "tasks"
-        }
+        },
+        "noAreasYet": "No areas yet",
+        "confirmDropGoal": "Drop goal \"{{title}}\"? Projects under it will become unlinked.",
+        "confirmRemoveProject": "Remove \"{{name}}\" from this area?",
+        "createError": "Failed to create area",
+        "updateError": "Failed to update area",
+        "deleteError": "Failed to delete area"
     },
     "notes": {
         "loading": "Loading notes...",
         "error": "Error loading notes",
-        "searchPlaceholder": "Search notes...",
+        "searchPlaceholder": "Search notes by title or content...",
         "noNotesFound": "No notes found",
         "title": "Notes",
         "deleteNoteAriaLabel": "Delete note {{noteTitle}}",
-        "deleteNoteTitle": "Delete note {{noteTitle}}",
+        "deleteNoteTitle": "Delete {{title}}",
         "editNoteAriaLabel": "Edit note {{noteTitle}}",
-        "editNoteTitle": "Edit note {{noteTitle}}",
+        "editNoteTitle": "Edit {{title}}",
         "titlePlaceholder": "Note title...",
         "contentPlaceholder": "Write your note content here... (Markdown supported)",
         "focusMode": "Focus mode",
@@ -1408,7 +1536,19 @@
         "changeProject": "Change project",
         "changeTags": "Change tags",
         "loadError": "Error loading note details.",
-        "notFound": "Note not found."
+        "notFound": "Note not found.",
+        "saved": "Saved",
+        "unsaved": "Unsaved",
+        "noContentToPreview": "No content to preview. Switch to Edit tab to add content.",
+        "backgroundColor": "Background Color",
+        "selectProject": "Select Project",
+        "noNotesYet": "No notes yet",
+        "noContentPreview": "No content preview available...",
+        "editNoteAria": "Edit {{title}}",
+        "deleteNoteAria": "Delete {{title}}",
+        "projectFilter": {
+            "searchPlaceholder": "Search projects..."
+        }
     },
     "tags": {
         "loading": "Loading tags...",
@@ -1452,6 +1592,11 @@
             "tasks": "tasks",
             "notes": "notes",
             "projects": "projects"
+        },
+        "noTagsYet": "No tags yet",
+        "removeTagAria": "Remove tag {{tag}}",
+        "projectFilter": {
+            "searchPlaceholder": "Search projects..."
         }
     },
     "habits": {
@@ -1505,7 +1650,14 @@
         "create": "Create Habit",
         "name": "Habit Name",
         "plannedToday": "Habits planned for today",
-        "completedHabitsToday": "Habits completed today"
+        "completedHabitsToday": "Habits completed today",
+        "noHabitsYet": "No habits yet",
+        "fetchError": "Failed to fetch habits",
+        "logCompletionError": "Failed to log completion",
+        "fetchStatsError": "Failed to fetch stats",
+        "updateError": "Failed to update habit",
+        "fetchCompletionsError": "Failed to fetch completions",
+        "deleteCompletionError": "Failed to delete completion"
     },
     "people": {
         "title": "People",
@@ -1555,7 +1707,8 @@
         "noAssignedTasks": "No tasks assigned to {{name}}.",
         "unassigned": "Unassigned",
         "noPeopleYet": "No people yet",
-        "clearAssignment": "Clear assignment"
+        "clearAssignment": "Clear assignment",
+        "noPeopleAssigned": "No people assigned"
     },
     "recurrence": {
         "none": "None",
@@ -1773,7 +1926,8 @@
         "community": "Community",
         "viewOnGitHub": "View on GitHub",
         "license": "Licensed for personal use",
-        "builtBy": "Built by"
+        "builtBy": "Built by",
+        "officialWebsite": "Official Website"
     },
     "admin": {
         "manageUsers": "Manage users",
@@ -1857,16 +2011,27 @@
         "filters": "filters",
         "saveError": "Failed to save view. Please try again.",
         "searchTasks": "Search tasks",
-        "noItemsMatchCriteria": "No items found matching the view criteria"
+        "noItemsMatchCriteria": "No items found matching the view criteria",
+        "noSavedViews": "No saved views",
+        "addError": "Failed to create view",
+        "deleteError": "Failed to delete view"
     },
     "search": {
-        "placeholder": "Search tasks, projects, notes...",
+        "placeholder": "Search or type ? for help...",
         "searchingFor": "You are searching for",
         "allItems": "all items",
         "containingText": ", containing the text",
         "withPriority": ", with",
         "priority": "priority",
-        "due": ", due",
+        "due": {
+            "overdue": "Overdue",
+            "today": "Today",
+            "tomorrow": "Tomorrow",
+            "next7Days": "Next 7 Days",
+            "thisMonth": "This Month",
+            "nextMonth": "Next Month",
+            "noDueDate": "No Due Date"
+        },
         "taggedWith": ", tagged with",
         "thatAre": ", that are",
         "and": "and",
@@ -1901,7 +2066,60 @@
             "project": "project",
             "area": "area",
             "note": "note"
-        }
+        },
+        "viewNow": "View now",
+        "saveViewModal": {
+            "editTitle": "Edit Saved View",
+            "createTitle": "Save Smart View",
+            "viewName": "View Name",
+            "namePlaceholder": "e.g., High Priority Work",
+            "icon": "Icon",
+            "color": "Color",
+            "pinHelp": "Pinned views appear in the sidebar under Views",
+            "pinToSidebar": "Pin to Sidebar",
+            "shareWithWorkspace": "Share with Workspace",
+            "publicHelp": "Public views are accessible to all workspace users",
+            "saveChanges": "Save Changes",
+            "createView": "Create View"
+        },
+        "types": {
+            "task": "Task",
+            "note": "Note",
+            "project": "Project",
+            "person": "Person",
+            "area": "Area",
+            "goal": "Goal",
+            "habit": "Habit",
+            "tag": "Tag"
+        },
+        "syntaxHelpTitle": "Search syntax help",
+        "clearSearch": "Clear search",
+        "filterStatus": "Status: {{status}}",
+        "filterPriority": "Priority: {{priority}}",
+        "filterTags": "{{count}} tag",
+        "filterTags_plural": "{{count}} tags",
+        "filterType": "Type: {{type}}",
+        "filterDue": "Due: {{due}}",
+        "addFilter": "+ Add Filter",
+        "clearAllCount": "Clear All ({{count}})",
+        "selectFiltersAbove": "Select filters above to narrow down your results",
+        "syntaxDocTitle": "Search syntax documentation",
+        "syntaxGuide": "Search Syntax Guide",
+        "pressToToggleGuide": "Press ? anytime to toggle this guide",
+        "searchInProgress": "Search in Progress...",
+        "noMatchingResults": "No matching results",
+        "noMatchingDescription": "We couldn't find anything matching your search. Try adjusting your keywords or clearing some filters.",
+        "clearAllFilters": "Clear all filters",
+        "searchEverywhere": "Search everywhere",
+        "searchEverywhereDescription": "Type at least 2 characters to search across tasks, notes, projects, people, goals, and habits.",
+        "suggestions": "Search Suggestions:",
+        "suggestionTypeFilter": "Filter by type using",
+        "suggestionPriorityFilter": "Find high priority items with",
+        "suggestionCombineTerms": "Combine terms for precision:",
+        "groupCount": "{{label}} ({{count}})",
+        "titleShortcut": "Search (Ctrl+K)",
+        "ariaLabel": "Search",
+        "requestFailed": "Search request failed"
     },
     "backup": {
         "title": "Backup & Restore",
@@ -1950,7 +2168,8 @@
         "validationErrors": "Validation errors:",
         "versionIncompatible": "Version Incompatible",
         "backupVersion": "Backup version",
-        "delete": "Delete"
+        "delete": "Delete",
+        "validationFailed": "Validation failed"
     },
     "notifications": {
         "table": {
@@ -2001,7 +2220,8 @@
         "loading": "Loading...",
         "noNotifications": "No notifications yet",
         "markAsRead": "Mark as read",
-        "delete": "Delete"
+        "delete": "Delete",
+        "toggleChannelAria": "Toggle {{channel}} for {{label}}"
     },
     "aiAssistant": {
         "title": "AI Assistant",
@@ -2031,7 +2251,8 @@
         "statDone": "Done",
         "statActive": "Active",
         "statOverdue": "Overdue",
-        "dailyBriefTitle": "AI Daily Brief"
+        "dailyBriefTitle": "AI Daily Brief",
+        "sendError": "Failed to send prompt to AI assistant"
     },
     "loading": {
         "tasks": "Loading tasks…",
@@ -2043,7 +2264,10 @@
         "viewArea": "Go to area",
         "searchAreas": "Search areas…",
         "clearArea": "Remove area",
-        "noAreasFound": "No areas found"
+        "noAreasFound": "No areas found",
+        "manageAreas": "Manage areas",
+        "selectArea": "Assign an area",
+        "noAreaDescription": "Assign an area to categorize and color-code this task"
     },
     "noteCreation": "Create New Note",
     "notFound": {
@@ -2091,10 +2315,77 @@
         "today": "Today",
         "fourWeeksAgo": "4w ago",
         "threeWeeksAgo": "3w ago",
-        "twoWeeksAgo": "2w ago"
+        "twoWeeksAgo": "2w ago",
+        "burndownTitle": "4-Week Burndown",
+        "completionComingSoon": "Tasks created (completion tracking coming soon)",
+        "noTaskData": "No task data",
+        "activeProjects": "Active Projects",
+        "balance": "Balance",
+        "areaBalance": "Area Balance",
+        "focusDistribution": "Focus Distribution",
+        "deadlineDanger": "Deadline Danger",
+        "waitingFor": "Waiting For",
+        "overdueAge": "Overdue Age",
+        "noInProgressTasks": "No in-progress tasks.",
+        "noDeadlines60": "No deadlines in the next 60 days.",
+        "noWaitingTasks": "No waiting-for tasks.",
+        "areaInProgressTitle": "{{name}}: {{count}} in progress",
+        "heavyAreasHoldPlural": "{{areas}} hold {{pct}}% of your work.",
+        "heavyAreasHoldSingular": "{{area}} holds {{pct}}% of your work.",
+        "lightAreasOnly": "{{areas}} have only {{pct}}%.",
+        "completionPctDone": "{{pct}}% done",
+        "daysOverdue": "{{days}}d overdue",
+        "daysLeft": "{{days}}d left"
     },
     "goals": {
         "noGoal": "No goal",
-        "inactive": "Inactive"
+        "inactive": "Inactive",
+        "goalSingular": "Goal"
+    },
+    "viewDetail": {
+        "deleteError": "Failed to delete view",
+        "searchPlaceholder": "Search within this view...",
+        "addTaskAria": "Add task to view"
+    },
+    "apiKeys": {
+        "createError": "Failed to create API key",
+        "updateError": "Failed to update API key",
+        "deleteError": "Failed to delete API key"
+    },
+    "caldav": {
+        "createError": "Failed to create calendar",
+        "updateError": "Failed to update calendar",
+        "deleteError": "Failed to delete calendar",
+        "fetchRemoteError": "Failed to fetch remote calendars",
+        "createRemoteError": "Failed to create remote calendar",
+        "updateRemoteError": "Failed to update remote calendar",
+        "deleteRemoteError": "Failed to delete remote calendar",
+        "testError": "Connection test failed",
+        "syncError": "Sync failed",
+        "syncStatusError": "Failed to fetch sync status",
+        "conflictsError": "Failed to fetch conflicts",
+        "resolveError": "Failed to resolve conflict"
+    },
+    "suggestions": {
+        "reasons": {
+            "overdue": "This task is overdue",
+            "dueToday": "This task is due today",
+            "advancesGoal": "Advances: {{goal}}",
+            "activeGoal": "an active goal",
+            "fitsNow": "Matches your current context",
+            "reviveProject": "Completing this moves {{project}} forward",
+            "stalledWork": "stalled work",
+            "highPriority": "High priority - worth tackling now",
+            "agingReview": "Hasn't been touched in {{days}} days - still relevant?",
+            "areaBalance": "Helps balance your {{area}} area",
+            "nextStep": "The next open step in {{project}}",
+            "goodAction": "A good action to tackle next"
+        }
+    },
+    "markdown": {
+        "tableHiddenPreview": "[Table content hidden in preview]"
+    },
+    "timezones": {
+        "noResults": "No timezones found matching \"{{query}}\""
     }
 }

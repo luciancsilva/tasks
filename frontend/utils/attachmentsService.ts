@@ -2,6 +2,7 @@ import { Attachment, AttachmentType } from '../entities/Attachment';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
 import { getServerConfig } from './configService';
+import i18n from '../i18n';
 
 /**
  * Upload a file attachment to a task
@@ -25,7 +26,13 @@ export async function uploadAttachment(
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to upload attachment');
+        throw new Error(
+            errorData.error ||
+                i18n.t(
+                    'taskDetails.attachments.uploadError',
+                    'Failed to upload attachment'
+                )
+        );
     }
 
     return await response.json();
@@ -42,7 +49,13 @@ export async function fetchAttachments(taskUid: string): Promise<Attachment[]> {
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch attachments');
+        throw new Error(
+            errorData.error ||
+                i18n.t(
+                    'taskDetails.attachments.fetchError',
+                    'Failed to fetch attachments'
+                )
+        );
     }
 
     return await response.json();
@@ -68,7 +81,13 @@ export async function deleteAttachment(
 
     if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete attachment');
+        throw new Error(
+            errorData.error ||
+                i18n.t(
+                    'taskDetails.attachments.deleteError',
+                    'Failed to delete attachment'
+                )
+        );
     }
 }
 
@@ -155,7 +174,11 @@ export async function validateFile(
     if (file.size > maxSize) {
         return {
             valid: false,
-            error: `File size exceeds ${config.fileUploadLimitMB}MB limit`,
+            error: i18n.t(
+                'taskDetails.attachments.sizeLimitExceeded',
+                'File size exceeds {{limit}}MB limit',
+                { limit: config.fileUploadLimitMB }
+            ),
         };
     }
 
@@ -181,7 +204,10 @@ export async function validateFile(
     if (!allowedTypes.includes(file.type)) {
         return {
             valid: false,
-            error: 'File type not allowed',
+            error: i18n.t(
+                'taskDetails.attachments.fileTypeNotAllowed',
+                'File type not allowed'
+            ),
         };
     }
 

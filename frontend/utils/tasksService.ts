@@ -7,6 +7,7 @@ import {
 } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { isTaskDone, TASK_STATUS } from '../constants/taskStatus';
+import i18n from '../i18n';
 
 export interface GroupedTasks {
     [groupName: string]: Task[];
@@ -50,14 +51,22 @@ export const fetchTasks = async (
         }),
     ]);
 
-    await handleAuthResponse(tasksResponse, 'Failed to fetch tasks.');
-    await handleAuthResponse(metricsResponse, 'Failed to fetch metrics.');
+    await handleAuthResponse(
+        tasksResponse,
+        i18n.t('errors.taskFetch', 'Failed to fetch tasks.')
+    );
+    await handleAuthResponse(
+        metricsResponse,
+        i18n.t('errors.fetchMetricsError', 'Failed to fetch metrics.')
+    );
 
     const tasksResult = await tasksResponse.json();
     const metrics = await metricsResponse.json();
 
     if (!Array.isArray(tasksResult.tasks)) {
-        throw new Error('Resulting tasks are not an array.');
+        throw new Error(
+            i18n.t('errors.tasksNotArray', 'Resulting tasks are not an array.')
+        );
     }
 
     return {
@@ -84,7 +93,10 @@ export const createTask = async (taskData: Task): Promise<Task> => {
         body: JSON.stringify(taskData),
     });
 
-    await handleAuthResponse(response, 'Failed to create task.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.taskCreationFailed', 'Failed to create task.')
+    );
     return await response.json();
 };
 
@@ -109,7 +121,10 @@ export const updateTask = async (
         }
     );
 
-    await handleAuthResponse(response, 'Failed to update task.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.taskSaveFailed', 'Failed to update task.')
+    );
     return await response.json();
 };
 
@@ -164,7 +179,10 @@ export const deleteTask = async (taskUid: string): Promise<void> => {
         }
     );
 
-    await handleAuthResponse(response, 'Failed to delete task.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.taskDeletionFailed', 'Failed to delete task.')
+    );
 };
 
 export const fetchTaskById = async (taskId: number): Promise<Task> => {
@@ -173,7 +191,10 @@ export const fetchTaskById = async (taskId: number): Promise<Task> => {
         headers: getDefaultHeaders(),
     });
 
-    await handleAuthResponse(response, 'Failed to fetch task.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToLoadTask', 'Failed to fetch task.')
+    );
     return await response.json();
 };
 
@@ -186,7 +207,10 @@ export const fetchTaskByUid = async (uid: string): Promise<Task> => {
         }
     );
 
-    await handleAuthResponse(response, 'Failed to fetch task.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToLoadTask', 'Failed to fetch task.')
+    );
     return await response.json();
 };
 
@@ -196,7 +220,10 @@ export const fetchSubtasks = async (parentTaskUid: string): Promise<Task[]> => {
         headers: getDefaultHeaders(),
     });
 
-    await handleAuthResponse(response, 'Failed to fetch subtasks.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.fetchSubtasksError', 'Failed to fetch subtasks.')
+    );
     return await response.json();
 };
 
@@ -220,7 +247,10 @@ export const fetchTaskNextIterations = async (
         headers: getDefaultHeaders(),
     });
 
-    await handleAuthResponse(response, 'Failed to fetch task iterations.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.fetchTaskIterationsError', 'Failed to fetch task iterations.')
+    );
     const result = await response.json();
     return result.iterations || [];
 };

@@ -1,4 +1,5 @@
 import slugify from 'slugify';
+import i18n from '../i18n';
 
 /**
  * Creates a URL-safe slug from a string with proper transliteration
@@ -46,7 +47,7 @@ export function createUidSlug(
     name: string,
     maxSlugLength: number = 40
 ): string {
-    if (!uid) throw new Error('UID is required');
+    if (!uid) throw new Error(i18n.t('errors.uidRequired', 'UID is required'));
 
     const slug = createSlug(name, maxSlugLength);
     return slug ? `${uid}-${slug}` : uid;
@@ -98,7 +99,9 @@ export function createProjectUrl(project: {
     name: string;
 }): string {
     if (!project.uid) {
-        throw new Error('Project uid is required');
+        throw new Error(
+            i18n.t('errors.projectUidRequired', 'Project uid is required')
+        );
     }
     const uidSlug = createUidSlug(project.uid, project.name);
     return `/project/${uidSlug}`;
@@ -111,7 +114,9 @@ export function createProjectUrl(project: {
  */
 export function createNoteUrl(note: { uid?: string; title: string }): string {
     if (!note.uid) {
-        throw new Error('Note uid is required');
+        throw new Error(
+            i18n.t('errors.noteUidRequired', 'Note uid is required')
+        );
     }
     const uidSlug = createUidSlug(note.uid, note.title);
     return `/note/${uidSlug}`;
@@ -124,7 +129,7 @@ export function createNoteUrl(note: { uid?: string; title: string }): string {
  */
 export function createTagUrl(tag: { uid?: string; name: string }): string {
     if (!tag.uid) {
-        throw new Error('Tag uid is required');
+        throw new Error(i18n.t('errors.tagUidRequired', 'Tag uid is required'));
     }
     const uidSlug = createUidSlug(tag.uid, tag.name);
     return `/tag/${uidSlug}`;

@@ -3,6 +3,7 @@ import { useStore } from '../store/useStore';
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 // API functions
 export const fetchInboxItems = async (
@@ -29,7 +30,10 @@ export const fetchInboxItems = async (
         },
     });
 
-    await handleAuthResponse(response, 'Failed to fetch inbox items.');
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.loadError', 'Failed to fetch inbox items.')
+    );
 
     const result = await response.json();
 
@@ -47,7 +51,12 @@ export const fetchInboxItems = async (
     }
 
     if (!result.items || !Array.isArray(result.items)) {
-        throw new Error('Resulting inbox items are not in expected format.');
+        throw new Error(
+            i18n.t(
+                'errors.generic',
+                'Resulting inbox items are not in expected format.'
+            )
+        );
     }
 
     return result;
@@ -64,7 +73,10 @@ export const createInboxItem = async (
         body: JSON.stringify(source ? { content, source } : { content }),
     });
 
-    await handleAuthResponse(response, 'Failed to create inbox item.');
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.addError', 'Failed to create inbox item.')
+    );
     return await response.json();
 };
 
@@ -79,7 +91,10 @@ export const updateInboxItem = async (
         body: JSON.stringify({ content }),
     });
 
-    await handleAuthResponse(response, 'Failed to update inbox item.');
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.updateError', 'Failed to update inbox item.')
+    );
     return await response.json();
 };
 
@@ -93,7 +108,10 @@ export const processInboxItem = async (itemUid: string): Promise<InboxItem> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to process inbox item.');
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.processError', 'Failed to process inbox item.')
+    );
     return await response.json();
 };
 
@@ -107,7 +125,10 @@ export const deleteInboxItem = async (itemUid: string): Promise<void> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to delete inbox item.');
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.deleteError', 'Failed to delete inbox item.')
+    );
 };
 
 // Track last check time to detect new items

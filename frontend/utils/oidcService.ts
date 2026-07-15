@@ -1,5 +1,6 @@
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export interface OIDCProvider {
     slug: string;
@@ -21,7 +22,8 @@ export interface OIDCIdentity {
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const message = errorBody?.error || 'Request failed';
+        const message =
+            errorBody?.error || i18n.t('errors.requestFailed', 'Request failed');
         throw new Error(message);
     }
     return (await response.json()) as T;
@@ -55,7 +57,9 @@ export async function unlinkOIDCIdentity(identityId: number): Promise<void> {
     });
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const message = errorBody?.error || 'Failed to unlink account';
+        const message =
+            errorBody?.error ||
+            i18n.t('auth.unlinkError', 'Failed to unlink account');
         throw new Error(message);
     }
 }
@@ -71,7 +75,9 @@ export async function initiateOIDCLink(providerSlug: string): Promise<void> {
 
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const message = errorBody?.error || 'Failed to initiate account linking';
+        const message =
+            errorBody?.error ||
+            i18n.t('auth.linkInitError', 'Failed to initiate account linking');
         throw new Error(message);
     }
 

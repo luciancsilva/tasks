@@ -1,6 +1,7 @@
 import { getApiPath } from '../config/paths';
 import { Task } from '../entities/Task';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export interface HabitCompletion {
     id: number;
@@ -16,7 +17,9 @@ export async function fetchHabits(): Promise<Task[]> {
     const response = await fetch(getApiPath('habits'), {
         credentials: 'include',
     });
-    if (!response.ok) throw new Error('Failed to fetch habits');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.fetchError', 'Failed to fetch habits'));
+    }
     const data = await response.json();
     return data.habits;
 }
@@ -31,7 +34,9 @@ export async function createHabit(habitData: Partial<Task>): Promise<Task> {
         },
         body: JSON.stringify(habitData),
     });
-    if (!response.ok) throw new Error('Failed to create habit');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.createError', 'Failed to create habit'));
+    }
     const data = await response.json();
     return data.habit;
 }
@@ -48,7 +53,9 @@ export async function logHabitCompletion(habitUid: string, completedAt?: Date) {
             completed_at: completedAt?.toISOString(),
         }),
     });
-    if (!response.ok) throw new Error('Failed to log completion');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.logCompletionError', 'Failed to log completion'));
+    }
     return response.json();
 }
 
@@ -67,7 +74,9 @@ export async function fetchHabitStats(
             credentials: 'include',
         }
     );
-    if (!response.ok) throw new Error('Failed to fetch stats');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.fetchStatsError', 'Failed to fetch stats'));
+    }
     return response.json();
 }
 
@@ -84,7 +93,9 @@ export async function updateHabit(
         },
         body: JSON.stringify(updates),
     });
-    if (!response.ok) throw new Error('Failed to update habit');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.updateError', 'Failed to update habit'));
+    }
     const data = await response.json();
     return data.habit;
 }
@@ -97,7 +108,9 @@ export async function deleteHabit(habitUid: string): Promise<void> {
             'x-csrf-token': await getCsrfToken(),
         },
     });
-    if (!response.ok) throw new Error('Failed to delete habit');
+    if (!response.ok) {
+        throw new Error(i18n.t('habits.deleteError', 'Failed to delete habit'));
+    }
 }
 
 export async function fetchHabitCompletions(
@@ -115,7 +128,11 @@ export async function fetchHabitCompletions(
             credentials: 'include',
         }
     );
-    if (!response.ok) throw new Error('Failed to fetch completions');
+    if (!response.ok) {
+        throw new Error(
+            i18n.t('habits.fetchCompletionsError', 'Failed to fetch completions')
+        );
+    }
     const data = await response.json();
     return data.completions;
 }
@@ -134,6 +151,10 @@ export async function deleteHabitCompletion(
             },
         }
     );
-    if (!response.ok) throw new Error('Failed to delete completion');
+    if (!response.ok) {
+        throw new Error(
+            i18n.t('habits.deleteCompletionError', 'Failed to delete completion')
+        );
+    }
     return response.json();
 }

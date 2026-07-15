@@ -22,14 +22,17 @@ const {
 const router = express.Router();
 
 // Ensure authenticated
-router.use((req, res, next) => {
+const requireAuthMiddleware = async (req, res, next) => {
     const userId = getAuthenticatedUserId(req);
     if (!userId) {
+        if (req.file && req.file.path) {
+            await deleteFileFromDisk(req.file.path).catch(() => {});
+        }
         return res.status(401).json({ error: 'Authentication required' });
     }
     req.authUserId = userId;
     next();
-});
+};
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -65,6 +68,7 @@ router.post(
     '/upload/task-attachment',
     createResourceLimiter,
     upload.single('file'),
+    requireAuthMiddleware,
     async (req, res) => {
         try {
             const { taskUid } = req.body;
@@ -160,56 +164,61 @@ router.post(
 );
 
 // Get all attachments for a task
-router.get('/tasks/:taskUid/attachments', async (req, res) => {
-    try {
-        const { taskUid } = req.params;
-        const userId = req.authUserId;
+router.get(
+    '/tasks/:taskUid/attachments',
+    requireAuthMiddleware,
+    async (req, res) => {
+        try {
+            const { taskUid } = req.params;
+            const userId = req.authUserId;
 
-        // Find task
-        const task = await Task.findOne({ where: { uid: taskUid } });
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
+            // Find task
+            const task = await Task.findOne({ where: { uid: taskUid } });
+            if (!task) {
+                return res.status(404).json({ error: 'Task not found' });
+            }
+
+            // Check if user has read access to the task (includes shared projects)
+            const access = await permissionsService.getAccess(
+                userId,
+                'task',
+                taskUid
+            );
+            const LEVELS = { none: 0, ro: 1, rw: 2, admin: 3 };
+            if (LEVELS[access] < LEVELS.ro) {
+                return res
+                    .status(403)
+                    .json({ error: 'Not authorized to view this task' });
+            }
+
+            // Get attachments
+            const attachments = await TaskAttachment.findAll({
+                where: { task_id: task.id },
+                order: [['created_at', 'ASC']],
+            });
+
+            // Add file URLs
+            const attachmentsWithUrls = attachments.map((att) => ({
+                ...att.toJSON(),
+                file_url: getFileUrl(att.stored_filename),
+            }));
+
+            res.json(attachmentsWithUrls);
+        } catch (error) {
+            logError('Error fetching attachments:', error);
+            res.status(500).json({
+                error: 'Failed to fetch attachments',
+                details: error.message,
+            });
         }
-
-        // Check if user has read access to the task (includes shared projects)
-        const access = await permissionsService.getAccess(
-            userId,
-            'task',
-            taskUid
-        );
-        const LEVELS = { none: 0, ro: 1, rw: 2, admin: 3 };
-        if (LEVELS[access] < LEVELS.ro) {
-            return res
-                .status(403)
-                .json({ error: 'Not authorized to view this task' });
-        }
-
-        // Get attachments
-        const attachments = await TaskAttachment.findAll({
-            where: { task_id: task.id },
-            order: [['created_at', 'ASC']],
-        });
-
-        // Add file URLs
-        const attachmentsWithUrls = attachments.map((att) => ({
-            ...att.toJSON(),
-            file_url: getFileUrl(att.stored_filename),
-        }));
-
-        res.json(attachmentsWithUrls);
-    } catch (error) {
-        logError('Error fetching attachments:', error);
-        res.status(500).json({
-            error: 'Failed to fetch attachments',
-            details: error.message,
-        });
     }
-});
+);
 
 // Delete an attachment
 router.delete(
     '/tasks/:taskUid/attachments/:attachmentUid',
     createResourceLimiter,
+    requireAuthMiddleware,
     async (req, res) => {
         try {
             const { taskUid, attachmentUid } = req.params;
@@ -265,6 +274,7 @@ router.delete(
 router.get(
     '/attachments/:attachmentUid/download',
     authenticatedApiLimiter,
+    requireAuthMiddleware,
     async (req, res) => {
         try {
             const { attachmentUid } = req.params;

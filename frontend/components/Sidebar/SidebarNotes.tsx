@@ -34,7 +34,7 @@ const SidebarNotes: React.FC<SidebarNotesProps> = ({
                     onClick={() =>
                         handleNavClick(
                             '/notes',
-                            'Notes',
+                            t('sidebar.notes', 'Notes'),
                             <BookOpenIcon className="h-5 w-5 mr-2" />
                         )
                     }

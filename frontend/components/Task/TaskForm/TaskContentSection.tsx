@@ -31,7 +31,7 @@ const TaskContentSection: React.FC<TaskContentSectionProps> = ({
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
-                        title={t('common.edit')}
+                        title={t('common.edit', 'Edit')}
                     >
                         <PencilIcon className="h-3 w-3" />
                     </button>
@@ -43,7 +43,7 @@ const TaskContentSection: React.FC<TaskContentSectionProps> = ({
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                         }`}
-                        title={t('common.preview')}
+                        title={t('common.preview', 'Preview')}
                     >
                         <EyeIcon className="h-3 w-3" />
                     </button>
@@ -79,8 +79,7 @@ const TaskContentSection: React.FC<TaskContentSectionProps> = ({
                             />
                         ) : (
                             <p className="text-gray-500 dark:text-gray-400 italic">
-                                No content to preview. Switch to Edit mode to
-                                add content.
+                                {t('task.noContentPreview', 'No content to preview. Switch to Edit mode to add content.')}
                             </p>
                         )}
                     </div>

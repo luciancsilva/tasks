@@ -40,6 +40,7 @@ function FocusBar({
     projects: Project[];
     tasksInProgress: Task[];
 }) {
+    const { t: translate } = useTranslation();
     const segments = useMemo(() => {
         const projectMap = new Map<number, Project>(
             projects.map((p) => [p.id!, p])
@@ -47,7 +48,7 @@ function FocusBar({
         const areaMap = new Map<string, { color: string; count: number }>();
 
         tasksInProgress.forEach((t) => {
-            let name = 'Uncategorised';
+            let name = translate('common.uncategorised');
             let color = UNCATEGORISED;
             if (t.project_id) {
                 const proj = projectMap.get(t.project_id);
@@ -76,7 +77,7 @@ function FocusBar({
     if (segments.length === 0) {
         return (
             <p className="text-xs text-gray-400 dark:text-gray-600 mb-3">
-                No in-progress tasks.
+                {translate('charts.noInProgressTasks')}
             </p>
         );
     }
@@ -84,7 +85,7 @@ function FocusBar({
     return (
         <div className="mb-4">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                Focus Distribution
+                {translate('charts.focusDistribution')}
             </p>
             <div className="flex h-1.5 rounded-full overflow-hidden gap-px mb-2">
                 {segments.map((s) => (
@@ -139,6 +140,7 @@ function riskFor(neededPerDay: number): Risk {
 }
 
 function DeadlineDanger({ projects }: { projects: Project[] }) {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const rows = useMemo(() => {
@@ -170,11 +172,11 @@ function DeadlineDanger({ projects }: { projects: Project[] }) {
     return (
         <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                Deadline Danger
+                {t('charts.deadlineDanger')}
             </p>
             {rows.length === 0 ? (
                 <p className="text-xs text-gray-400 dark:text-gray-600">
-                    No deadlines in the next 60 days.
+                    {t('charts.noDeadlines60')}
                 </p>
             ) : (
                 <div className="space-y-1.5">
@@ -271,11 +273,11 @@ function WaitingForAge({
     return (
         <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                Waiting For
+                {translate('charts.waitingFor')}
             </p>
             {rows.length === 0 ? (
                 <p className="text-xs text-gray-400 dark:text-gray-600">
-                    No waiting-for tasks.
+                    {translate('charts.noWaitingTasks')}
                 </p>
             ) : (
                 <div className="space-y-1.5">
@@ -377,7 +379,7 @@ function OverdueBuckets({
     return (
         <div>
             <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                Overdue Age
+                {t('charts.overdueAge')}
             </p>
             <div className="space-y-1.5">
                 {BUCKETS.map(({ key, label, barColor, activeText }) => {

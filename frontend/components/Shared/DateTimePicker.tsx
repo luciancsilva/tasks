@@ -410,7 +410,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                         {/* Time Picker */}
                         <div className="border-t border-gray-200 dark:border-gray-600 p-3">
                             <label className="text-xs font-medium text-gray-700 dark:text-gray-300 block mb-2">
-                                Time
+                                {t('common.time')}
                             </label>
                             <select
                                 value={selectedTime}
@@ -455,7 +455,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                 }}
                                 className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                             >
-                                Now
+                                {t('common.now')}
                             </button>
                             <div className="flex space-x-2">
                                 {value && (
@@ -464,7 +464,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                         onClick={handleClear}
                                         className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                                     >
-                                        Clear
+                                        {t('common.clear')}
                                     </button>
                                 )}
                                 <button
@@ -473,7 +473,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                                     disabled={!selectedDate}
                                     className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Apply
+                                    {t('common.apply')}
                                 </button>
                             </div>
                         </div>

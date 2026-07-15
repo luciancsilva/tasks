@@ -1,5 +1,6 @@
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export type AccessLevel = 'ro' | 'rw';
 
@@ -22,7 +23,7 @@ export async function grantShare(req: ShareGrantRequest): Promise<void> {
         body: JSON.stringify(req),
     });
     if (!res.ok) {
-        let message = 'Failed to share resource';
+        let message = i18n.t('errors.shareError', 'Failed to share resource');
         try {
             const body = await res.json();
             if (body?.error) message = body.error;
@@ -53,7 +54,7 @@ export async function listShares(
         headers: { Accept: 'application/json' },
     });
     if (!res.ok) {
-        let message = 'Failed to load shares';
+        let message = i18n.t('errors.failedToLoadShares', 'Failed to load shares');
         try {
             const body = await res.json();
             if (body?.error) message = body.error;
@@ -82,7 +83,7 @@ export async function revokeShare(
         body: JSON.stringify({ resource_type, resource_uid, target_user_id }),
     });
     if (!res.ok) {
-        let message = 'Failed to revoke share';
+        let message = i18n.t('errors.revokeShareError', 'Failed to revoke share');
         try {
             const body = await res.json();
             if (body?.error) message = body.error;

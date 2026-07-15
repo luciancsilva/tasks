@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Tag } from '../../entities/Tag';
 import { TagIcon, XMarkIcon } from '@heroicons/react/24/solid';
 
@@ -14,6 +15,7 @@ const TaskTags: React.FC<TaskTagsProps> = ({
     onTagRemove,
     className,
 }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const handleTagClick = (tag: Tag) => {
@@ -56,7 +58,11 @@ const TaskTags: React.FC<TaskTagsProps> = ({
                             type="button"
                             onClick={() => onTagRemove(tag.uid)}
                             className="ml-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-400 focus:outline-none"
-                            aria-label={`Remove tag ${tag.name}`}
+                            aria-label={t(
+                                'tags.removeTag',
+                                'Remove tag {{tag}}',
+                                { tag: tag.name }
+                            )}
                         >
                             <XMarkIcon className="h-4 w-4" />
                         </button>

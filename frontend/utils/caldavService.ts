@@ -1,5 +1,6 @@
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export interface CalDAVCalendar {
     id: number;
@@ -94,7 +95,7 @@ export const fetchCalendars = async (): Promise<CalDAVCalendar[]> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to fetch calendars');
+        throw new Error(i18n.t('caldav.fetchError', 'Failed to fetch calendars'));
     }
     return response.json();
 };
@@ -104,7 +105,7 @@ export const fetchCalendar = async (id: number): Promise<CalDAVCalendar> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to fetch calendar');
+        throw new Error(i18n.t('caldav.fetchOneError', 'Failed to fetch calendar'));
     }
     return response.json();
 };
@@ -130,7 +131,9 @@ export const createCalendar = async (data: {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create calendar');
+        throw new Error(
+            error.error || i18n.t('caldav.createError', 'Failed to create calendar')
+        );
     }
     return response.json();
 };
@@ -151,7 +154,9 @@ export const updateCalendar = async (
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update calendar');
+        throw new Error(
+            error.error || i18n.t('caldav.updateError', 'Failed to update calendar')
+        );
     }
     return response.json();
 };
@@ -166,7 +171,7 @@ export const deleteCalendar = async (id: number): Promise<void> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to delete calendar');
+        throw new Error(i18n.t('caldav.deleteError', 'Failed to delete calendar'));
     }
 };
 
@@ -175,7 +180,9 @@ export const fetchRemoteCalendars = async (): Promise<RemoteCalendar[]> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to fetch remote calendars');
+        throw new Error(
+            i18n.t('caldav.fetchRemoteError', 'Failed to fetch remote calendars')
+        );
     }
     return response.json();
 };
@@ -203,7 +210,10 @@ export const createRemoteCalendar = async (data: {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create remote calendar');
+        throw new Error(
+            error.error ||
+                i18n.t('caldav.createRemoteError', 'Failed to create remote calendar')
+        );
     }
     return response.json();
 };
@@ -224,7 +234,10 @@ export const updateRemoteCalendar = async (
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update remote calendar');
+        throw new Error(
+            error.error ||
+                i18n.t('caldav.updateRemoteError', 'Failed to update remote calendar')
+        );
     }
     return response.json();
 };
@@ -239,7 +252,9 @@ export const deleteRemoteCalendar = async (id: number): Promise<void> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to delete remote calendar');
+        throw new Error(
+            i18n.t('caldav.deleteRemoteError', 'Failed to delete remote calendar')
+        );
     }
 };
 
@@ -268,7 +283,9 @@ export const testConnection = async (data: {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Connection test failed');
+        throw new Error(
+            error.error || i18n.t('caldav.testError', 'Connection test failed')
+        );
     }
     return response.json();
 };
@@ -289,7 +306,7 @@ export const syncCalendar = async (
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Sync failed');
+        throw new Error(error.error || i18n.t('caldav.syncError', 'Sync failed'));
     }
     return response.json();
 };
@@ -310,7 +327,7 @@ export const syncAllCalendars = async (options?: {
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Sync failed');
+        throw new Error(error.error || i18n.t('caldav.syncError', 'Sync failed'));
     }
     return response.json();
 };
@@ -320,7 +337,9 @@ export const getSyncStatus = async (id: number): Promise<SyncStatus> => {
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to fetch sync status');
+        throw new Error(
+            i18n.t('caldav.syncStatusError', 'Failed to fetch sync status')
+        );
     }
     return response.json();
 };
@@ -333,7 +352,9 @@ export const fetchConflicts = async (calendarId?: number): Promise<ConflictDetai
         credentials: 'include',
     });
     if (!response.ok) {
-        throw new Error('Failed to fetch conflicts');
+        throw new Error(
+            i18n.t('caldav.conflictsError', 'Failed to fetch conflicts')
+        );
     }
     return response.json();
 };
@@ -355,7 +376,10 @@ export const resolveConflict = async (
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to resolve conflict');
+        throw new Error(
+            error.error ||
+                i18n.t('caldav.resolveError', 'Failed to resolve conflict')
+        );
     }
     return response.json();
 };

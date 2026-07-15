@@ -50,13 +50,18 @@ const McpTab: React.FC<McpTabProps> = ({ isActive }) => {
                 credentials: 'include',
             });
             if (!response.ok) {
-                throw new Error('Failed to load MCP configuration');
+                throw new Error(
+                    t(
+                        'profile.mcp.loadError',
+                        'Failed to load MCP configuration'
+                    )
+                );
             }
             const data: McpConfig = await response.json();
             setConfig(JSON.stringify(data, null, 2));
         } catch (error) {
             console.error('Error loading MCP config:', error);
-            showErrorToast(t('profile.mcp.loadError'));
+            showErrorToast(t('profile.mcp.loadError', 'Failed to load MCP configuration'));
         } finally {
             setLoading(false);
         }
@@ -68,7 +73,9 @@ const McpTab: React.FC<McpTabProps> = ({ isActive }) => {
                 credentials: 'include',
             });
             if (!response.ok) {
-                throw new Error('Failed to load MCP tools');
+                throw new Error(
+                    t('errors.loadMcpTools', 'Failed to load MCP tools')
+                );
             }
             const data = await response.json();
             setTools(data.tools);
@@ -80,10 +87,10 @@ const McpTab: React.FC<McpTabProps> = ({ isActive }) => {
     const copyConfig = async () => {
         try {
             await navigator.clipboard.writeText(config);
-            showSuccessToast(t('profile.mcp.copySuccess'));
+            showSuccessToast(t('profile.mcp.copySuccess', 'Configuration copied to clipboard'));
         } catch (error) {
             console.error('Error copying to clipboard:', error);
-            showErrorToast(t('profile.mcp.copyError'));
+            showErrorToast(t('profile.mcp.copyError', 'Failed to copy configuration'));
         }
     };
 
@@ -168,36 +175,66 @@ const McpTab: React.FC<McpTabProps> = ({ isActive }) => {
                         </p>
                         <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1 font-mono">
                             <li>
-                                <strong>Mac:</strong> ~/Library/Application
+                                <strong>
+                                    {t('profile.mcp.osMac', 'Mac')}:
+                                </strong>{' '}
+                                ~/Library/Application
                                 Support/Claude/claude_desktop_config.json
                             </li>
                             <li>
-                                <strong>Linux:</strong>{' '}
+                                <strong>
+                                    {t('profile.mcp.osLinux', 'Linux')}:
+                                </strong>{' '}
                                 ~/.config/claude/claude_desktop_config.json
                             </li>
                         </ul>
                         <p className="text-xs text-blue-700 dark:text-blue-400 mt-2 italic">
-                            Other MCP clients may use different configuration
-                            methods - check your client&apos;s documentation.
+                            {t('profile.mcp.otherClientsNote', 'Note: Configuration location and format may vary for other MCP clients.')}
                         </p>
                     </div>
 
                     <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-md border border-green-200 dark:border-green-800">
                         <p className="text-xs font-medium text-green-800 dark:text-green-300 mb-2">
-                            ✓ Remote Access Enabled
+                            {t(
+                                'profile.mcp.remoteAccessEnabled',
+                                '✓ Remote Access Enabled'
+                            )}
                         </p>
                         <p className="text-xs text-green-700 dark:text-green-400">
-                            This configuration uses{' '}
-                            <code className="px-1 py-0.5 bg-green-100 dark:bg-green-900 rounded">
-                                mcp-remote
-                            </code>{' '}
-                            to connect via HTTP. This means you can:
+                            {t(
+                                'profile.mcp.remoteAccessExplanation',
+                                'This configuration uses mcp-remote to connect via HTTP. This means you can:'
+                            )}
                         </p>
                         <ul className="text-xs text-green-700 dark:text-green-400 mt-2 ml-4 space-y-1">
-                            <li>• Access local tududi (localhost)</li>
-                            <li>• Access remote tududi (cloud servers)</li>
-                            <li>• Use from Docker deployments</li>
-                            <li>• Connect securely with API tokens</li>
+                            <li>
+                                •{' '}
+                                {t(
+                                    'profile.mcp.accessLocal',
+                                    'Access local tududi (localhost)'
+                                )}
+                            </li>
+                            <li>
+                                •{' '}
+                                {t(
+                                    'profile.mcp.accessRemote',
+                                    'Access remote tududi (cloud servers)'
+                                )}
+                            </li>
+                            <li>
+                                •{' '}
+                                {t(
+                                    'profile.mcp.useDocker',
+                                    'Use from Docker deployments'
+                                )}
+                            </li>
+                            <li>
+                                •{' '}
+                                {t(
+                                    'profile.mcp.connectSecurely',
+                                    'Connect securely with API tokens'
+                                )}
+                            </li>
                         </ul>
                     </div>
                 </section>
@@ -261,45 +298,79 @@ const McpTab: React.FC<McpTabProps> = ({ isActive }) => {
                         </p>
                         <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                             <li className="italic">
-                                &quot;Show me my tasks for today&quot;
+                                {t(
+                                    'profile.mcp.examples.tasksToday',
+                                    '"Show me my tasks for today"'
+                                )}
                             </li>
                             <li className="italic">
-                                &quot;Create a task to review the MCP
-                                integration&quot;
+                                {t(
+                                    'profile.mcp.examples.createTask',
+                                    '"Create a task to review the MCP integration"'
+                                )}
                             </li>
                             <li className="italic">
-                                &quot;What projects do I have in progress?&quot;
+                                {t(
+                                    'profile.mcp.examples.projectsInProgress',
+                                    '"What projects do I have in progress?"'
+                                )}
                             </li>
                             <li className="italic">
-                                &quot;Add a reminder to my inbox to check
-                                emails&quot;
+                                {t(
+                                    'profile.mcp.examples.addReminder',
+                                    '"Add a reminder to my inbox to check emails"'
+                                )}
                             </li>
                             <li className="italic">
-                                &quot;Search for tasks related to
-                                documentation&quot;
+                                {t(
+                                    'profile.mcp.examples.searchTasks',
+                                    '"Search for tasks related to documentation"'
+                                )}
                             </li>
                         </ul>
                     </div>
 
                     <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-md border border-yellow-200 dark:border-yellow-800">
                         <p className="text-xs font-medium text-yellow-800 dark:text-yellow-300 mb-1">
-                            💡 Troubleshooting
+                            {t(
+                                'profile.mcp.troubleshooting.title',
+                                '💡 Troubleshooting'
+                            )}
                         </p>
                         <p className="text-xs text-yellow-700 dark:text-yellow-400">
-                            If your MCP client can&apos;t connect, check that:
+                            {t(
+                                'profile.mcp.troubleshooting.intro',
+                                "If your MCP client can't connect, check that:"
+                            )}
                         </p>
                         <ul className="text-xs text-yellow-700 dark:text-yellow-400 mt-2 ml-4 space-y-1">
-                            <li>• Your API token is valid and not expired</li>
                             <li>
-                                • The tududi server is running and accessible
+                                •{' '}
+                                {t(
+                                    'profile.mcp.troubleshooting.tokenValid',
+                                    'Your API token is valid and not expired'
+                                )}
                             </li>
                             <li>
-                                • You&apos;ve restarted your MCP client
-                                completely
+                                •{' '}
+                                {t(
+                                    'profile.mcp.troubleshooting.serverRunning',
+                                    'The tududi server is running and accessible'
+                                )}
                             </li>
                             <li>
-                                • For remote servers, check your firewall
-                                settings
+                                •{' '}
+                                {t(
+                                    'profile.mcp.troubleshooting.clientRestarted',
+                                    "You've restarted your MCP client completely"
+                                )}
+                            </li>
+                            <li>
+                                •{' '}
+                                {t(
+                                    'profile.mcp.troubleshooting.firewall',
+                                    'For remote servers, check your firewall settings'
+                                )}
                             </li>
                         </ul>
                     </div>

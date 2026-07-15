@@ -78,7 +78,7 @@ const SortFilterButton: React.FC<SortFilterButtonProps> = ({
                 <div className="flex items-center">
                     <FunnelIcon className={`${iconSize} ${iconMargin}`} />
                     <span className="whitespace-nowrap">
-                        {selectedOption?.label || t('sort.created_at')}
+                        {selectedOption?.label || t('sort.created_at', 'Created At')}
                     </span>
                 </div>
                 <span className={`${textSize} ${arrowMargin}`}>

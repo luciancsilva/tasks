@@ -1,5 +1,6 @@
 import { Task } from '../entities/Task';
 import { Project } from '../entities/Project';
+import i18n from '../i18n';
 
 export type SuggestionReason =
     | 'due'
@@ -269,44 +270,76 @@ export function scoreCandidate(
                 ? task.due_date.split('T')[0] < today
                 : false;
             reasonLabel = isOverdue
-                ? 'This task is overdue'
-                : 'This task is due today';
+                ? i18n.t('suggestions.reasons.overdue', 'This task is overdue')
+                : i18n.t('suggestions.reasons.dueToday', 'This task is due today');
             reasonColor = isOverdue ? '#f97316' : '#ef4444';
             break;
         }
         case 'goal': {
             const goalObj = project ? ((project as any).Goal ?? (project as any).goal) : null;
-            reasonLabel = goalObj ? `Advances: ${goalObj.title}` : 'Advances an active goal';
+            reasonLabel = goalObj
+                ? i18n.t('suggestions.reasons.advancesGoal', 'Advances: {{goal}}', {
+                      goal: goalObj.title,
+                  })
+                : i18n.t('suggestions.reasons.activeGoal', 'Advances an active goal');
             reasonColor = areaColor;
             break;
         }
         case 'fits_now':
-            reasonLabel = 'Matches your current context';
+            reasonLabel = i18n.t(
+                'suggestions.reasons.fitsNow',
+                'Matches your current context'
+            );
             reasonColor = areaColor;
             break;
         case 'revive':
             reasonLabel = projectName
-                ? `Completing this moves ${projectName} forward`
-                : 'Completing this revives stalled work';
+                ? i18n.t(
+                      'suggestions.reasons.reviveProject',
+                      'Completing this moves {{project}} forward',
+                      { project: projectName }
+                  )
+                : i18n.t(
+                      'suggestions.reasons.stalledWork',
+                      'Completing this revives stalled work'
+                  );
             reasonColor = FALLBACK_COLOR;
             break;
         case 'high':
-            reasonLabel = 'High priority - worth tackling now';
+            reasonLabel = i18n.t(
+                'suggestions.reasons.highPriority',
+                'High priority - worth tackling now'
+            );
             reasonColor = '#ef4444';
             break;
         case 'aging_review':
-            reasonLabel = `Hasn't been touched in ${agingDays} days - still relevant?`;
+            reasonLabel = i18n.t(
+                'suggestions.reasons.agingReview',
+                "Hasn't been touched in {{days}} days - still relevant?",
+                { days: agingDays }
+            );
             reasonColor = FALLBACK_COLOR;
             break;
         case 'area_balance':
-            reasonLabel = `Helps balance your ${areaName} area`;
+            reasonLabel = i18n.t(
+                'suggestions.reasons.areaBalance',
+                'Helps balance your {{area}} area',
+                { area: areaName }
+            );
             reasonColor = areaStat?.color ?? FALLBACK_COLOR;
             break;
         case 'next_step':
         default:
             reasonLabel = projectName
-                ? `The next open step in ${projectName}`
-                : 'A good action to tackle next';
+                ? i18n.t(
+                      'suggestions.reasons.nextStep',
+                      'The next open step in {{project}}',
+                      { project: projectName }
+                  )
+                : i18n.t(
+                      'suggestions.reasons.goodAction',
+                      'A good action to tackle next'
+                  );
             reasonColor = areaColor;
             reason = 'next_step';
             break;

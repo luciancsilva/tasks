@@ -1,4 +1,5 @@
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const getDefaultHeaders = (): Record<string, string> => {
     return {
@@ -39,7 +40,9 @@ export const handleAuthResponse = async (
                     window.location.href = '/login';
                 }, 100);
             }
-            throw new Error('Authentication required');
+            throw new Error(
+                i18n.t('api.errors.authenticationRequired', 'Authentication required')
+            );
         }
         let details: string[] | undefined;
         try {
@@ -61,5 +64,11 @@ export const handleAuthResponse = async (
 };
 
 export const isAuthError = (error: any): boolean => {
-    return error?.message && error.message.includes('Authentication required');
+    return (
+        error?.message &&
+        (error.message.includes('Authentication required') ||
+            error.message.includes(
+                i18n.t('api.errors.authenticationRequired', 'Authentication required')
+            ))
+    );
 };

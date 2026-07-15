@@ -427,7 +427,7 @@ const AreaDetails: React.FC = () => {
                                         : 'text-gray-400 dark:text-gray-500'
                                 }`}
                             >
-                                Area
+                                {t('common.area')}
                             </p>
                             <h1
                                 className={`text-3xl font-light uppercase tracking-wide ${

@@ -1,5 +1,6 @@
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export interface ApiKeySummary {
     id: number;
@@ -20,7 +21,8 @@ export interface CreateApiKeyResponse {
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const message = errorBody?.error || 'Request failed';
+        const message =
+            errorBody?.error || i18n.t('errors.requestFailed', 'Request failed');
         throw new Error(message);
     }
     return (await response.json()) as T;
@@ -70,7 +72,9 @@ export async function deleteApiKey(id: number): Promise<void> {
     });
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
-        const message = errorBody?.error || 'Failed to delete API key';
+        const message =
+            errorBody?.error ||
+            i18n.t('apiKeys.deleteError', 'Failed to delete API key');
         throw new Error(message);
     }
 }

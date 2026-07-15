@@ -1,5 +1,6 @@
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 interface Profile {
     id: number;
@@ -45,7 +46,10 @@ export const fetchProfile = async (): Promise<Profile> => {
             Accept: 'application/json',
         },
     });
-    await handleAuthResponse(response, 'Failed to fetch profile data.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.fetchError', 'Failed to fetch profile data.')
+    );
     return await response.json();
 };
 
@@ -58,7 +62,10 @@ export const updateProfile = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(profileData),
     });
-    await handleAuthResponse(response, 'Failed to update profile.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.errorMessage', 'Failed to update profile.')
+    );
     const updatedProfile = await response.json();
 
     if (profileData.features && 'task_intelligence_enabled' in profileData.features) {
@@ -75,7 +82,10 @@ export const fetchSchedulerStatus = async (): Promise<SchedulerStatus> => {
             Accept: 'application/json',
         },
     });
-    await handleAuthResponse(response, 'Failed to fetch scheduler status.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.fetchSchedulerStatusError', 'Failed to fetch scheduler status.')
+    );
     return await response.json();
 };
 
@@ -85,7 +95,10 @@ export const sendTaskSummaryNow = async (): Promise<any> => {
         credentials: 'include',
         headers: await getPostHeadersWithCsrf(),
     });
-    await handleAuthResponse(response, 'Failed to send task summary.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.sendTaskSummaryError', 'Failed to send task summary.')
+    );
     return await response.json();
 };
 
@@ -96,7 +109,10 @@ export const fetchTelegramPollingStatus = async (): Promise<any> => {
             Accept: 'application/json',
         },
     });
-    await handleAuthResponse(response, 'Failed to fetch polling status.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.fetchPollingStatusError', 'Failed to fetch polling status.')
+    );
     return await response.json();
 };
 
@@ -113,7 +129,10 @@ export const setupTelegram = async (
             chat_id: chatId,
         }),
     });
-    await handleAuthResponse(response, 'Failed to setup telegram.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.telegramSetupFailed', 'Failed to setup telegram.')
+    );
     return await response.json();
 };
 
@@ -123,7 +142,10 @@ export const startTelegramPolling = async (): Promise<any> => {
         credentials: 'include',
         headers: await getPostHeadersWithCsrf(),
     });
-    await handleAuthResponse(response, 'Failed to start telegram polling.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.startPollingFailed', 'Failed to start telegram polling.')
+    );
     return await response.json();
 };
 
@@ -133,7 +155,10 @@ export const stopTelegramPolling = async (): Promise<any> => {
         credentials: 'include',
         headers: await getPostHeadersWithCsrf(),
     });
-    await handleAuthResponse(response, 'Failed to stop telegram polling.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.stopPollingFailed', 'Failed to stop telegram polling.')
+    );
     return await response.json();
 };
 
@@ -147,7 +172,10 @@ export const testTelegram = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify({ text: message }),
     });
-    await handleAuthResponse(response, 'Failed to send test message.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.sendTestMessageError', 'Failed to send test message.')
+    );
     return await response.json();
 };
 
@@ -157,7 +185,10 @@ export const toggleTaskSummary = async (): Promise<any> => {
         credentials: 'include',
         headers: await getPostHeadersWithCsrf(),
     });
-    await handleAuthResponse(response, 'Failed to toggle task summary.');
+    await handleAuthResponse(
+        response,
+        i18n.t('profile.toggleTaskSummaryError', 'Failed to toggle task summary.')
+    );
     return await response.json();
 };
 
@@ -172,7 +203,10 @@ export const updateTaskSummaryFrequency = async (
     });
     await handleAuthResponse(
         response,
-        'Failed to update task summary frequency.'
+        i18n.t(
+            'api.errors.failedToUpdateTaskSummary',
+            'Failed to update task summary frequency.'
+        )
     );
     return await response.json();
 };

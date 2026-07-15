@@ -5,6 +5,7 @@ import {
     CompletionAnalyticsResponse,
     TaskActivitySummary,
 } from '../entities/TaskEvent';
+import i18n from '../i18n';
 
 const API_BASE = '/api';
 
@@ -20,7 +21,7 @@ export const getTaskTimeline = async (
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch task timeline: ${response.statusText}`
+            i18n.t('timeline.fetchError', 'Failed to fetch task timeline')
         );
     }
 
@@ -46,7 +47,10 @@ export const getTaskCompletionTime = async (
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch task completion time: ${response.statusText}`
+            i18n.t(
+                'errors.fetchTaskCompletionTimeError',
+                `Failed to fetch task completion time: ${response.statusText}`
+            )
         );
     }
 
@@ -74,7 +78,10 @@ export const getUserProductivityMetrics = async (
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch productivity metrics: ${response.statusText}`
+            i18n.t(
+                'errors.fetchProductivityMetricsError',
+                `Failed to fetch productivity metrics: ${response.statusText}`
+            )
         );
     }
 
@@ -102,7 +109,10 @@ export const getUserActivitySummary = async (
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch activity summary: ${response.statusText}`
+            i18n.t(
+                'errors.fetchActivitySummaryError',
+                `Failed to fetch activity summary: ${response.statusText}`
+            )
         );
     }
 
@@ -134,7 +144,10 @@ export const getCompletionAnalytics = async (
 
     if (!response.ok) {
         throw new Error(
-            `Failed to fetch completion analytics: ${response.statusText}`
+            i18n.t(
+                'errors.fetchCompletionAnalyticsError',
+                `Failed to fetch completion analytics: ${response.statusText}`
+            )
         );
     }
 
@@ -164,22 +177,37 @@ export const formatDuration = (hours: number): string => {
  */
 export const getEventTypeLabel = (eventType: string): string => {
     const labels: Record<string, string> = {
-        created: 'Created',
-        status_changed: 'Status Changed',
-        priority_changed: 'Priority Changed',
-        due_date_changed: 'Due Date Changed',
-        defer_until_changed: 'Defer Date Changed',
-        project_changed: 'Project Changed',
-        name_changed: 'Name Changed',
-        description_changed: 'Description Changed',
-        note_changed: 'Note Changed',
-        completed: 'Completed',
-        archived: 'Archived',
-        deleted: 'Deleted',
-        restored: 'Restored',
-        today_changed: 'Today Flag Changed',
-        tags_changed: 'Tags Changed',
-        recurrence_changed: 'Recurrence Changed',
+        created: i18n.t('timeline.events.taskCreated', 'Created'),
+        status_changed: i18n.t('timeline.events.statusChanged', 'Status Changed'),
+        priority_changed: i18n.t(
+            'timeline.events.priorityChanged',
+            'Priority Changed'
+        ),
+        due_date_changed: i18n.t('timeline.events.dueDateChanged', 'Due Date Changed'),
+        defer_until_changed: i18n.t(
+            'timeline.events.deferUntilChanged',
+            'Defer Date Changed'
+        ),
+        project_changed: i18n.t('timeline.events.projectChanged', 'Project Changed'),
+        name_changed: i18n.t('timeline.events.nameUpdated', 'Name Changed'),
+        description_changed: i18n.t(
+            'timeline.events.descriptionUpdated',
+            'Description Changed'
+        ),
+        note_changed: i18n.t('timeline.events.noteUpdated', 'Note Changed'),
+        completed: i18n.t('task.statusDone', 'Completed'),
+        archived: i18n.t('timeline.events.taskArchived', 'Archived'),
+        deleted: i18n.t('common.delete', 'Deleted'),
+        restored: i18n.t('common.restore', 'Restored'),
+        today_changed: i18n.t(
+            'timeline.events.todayFlagChanged',
+            'Today Flag Changed'
+        ),
+        tags_changed: i18n.t('timeline.events.tagsUpdated', 'Tags Changed'),
+        recurrence_changed: i18n.t(
+            'timeline.events.recurrenceTypeChanged',
+            'Recurrence Changed'
+        ),
     };
 
     return labels[eventType] || eventType;
@@ -190,11 +218,11 @@ export const getEventTypeLabel = (eventType: string): string => {
  */
 export const getStatusLabel = (status: number): string => {
     const statusLabels: Record<number, string> = {
-        0: 'Not Started',
-        1: 'In Progress',
-        2: 'Completed',
-        3: 'Archived',
-        4: 'Waiting',
+        0: i18n.t('task.statusNotStarted', 'Not Started'),
+        1: i18n.t('task.statusInProgress', 'In Progress'),
+        2: i18n.t('task.statusDone', 'Completed'),
+        3: i18n.t('task.statusArchived', 'Archived'),
+        4: i18n.t('task.statusWaiting', 'Waiting'),
     };
 
     return statusLabels[status] || `Status ${status}`;
@@ -205,9 +233,9 @@ export const getStatusLabel = (status: number): string => {
  */
 export const getPriorityLabel = (priority: number): string => {
     const priorityLabels: Record<number, string> = {
-        0: 'Low',
-        1: 'Medium',
-        2: 'High',
+        0: i18n.t('common.priority.low', 'Low'),
+        1: i18n.t('common.priority.medium', 'Medium'),
+        2: i18n.t('common.priority.high', 'High'),
     };
 
     return priorityLabels[priority] || `Priority ${priority}`;

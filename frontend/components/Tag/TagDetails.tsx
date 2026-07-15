@@ -885,16 +885,32 @@ const TagDetails: React.FC = () => {
                                             <button
                                                 onClick={() => handleEditNote(note)}
                                                 className={`text-gray-500 hover:text-blue-700 dark:hover:text-blue-300 focus:outline-none transition-opacity ${hoveredNoteId === note.uid ? 'opacity-100' : 'opacity-0'}`}
-                                                aria-label={`Edit ${note.title}`}
-                                                title={`Edit ${note.title}`}
+                                                aria-label={t(
+                                                    'notes.editNoteTitle',
+                                                    'Edit {{title}}',
+                                                    { title: note.title }
+                                                )}
+                                                title={t(
+                                                    'notes.editNoteTitle',
+                                                    'Edit {{title}}',
+                                                    { title: note.title }
+                                                )}
                                             >
                                                 <PencilSquareIcon className="h-5 w-5" />
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteNoteClick(note)}
                                                 className={`text-gray-500 hover:text-red-700 dark:hover:text-red-300 focus:outline-none transition-opacity ${hoveredNoteId === note.uid ? 'opacity-100' : 'opacity-0'}`}
-                                                aria-label={`Delete ${note.title}`}
-                                                title={`Delete ${note.title}`}
+                                                aria-label={t(
+                                                    'notes.deleteNoteTitle',
+                                                    'Delete {{title}}',
+                                                    { title: note.title }
+                                                )}
+                                                title={t(
+                                                    'notes.deleteNoteTitle',
+                                                    'Delete {{title}}',
+                                                    { title: note.title }
+                                                )}
                                             >
                                                 <TrashIcon className="h-5 w-5" />
                                             </button>

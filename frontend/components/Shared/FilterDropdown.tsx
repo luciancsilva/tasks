@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDownIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 
 export interface FilterOption {
     value: string;
@@ -25,6 +26,8 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
     autoWidth = false,
     className = '',
 }) => {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder === 'Select...' ? t('common.select', 'Select...') : placeholder;
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -89,7 +92,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <span className="whitespace-nowrap">
-                    {selectedOption?.label || placeholder}
+                    {selectedOption?.label || resolvedPlaceholder}
                 </span>
                 <ChevronDownIcon
                     className={`${iconSize} text-gray-500 dark:text-gray-300 transition-transform ${

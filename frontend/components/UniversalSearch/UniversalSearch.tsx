@@ -127,7 +127,7 @@ const UniversalSearch: React.FC = () => {
                     <input
                         ref={inputRef}
                         type="text"
-                        placeholder={t('search.placeholder')}
+                        placeholder={t('search.placeholder', 'Search or type ? for help...')}
                         className="flex-1 ml-2 bg-transparent border-none outline-none text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}

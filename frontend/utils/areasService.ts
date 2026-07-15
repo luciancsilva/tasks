@@ -2,6 +2,7 @@ import { Area } from '../entities/Area';
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const fetchAreas = async (): Promise<Area[]> => {
     const response = await fetch(getApiPath('areas'), {
@@ -10,7 +11,10 @@ export const fetchAreas = async (): Promise<Area[]> => {
             Accept: 'application/json',
         },
     });
-    await handleAuthResponse(response, 'Failed to fetch areas.');
+    await handleAuthResponse(
+        response,
+        i18n.t('area.loadError', 'Failed to fetch areas.')
+    );
     return await response.json();
 };
 
@@ -22,7 +26,10 @@ export const createArea = async (areaData: Partial<Area>): Promise<Area> => {
         body: JSON.stringify(areaData),
     });
 
-    await handleAuthResponse(response, 'Failed to create area.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToSaveArea', 'Failed to create area.')
+    );
     return await response.json();
 };
 
@@ -37,7 +44,10 @@ export const updateArea = async (
         body: JSON.stringify(areaData),
     });
 
-    await handleAuthResponse(response, 'Failed to update area.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToSaveArea', 'Failed to update area.')
+    );
     return await response.json();
 };
 
@@ -51,5 +61,8 @@ export const deleteArea = async (areaUid: string): Promise<void> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to delete area.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToDeleteArea', 'Failed to delete area.')
+    );
 };

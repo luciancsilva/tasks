@@ -235,7 +235,7 @@ const TaskTimeline: React.FC<TaskTimelineProps> = ({ taskUid, refreshKey }) => {
             <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
                 <SparklesIcon className="h-6 w-6 mb-2" />
                 <span className="text-sm text-center">
-                    Timeline will appear after saving
+                    {t('task.timelineAfterSaving')}
                 </span>
             </div>
         );

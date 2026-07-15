@@ -36,7 +36,7 @@ const SidebarTags: React.FC<SidebarTagsProps> = ({
                     onClick={() =>
                         handleNavClick(
                             '/tags',
-                            'Tags',
+                            t('sidebar.tags', 'Tags'),
                             <TagIcon className="h-5 w-5 mr-2" />
                         )
                     }

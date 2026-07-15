@@ -1,4 +1,5 @@
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 interface SearchParams {
     query: string;
@@ -94,7 +95,9 @@ export const searchUniversal = async (
         );
 
         if (!response.ok) {
-            throw new Error('Search request failed');
+            throw new Error(
+                i18n.t('search.requestFailed', 'Search request failed')
+            );
         }
 
         const data = await response.json();

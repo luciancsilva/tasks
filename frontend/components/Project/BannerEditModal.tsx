@@ -116,7 +116,12 @@ const BannerEditModal: React.FC<BannerEditModalProps> = ({
                 return result.imageUrl;
             }
 
-            throw new Error('Image URL missing from upload response');
+            throw new Error(
+                t(
+                    'errors.imageUrlMissing',
+                    'Image URL missing from upload response'
+                )
+            );
         } catch (error) {
             console.error('Error uploading image:', error);
             setError(
@@ -282,7 +287,13 @@ const BannerEditModal: React.FC<BannerEditModalProps> = ({
                                                         src={getAssetPath(
                                                             banner.url
                                                         )}
-                                                        alt={`Banner by ${banner.creator}`}
+                                                        alt={t(
+                                                            'projects.bannerBy',
+                                                            'Banner by {{creator}}',
+                                                            {
+                                                                creator: banner.creator,
+                                                            }
+                                                        )}
                                                         className="w-full h-24 object-cover"
                                                     />
                                                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs px-2 py-1 text-center">

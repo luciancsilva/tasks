@@ -1,5 +1,6 @@
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
+import i18n from '../i18n';
 
 export interface UrlTitleResult {
     url: string;
@@ -22,7 +23,10 @@ export const extractUrlTitle = async (url: string): Promise<UrlTitleResult> => {
             }
         );
 
-        await handleAuthResponse(response, 'Failed to extract URL title');
+        await handleAuthResponse(
+            response,
+            i18n.t('errors.extractUrlTitleError', 'Failed to extract URL title')
+        );
         return await response.json();
     } catch (error) {
         console.error('Error extracting URL title:', error);
@@ -41,7 +45,13 @@ export const extractTitleFromText = async (
             body: JSON.stringify({ text }),
         });
 
-        await handleAuthResponse(response, 'Failed to extract title from text');
+        await handleAuthResponse(
+            response,
+            i18n.t(
+                'errors.extractTitleFromTextError',
+                'Failed to extract title from text'
+            )
+        );
         const result = await response.json();
 
         if (result.found === false) {

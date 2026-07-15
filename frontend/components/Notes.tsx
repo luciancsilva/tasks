@@ -749,18 +749,18 @@ const Notes: React.FC = () => {
                                                     {saveStatus ===
                                                         'saving' && (
                                                         <span className="text-blue-500 dark:text-blue-400 italic">
-                                                            Saving...
+                                                            {t('common.saving', 'Saving...')}
                                                         </span>
                                                     )}
                                                     {saveStatus === 'saved' && (
                                                         <span className="text-green-600 dark:text-green-400">
-                                                            ✓ Saved
+                                                            ✓ {t('common.saved', 'Saved')}
                                                         </span>
                                                     )}
                                                     {saveStatus ===
                                                         'unsaved' && (
                                                         <span className="text-amber-600 dark:text-amber-400">
-                                                            • Unsaved changes
+                                                            • {t('common.unsavedChanges', 'Unsaved changes')}
                                                         </span>
                                                     )}
                                                 </div>
@@ -816,7 +816,7 @@ const Notes: React.FC = () => {
                                                     {ENABLE_NOTE_COLOR && (
                                                         <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700">
                                                             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                                                                Background Color
+                                                                {t('notes.backgroundColor')}
                                                             </div>
                                                             <div className="grid grid-cols-5 gap-2">
                                                                 {COLORS.map(
@@ -914,7 +914,7 @@ const Notes: React.FC = () => {
                                 {showProjectDropdown && (
                                     <div className="mb-3 mx-4 p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex-shrink-0">
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Select Project
+                                            {t('notes.selectProject')}
                                         </label>
                                         <select
                                             value={
@@ -958,7 +958,7 @@ const Notes: React.FC = () => {
                                 {showTagsInput && (
                                     <div className="mb-3 mx-4 p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 flex-shrink-0">
                                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                            Tags
+                                            {t('tags.title')}
                                         </label>
                                         <TagInput
                                             initialTags={(
@@ -1214,7 +1214,7 @@ const Notes: React.FC = () => {
                                                     {ENABLE_NOTE_COLOR && (
                                                         <div className="px-3 py-3 border-b border-gray-200 dark:border-gray-700">
                                                             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">
-                                                                Background Color
+                                                                {t('notes.backgroundColor')}
                                                             </div>
                                                             <div className="grid grid-cols-5 gap-2">
                                                                 {COLORS.map(

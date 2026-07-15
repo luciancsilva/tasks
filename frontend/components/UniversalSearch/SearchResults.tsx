@@ -180,7 +180,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 className="p-8 text-center text-gray-500 dark:text-gray-400"
                 data-testid="search-loading"
             >
-                <div className="animate-pulse">Searching...</div>
+                <div className="animate-pulse">{t('search.searchInProgress', 'Searching...')}</div>
             </div>
         );
     }
@@ -197,7 +197,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 className="p-8 text-center text-gray-500 dark:text-gray-400"
                 data-testid="search-empty"
             >
-                <p className="text-sm">{t('search.startTyping')}</p>
+                <p className="text-sm">{t('search.startTyping', 'Start typing to search or select filters above')}</p>
             </div>
         );
     }
@@ -208,7 +208,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 className="p-8 text-center text-gray-500 dark:text-gray-400"
                 data-testid="search-no-results"
             >
-                <p className="text-sm">{t('search.noResults')}</p>
+                <p className="text-sm">{t('search.noResults', 'No results found')}</p>
             </div>
         );
     }
@@ -234,7 +234,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     data-testid={`search-results-${type.toLowerCase()}`}
                 >
                     <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900 text-xs font-semibold text-gray-600 dark:text-gray-400">
-                        {type}s
+                        {t(`search.types.${type.toLowerCase()}`, type)}s
                     </div>
                     <div>
                         {typeResults.map((result) => (

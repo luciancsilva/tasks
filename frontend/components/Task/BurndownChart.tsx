@@ -146,11 +146,11 @@ const BurndownChart: React.FC = () => {
     return (
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow p-4 h-full flex flex-col">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">
-                4-Week Burndown
+                {t('charts.burndownTitle')}
             </h3>
             {!hasCompletedAt && !loading && allTasks.length > 0 && (
                 <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-1 leading-tight">
-                    Tasks created (completion tracking coming soon)
+                    {t('charts.completionComingSoon')}
                 </p>
             )}
             <div ref={containerRef} className="flex-1 min-h-0 relative">
@@ -164,7 +164,7 @@ const BurndownChart: React.FC = () => {
                 {!loading && allTasks.length === 0 && (
                     <div className="flex items-center justify-center h-full">
                         <span className="text-xs text-gray-400 dark:text-gray-500">
-                            No task data
+                            {t('charts.noTaskData')}
                         </span>
                     </div>
                 )}

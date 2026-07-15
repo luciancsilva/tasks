@@ -2,6 +2,7 @@ import { Project } from '../entities/Project';
 import { handleAuthResponse } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const fetchProjects = async (
     stateFilter = 'all',
@@ -19,7 +20,10 @@ export const fetchProjects = async (
         headers: { Accept: 'application/json' },
     });
 
-    await handleAuthResponse(response, 'Failed to fetch projects.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.projectFetch', 'Failed to fetch projects.')
+    );
 
     const data = await response.json();
     return data.projects || data;
@@ -42,7 +46,10 @@ export const fetchGroupedProjects = async (
         headers: { Accept: 'application/json' },
     });
 
-    await handleAuthResponse(response, 'Failed to fetch projects.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.projectFetch', 'Failed to fetch projects.')
+    );
 
     const data = await response.json();
     return data;
@@ -54,7 +61,10 @@ export const fetchProjectById = async (projectId: string): Promise<Project> => {
         headers: { Accept: 'application/json' },
     });
 
-    await handleAuthResponse(response, 'Failed to fetch project details.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToLoadProjectDetails', 'Failed to fetch project details.')
+    );
     return await response.json();
 };
 
@@ -73,7 +83,10 @@ export const createProject = async (
         body: JSON.stringify(projectData),
     });
 
-    await handleAuthResponse(response, 'Failed to create project.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.projectCreationFailed', 'Failed to create project.')
+    );
     return await response.json();
 };
 
@@ -93,13 +106,21 @@ export const updateProject = async (
         body: JSON.stringify(projectData),
     });
 
-    await handleAuthResponse(response, 'Failed to update project.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.projectSaveFailed', 'Failed to update project.')
+    );
     return await response.json();
 };
 
 export const deleteProject = async (projectUid: string): Promise<void> => {
     if (!projectUid || projectUid === null || projectUid === undefined) {
-        throw new Error('Cannot delete project: Invalid project UID');
+        throw new Error(
+            i18n.t(
+                'errors.invalidProjectUid',
+                'Cannot delete project: Invalid project UID'
+            )
+        );
     }
 
     console.log('Attempting to delete project with UID:', projectUid);
@@ -120,11 +141,18 @@ export const deleteProject = async (projectUid: string): Promise<void> => {
         const errorText = await response.text();
         console.error('Delete failed with response:', errorText);
         throw new Error(
-            `Failed to delete project: ${response.status} - ${errorText}`
+            i18n.t(
+                'errors.projectDeleteFailedWithStatus',
+                'Failed to delete project: {{status}} - {{errorText}}',
+                { status: response.status, errorText }
+            )
         );
     }
 
-    await handleAuthResponse(response, 'Failed to delete project.');
+    await handleAuthResponse(
+        response,
+        i18n.t('projects.deleteError', 'Failed to delete project.')
+    );
 };
 
 export const fetchProjectBySlug = async (uidSlug: string): Promise<Project> => {
@@ -135,6 +163,9 @@ export const fetchProjectBySlug = async (uidSlug: string): Promise<Project> => {
         },
     });
 
-    await handleAuthResponse(response, 'Failed to fetch project.');
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToLoadProjectDetails', 'Failed to fetch project.')
+    );
     return await response.json();
 };

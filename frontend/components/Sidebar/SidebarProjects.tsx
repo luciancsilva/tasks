@@ -32,7 +32,7 @@ const SidebarProjects: React.FC<SidebarProjectsProps> = ({
                     onClick={() =>
                         handleNavClick(
                             '/projects',
-                            'Projects',
+                            t('sidebar.projects', 'Projects'),
                             <FolderIcon className="h-5 w-5 mr-2" />
                         )
                     }

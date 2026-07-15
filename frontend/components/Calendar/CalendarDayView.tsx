@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { format, addHours, isToday } from 'date-fns';
 import { getCurrentLocale } from '../../utils/dateUtils';
 
@@ -26,6 +27,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     onTimeSlotClick,
     onEventDrop,
 }) => {
+    const { t } = useTranslation();
     const hours = Array.from({ length: 24 }, (_, i) => i);
     const [draggedEventId, setDraggedEventId] = React.useState<string | null>(
         null
@@ -113,7 +115,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
             }).length > 0 && (
                 <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-600 bg-gray-50 dark:bg-gray-800">
                     <div className="text-xs font-semibold tracking-widest uppercase text-gray-400 dark:text-gray-500 mb-2">
-                        All day
+                        {t('calendar.allDay')}
                     </div>
                     <div className="space-y-1">
                         {events

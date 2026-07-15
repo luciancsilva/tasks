@@ -2,6 +2,7 @@ import { Person } from '../entities/Person';
 import { handleAuthResponse, getPostHeadersWithCsrf } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
+import i18n from '../i18n';
 
 export const fetchPeople = async (params: {
     archived?: boolean;
@@ -18,7 +19,10 @@ export const fetchPeople = async (params: {
         credentials: 'include',
         headers: { Accept: 'application/json' },
     });
-    await handleAuthResponse(response, 'Failed to fetch people.');
+    await handleAuthResponse(
+        response,
+        i18n.t('people.loadError', 'Failed to fetch people.')
+    );
     const data = await response.json();
     return data.people;
 };
@@ -28,7 +32,10 @@ export const fetchPersonByUid = async (uid: string): Promise<Person> => {
         credentials: 'include',
         headers: { Accept: 'application/json' },
     });
-    await handleAuthResponse(response, 'Failed to fetch person.');
+    await handleAuthResponse(
+        response,
+        i18n.t('people.personNotFound', 'Failed to fetch person.')
+    );
     return response.json();
 };
 
@@ -41,7 +48,10 @@ export const createPerson = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(data),
     });
-    await handleAuthResponse(response, 'Failed to create person.');
+    await handleAuthResponse(
+        response,
+        i18n.t('people.saveError', 'Failed to create person.')
+    );
     return response.json();
 };
 
@@ -55,7 +65,10 @@ export const updatePerson = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(data),
     });
-    await handleAuthResponse(response, 'Failed to update person.');
+    await handleAuthResponse(
+        response,
+        i18n.t('people.saveError', 'Failed to update person.')
+    );
     return response.json();
 };
 
@@ -68,5 +81,8 @@ export const deletePerson = async (uid: string): Promise<void> => {
             'x-csrf-token': await getCsrfToken(),
         },
     });
-    await handleAuthResponse(response, 'Failed to delete person.');
+    await handleAuthResponse(
+        response,
+        i18n.t('people.deleteError', 'Failed to delete person.')
+    );
 };

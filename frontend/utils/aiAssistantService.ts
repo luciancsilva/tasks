@@ -1,5 +1,6 @@
 import { getApiPath } from '../config/paths';
 import { getPostHeadersWithCsrf, handleAuthResponse } from './authUtils';
+import i18n from '../i18n';
 
 export interface PriorityAction {
     action: string;
@@ -60,7 +61,10 @@ export const fetchTaskInsights = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(payload),
     });
-    await handleAuthResponse(response, 'Failed to generate task insights.');
+    await handleAuthResponse(
+        response,
+        i18n.t('aiAssistant.errorDefault', 'Failed to generate task insights.')
+    );
     return response.json();
 };
 
@@ -122,7 +126,10 @@ export const fetchProjectInsights = async (
         headers: await getPostHeadersWithCsrf(),
         body: JSON.stringify(payload),
     });
-    await handleAuthResponse(response, 'Failed to generate project insights.');
+    await handleAuthResponse(
+        response,
+        i18n.t('aiAssistant.errorDefault', 'Failed to generate project insights.')
+    );
     return response.json();
 };
 
@@ -169,6 +176,9 @@ export const fetchDailyBrief = async (): Promise<DailyBrief> => {
         credentials: 'include',
         headers: await getPostHeadersWithCsrf(),
     });
-    await handleAuthResponse(response, 'Failed to generate daily brief.');
+    await handleAuthResponse(
+        response,
+        i18n.t('aiAssistant.errorDefault', 'Failed to generate daily brief.')
+    );
     return response.json();
 };
