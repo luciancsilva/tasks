@@ -99,6 +99,17 @@ Only push changes once the repository is in a consistent and validated state.
 
 ---
 
+## Fork Documentation & README Synchronization
+
+* Every time upstream changes are reviewed, merged, or adapted, you MUST verify and update `README.md`.
+* `README.md` serves as the functional summary and living documentation of all differences, bug fixes, localization (pt-BR), and custom enhancements between this fork (`luciancsilva/tasks`) and the original project (`chrisvel/tududi`).
+* Always populate and refine `README.md` during synchronization to ensure it accurately reflects:
+  * The current divergence and list of custom features vs. upstream.
+  * Newly integrated upstream versions/commits.
+  * Active implementation plans and bug fixes (`plans/`).
+
+---
+
 ## Deliverables
 
 Provide a concise report containing:
@@ -114,5 +125,6 @@ Provide a concise report containing:
 5. Any conflicts encountered and how they were resolved.
 6. Validation results.
 7. Remaining risks or recommended follow-up work.
+8. Confirmation that `README.md` has been updated with any new changes or differences between the fork and upstream.
 
-The goal is not simply to synchronize with upstream, but to keep the fork healthy, maintainable, and functionally correct.
+The goal is not simply to synchronize with upstream, but to keep the fork healthy, maintainable, functionally correct, and well-documented.
