@@ -79,11 +79,10 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 Para iniciar rapidamente a instância do fork em português com persistência de banco de dados e anexos:
 
 ```bash
-docker pull chrisvel/tududi:latest
-
-# Ou construindo a partir do Dockerfile deste fork:
+# 1. Construir a imagem Docker a partir do código deste fork:
 docker build -t tududi-ptbr:local .
 
+# 2. Executar o contêiner usando a imagem local construída:
 docker run \
   -e TUDUDI_USER_EMAIL=admin@exemplo.com.br \
   -e TUDUDI_USER_PASSWORD=senha-segura-aqui \
