@@ -75,25 +75,41 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ## 🚀 Como Executar o Projeto Funcional
 
-### Execução via Docker (Ambiente Prontamente Funcional)
-Para iniciar rapidamente a instância do fork em português com persistência de banco de dados e anexos:
+### Execução via Docker Compose (Recomendado)
+Para iniciar rapidamente a instância do fork em português usando Docker Compose, crie ou configure seu arquivo `docker-compose.yml` da seguinte forma:
 
-```bash
-# 1. Construir a imagem Docker a partir do código deste fork:
-docker build -t tududi-ptbr:local .
+```yaml
+services:
+  tududi:
+    container_name: tududi
+    build:
+      context: https://github.com/luciancsilva/tasks.git#main
+      dockerfile: Dockerfile
+    restart: unless-stopped
 
-# 2. Executar o contêiner usando a imagem local construída:
-docker run \
-  -e TUDUDI_USER_EMAIL=admin@exemplo.com.br \
-  -e TUDUDI_USER_PASSWORD=senha-segura-aqui \
-  -e TUDUDI_SESSION_SECRET=$(openssl rand -hex 64) \
-  -e TUDUDI_TRUST_PROXY=true \
-  -v ~/tududi_db:/app/db \
-  -v ~/tududi_uploads:/app/uploads \
-  -p 3002:3002 \
-  -d tududi-ptbr:local
+    ports:
+      - "${TUDUDI_PORT:-3002}:3002"
+
+    environment:
+      TUDUDI_USER_EMAIL: ${TUDUDI_USER_EMAIL}
+      TUDUDI_USER_PASSWORD: ${TUDUDI_USER_PASSWORD}
+      TUDUDI_SESSION_SECRET: ${TUDUDI_SESSION_SECRET}
+      TUDUDI_ALLOWED_ORIGINS: ${TUDUDI_ALLOWED_ORIGINS}
+      TUDUDI_TRUST_PROXY: ${TUDUDI_TRUST_PROXY}
+      TZ: ${TZ:-America/Sao_Paulo}
+
+#    user: "${PUID}:${PGID}"
+
+    volumes:
+      - tududi_db:/app/db
+      - tududi_uploads:/app/uploads
+
+volumes:
+  tududi_db:
+  tududi_uploads:
 ```
-Acesse **http://localhost:3002** para utilizar o sistema.
+
+Acesse **http://localhost:${TUDUDI_PORT:-3002}** para utilizar o sistema.
 
 ### Desenvolvimento Local (Modo Código Fonte)
 ```bash
