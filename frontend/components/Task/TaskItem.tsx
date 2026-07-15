@@ -349,8 +349,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
                         </>,
                         async () => {
                             try {
-                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                 const {
+                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                     subtasks: _taskSubtasks,
                                     ...taskWithoutSubtasks
                                 } = task;
