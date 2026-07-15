@@ -167,7 +167,7 @@ const ProjectShareModal: React.FC<ProjectShareModalProps> = ({
             const data = await listShares('project', projectUid);
             setRows(data);
         } catch (err: any) {
-            setError(err.message || 'Failed to share');
+            setError(err.message || t('project.shareError'));
         } finally {
             setSubmitting(false);
         }
@@ -181,7 +181,7 @@ const ProjectShareModal: React.FC<ProjectShareModalProps> = ({
             const data = await listShares('project', projectUid);
             setRows(data);
         } catch (err: any) {
-            setError(err.message || 'Failed to revoke share');
+            setError(err.message || t('project.revokeShareError'));
         }
     };
 

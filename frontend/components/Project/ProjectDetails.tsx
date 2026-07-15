@@ -744,7 +744,8 @@ const ProjectDetails: React.FC = () => {
         }
     };
 
-    if (loading) return <LoadingSpinner message="Loading project details..." />;
+    if (loading)
+        return <LoadingSpinner message={t('project.loadingDetails')} />;
     if (error)
         return (
             <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
@@ -974,8 +975,8 @@ const ProjectDetails: React.FC = () => {
                                         aria-expanded={isSearchExpanded}
                                         aria-label={
                                             isSearchExpanded
-                                                ? 'Collapse search panel'
-                                                : 'Show search input'
+                                                ? t('common.hideSearch')
+                                                : t('common.showSearch')
                                         }
                                     >
                                         <MagnifyingGlassIcon className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-200" />

@@ -294,7 +294,7 @@ const TaskRecurrenceSection: React.FC<TaskRecurrenceSectionProps> = ({
                     {t('forms.task.recurrenceSettings', 'Recurrence Settings')}
                 </h3>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Loading parent task recurrence settings...
+                    {t('recurrence.loadingParent')}
                 </div>
             </div>
         );
@@ -308,12 +308,8 @@ const TaskRecurrenceSection: React.FC<TaskRecurrenceSectionProps> = ({
                 </h3>
                 <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md p-3 mb-4">
                     <div className="text-sm text-blue-800 dark:text-blue-200">
-                        <strong>Recurring Task Instance</strong>
-                        <p className="mt-1">
-                            This task was generated from a recurring task. The
-                            recurrence settings shown below are inherited from
-                            the original task and cannot be edited here.
-                        </p>
+                        <strong>{t('recurrence.instance')}</strong>
+                        <p className="mt-1">{t('recurrence.instanceInfo')}</p>
                         {onParentRecurrenceChange && (
                             <button
                                 type="button"
@@ -329,8 +325,8 @@ const TaskRecurrenceSection: React.FC<TaskRecurrenceSectionProps> = ({
                                 }`}
                             >
                                 {editingParentRecurrence
-                                    ? 'Cancel Edit'
-                                    : 'Edit Parent Recurrence'}
+                                    ? t('recurrence.cancelEdit')
+                                    : t('recurrence.editParentRecurrence')}
                             </button>
                         )}
                     </div>
@@ -345,9 +341,7 @@ const TaskRecurrenceSection: React.FC<TaskRecurrenceSectionProps> = ({
                     {editingParentRecurrence && (
                         <div className="mb-4 p-2 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-md">
                             <div className="text-xs text-yellow-800 dark:text-yellow-200">
-                                ⚠️ You are editing the parent task&apos;s
-                                recurrence settings. Changes will affect all
-                                future instances of this recurring task.
+                                ⚠️ {t('recurrence.editingParentWarning')}
                             </div>
                         </div>
                     )}

@@ -87,7 +87,7 @@ const UrlPreview: React.FC<UrlPreviewProps> = ({ text, onPreviewChange }) => {
                     {preview.image && !imageError ? (
                         <img
                             src={preview.image}
-                            alt="Preview"
+                            alt={t('altText.preview')}
                             className="w-16 h-16 object-cover rounded-md"
                             onError={handleImageError}
                         />

@@ -101,7 +101,7 @@ const BannerEditModal: React.FC<BannerEditModalProps> = ({
             });
 
             if (!response.ok) {
-                let serverMessage = 'Failed to upload image';
+                let serverMessage = t('project.uploadImageError');
                 try {
                     const errData = await response.json();
                     if (errData?.error) serverMessage = errData.error;
@@ -238,7 +238,9 @@ const BannerEditModal: React.FC<BannerEditModalProps> = ({
                                                                   imagePreview
                                                               )
                                                     }
-                                                    alt="Banner preview"
+                                                    alt={t(
+                                                        'altText.bannerPreview'
+                                                    )}
                                                     className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                                                 />
                                                 <button

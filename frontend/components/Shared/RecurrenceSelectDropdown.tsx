@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
@@ -20,10 +21,12 @@ const RecurrenceSelectDropdown: React.FC<RecurrenceSelectDropdownProps> = ({
     value,
     onChange,
     options,
-    placeholder = 'Select option',
+    placeholder,
     disabled = false,
     className = '',
 }) => {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('common.selectOption');
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({
         top: 0,
@@ -111,7 +114,9 @@ const RecurrenceSelectDropdown: React.FC<RecurrenceSelectDropdownProps> = ({
                 disabled={disabled}
             >
                 <span className="truncate">
-                    {selectedOption ? selectedOption.label : placeholder}
+                    {selectedOption
+                        ? selectedOption.label
+                        : resolvedPlaceholder}
                 </span>
                 <ChevronDownIcon
                     className={`w-5 h-5 text-gray-500 dark:text-gray-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}

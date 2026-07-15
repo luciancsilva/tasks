@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 interface TaskPriorityIconProps {
@@ -14,6 +15,7 @@ const TaskPriorityIcon: React.FC<TaskPriorityIconProps> = ({
     onToggleCompletion,
     testIdSuffix = '',
 }) => {
+    const { t } = useTranslation();
     const getPriorityText = () => {
         // Handle both string and numeric priority values
         let priorityStr = priority;
@@ -25,13 +27,13 @@ const TaskPriorityIcon: React.FC<TaskPriorityIconProps> = ({
         switch (priorityStr) {
             case 'high':
             case 2:
-                return 'High priority';
+                return t('priority.highPriority');
             case 'medium':
             case 1:
-                return 'Medium priority';
+                return t('priority.mediumPriority');
             case 'low':
             case 0:
-                return 'Low priority';
+                return t('priority.lowPriority');
             case null:
             case undefined:
             case '':

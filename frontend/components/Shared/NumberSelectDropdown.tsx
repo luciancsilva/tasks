@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
@@ -17,10 +18,12 @@ const NumberSelectDropdown: React.FC<NumberSelectDropdownProps> = ({
     onChange,
     min = 1,
     max = 99,
-    placeholder = 'Select number',
+    placeholder,
     disabled = false,
     className = '',
 }) => {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('common.selectNumber');
     const [isOpen, setIsOpen] = useState(false);
     const [position, setPosition] = useState({
         top: 0,
@@ -114,7 +117,9 @@ const NumberSelectDropdown: React.FC<NumberSelectDropdownProps> = ({
                 disabled={disabled}
             >
                 <span className="truncate">
-                    {selectedOption ? selectedOption.label : placeholder}
+                    {selectedOption
+                        ? selectedOption.label
+                        : resolvedPlaceholder}
                 </span>
                 <ChevronDownIcon
                     className={`w-5 h-5 text-gray-500 dark:text-gray-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}

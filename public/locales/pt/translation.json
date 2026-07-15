@@ -30,7 +30,53 @@
         "download": "Baixar",
         "exitFocusMode": "Sair do modo de foco",
         "searchTimezones": "Pesquisar fusos horários...",
-        "dismiss": "Dispensar"
+        "dismiss": "Dispensar",
+        "optional": "opcional",
+        "creating": "Criando...",
+        "createCalendar": "Criar calendário",
+        "untitled": "Sem título",
+        "resolving": "Resolvendo...",
+        "name": "Nome",
+        "description": "Descrição",
+        "server": "Servidor",
+        "path": "Caminho",
+        "username": "Nome de usuário",
+        "direction": "Direção",
+        "interval": "Intervalo",
+        "conflicts": "Conflitos",
+        "previous": "Anterior",
+        "viewAll": "Ver tudo",
+        "open": "Abrir",
+        "retry": "Tentar novamente",
+        "add": "Adicionar",
+        "updated": "Atualizado",
+        "comingSoon": "Em breve",
+        "done": "concluído",
+        "search": "Buscar",
+        "hideInfo": "Ocultar informações",
+        "showInfo": "Mostrar informações",
+        "aboutView": "Sobre esta visualização",
+        "hideSearch": "Ocultar busca",
+        "showSearch": "Mostrar busca",
+        "showCompleted": "Mostrar concluídas",
+        "hideCompleted": "Ocultar concluídas",
+        "sortFilter": "Ordenar e filtrar",
+        "sortBy": "Ordenar por",
+        "goToToday": "Ir para Hoje",
+        "moreActions": "Mais ações",
+        "undo": "Desfazer",
+        "per": "por",
+        "loadMore": "Carregar mais",
+        "showAll": "Mostrar tudo",
+        "due": "Vencimento",
+        "expandSidebar": "Expandir barra lateral",
+        "collapseSidebar": "Recolher barra lateral",
+        "noArea": "Sem área",
+        "sortItems": "Ordenar itens",
+        "selectDate": "Selecionar data",
+        "selectDateTime": "Selecionar data e hora",
+        "selectNumber": "Selecionar número",
+        "selectOption": "Selecionar opção"
     },
     "sidebar": {
         "dashboard": "Painel",
@@ -68,7 +114,9 @@
         "addHabitTitle": "Adicionar hábito",
         "people": "Pessoas",
         "habits": "Hábitos",
-        "toggleDarkMode": "Alternar modo escuro"
+        "toggleDarkMode": "Alternar modo escuro",
+        "addTaskAriaLabel": "Adicionar tarefa",
+        "addTaskTitle": "Adicionar tarefa"
     },
     "navigation": {
         "home": "Início",
@@ -82,7 +130,11 @@
         "toggleSearch": "Alternar pesquisa",
         "quickInboxCapture": "Captura rápida da caixa de entrada",
         "userMenu": "Menu do usuário",
-        "search": "Pesquisar"
+        "search": "Pesquisar",
+        "today": "Hoje",
+        "projects": "Projetos",
+        "inbox": "Caixa de entrada",
+        "notes": "Notas"
     },
     "settings": {
         "todayPageSettings": "Configurações da página de hoje",
@@ -197,10 +249,27 @@
             "inProgress": "Em progresso",
             "waiting": "Aguardando",
             "done": "Concluído",
-            "dropHere": "Solte aqui"
+            "dropHere": "Solte aqui",
+            "customizeColumns": "Personalizar colunas",
+            "columns": "Colunas",
+            "planned": "Planejada",
+            "cancelled": "Cancelada",
+            "archived": "Arquivada"
         },
         "chaseUp": "Cobrar",
-        "habit": "Hábito"
+        "habit": "Hábito",
+        "dueSoon": "vence em breve",
+        "progress": "Progresso",
+        "priority": "Prioridade",
+        "todayPlan": "Plano de hoje",
+        "startNow": "Começar agora",
+        "noDue": "Sem data de vencimento",
+        "startedSuccessfully": "Tarefa iniciada com sucesso!",
+        "deleteConfirmTitle": "Excluir tarefa",
+        "noPlanYet": "Nenhum plano ainda - aqui estão algumas ideias:",
+        "undoError": "Falha ao desfazer a conclusão da tarefa.",
+        "aboutTasks": "Sobre as tarefas",
+        "searchTasks": "Buscar tarefas"
     },
     "timeline": {
         "activityTimeline": "Linha do tempo de atividades",
@@ -362,7 +431,11 @@
             "ai": "Recursos de IA",
             "notifications": "Preferências de notificação",
             "oidc": "OIDC/SSO",
-            "caldav": "Sincronização CalDAV"
+            "caldav": "Sincronização CalDAV",
+            "apiKeys": "Chaves de API",
+            "keyboardShortcuts": "Atalhos",
+            "mcp": "Integração MCP",
+            "features": "Recursos e complementos"
         },
         "security": "Configurações de segurança",
         "changePassword": "Alterar senha",
@@ -434,7 +507,9 @@
             "confirmUnlink": "Confirmar desvinculação",
             "linkedOn": "Vinculado em {{date}}",
             "cannotUnlinkLast": "Não é possível desvincular seu último método de autenticação. Por favor, defina uma senha primeiro.",
-            "noPasswordWarning": "Você não tem uma senha definida. Considere definir uma para ter um método de login alternativo."
+            "noPasswordWarning": "Você não tem uma senha definida. Considere definir uma para ter um método de login alternativo.",
+            "linkError": "Falha ao iniciar a vinculação da conta",
+            "unlinkError": "Falha ao desvincular a conta"
         },
         "kanbanDescription": "Ative o quadro Kanban para acompanhar o progresso das tarefas através das swimlanes.",
         "intelligenceSection": "Inteligência",
@@ -477,7 +552,14 @@
             "deleteSuccess": "Calendário excluído com sucesso",
             "deleteError": "Falha ao excluir calendário",
             "confirmDelete": "Excluir calendário",
-            "confirmDeleteMessage": "Você tem certeza de que deseja excluir \"{{name}}\"? Isso removerá o calendário e todas as configurações de sincronização."
+            "confirmDeleteMessage": "Você tem certeza de que deseja excluir \"{{name}}\"? Isso removerá o calendário e todas as configurações de sincronização.",
+            "steps": {
+                "calendar": "Calendário",
+                "server": "Servidor",
+                "test": "Teste",
+                "sync": "Sincronização",
+                "review": "Revisão"
+            }
         },
         "caldavWizard": {
             "title": "Assistente de configuração CalDAV",
@@ -524,7 +606,9 @@
             "setupSuccess": "Calendário configurado com sucesso!",
             "setupFailed": "Falha ao criar o calendário",
             "serverUrlPlaceholder": "https://caldav.exemplo.com",
-            "calendarPathPlaceholder": "/calendários/usuário/tarefas"
+            "calendarPathPlaceholder": "/calendários/usuário/tarefas",
+            "fillServerDetails": "Preencha primeiro todos os detalhes de conexão do servidor",
+            "validationError": "Preencha todos os campos obrigatórios e teste a conexão"
         },
         "conflictResolver": {
             "title": "Resolver conflitos de sincronização",
@@ -551,7 +635,8 @@
             "resolveSuccess": "Todos os conflitos resolvidos com sucesso",
             "resolveError": "Falha ao resolver conflitos",
             "nextConflict": "Próximo",
-            "prevConflict": "Anterior"
+            "prevConflict": "Anterior",
+            "mixedResolutionError": "Escolha \"Usar tudo local\" ou \"Usar tudo remoto\" para cada conflito. Seleções mistas de campos ainda não são suportadas."
         },
         "editCalendar": {
             "title": "Editar calendário",
@@ -606,7 +691,47 @@
             "never": "Nunca",
             "deleteTitle": "Excluir chave de API",
             "deleteConfirm": "Excluir esta chave de API? Esta ação não pode ser desfeita."
-        }
+        },
+        "fetchError": "Falha ao carregar os dados do perfil.",
+        "pollingStatusError": "Falha ao carregar o status de sincronização.",
+        "mcp": {
+            "title": "Integração MCP",
+            "description": "Conecte o tududi a qualquer aplicativo compatível com MCP usando o Model Context Protocol. Isso permite que assistentes de IA interajam com suas tarefas, projetos e notas — funciona tanto com servidores tududi locais quanto remotos.",
+            "step1": {
+                "title": "1. Gerar token de API",
+                "description": "Você precisa de um token de API para autenticar o servidor MCP. Vá até a aba Chaves de API para gerar um.",
+                "button": "Ir para Chaves de API →"
+            },
+            "step2": {
+                "title": "2. Configurar seu cliente MCP",
+                "description": "Adicione esta configuração ao seu cliente MCP. Substitua YOUR_API_TOKEN_HERE pelo token que você gerou no passo 1. Isso usa o mcp-remote para conectar ao seu servidor tududi via HTTP. Exemplo mostrado para o Claude Desktop:",
+                "copy": "Copiar",
+                "loading": "Carregando...",
+                "locationTitle": "Local do arquivo de configuração do Claude Desktop:"
+            },
+            "step3": {
+                "title": "3. Operações disponíveis",
+                "description": "Uma vez configurado, seu cliente MCP terá acesso a estas 16 operações:"
+            },
+            "step4": {
+                "title": "4. Começar a usar",
+                "description": "Após adicionar a configuração, reinicie seu cliente MCP. Você poderá então usar linguagem natural para interagir com o tududi:",
+                "examplesTitle": "Exemplos de comandos:"
+            },
+            "loadError": "Falha ao carregar a configuração do MCP",
+            "copySuccess": "Configuração copiada para a área de transferência",
+            "copyError": "Falha ao copiar para a área de transferência"
+        },
+        "telegramAllowedUsers": "Usuários permitidos",
+        "telegramAllowedUsersDescription": "Controle quem pode enviar mensagens ao seu bot. Deixe em branco para permitir todos os usuários.",
+        "examples": "Exemplos:",
+        "exampleUsernames": "Permitir nomes de usuário específicos",
+        "exampleUserIds": "Permitir IDs de usuário específicos",
+        "exampleMixed": "Misture nomes de usuário e IDs de usuário",
+        "telegramRequiredForSummaries": "A integração com o Telegram precisa estar configurada para usar os resumos de tarefas.",
+        "avatarRemovedSuccess": "Avatar removido com sucesso",
+        "telegramConnectedPolling": "Telegram conectado e sincronizando",
+        "telegramConnectionProblem": "Problema de conexão com o Telegram"
     },
     "productivity": {
         "stalledProjects": "Projetos parados",
@@ -728,7 +853,9 @@
                 "vague": "Tente começar com um verbo de ação como \"Ligar\", \"Escrever\", \"Agendar\" ou \"Pesquisar\""
             },
             "selectAtLeastOneDay": "Por favor, selecione pelo menos um dia",
-            "deferUntilPlaceholder": "Selecione a data e hora para adiar até"
+            "deferUntilPlaceholder": "Selecione a data e hora para adiar até",
+            "subtasks": "Subtarefas",
+            "attachments": "Anexos"
         },
         "noteTitle": "Título da nota",
         "noteContent": "Conteúdo da nota",
@@ -743,7 +870,8 @@
         "tagInputPlaceholder": "Digite para adicionar uma tag",
         "createTagOption": "+ Criar \"{{tagName}}\"",
         "removeTagAriaLabel": "Remover tag {{tagName}}",
-        "projectDescriptionPlaceholder": "Digite a descrição do projeto"
+        "projectDescriptionPlaceholder": "Digite a descrição do projeto",
+        "color": "Cor"
     },
     "auth": {
         "login": "Entrar",
@@ -767,7 +895,26 @@
         "oidc": {
             "completing_signin": "Concluindo login...",
             "authenticating_with_provider": "Autenticando com o provedor. Por favor, aguarde..."
-        }
+        },
+        "email_verified": "Seu e-mail foi verificado! Agora você pode fazer login.",
+        "verification_expired": "O link de verificação expirou. Registre-se novamente.",
+        "already_verified": "Seu e-mail já foi verificado. Você pode fazer login.",
+        "verification_failed": "Falha na verificação do e-mail. Tente novamente.",
+        "email_not_verified": "Verifique seu endereço de e-mail antes de fazer login.",
+        "no_auth_methods": "Nenhum método de autenticação disponível. Entre em contato com o administrador.",
+        "no_account": "Não tem uma conta?",
+        "sign_up": "Cadastrar-se",
+        "passwords_not_match": "As senhas não coincidem",
+        "password_too_short": "A senha deve ter pelo menos 6 caracteres",
+        "registration_failed": "Falha no registro. Tente novamente.",
+        "error_occurred": "Ocorreu um erro. Tente novamente.",
+        "password_registration_disabled": "Registro por senha desativado",
+        "password_registration_disabled_message": "O registro por senha não está disponível. Use SSO para entrar.",
+        "back_to_login": "Voltar ao login",
+        "registration_successful": "Verifique seu e-mail",
+        "registration_email_sent": "Enviamos um link de verificação para o seu e-mail. Verifique sua caixa de entrada e clique no link para confirmar sua conta.",
+        "confirm_password": "Confirmar senha",
+        "already_have_account": "Já tem uma conta?"
     },
     "dropdown": {
         "createNew": "Criar novo",
@@ -783,13 +930,17 @@
         "name": "Nome",
         "priority": "Prioridade",
         "status": "Situação",
-        "created_at": "Criado em"
+        "created_at": "Criado em",
+        "completed_at": "Concluído em"
     },
     "priority": {
         "low": "Baixa",
         "medium": "Média",
         "high": "Alta",
-        "none": "Nenhum"
+        "none": "Nenhum",
+        "highPriority": "Prioridade alta",
+        "mediumPriority": "Prioridade média",
+        "lowPriority": "Prioridade baixa"
     },
     "status": {
         "notStarted": "Não iniciado",
@@ -800,7 +951,10 @@
         "telegramConnected": "Telegram conectado e recebendo dados",
         "telegramConnectionProblem": "Problema de conexão com o Telegram",
         "completed": "Concluído",
-        "waiting": "Aguardando"
+        "waiting": "Aguardando",
+        "planned": "Planejada",
+        "cancelled": "Cancelada",
+        "selectStatus": "Selecionar status"
     },
     "project": {
         "name": "Nome do projeto",
@@ -818,7 +972,13 @@
         "currentBanner": "Banner atual",
         "choosePreset": "Escolha um banner predefinido:",
         "orUploadOwn": "Ou carregue o seu próprio:",
-        "showCompleted": "Mostrar concluídas"
+        "showCompleted": "Mostrar concluídas",
+        "noCompletedTasks": "Nenhuma tarefa concluída.",
+        "noTasks": "Nenhuma tarefa.",
+        "uploadImageError": "Falha ao enviar a imagem",
+        "loadingDetails": "Carregando os detalhes do projeto...",
+        "shareError": "Falha ao compartilhar",
+        "revokeShareError": "Falha ao revogar o compartilhamento"
     },
     "errors": {
         "required": "Este campo é obrigatório",
@@ -850,7 +1010,14 @@
         "loginFailed": "Falha no login. Por favor, tente novamente.",
         "generalError": "Ocorreu um erro. Por favor, tente novamente.",
         "viewNameRequired": "O nome da visualização é obrigatório",
-        "viewSaveFailed": "Falha ao salvar a visualização. Por favor, tente novamente."
+        "viewSaveFailed": "Falha ao salvar a visualização. Por favor, tente novamente.",
+        "failedToDeleteArea": "Falha ao excluir a área.",
+        "permissionDenied": "Permissão negada",
+        "generic": "Algo deu errado",
+        "selectUser": "Selecione um usuário",
+        "userNotFound": "Usuário não encontrado",
+        "projectStatusUpdateFailed": "Falha ao atualizar o status do projeto",
+        "failedToDeleteTag": "Falha ao excluir a etiqueta."
     },
     "inbox": {
         "title": "Caixa de entrada",
@@ -885,7 +1052,16 @@
         "loadMore": "Carregar mais itens da caixa de entrada",
         "showingItems": "Mostrando {{current}} de {{total}} itens",
         "removeTag": "Remover etiqueta",
-        "removeProject": "Remover projeto"
+        "removeProject": "Remover projeto",
+        "iconTooltip": {
+            "bookmark": "Salvar link",
+            "text": "Texto capturado"
+        },
+        "shortcutTag": "para marcar com uma etiqueta",
+        "shortcutProject": "para atribuir a um projeto",
+        "linkPreview": "Prévia do link",
+        "linkPreviewError": "Não foi possível obter os detalhes do link",
+        "aboutInbox": "Sobre a caixa de entrada"
     },
     "dateFormats": {
         "long": "EEEE, d 'de' MMMM 'de' yyyy",
@@ -932,7 +1108,9 @@
         "taskUpdated": "Tarefa atualizada com sucesso!",
         "taskDeleted": "Tarefa excluída com sucesso!",
         "noteDeleted": "Nota deletada com sucesso!",
-        "bannerUpdated": "Banner atualizado com sucesso!"
+        "bannerUpdated": "Banner atualizado com sucesso!",
+        "areaDeleted": "Área excluída com sucesso!",
+        "tagDeleted": "Etiqueta excluída com sucesso!"
     },
     "note": {
         "title": "Título",
@@ -1065,14 +1243,50 @@
         "dueDateInPastWarning": "Aviso: Você está definindo uma data de vencimento no passado",
         "overview": "Visão geral",
         "schedule": "Agenda",
-        "attachments": "Anexos",
+        "attachments": {
+            "limitReached": "Máximo de 20 anexos permitidos por tarefa",
+            "uploadSuccess": "Arquivo enviado com sucesso",
+            "uploadError": "Falha ao enviar o arquivo",
+            "deleteSuccess": "Anexo excluído com sucesso",
+            "deleteError": "Falha ao excluir o anexo",
+            "title": "Anexos",
+            "uploading": "Enviando...",
+            "clickToUpload": "Clique para enviar",
+            "maxSize": "Máx. 10MB",
+            "supportedFormats": "PDF, imagens, documentos e mais",
+            "deleteConfirmTitle": "Excluir anexo",
+            "deleteConfirmMessage": "Tem certeza de que deseja excluir este anexo? Esta ação não pode ser desfeita.",
+            "allowedTypes": "PDF, DOC, DOCX, TXT, MD, imagens, XLS, XLSX, CSV, ZIP (máx. 10MB)",
+            "count": "{{count}} / 20 arquivos",
+            "invalidFile": "Arquivo inválido"
+        },
         "attachmentsComingSoon": "Recurso de anexos em breve",
         "activity": "Atividade",
         "lastUpdatedAt": "Última atualização em",
         "statusUpdated": "Status atualizado com sucesso",
         "statusUpdateError": "Falha ao atualizar o status",
         "updatedAt": "Atualizado em",
-        "upcoming": "próximo"
+        "upcoming": "próximo",
+        "dueDateBeforeDeferError": "A data de vencimento não pode ser anterior à data de adiamento",
+        "deferAfterDueError": "A data de adiamento não pode ser posterior à data de vencimento",
+        "areaUpdated": "Área atualizada com sucesso",
+        "areaUpdateError": "Falha ao atualizar a área",
+        "areaCleared": "Área removida com sucesso",
+        "areaClearError": "Falha ao remover a área",
+        "notFound": "Tarefa não encontrada",
+        "notFoundDescription": "A tarefa que você procura não existe ou foi excluída.",
+        "noArea": "Atribuir a uma área",
+        "hoursAgo": "há {{count}} horas",
+        "minutesAgo": "há {{count}} minutos",
+        "inMinutes": "em {{count}} minutos",
+        "inHours": "em {{count}} horas",
+        "titlePlaceholder": "Digite o título da tarefa",
+        "pastDue": "Vencida",
+        "noUpcomingOccurrences": "Nenhuma ocorrência futura.",
+        "assignmentUpdateError": "Falha ao atualizar a atribuição",
+        "noTaskUid": "Nenhum identificador de tarefa fornecido",
+        "deferPlaceholder": "Selecionar data e hora de adiamento",
+        "duePlaceholder": "Selecionar data de vencimento"
     },
     "projects": {
         "loading": "Carregando projetos...",
@@ -1136,7 +1350,12 @@
         "focusHint": "Move esta tarefa para em andamento e hoje",
         "noNextAction": "Tudo limpo - sem tarefas pendentes.",
         "selectDueDatePlaceholder": "Selecione a data de vencimento",
-        "goalTitle": "Meta"
+        "goalTitle": "Meta",
+        "shared": "Compartilhado",
+        "sortTasks": "Ordenar tarefas",
+        "status": "Status do projeto",
+        "deleteError": "Falha ao excluir o projeto",
+        "upcomingProjects": "Próximos projetos"
     },
     "projectItem": {
         "edit": "Editar",
@@ -1154,7 +1373,8 @@
         "day": "dia",
         "days": "dias",
         "sharedUser": "Usuário compartilhado",
-        "moreSharedUsers": "+{{count}} usuários a mais"
+        "moreSharedUsers": "+{{count}} usuários a mais",
+        "changeStatus": "Alterar status"
     },
     "areas": {
         "title": "Áreas",
@@ -1175,7 +1395,39 @@
         "deleteGoal": "Excluir meta",
         "moveBackToUnlinked": "Mover de volta para não vinculado",
         "horizonSeason": "Estação",
-        "horizonYear": "Ano"
+        "horizonYear": "Ano",
+        "goalsHeading": "Metas",
+        "addGoal": "Adicionar meta",
+        "updateGoal": "Atualizar",
+        "loadingGoals": "Carregando metas…",
+        "tooManyGoals": "{{count}} metas ativas. As metas funcionam melhor entre 3 e 5. Que tal concluir ou pausar uma?",
+        "noGoalsYet": "Nenhuma meta ainda. Adicione uma meta para agrupar os projetos por resultado.",
+        "maintenance": "Manutenção",
+        "maintenanceTooltip": "Projetos de manutenção mantêm as coisas funcionando. São trabalhos contínuos, sem uma meta específica ou data final.",
+        "projectsLabel": "Projetos",
+        "inactiveGoals": "Metas inativas ({{count}})",
+        "unlinked": "Não vinculados ({{count}})",
+        "noProjectsLinked": "Nenhum projeto vinculado",
+        "unlink": "desvincular",
+        "linkAction": "vincular…",
+        "cancelAction": "cancelar",
+        "noActiveGoalsToLink": "Nenhuma meta ativa ainda. Adicione uma acima para vincular este projeto.",
+        "dropProject": "Descartar",
+        "goalStatusActive": "Ativa",
+        "goalStatusAchieved": "Alcançada",
+        "goalStatusPaused": "Pausada",
+        "goalStatusDropped": "Descartada",
+        "projects": "projetos",
+        "tasks": "tarefas",
+        "edit": "Editar área",
+        "tasksInArea": "Tarefas",
+        "noTasks": "Nenhuma tarefa diretamente nesta área",
+        "delete": "Excluir",
+        "stats": {
+            "projects": "projetos",
+            "goals": "metas",
+            "tasks": "tarefas"
+        }
     },
     "notes": {
         "loading": "Carregando notas...",
@@ -1193,7 +1445,26 @@
         "noteOptions": "Opções da nota",
         "clickToEdit": "Clique para editar",
         "contentPlaceholderFocus": "Escreva sua nota... (Markdown suportado)",
-        "contentPlaceholderMarkdown": "Escreva seu conteúdo usando a formatação Markdown...\n\nExemplos:\n# Cabeçalho\n**Texto em negrito**\n*Texto em itálico*\n- Item da lista\n```código```"
+        "contentPlaceholderMarkdown": "Escreva seu conteúdo usando a formatação Markdown...\n\nExemplos:\n# Cabeçalho\n**Texto em negrito**\n*Texto em itálico*\n- Item da lista\n```código```",
+        "copiedToClipboard": "Conteúdo da nota copiado para a área de transferência",
+        "copyContent": "Copiar conteúdo da nota",
+        "sortNotes": "Ordenar notas",
+        "sortBy": "Ordenar por",
+        "addNote": "Adicionar nota",
+        "untitled": "Nota sem título",
+        "save": "Salvar",
+        "delete": "Excluir",
+        "edit": "Editar",
+        "selectNote": "Selecione uma nota para visualizar",
+        "deleteNote": "Excluir nota",
+        "noProject": "Sem projeto",
+        "new": "Nova",
+        "addProject": "Adicionar projeto",
+        "addTags": "Adicionar etiquetas",
+        "changeProject": "Alterar projeto",
+        "changeTags": "Alterar etiquetas",
+        "loadError": "Erro ao carregar os detalhes da nota.",
+        "notFound": "Nota não encontrada."
     },
     "tags": {
         "loading": "Carregando tags...",
@@ -1221,7 +1492,23 @@
         "systemTags": "Tags do sistema",
         "systemTagsDescription": "Gerenciado automaticamente · Não pode ser deletado ou renomeado",
         "system": "Sistema",
-        "customize": "Personalizar"
+        "customize": "Personalizar",
+        "tag": "Etiqueta",
+        "deleteTag": "Excluir etiqueta",
+        "pinnedTag": "Etiqueta fixada",
+        "frequentlyUsed": "Usadas com frequência",
+        "pinned": "Fixada para acesso rápido",
+        "pinTag": "Fixar para acesso rápido",
+        "loadingTags": "Carregando etiquetas...",
+        "errorLoadingTags": "Erro ao carregar as etiquetas.",
+        "toggleDropdownMenu": "Abrir/fechar menu suspenso",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "stats": {
+            "tasks": "tarefas",
+            "notes": "notas",
+            "projects": "projetos"
+        }
     },
     "recurrence": {
         "none": "Nenhum",
@@ -1241,7 +1528,18 @@
         "inheritedSettingsMessage": "Esta tarefa foi gerada a partir de uma tarefa recorrente. As configurações de recorrência mostradas abaixo são herdadas da tarefa original e não podem ser editadas aqui.",
         "cancelEdit": "Cancelar edição",
         "editParentRecurrence": "Editar recorrência principal",
-        "parentEditWarning": "⚠️ Você está editando as configurações de recorrência da tarefa principal. As alterações afetarão todas as instâncias futuras desta tarefa recorrente."
+        "parentEditWarning": "⚠️ Você está editando as configurações de recorrência da tarefa principal. As alterações afetarão todas as instâncias futuras desta tarefa recorrente.",
+        "recurring": "Recorrente",
+        "completionBased": "Após a conclusão",
+        "onDay": "No dia",
+        "until": "Até",
+        "weeks": "semanas",
+        "months": "meses",
+        "monthDayPlaceholder": "Selecione o dia do mês",
+        "instance": "Instância de tarefa recorrente",
+        "loadingParent": "Carregando as configurações de recorrência da tarefa principal...",
+        "instanceInfo": "Esta tarefa foi gerada a partir de uma tarefa recorrente. As configurações de recorrência abaixo são herdadas da tarefa original e não podem ser editadas aqui.",
+        "editingParentWarning": "Você está editando as configurações de recorrência da tarefa principal. As alterações afetarão todas as ocorrências futuras desta tarefa recorrente."
     },
     "weekdays": {
         "sunday": "Dom",
@@ -1302,7 +1600,8 @@
         "medium": "Médio",
         "low": "Baixo",
         "time": "Tempo",
-        "allDay": "O dia todo"
+        "allDay": "O dia todo",
+        "task": "Tarefa"
     },
     "pages": {
         "notFound": {
@@ -1460,7 +1759,11 @@
         "failedToUpdateUser": "Falha ao atualizar o usuário",
         "confirmDelete": "Você tem certeza de que deseja excluir este usuário?",
         "deleteUser": "Excluir usuário",
-        "confirmDeleteUser": "Você tem certeza de que deseja excluir {{email}}? Esta ação não pode ser desfeita."
+        "confirmDeleteUser": "Você tem certeza de que deseja excluir {{email}}? Esta ação não pode ser desfeita.",
+        "failedToToggleRegistration": "Falha ao alterar o registro",
+        "userDeletedSuccessfully": "Usuário excluído com sucesso",
+        "userRegistration": "Registro de usuários",
+        "registrationDescription": "Permitir que novos usuários se registrem via verificação por e-mail"
     },
     "shares": {
         "shareProject": "Compartilhar projeto",
@@ -1504,7 +1807,13 @@
         "viewWillSave": "Esta visão será salva:",
         "saveView": "Salvar visão",
         "filtersLabel": "Filtros:",
-        "searchLabel": "Pesquisar:"
+        "searchLabel": "Pesquisar:",
+        "view": "Visão",
+        "sortTasks": "Ordenar tarefas",
+        "filters": "filtros",
+        "saveError": "Falha ao salvar a visão. Tente novamente.",
+        "searchTasks": "Buscar tarefas",
+        "noItemsMatchCriteria": "Nenhum item encontrado com os critérios da visão"
     },
     "search": {
         "placeholder": "Pesquisar tarefas, projetos, notas...",
@@ -1557,7 +1866,8 @@
         }
     },
     "subtasks": {
-        "placeholder": "Adicionar uma subtarefa..."
+        "placeholder": "Adicionar uma subtarefa...",
+        "noSubtasks": "Nenhuma subtarefa ainda"
     },
     "backup": {
         "title": "Backup e restauração",
@@ -1605,7 +1915,8 @@
         "validationErrors": "Erros de validação:",
         "versionIncompatible": "Versão incompatível",
         "backupVersion": "Versão do backup",
-        "restoreButton": "Restaurar"
+        "restoreButton": "Restaurar",
+        "delete": "Excluir"
     },
     "notifications": {
         "table": {
@@ -1646,7 +1957,17 @@
         "info": {
             "title": "Nota:",
             "message": "Notificações por email e push estarão disponíveis em breve. Notificações no aplicativo e no Telegram estão atualmente disponíveis."
-        }
+        },
+        "justNow": "Agora mesmo",
+        "minutesAgo": "há {{count}} min",
+        "hoursAgo": "há {{count}}h",
+        "daysAgo": "há {{count}}d",
+        "title": "Notificações",
+        "markAllRead": "Marcar todas como lidas",
+        "loading": "Carregando...",
+        "noNotifications": "Nenhuma notificação ainda",
+        "markAsRead": "Marcar como lida",
+        "delete": "Excluir"
     },
     "projectStatus": {
         "not_started": "Não iniciado",
@@ -1711,7 +2032,9 @@
         "today": "Hoje",
         "edit": "Editar hábito",
         "create": "Criar hábito",
-        "name": "Nome do hábito"
+        "name": "Nome do hábito",
+        "plannedToday": "Hábitos planejados para hoje",
+        "completedHabitsToday": "Hábitos concluídos hoje"
     },
     "people": {
         "title": "Pessoas",
@@ -1794,7 +2117,8 @@
         "show": "Mostrar",
         "goalAlignment": "Alinhamento de metas",
         "keyInsights": "Principais insights",
-        "taskInsightsEmpty": "Clique em \"Gerar\" para obter sugestões de IA sobre esta tarefa."
+        "taskInsightsEmpty": "Clique em \"Gerar\" para obter sugestões de IA sobre esta tarefa.",
+        "dailyBriefTitle": "Resumo diário da IA"
     },
     "weekdaysShort": {
         "monday": "Seg",
@@ -1804,5 +2128,69 @@
         "friday": "Sex",
         "saturday": "Sáb",
         "sunday": "Dom"
+    },
+    "loading": {
+        "tasks": "Carregando tarefas…",
+        "subtasks": "Carregando subtarefas..."
+    },
+    "area": {
+        "loadError": "Falha ao carregar as áreas",
+        "viaProject": "via projeto",
+        "viewArea": "Ir para a área",
+        "searchAreas": "Buscar áreas…",
+        "clearArea": "Remover área",
+        "noAreasFound": "Nenhuma área encontrada"
+    },
+    "noteCreation": "Criar nova nota",
+    "notFound": {
+        "todayDescription": "Veja as tarefas de hoje",
+        "projectsDescription": "Navegue pelos seus projetos",
+        "inboxDescription": "Confira os itens da sua caixa de entrada",
+        "notesDescription": "Navegue pelas suas notas",
+        "title": "Página não encontrada",
+        "description": "A página que você procura não existe. Ela pode ter sido movida, excluída ou você digitou o endereço errado.",
+        "goBack": "Voltar",
+        "goHome": "Ir para Hoje",
+        "quickActions": "Ações rápidas"
+    },
+    "tag": {
+        "viewTag": "Ir para a etiqueta"
+    },
+    "actions": {
+        "cancel": "Cancelar",
+        "clickToEdit": "Clique para editar",
+        "delete": "Excluir",
+        "add": "Adicionar"
+    },
+    "next": "Próximo",
+    "altText": {
+        "loginIllustration": "Ilustração de login",
+        "registrationIllustration": "Ilustração de cadastro",
+        "userAvatar": "Avatar do usuário",
+        "avatar": "Avatar",
+        "preview": "Prévia",
+        "bannerPreview": "Prévia do banner"
+    },
+    "colors": {
+        "teal": "Verde-azulado",
+        "cyan": "Ciano",
+        "blue": "Azul",
+        "indigo": "Índigo",
+        "purple": "Roxo",
+        "pink": "Rosa",
+        "gray": "Cinza"
+    },
+    "charts": {
+        "thisWeek": "Esta semana",
+        "lastWeek": "Semana passada",
+        "older": "Mais antigas",
+        "today": "Hoje",
+        "fourWeeksAgo": "há 4sem",
+        "threeWeeksAgo": "há 3sem",
+        "twoWeeksAgo": "há 2sem"
+    },
+    "goals": {
+        "noGoal": "Sem meta",
+        "inactive": "Inativas"
     }
 }

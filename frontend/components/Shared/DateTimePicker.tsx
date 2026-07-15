@@ -23,11 +23,12 @@ interface DateTimePickerProps {
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
     value,
     onChange,
-    placeholder = 'Select date and time',
+    placeholder,
     disabled = false,
     className = '',
 }) => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('common.selectDateTime');
     const displayLocale = useMemo(
         () => resolveUserLocale(i18n?.language),
         [i18n?.language]
@@ -104,9 +105,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     };
 
     const formatDisplayDateTime = (isoString: string) => {
-        if (!isoString) return placeholder;
+        if (!isoString) return resolvedPlaceholder;
         const { date, time } = parseDateTime(isoString);
-        if (!date) return placeholder;
+        if (!date) return resolvedPlaceholder;
 
         const displayDate = new Date(date);
         if (time) {

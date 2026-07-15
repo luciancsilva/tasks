@@ -267,7 +267,11 @@ const ViewDetail: React.FC = () => {
             if (task.project_uid) {
                 matchedProject = projectLookupMap.byUid.get(task.project_uid);
             }
-            if (!matchedProject && task.project_id !== undefined && task.project_id !== null) {
+            if (
+                !matchedProject &&
+                task.project_id !== undefined &&
+                task.project_id !== null
+            ) {
                 matchedProject = projectLookupMap.byId.get(task.project_id);
             }
 
@@ -386,7 +390,6 @@ const ViewDetail: React.FC = () => {
         handleStatusChange,
         handleSearchChange,
     ]);
-
 
     // Save title when clicking outside
     useEffect(() => {
@@ -569,10 +572,17 @@ const ViewDetail: React.FC = () => {
         }
     };
 
-    const handleProjectStatusChange = async (project: Project, newStatus: ProjectStatus) => {
+    const handleProjectStatusChange = async (
+        project: Project,
+        newStatus: ProjectStatus
+    ) => {
         if (!project.uid) return;
         const prevProjects = projects;
-        setProjects(projects.map((p) => (p.uid === project.uid ? { ...p, status: newStatus } : p)));
+        setProjects(
+            projects.map((p) =>
+                p.uid === project.uid ? { ...p, status: newStatus } : p
+            )
+        );
         try {
             await updateProject(project.uid, { status: newStatus });
         } catch {
@@ -704,10 +714,14 @@ const ViewDetail: React.FC = () => {
                                         ref={titleInputRef}
                                         type="text"
                                         value={editedName}
-                                        onChange={(e) => setEditedName(e.target.value)}
+                                        onChange={(e) =>
+                                            setEditedName(e.target.value)
+                                        }
                                         onKeyDown={(e) => {
-                                            if (e.key === 'Enter') handleSaveName();
-                                            else if (e.key === 'Escape') handleCancelEdit();
+                                            if (e.key === 'Enter')
+                                                handleSaveName();
+                                            else if (e.key === 'Escape')
+                                                handleCancelEdit();
                                         }}
                                         className="text-3xl font-light text-gray-900 dark:text-white bg-transparent border-b-2 border-blue-500 focus:outline-none w-full"
                                         autoFocus
@@ -722,16 +736,36 @@ const ViewDetail: React.FC = () => {
                                 )}
 
                                 {/* Filter chips */}
-                                {(view.tags.length > 0 || view.filters.length > 0 || view.search_query || view.priority || view.due || view.defer || (view.extras && view.extras.length > 0)) && (
+                                {(view.tags.length > 0 ||
+                                    view.filters.length > 0 ||
+                                    view.search_query ||
+                                    view.priority ||
+                                    view.due ||
+                                    view.defer ||
+                                    (view.extras &&
+                                        view.extras.length > 0)) && (
                                     <div className="mt-3 flex flex-wrap gap-1.5">
                                         {view.tags.map((tag) => {
                                             const color = getTagColor(tag);
                                             return (
                                                 <span
                                                     key={tag}
-                                                    className={color ? 'px-2 py-0.5 rounded text-xs font-medium text-white' : 'px-2 py-0.5 bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200 rounded text-xs font-medium'}
-                                                    style={color ? { backgroundColor: color } : undefined}
-                                                >{tag}</span>
+                                                    className={
+                                                        color
+                                                            ? 'px-2 py-0.5 rounded text-xs font-medium text-white'
+                                                            : 'px-2 py-0.5 bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200 rounded text-xs font-medium'
+                                                    }
+                                                    style={
+                                                        color
+                                                            ? {
+                                                                  backgroundColor:
+                                                                      color,
+                                                              }
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {tag}
+                                                </span>
                                             );
                                         })}
                                         {view.search_query && (
@@ -755,217 +789,270 @@ const ViewDetail: React.FC = () => {
                                             </span>
                                         )}
                                         {view.filters.map((filter) => (
-                                            <span key={filter} className="px-2 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs font-medium">
+                                            <span
+                                                key={filter}
+                                                className="px-2 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs font-medium"
+                                            >
                                                 {filter}
                                             </span>
                                         ))}
-                                        {view.extras && view.extras.map((extra, i) => (
-                                            <span key={i} className="px-2 py-0.5 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded text-xs font-medium capitalize">
-                                                {extra.replace(/_/g, ' ')}
-                                            </span>
-                                        ))}
+                                        {view.extras &&
+                                            view.extras.map((extra, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="px-2 py-0.5 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 rounded text-xs font-medium capitalize"
+                                                >
+                                                    {extra.replace(/_/g, ' ')}
+                                                </span>
+                                            ))}
                                     </div>
                                 )}
 
                                 {/* Result counts */}
                                 <div className="mt-3 flex gap-4 text-xs text-gray-500 dark:text-gray-400">
-                                    {totalCount > 0 && <span>{totalCount} {t('tasks.title', 'tasks')}</span>}
-                                    {notes.length > 0 && <span>{notes.length} {t('notes.title', 'notes')}</span>}
-                                    {projects.length > 0 && <span>{projects.length} {t('projects.title', 'projects')}</span>}
+                                    {totalCount > 0 && (
+                                        <span>
+                                            {totalCount}{' '}
+                                            {t('tasks.title', 'tasks')}
+                                        </span>
+                                    )}
+                                    {notes.length > 0 && (
+                                        <span>
+                                            {notes.length}{' '}
+                                            {t('notes.title', 'notes')}
+                                        </span>
+                                    )}
+                                    {projects.length > 0 && (
+                                        <span>
+                                            {projects.length}{' '}
+                                            {t('projects.title', 'projects')}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Action buttons */}
                             <div className="flex items-center gap-1 flex-shrink-0">
                                 <button
-                                    onClick={() => setIsSearchExpanded((v) => !v)}
+                                    onClick={() =>
+                                        setIsSearchExpanded((v) => !v)
+                                    }
                                     className="p-2 rounded-lg transition-colors text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
-                                    title={isSearchExpanded ? 'Hide search' : 'Search tasks'}
+                                    title={
+                                        isSearchExpanded
+                                            ? t('common.hideSearch')
+                                            : t('views.searchTasks')
+                                    }
                                 >
                                     <MagnifyingGlassIcon className="h-5 w-5" />
                                 </button>
-                        <IconSortDropdown
-                            options={sortOptions}
-                            value={orderBy}
-                            onChange={handleSortChange}
-                            ariaLabel={t('views.sortTasks', 'Sort tasks')}
-                            title={t('views.sortTasks', 'Sort tasks')}
-                            dropdownLabel={t('tasks.sortBy', 'Sort by')}
-                            footerContent={
-                                <div className="space-y-3">
-                                    <div>
-                                        <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                                            {t('tasks.groupBy', 'Group by')}
-                                        </div>
-                                        <div className="py-1">
-                                            {['none', 'project'].map((val) => (
-                                                <button
-                                                    key={val}
-                                                    onClick={() =>
-                                                        handleGroupByChange(
-                                                            val as
-                                                                | 'none'
-                                                                | 'project'
-                                                        )
-                                                    }
-                                                    className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
-                                                        groupBy === val
-                                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                                    }`}
-                                                >
-                                                    <span>
-                                                        {val === 'project'
-                                                            ? t(
-                                                                  'tasks.groupByProject',
-                                                                  'Project'
-                                                              )
-                                                            : t(
-                                                                  'tasks.grouping.none',
-                                                                  'None'
-                                                              )}
-                                                    </span>
-                                                    {groupBy === val && (
-                                                        <CheckIcon className="h-4 w-4" />
+                                <IconSortDropdown
+                                    options={sortOptions}
+                                    value={orderBy}
+                                    onChange={handleSortChange}
+                                    ariaLabel={t(
+                                        'views.sortTasks',
+                                        'Sort tasks'
+                                    )}
+                                    title={t('views.sortTasks', 'Sort tasks')}
+                                    dropdownLabel={t('tasks.sortBy', 'Sort by')}
+                                    footerContent={
+                                        <div className="space-y-3">
+                                            <div>
+                                                <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                                                    {t(
+                                                        'tasks.groupBy',
+                                                        'Group by'
                                                     )}
-                                                </button>
-                                            ))}
+                                                </div>
+                                                <div className="py-1">
+                                                    {['none', 'project'].map(
+                                                        (val) => (
+                                                            <button
+                                                                key={val}
+                                                                onClick={() =>
+                                                                    handleGroupByChange(
+                                                                        val as
+                                                                            | 'none'
+                                                                            | 'project'
+                                                                    )
+                                                                }
+                                                                className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
+                                                                    groupBy ===
+                                                                    val
+                                                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                                }`}
+                                                            >
+                                                                <span>
+                                                                    {val ===
+                                                                    'project'
+                                                                        ? t(
+                                                                              'tasks.groupByProject',
+                                                                              'Project'
+                                                                          )
+                                                                        : t(
+                                                                              'tasks.grouping.none',
+                                                                              'None'
+                                                                          )}
+                                                                </span>
+                                                                {groupBy ===
+                                                                    val && (
+                                                                    <CheckIcon className="h-4 w-4" />
+                                                                )}
+                                                            </button>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-t border-b border-gray-200 dark:border-gray-700">
+                                                    {t('tasks.show', 'Show')}
+                                                </div>
+                                                <div className="py-1 space-y-1">
+                                                    {[
+                                                        {
+                                                            key: 'active',
+                                                            label: t(
+                                                                'tasks.open',
+                                                                'Open'
+                                                            ),
+                                                        },
+                                                        {
+                                                            key: 'all',
+                                                            label: t(
+                                                                'tasks.all',
+                                                                'All'
+                                                            ),
+                                                        },
+                                                        {
+                                                            key: 'completed',
+                                                            label: t(
+                                                                'tasks.completed',
+                                                                'Completed'
+                                                            ),
+                                                        },
+                                                    ].map((opt) => {
+                                                        const isActive =
+                                                            taskStatusFilter ===
+                                                            opt.key;
+                                                        return (
+                                                            <button
+                                                                key={opt.key}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleStatusChange(
+                                                                        opt.key as
+                                                                            | 'all'
+                                                                            | 'active'
+                                                                            | 'completed'
+                                                                    )
+                                                                }
+                                                                className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
+                                                                    isActive
+                                                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                                }`}
+                                                            >
+                                                                <span>
+                                                                    {opt.label}
+                                                                </span>
+                                                                {isActive && (
+                                                                    <CheckIcon className="h-4 w-4" />
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-t border-b border-gray-200 dark:border-gray-700">
+                                                    {t(
+                                                        'tasks.direction',
+                                                        'Direction'
+                                                    )}
+                                                </div>
+                                                <div className="py-1">
+                                                    {[
+                                                        {
+                                                            key: 'asc',
+                                                            label: t(
+                                                                'tasks.ascending',
+                                                                'Ascending'
+                                                            ),
+                                                        },
+                                                        {
+                                                            key: 'desc',
+                                                            label: t(
+                                                                'tasks.descending',
+                                                                'Descending'
+                                                            ),
+                                                        },
+                                                    ].map((dir) => {
+                                                        const currentDirection =
+                                                            orderBy.split(
+                                                                ':'
+                                                            )[1] || 'asc';
+                                                        const isActive =
+                                                            currentDirection ===
+                                                            dir.key;
+                                                        return (
+                                                            <button
+                                                                key={dir.key}
+                                                                onClick={() => {
+                                                                    const [
+                                                                        field,
+                                                                    ] =
+                                                                        orderBy.split(
+                                                                            ':'
+                                                                        );
+                                                                    handleSortChange(
+                                                                        `${field}:${dir.key}`
+                                                                    );
+                                                                }}
+                                                                className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
+                                                                    isActive
+                                                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                                }`}
+                                                            >
+                                                                <span>
+                                                                    {dir.label}
+                                                                </span>
+                                                                {isActive && (
+                                                                    <CheckIcon className="h-4 w-4" />
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-t border-b border-gray-200 dark:border-gray-700">
-                                            {t('tasks.show', 'Show')}
-                                        </div>
-                                        <div className="py-1 space-y-1">
-                                            {[
-                                                {
-                                                    key: 'active',
-                                                    label: t(
-                                                        'tasks.open',
-                                                        'Open'
-                                                    ),
-                                                },
-                                                {
-                                                    key: 'all',
-                                                    label: t(
-                                                        'tasks.all',
-                                                        'All'
-                                                    ),
-                                                },
-                                                {
-                                                    key: 'completed',
-                                                    label: t(
-                                                        'tasks.completed',
-                                                        'Completed'
-                                                    ),
-                                                },
-                                            ].map((opt) => {
-                                                const isActive =
-                                                    taskStatusFilter ===
-                                                    opt.key;
-                                                return (
-                                                    <button
-                                                        key={opt.key}
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleStatusChange(
-                                                                opt.key as
-                                                                    | 'all'
-                                                                    | 'active'
-                                                                    | 'completed'
-                                                            )
-                                                        }
-                                                        className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
-                                                            isActive
-                                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                                        }`}
-                                                    >
-                                                        <span>{opt.label}</span>
-                                                        {isActive && (
-                                                            <CheckIcon className="h-4 w-4" />
-                                                        )}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-t border-b border-gray-200 dark:border-gray-700">
-                                            {t('tasks.direction', 'Direction')}
-                                        </div>
-                                        <div className="py-1">
-                                            {[
-                                                {
-                                                    key: 'asc',
-                                                    label: t(
-                                                        'tasks.ascending',
-                                                        'Ascending'
-                                                    ),
-                                                },
-                                                {
-                                                    key: 'desc',
-                                                    label: t(
-                                                        'tasks.descending',
-                                                        'Descending'
-                                                    ),
-                                                },
-                                            ].map((dir) => {
-                                                const currentDirection =
-                                                    orderBy.split(':')[1] ||
-                                                    'asc';
-                                                const isActive =
-                                                    currentDirection ===
-                                                    dir.key;
-                                                return (
-                                                    <button
-                                                        key={dir.key}
-                                                        onClick={() => {
-                                                            const [field] =
-                                                                orderBy.split(
-                                                                    ':'
-                                                                );
-                                                            handleSortChange(
-                                                                `${field}:${dir.key}`
-                                                            );
-                                                        }}
-                                                        className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
-                                                            isActive
-                                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                                        }`}
-                                                    >
-                                                        <span>{dir.label}</span>
-                                                        {isActive && (
-                                                            <CheckIcon className="h-4 w-4" />
-                                                        )}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        />
-                        <button
-                            onClick={togglePin}
-                            className={`p-2 rounded-lg transition-colors ${view.is_pinned ? 'text-yellow-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} hover:bg-gray-100 dark:hover:bg-gray-800`}
-                            title={view.is_pinned ? 'Unpin view' : 'Pin view'}
-                        >
-                            {view.is_pinned ? (
-                                <StarIconSolid className="h-5 w-5" />
-                            ) : (
-                                <StarIcon className="h-5 w-5" />
-                            )}
-                        </button>
-                        <button
-                            onClick={openConfirmDialog}
-                            className="p-2 rounded-lg transition-colors text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title={t('views.deleteView')}
-                        >
-                            <TrashIcon className="h-5 w-5" />
-                        </button>
-                    </div>
+                                    }
+                                />
+                                <button
+                                    onClick={togglePin}
+                                    className={`p-2 rounded-lg transition-colors ${view.is_pinned ? 'text-yellow-500' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'} hover:bg-gray-100 dark:hover:bg-gray-800`}
+                                    title={
+                                        view.is_pinned
+                                            ? t('views.unpinView')
+                                            : t('views.pinView')
+                                    }
+                                >
+                                    {view.is_pinned ? (
+                                        <StarIconSolid className="h-5 w-5" />
+                                    ) : (
+                                        <StarIcon className="h-5 w-5" />
+                                    )}
+                                </button>
+                                <button
+                                    onClick={openConfirmDialog}
+                                    className="p-2 rounded-lg transition-colors text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    title={t('views.deleteView')}
+                                >
+                                    <TrashIcon className="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1208,7 +1295,9 @@ const ViewDetail: React.FC = () => {
                                         onOpenShare={() => {
                                             /* noop in view detail */
                                         }}
-                                        onStatusChange={handleProjectStatusChange}
+                                        onStatusChange={
+                                            handleProjectStatusChange
+                                        }
                                     />
                                 );
                             })}
@@ -1228,7 +1317,7 @@ const ViewDetail: React.FC = () => {
                                           'tasks.noTasksAvailable',
                                           'No tasks available.'
                                       )
-                                    : 'No items found matching the view criteria'}
+                                    : t('views.noItemsMatchCriteria')}
                             </p>
                         </div>
                     )}

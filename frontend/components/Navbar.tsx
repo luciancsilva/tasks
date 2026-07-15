@@ -173,8 +173,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         className={`flex items-center focus:outline-none text-gray-500 dark:text-gray-500 ${isSidebarOpen ? 'sm:absolute sm:left-4' : 'sm:relative'}`}
                         aria-label={
                             isSidebarOpen
-                                ? 'Collapse Sidebar'
-                                : 'Expand Sidebar'
+                                ? t('common.collapseSidebar')
+                                : t('common.expandSidebar')
                         }
                     >
                         <Bars3Icon className="h-6 mt-1 w-6" />
@@ -237,7 +237,7 @@ const Navbar: React.FC<NavbarProps> = ({
                             {currentUser?.avatar_image ? (
                                 <img
                                     src={getApiPath(currentUser.avatar_image)}
-                                    alt="User Avatar"
+                                    alt={t('altText.userAvatar')}
                                     className="h-8 w-8 rounded-full object-cover border-2 border-green-500"
                                 />
                             ) : (

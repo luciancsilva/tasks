@@ -52,7 +52,10 @@ const GeneralTab: React.FC<GeneralTabProps> = ({
 
     const getSafeAvatarUrl = (): string => {
         if (avatarPreview) {
-            if (avatarPreview.startsWith('data:') || avatarPreview.startsWith('blob:')) {
+            if (
+                avatarPreview.startsWith('data:') ||
+                avatarPreview.startsWith('blob:')
+            ) {
                 return avatarPreview;
             }
             return '';
@@ -88,7 +91,7 @@ const GeneralTab: React.FC<GeneralTabProps> = ({
                     {avatarUrl ? (
                         <img
                             src={avatarUrl}
-                            alt="Avatar"
+                            alt={t('altText.avatar')}
                             className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
                         />
                     ) : (

@@ -98,7 +98,9 @@ const NoteDetails: React.FC = () => {
         if (!note) return;
         try {
             await navigator.clipboard.writeText(note.content);
-            showSuccessToast(t('notes.copiedToClipboard', 'Note content copied to clipboard'));
+            showSuccessToast(
+                t('notes.copiedToClipboard', 'Note content copied to clipboard')
+            );
         } catch (err) {
             console.error('Error copying to clipboard:', err);
         }
@@ -137,9 +139,7 @@ const NoteDetails: React.FC = () => {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
                 <div className="text-red-500 text-lg">
-                    {isError
-                        ? 'Error loading note details.'
-                        : 'Note not found.'}
+                    {isError ? t('notes.loadError') : t('notes.notFound')}
                 </div>
             </div>
         );
@@ -223,7 +223,10 @@ const NoteDetails: React.FC = () => {
                         <button
                             onClick={handleCopyNote}
                             className="text-gray-500 hover:text-green-700 dark:hover:text-green-300 focus:outline-none"
-                            aria-label={t('notes.copyContent', 'Copy note content')}
+                            aria-label={t(
+                                'notes.copyContent',
+                                'Copy note content'
+                            )}
                             title={t('notes.copyContent', 'Copy note content')}
                         >
                             <DocumentDuplicateIcon className="h-5 w-5" />

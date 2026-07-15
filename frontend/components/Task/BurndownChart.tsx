@@ -1,4 +1,11 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import { useTranslation } from 'react-i18next';
 import { Task } from '../../entities/Task';
 import { getApiPath } from '../../config/paths';
 import { getDefaultHeaders } from '../../utils/authUtils';
@@ -19,6 +26,7 @@ function smoothPath(pts: { x: number; y: number }[]): string {
 }
 
 const BurndownChart: React.FC = () => {
+    const { t } = useTranslation();
     const [allTasks, setAllTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +76,8 @@ const BurndownChart: React.FC = () => {
                 count = allTasks.filter((t) => {
                     if (!t.created_at) return false;
                     if (new Date(t.created_at) > dayEnd) return false;
-                    if (t.completed_at) return new Date(t.completed_at) > dayEnd;
+                    if (t.completed_at)
+                        return new Date(t.completed_at) > dayEnd;
                     return true;
                 }).length;
             } else {
@@ -119,11 +128,11 @@ const BurndownChart: React.FC = () => {
     const todayCount = dataPoints[dataPoints.length - 1]?.count ?? 0;
 
     const X_LABELS: { i: number; label: string }[] = [
-        { i: 0, label: '4w ago' },
-        { i: 7, label: '3w ago' },
-        { i: 14, label: '2w ago' },
-        { i: 21, label: 'Last week' },
-        { i: DAYS - 1, label: 'Today' },
+        { i: 0, label: t('charts.fourWeeksAgo') },
+        { i: 7, label: t('charts.threeWeeksAgo') },
+        { i: 14, label: t('charts.twoWeeksAgo') },
+        { i: 21, label: t('charts.lastWeek') },
+        { i: DAYS - 1, label: t('charts.today') },
     ];
 
     const Y_TICKS = useMemo(() => {
@@ -163,7 +172,12 @@ const BurndownChart: React.FC = () => {
                     <svg
                         width={containerW}
                         height={CHART_H}
-                        style={{ display: 'block', overflow: 'visible', width: '100%', height: '100%' }}
+                        style={{
+                            display: 'block',
+                            overflow: 'visible',
+                            width: '100%',
+                            height: '100%',
+                        }}
                     >
                         <defs>
                             <linearGradient

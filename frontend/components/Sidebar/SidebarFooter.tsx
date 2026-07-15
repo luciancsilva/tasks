@@ -256,7 +256,9 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({
                                                             fontSize: '10px',
                                                         }}
                                                     >
-                                                        {getShortcutDisplay(action)}
+                                                        {getShortcutDisplay(
+                                                            action
+                                                        )}
                                                     </span>
                                                 </button>
                                             )
@@ -274,8 +276,12 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({
                                     className="flex items-center justify-center"
                                     title={
                                         telegramStatus === 'healthy'
-                                            ? 'Telegram connected and polling'
-                                            : 'Telegram connection problem'
+                                            ? t(
+                                                  'profile.telegramConnectedPolling'
+                                              )
+                                            : t(
+                                                  'profile.telegramConnectionProblem'
+                                              )
                                     }
                                 >
                                     <TelegramIcon

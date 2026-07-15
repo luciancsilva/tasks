@@ -203,7 +203,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             window.dispatchEvent(new CustomEvent('viewUpdated'));
         } catch (err) {
             setSaveError(t('search.failedToSave'));
-            showErrorToast('Failed to save view. Please try again.');
+            showErrorToast(t('views.saveError'));
             console.error('Error saving view:', err);
         } finally {
             setIsSaving(false);

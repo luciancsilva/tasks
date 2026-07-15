@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import DateTimePicker from '../../Shared/DateTimePicker';
 
 interface TaskDeferUntilSectionProps {
@@ -10,14 +11,15 @@ interface TaskDeferUntilSectionProps {
 const TaskDeferUntilSection: React.FC<TaskDeferUntilSectionProps> = ({
     value,
     onChange,
-    placeholder = 'Select defer until date and time',
+    placeholder,
 }) => {
+    const { t } = useTranslation();
     return (
         <div className="overflow-visible">
             <DateTimePicker
                 value={value || ''}
                 onChange={onChange}
-                placeholder={placeholder}
+                placeholder={placeholder ?? t('task.deferPlaceholder')}
             />
         </div>
     );

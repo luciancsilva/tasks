@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Project } from '../../entities/Project';
 
 interface Slice {
@@ -40,13 +41,14 @@ function arc(startDeg: number, endDeg: number): string {
 }
 
 const AreaDonut: React.FC<Props> = ({ projects }) => {
+    const { t } = useTranslation();
     const [hovered, setHovered] = useState<number | null>(null);
 
     const slices = useMemo<Slice[]>(() => {
         const map = new Map<string, { color: string; total: number }>();
         projects.forEach((p) => {
             const areaObj = (p as any).Area ?? p.area;
-            const name = areaObj?.name ?? 'No Area';
+            const name = areaObj?.name ?? t('common.noArea');
             const color: string = areaObj?.color ?? FALLBACK_COLOR;
             const total = p.task_status?.total ?? 0;
             const existing = map.get(name);
@@ -106,16 +108,27 @@ const AreaDonut: React.FC<Props> = ({ projects }) => {
                         {paths.map((p, i) => {
                             const isHovered = hovered === i;
                             const rad = ((p.midAngle - 90) * Math.PI) / 180;
-                            const dx = isHovered ? Math.cos(rad) * HOVER_OFFSET : 0;
-                            const dy = isHovered ? Math.sin(rad) * HOVER_OFFSET : 0;
+                            const dx = isHovered
+                                ? Math.cos(rad) * HOVER_OFFSET
+                                : 0;
+                            const dy = isHovered
+                                ? Math.sin(rad) * HOVER_OFFSET
+                                : 0;
                             return (
                                 <path
                                     key={`v-${i}`}
                                     d={p.d}
                                     fill={p.color}
-                                    opacity={hovered === null || isHovered ? 0.9 : 0.3}
+                                    opacity={
+                                        hovered === null || isHovered
+                                            ? 0.9
+                                            : 0.3
+                                    }
                                     transform={`translate(${dx.toFixed(2)}, ${dy.toFixed(2)})`}
-                                    style={{ transition: 'transform 0.2s ease, opacity 0.2s ease' }}
+                                    style={{
+                                        transition:
+                                            'transform 0.2s ease, opacity 0.2s ease',
+                                    }}
                                     pointerEvents="none"
                                 />
                             );

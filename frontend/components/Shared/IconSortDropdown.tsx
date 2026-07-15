@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ListBulletIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { SortOption } from './SortFilterButton';
 
@@ -20,15 +21,20 @@ const IconSortDropdown: React.FC<IconSortDropdownProps> = ({
     options,
     value,
     onChange,
-    ariaLabel = 'Sort items',
-    title = 'Sort items',
+    ariaLabel,
+    title,
     className = '',
     buttonClassName = '',
-    dropdownLabel = 'Sort by',
+    dropdownLabel,
     align = 'right',
     extraContent,
     footerContent,
 }) => {
+    const { t } = useTranslation();
+    const resolvedAriaLabel = ariaLabel ?? t('common.sortItems');
+    const resolvedTitle = title ?? t('common.sortItems');
+    const resolvedDropdownLabel =
+        dropdownLabel === undefined ? t('common.sortBy') : dropdownLabel;
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -57,8 +63,8 @@ const IconSortDropdown: React.FC<IconSortDropdownProps> = ({
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
                 className={`p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none transition-colors ${buttonClassName}`}
-                aria-label={ariaLabel}
-                title={title}
+                aria-label={resolvedAriaLabel}
+                title={resolvedTitle}
             >
                 <ListBulletIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
@@ -66,9 +72,9 @@ const IconSortDropdown: React.FC<IconSortDropdownProps> = ({
                 <div
                     className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} mt-1 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 z-50`}
                 >
-                    {dropdownLabel && (
+                    {resolvedDropdownLabel && (
                         <div className="px-3 py-2 text-xs font-bold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
-                            {dropdownLabel}
+                            {resolvedDropdownLabel}
                         </div>
                     )}
                     <div className="py-1">

@@ -25,21 +25,8 @@ import { isTaskActive } from '../constants/taskStatus';
 
 const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
-const getSearchPlaceholder = (language: string): string => {
-    const placeholders: Record<string, string> = {
-        en: 'Search tasks...',
-        el: 'Αναζήτηση εργασιών...',
-        es: 'Buscar tareas...',
-        de: 'Aufgaben suchen...',
-        jp: 'タスクを検索...',
-        ua: 'Пошук завдань...',
-    };
-
-    return placeholders[language] || 'Search tasks...';
-};
-
 const Tasks: React.FC = () => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { showSuccessToast } = useToast();
 
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -239,7 +226,10 @@ const Tasks: React.FC = () => {
                         });
                     }
                     if (tasksData.projects) {
-                        setUpcomingProjects((prev) => [...prev, ...(tasksData.projects || [])]);
+                        setUpcomingProjects((prev) => [
+                            ...prev,
+                            ...(tasksData.projects || []),
+                        ]);
                     }
                     if (!options?.disablePagination) {
                         const limitToUse = options?.limitOverride ?? limit;
@@ -556,14 +546,20 @@ const Tasks: React.FC = () => {
                             aria-expanded={isInfoExpanded}
                             aria-label={
                                 isInfoExpanded
-                                    ? 'Collapse info panel'
-                                    : 'Show tasks information'
+                                    ? t('common.hideInfo')
+                                    : t('common.showInfo')
                             }
-                            title={isInfoExpanded ? 'Hide info' : 'About Tasks'}
+                            title={
+                                isInfoExpanded
+                                    ? t('common.hideInfo')
+                                    : t('tasks.aboutTasks')
+                            }
                         >
                             <InformationCircleIcon className="h-5 w-5 text-blue-500" />
                             <span className="sr-only">
-                                {isInfoExpanded ? 'Hide info' : 'About Tasks'}
+                                {isInfoExpanded
+                                    ? t('common.hideInfo')
+                                    : t('tasks.aboutTasks')}
                             </span>
                         </button>
                         {!isUpcomingView && (
@@ -577,20 +573,20 @@ const Tasks: React.FC = () => {
                                 aria-expanded={isSearchExpanded}
                                 aria-label={
                                     isSearchExpanded
-                                        ? 'Collapse search panel'
-                                        : 'Show search input'
+                                        ? t('common.hideSearch')
+                                        : t('common.showSearch')
                                 }
                                 title={
                                     isSearchExpanded
-                                        ? 'Hide search'
-                                        : 'Search Tasks'
+                                        ? t('common.hideSearch')
+                                        : t('tasks.searchTasks')
                                 }
                             >
                                 <MagnifyingGlassIcon className="h-5 w-5 text-gray-600 dark:text-gray-200" />
                                 <span className="sr-only">
                                     {isSearchExpanded
-                                        ? 'Hide search'
-                                        : 'Search Tasks'}
+                                        ? t('common.hideSearch')
+                                        : t('tasks.searchTasks')}
                                 </span>
                             </button>
                         )}
@@ -610,34 +606,40 @@ const Tasks: React.FC = () => {
                                                 {t('tasks.groupBy', 'Group by')}
                                             </div>
                                             <div className="py-1">
-                                                {(['none', 'project'] as const).map(
-                                                    (val) => (
-                                                        <button
-                                                            key={val}
-                                                            onClick={() => {
-                                                                setGroupBy(val);
-                                                                localStorage.setItem(
-                                                                    'tasks_group_by',
-                                                                    val
-                                                                );
-                                                            }}
-                                                            className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
-                                                                groupBy === val
-                                                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                                                            }`}
-                                                        >
-                                                            <span>
-                                                                {val === 'project'
-                                                                    ? t('tasks.groupByProject', 'Project')
-                                                                    : t('tasks.grouping.none', 'None')}
-                                                            </span>
-                                                            {groupBy === val && (
-                                                                <CheckIcon className="h-4 w-4" />
-                                                            )}
-                                                        </button>
-                                                    )
-                                                )}
+                                                {(
+                                                    ['none', 'project'] as const
+                                                ).map((val) => (
+                                                    <button
+                                                        key={val}
+                                                        onClick={() => {
+                                                            setGroupBy(val);
+                                                            localStorage.setItem(
+                                                                'tasks_group_by',
+                                                                val
+                                                            );
+                                                        }}
+                                                        className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center justify-between ${
+                                                            groupBy === val
+                                                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                                        }`}
+                                                    >
+                                                        <span>
+                                                            {val === 'project'
+                                                                ? t(
+                                                                      'tasks.groupByProject',
+                                                                      'Project'
+                                                                  )
+                                                                : t(
+                                                                      'tasks.grouping.none',
+                                                                      'None'
+                                                                  )}
+                                                        </span>
+                                                        {groupBy === val && (
+                                                            <CheckIcon className="h-4 w-4" />
+                                                        )}
+                                                    </button>
+                                                ))}
                                             </div>
                                         </div>
                                     )}
@@ -855,9 +857,7 @@ const Tasks: React.FC = () => {
                             <MagnifyingGlassIcon className="h-5 w-5 text-gray-600 dark:text-gray-400 mr-2" />
                             <input
                                 type="text"
-                                placeholder={getSearchPlaceholder(
-                                    i18n.language
-                                )}
+                                placeholder={t('tasks.searchPlaceholder')}
                                 value={taskSearchQuery}
                                 onChange={(e) =>
                                     setTaskSearchQuery(e.target.value)
@@ -913,30 +913,56 @@ const Tasks: React.FC = () => {
                                         {upcomingProjects.length > 0 && (
                                             <div className="mt-8">
                                                 <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-                                                    {t('projects.upcomingProjects', 'Upcoming Projects')}
+                                                    {t(
+                                                        'projects.upcomingProjects',
+                                                        'Upcoming Projects'
+                                                    )}
                                                 </h3>
                                                 <div className="space-y-2">
-                                                    {upcomingProjects.map((project) => (
-                                                        <div
-                                                            key={project.uid}
-                                                            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <a
-                                                                    href={`/project/${project.uid}-${project.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
-                                                                    className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                                                                >
-                                                                    {project.name}
-                                                                </a>
-                                                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                                                    <span>{t('common.due', 'Due')}: </span>
-                                                                    <span className="font-medium">
-                                                                        {new Date(project.due_date_at).toLocaleDateString()}
-                                                                    </span>
+                                                    {upcomingProjects.map(
+                                                        (project) => (
+                                                            <div
+                                                                key={
+                                                                    project.uid
+                                                                }
+                                                                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow"
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <a
+                                                                        href={`/project/${project.uid}-${project.name
+                                                                            .toLowerCase()
+                                                                            .replace(
+                                                                                /[^a-z0-9]+/g,
+                                                                                '-'
+                                                                            )
+                                                                            .replace(
+                                                                                /^-|-$/g,
+                                                                                ''
+                                                                            )}`}
+                                                                        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                                                                    >
+                                                                        {
+                                                                            project.name
+                                                                        }
+                                                                    </a>
+                                                                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                                        <span>
+                                                                            {t(
+                                                                                'common.due',
+                                                                                'Due'
+                                                                            )}
+                                                                            :{' '}
+                                                                        </span>
+                                                                        <span className="font-medium">
+                                                                            {new Date(
+                                                                                project.due_date_at
+                                                                            ).toLocaleDateString()}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
                                         )}

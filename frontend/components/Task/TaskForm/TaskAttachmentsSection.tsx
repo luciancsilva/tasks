@@ -39,7 +39,9 @@ const TaskAttachmentsSection: React.FC<TaskAttachmentsSectionProps> = ({
         // Validate file
         const validation = await validateFile(file);
         if (!validation.valid) {
-            showErrorToast(validation.error || 'Invalid file');
+            showErrorToast(
+                validation.error || t('task.attachments.invalidFile')
+            );
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }

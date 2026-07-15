@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FunnelIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 export interface SortOption {
@@ -21,6 +22,7 @@ const SortFilterButton: React.FC<SortFilterButtonProps> = ({
     size = 'desktop',
     className = '',
 }) => {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +78,7 @@ const SortFilterButton: React.FC<SortFilterButtonProps> = ({
                 <div className="flex items-center">
                     <FunnelIcon className={`${iconSize} ${iconMargin}`} />
                     <span className="whitespace-nowrap">
-                        {selectedOption?.label || 'Created at'}
+                        {selectedOption?.label || t('sort.created_at')}
                     </span>
                 </div>
                 <span className={`${textSize} ${arrowMargin}`}>

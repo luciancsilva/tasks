@@ -123,7 +123,7 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({ value, onChange }) => {
                     <span>
                         {selectedStatus
                             ? selectedStatus.label
-                            : 'Select Status'}
+                            : t('status.selectStatus')}
                     </span>
                 </span>
                 <ChevronDownIcon className="w-5 h-5 text-gray-500 dark:text-gray-300" />

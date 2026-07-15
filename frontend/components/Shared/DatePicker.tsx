@@ -23,11 +23,12 @@ interface DatePickerProps {
 const DatePicker: React.FC<DatePickerProps> = ({
     value,
     onChange,
-    placeholder = 'Select date',
+    placeholder,
     disabled = false,
     className = '',
 }) => {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('common.selectDate');
     const displayLocale = useMemo(
         () => resolveUserLocale(i18n?.language),
         [i18n?.language]
@@ -81,9 +82,9 @@ const DatePicker: React.FC<DatePickerProps> = ({
     };
 
     const formatDisplayDate = (dateString: string) => {
-        if (!dateString) return placeholder;
+        if (!dateString) return resolvedPlaceholder;
         const date = parseDate(dateString);
-        if (!date || isNaN(date.getTime())) return placeholder;
+        if (!date || isNaN(date.getTime())) return resolvedPlaceholder;
         return date.toLocaleDateString(displayLocale, {
             year: 'numeric',
             month: 'short',
