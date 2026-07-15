@@ -1073,10 +1073,10 @@
         "todayHeader": "dddd, d 'de' MMMM 'de' yyyy"
     },
     "dateIndicators": {
-        "today": "HOJE",
+        "today": "hoje",
         "total": "Total",
-        "tomorrow": "AMANHÃ",
-        "yesterday": "ONTEM",
+        "tomorrow": "amanhã",
+        "yesterday": "ontem",
         "nextWeek": "próxima semana",
         "nextMonth": "próximo mês"
     },
@@ -1286,7 +1286,8 @@
         "assignmentUpdateError": "Falha ao atualizar a atribuição",
         "noTaskUid": "Nenhum identificador de tarefa fornecido",
         "deferPlaceholder": "Selecionar data e hora de adiamento",
-        "duePlaceholder": "Selecionar data de vencimento"
+        "duePlaceholder": "Selecionar data de vencimento",
+        "assignedTo": "Atribuído a"
     },
     "projects": {
         "loading": "Carregando projetos...",

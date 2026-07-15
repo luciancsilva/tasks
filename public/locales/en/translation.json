@@ -1225,7 +1225,8 @@
         "assignmentUpdateError": "Failed to update assignment",
         "noTaskUid": "No task uid provided",
         "deferPlaceholder": "Select defer until date and time",
-        "duePlaceholder": "Select due date"
+        "duePlaceholder": "Select due date",
+        "assignedTo": "Assigned To"
     },
     "subtasks": {
         "placeholder": "Add a subtask...",
