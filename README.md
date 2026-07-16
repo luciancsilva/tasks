@@ -94,9 +94,9 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ---
 
-## 📜 Changelog Detalhado dos 49 Commits Ahead de `chrisvel/tududi:main`
+## 📜 Changelog Detalhado dos 50 Commits Ahead de `chrisvel/tududi:main`
 
-O repositório `luciancsilva/tasks:main` possui **49 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+O repositório `luciancsilva/tasks:main` possui **50 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
 
 ### 🗄️ Cloudflare D1 via REST API (julho/2026)
 - **`5e705e8b`** (`feat(db): Cloudflare D1 data layer via REST API (TUDUDI_DB_DRIVER=d1)`): Driver sqlite3-compatível (`d1RestDriver.js`) plugado via `dialectModule` + client HTTP (`d1Client.js`) com retry, timeout e rate limiter; 38 testes unitários incluindo round-trip completo do Sequelize contra emulador D1.
@@ -118,6 +118,7 @@ O repositório `luciancsilva/tasks:main` possui **49 commits customizados à fre
 - **`656bf687`** (`docs: refresh CLAUDE.md after July 2026 changes`): CLAUDE.md alinhado (R2, D1, branding, plans).
 - **`8a620172`** (`feat(plans): implement 05a-quick-wins.md`): Implementação e validação de 5 melhorias rápidas de baixo esforço (limites de anexo, lifecycle de uploads órfãos do R2, drift i18n, etc.).
 - **`bf7e99f0`** (`docs(plans): update plans status to EXECUTADO`): Atualização de status e documentação dos planos de esforço médio (ME-3 a ME-6) como concluídos.
+- **`3741b706`** (`style: lint and formatting fixes on modified files`): Ajustes e correções de formatação e linting em arquivos e rotas refatoradas para conformidade com o linter no CI.
 
 ### ☁️ Storage em Nuvem & Resiliência Docker (Cloudflare R2)
 - **`af2dd3e4`** (`fix(storage): lazy resolve R2 bucket and interpolate compose env vars`): Converte a propriedade `bucket` do `multer-s3` em função *lazy* (`(req, file, cb) => ...`), evitando crash `bucket is required` no boot da aplicação no Docker. Configura interpolação `${R2_...:-}` no `docker-compose.yml`.
