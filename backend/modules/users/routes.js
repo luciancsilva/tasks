@@ -3,31 +3,20 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
-const { getConfig } = require('../../config/config');
-const config = getConfig();
 const router = express.Router();
+const r2Service = require('../../services/r2Service');
 const usersController = require('./controller');
 const {
     apiKeyManagementLimiter,
     createResourceLimiter,
 } = require('../../middleware/rateLimiter');
 
-// Configure multer for avatar uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(config.uploadPath, 'avatars');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const userId = req.currentUser?.id || req.session?.userId;
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname);
-        cb(null, `avatar-${userId}-${uniqueSuffix}${ext}`);
-    },
+// Configure multer to stream avatar uploads to Cloudflare R2 under `avatars/`.
+const storage = r2Service.getUploadStorage('avatars', (req, file) => {
+    const userId = req.currentUser?.id || req.session?.userId;
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    return `avatar-${userId}-${uniqueSuffix}${ext}`;
 });
 
 const fileFilter = (req, file, cb) => {

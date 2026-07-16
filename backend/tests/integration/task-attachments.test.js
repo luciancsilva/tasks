@@ -2,12 +2,42 @@ const request = require('supertest');
 const app = require('../../app');
 const path = require('path');
 const fs = require('fs').promises;
+const { Readable } = require('stream');
+const { mockClient } = require('aws-sdk-client-mock');
+const {
+    PutObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand,
+    HeadObjectCommand,
+} = require('@aws-sdk/client-s3');
 const { Task, TaskAttachment, User } = require('../../models');
+const r2Service = require('../../services/r2Service');
 const { createTestUser } = require('../helpers/testUtils');
+
+// Intercept all S3/R2 traffic. multer-s3 streams uploads through the shared
+// r2Service client; mocking that exact client instance keeps every command
+// (Put/Get/Delete/Head) in-memory so tests never touch the network.
+const s3Mock = mockClient(r2Service.getClient());
+
+// Build a plain Node Readable — the download route only calls .pipe()/.on(),
+// so a full SDK stream mixin is unnecessary.
+const makeBodyStream = (content) => Readable.from([Buffer.from(content)]);
 
 describe('Task Attachments Routes', () => {
     let user, agent, task;
     const testFilesDir = path.join(__dirname, '../test-files');
+
+    beforeEach(() => {
+        s3Mock.reset();
+        s3Mock.on(PutObjectCommand).resolves({ ETag: '"test-etag"' });
+        s3Mock.on(DeleteObjectCommand).resolves({});
+        s3Mock.on(HeadObjectCommand).resolves({ ContentLength: 12 });
+        s3Mock.on(GetObjectCommand).resolves({
+            Body: makeBodyStream('file content'),
+            ContentType: 'application/octet-stream',
+            ContentLength: 12,
+        });
+    });
 
     beforeAll(async () => {
         // Create test files directory
@@ -349,17 +379,9 @@ describe('Task Attachments Routes', () => {
 
     describe('DELETE /api/tasks/:taskUid/attachments/:attachmentUid', () => {
         let attachment;
-        const uploadPath = path.join(__dirname, '../../uploads/tasks');
 
         beforeEach(async () => {
-            // Create upload directory
-            await fs.mkdir(uploadPath, { recursive: true });
-
-            // Create a test file
-            const testFilePath = path.join(uploadPath, 'task-delete-test.pdf');
-            await fs.writeFile(testFilePath, 'test content');
-
-            // Create attachment record
+            // Create attachment record (the object itself lives in R2, mocked)
             attachment = await TaskAttachment.create({
                 task_id: task.id,
                 user_id: user.id,
@@ -369,15 +391,6 @@ describe('Task Attachments Routes', () => {
                 mime_type: 'application/pdf',
                 file_path: 'tasks/task-delete-test.pdf',
             });
-        });
-
-        afterEach(async () => {
-            // Clean up upload directory
-            try {
-                await fs.rm(uploadPath, { recursive: true, force: true });
-            } catch (error) {
-                // Ignore errors
-            }
         });
 
         describe('Authentication', () => {
@@ -409,18 +422,16 @@ describe('Task Attachments Routes', () => {
                 expect(deletedAttachment).toBeNull();
             });
 
-            it('should delete file from disk', async () => {
-                const filePath = path.join(uploadPath, 'task-delete-test.pdf');
-
-                // Verify file exists before deletion
-                await expect(fs.access(filePath)).resolves.toBeUndefined();
-
+            it('should delete file from R2', async () => {
                 await agent.delete(
                     `/api/tasks/${task.uid}/attachments/${attachment.uid}`
                 );
 
-                // Verify file is deleted
-                await expect(fs.access(filePath)).rejects.toThrow();
+                const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
+                expect(deleteCalls.length).toBeGreaterThanOrEqual(1);
+                expect(deleteCalls[0].args[0].input.Key).toBe(
+                    'tasks/task-delete-test.pdf'
+                );
             });
         });
 
@@ -493,18 +504,14 @@ describe('Task Attachments Routes', () => {
 
     describe('GET /api/attachments/:attachmentUid/download', () => {
         let attachment;
-        const uploadPath = path.join(__dirname, '../../uploads/tasks');
 
         beforeEach(async () => {
-            // Create upload directory
-            await fs.mkdir(uploadPath, { recursive: true });
-
-            // Create a test file
-            const testFilePath = path.join(
-                uploadPath,
-                'task-download-test.pdf'
-            );
-            await fs.writeFile(testFilePath, 'test download content');
+            // Object content is streamed from R2 (mocked)
+            s3Mock.on(GetObjectCommand).resolves({
+                Body: makeBodyStream('test download content'),
+                ContentType: 'application/pdf',
+                ContentLength: 21,
+            });
 
             // Create attachment record
             attachment = await TaskAttachment.create({
@@ -516,15 +523,6 @@ describe('Task Attachments Routes', () => {
                 mime_type: 'application/pdf',
                 file_path: 'tasks/task-download-test.pdf',
             });
-        });
-
-        afterEach(async () => {
-            // Clean up upload directory
-            try {
-                await fs.rm(uploadPath, { recursive: true, force: true });
-            } catch (error) {
-                // Ignore errors
-            }
         });
 
         describe('Authentication', () => {

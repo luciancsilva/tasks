@@ -14,12 +14,8 @@ const {
     sequelize,
 } = require('../../models');
 const { Op } = require('sequelize');
-const { deleteFileFromDisk } = require('../../utils/attachment-utils');
-const path = require('path');
-const { getConfig } = require('../../config/config');
+const r2Service = require('../../services/r2Service');
 const { logError } = require('../../services/logService');
-
-const config = getConfig();
 
 class ProjectsRepository extends BaseRepository {
     constructor() {
@@ -295,11 +291,8 @@ class ProjectsRepository extends BaseRepository {
                 const deleteTaskAttachments = async (task) => {
                     if (task.Attachments && task.Attachments.length > 0) {
                         for (const attachment of task.Attachments) {
-                            const filePath = path.join(
-                                config.uploadPath,
-                                attachment.file_path
-                            );
-                            await deleteFileFromDisk(filePath);
+                            // file_path holds the R2 object key
+                            await r2Service.deleteObject(attachment.file_path);
                             await attachment.destroy({ transaction });
                         }
                     }
@@ -333,7 +326,7 @@ class ProjectsRepository extends BaseRepository {
                     }
                 );
 
-                // Delete project cover image if it exists
+                // Delete project cover image from R2 if it exists
                 if (project.image_url) {
                     // Extract filename from URL like /api/uploads/projects/filename.jpg
                     const urlMatch = project.image_url.match(
@@ -341,12 +334,7 @@ class ProjectsRepository extends BaseRepository {
                     );
                     if (urlMatch) {
                         const filename = urlMatch[1];
-                        const imagePath = path.join(
-                            config.uploadPath,
-                            'projects',
-                            filename
-                        );
-                        await deleteFileFromDisk(imagePath);
+                        await r2Service.deleteObject(`projects/${filename}`);
                     }
                 }
 

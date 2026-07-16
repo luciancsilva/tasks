@@ -3,27 +3,18 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const { getConfig } = require('../../config/config');
 const config = getConfig();
 const router = express.Router();
+const r2Service = require('../../services/r2Service');
 const projectsController = require('./controller');
 const { hasAccess } = require('../../middleware/authorize');
 const { requireAuth } = require('../../middleware/auth');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(config.uploadPath, 'projects');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'project-' + uniqueSuffix + path.extname(file.originalname));
-    },
+// Configure multer to stream project image uploads to Cloudflare R2 under `projects/`.
+const storage = r2Service.getUploadStorage('projects', (req, file) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    return 'project-' + uniqueSuffix + path.extname(file.originalname);
 });
 
 const upload = multer({

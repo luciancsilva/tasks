@@ -1,5 +1,13 @@
 const request = require('supertest');
 const app = require('../../app');
+const { Readable } = require('stream');
+const { mockClient } = require('aws-sdk-client-mock');
+const {
+    PutObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand,
+    HeadObjectCommand,
+} = require('@aws-sdk/client-s3');
 const {
     User,
     Project,
@@ -9,10 +17,27 @@ const {
     TaskAttachment,
     sequelize,
 } = require('../../models');
+const r2Service = require('../../services/r2Service');
 const { createTestUser } = require('../helpers/testUtils');
+
+// Attachment uploads/downloads stream through R2; mock the shared client so no
+// real network calls happen (mirrors task-attachments.test.js).
+const s3Mock = mockClient(r2Service.getClient());
 
 describe('Project Sharing Integration Tests', () => {
     let ownerUser, sharedUser, ownerAgent, sharedUserAgent, project;
+
+    beforeEach(() => {
+        s3Mock.reset();
+        s3Mock.on(PutObjectCommand).resolves({ ETag: '"test-etag"' });
+        s3Mock.on(DeleteObjectCommand).resolves({});
+        s3Mock.on(HeadObjectCommand).resolves({ ContentLength: 21 });
+        s3Mock.on(GetObjectCommand).resolves({
+            Body: Readable.from([Buffer.from('test download content')]),
+            ContentType: 'application/pdf',
+            ContentLength: 21,
+        });
+    });
 
     beforeEach(async () => {
         // Create test users using test helper

@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const projectsService = require('./service');
 const { UnauthorizedError } = require('../../shared/errors');
 const { getAuthenticatedUserId } = require('../../utils/request-utils');
@@ -107,7 +108,7 @@ const projectsController = {
                     .status(400)
                     .json({ error: 'No image file provided' });
             }
-            const imageUrl = `/api/uploads/projects/${req.file.filename}`;
+            const imageUrl = `/api/uploads/projects/${path.basename(req.file.key)}`;
             res.json({ imageUrl });
         } catch (error) {
             logError('Error uploading image:', error);

@@ -108,6 +108,54 @@ const config = {
         ? parseInt(process.env.FILE_UPLOAD_LIMIT_MB, 10)
         : 10,
 
+    // Cloudflare R2 (S3-compatible) object storage for attachments/avatars/project images.
+    // When enabled, uploads go to R2 instead of the local filesystem (uploadPath).
+    //
+    // All fields are getters so env vars are read at access time (not at module
+    // load), which matters because dotenv may populate process.env after this
+    // config module is first required (e.g. in the test bootstrap).
+    r2: {
+        // Storage is considered enabled only when all required credentials are present.
+        get enabled() {
+            return !!(
+                process.env.R2_ACCESS_KEY_ID &&
+                process.env.R2_SECRET_ACCESS_KEY &&
+                process.env.R2_BUCKET &&
+                (process.env.R2_ENDPOINT || process.env.R2_ACCOUNT_ID)
+            );
+        },
+        get accountId() {
+            return process.env.R2_ACCOUNT_ID;
+        },
+        get accessKeyId() {
+            return process.env.R2_ACCESS_KEY_ID;
+        },
+        get secretAccessKey() {
+            return process.env.R2_SECRET_ACCESS_KEY;
+        },
+        // In the test environment the S3 client is fully mocked, so a placeholder
+        // bucket lets the multer-s3 storage engine construct without real config.
+        get bucket() {
+            return (
+                process.env.R2_BUCKET ||
+                (environment === 'test' ? 'tududi-test' : undefined)
+            );
+        },
+        // Explicit endpoint override; falls back to the standard R2 endpoint derived
+        // from the account id. region is fixed to 'auto' per Cloudflare R2 docs.
+        get endpoint() {
+            return (
+                process.env.R2_ENDPOINT ||
+                (process.env.R2_ACCOUNT_ID
+                    ? `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`
+                    : undefined)
+            );
+        },
+        get region() {
+            return process.env.R2_REGION || 'auto';
+        },
+    },
+
     // API Documentation (Swagger)
     swagger: {
         enabled: process.env.SWAGGER_ENABLED !== 'false',

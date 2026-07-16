@@ -209,14 +209,64 @@ if (serveFromDist) {
     );
 }
 
-// Serve uploaded files
-const registerUploadsStatic = (basePath) => {
-    app.use(`${basePath}/uploads`, express.static(config.uploadPath));
+// Serve uploaded files by streaming them from Cloudflare R2.
+// Objects previously lived on local disk and were served publicly via
+// express.static; they now live in R2 and are proxied through the backend so
+// that access requires an authenticated session/token. The object key is
+// `${prefix}/${filename}` where prefix is one of tasks/avatars/projects.
+const { requireAuth: requireAuthForUploads } = require('./middleware/auth');
+const r2Service = require('./services/r2Service');
+const { logError: logUploadError } = require('./services/logService');
+const UPLOAD_PREFIXES = new Set(['tasks', 'avatars', 'projects']);
+
+const streamUploadFromR2 = async (req, res) => {
+    const { prefix, filename } = req.params;
+    if (
+        !UPLOAD_PREFIXES.has(prefix) ||
+        filename.includes('..') ||
+        filename.includes('/')
+    ) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+
+    const key = `${prefix}/${filename}`;
+    let object;
+    try {
+        object = await r2Service.getObjectStream(key);
+    } catch (err) {
+        return res.status(404).json({ error: 'File not found' });
+    }
+
+    if (object.contentType) {
+        res.setHeader('Content-Type', object.contentType);
+    }
+    if (object.contentLength != null) {
+        res.setHeader('Content-Length', object.contentLength);
+    }
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+
+    object.body.on('error', (streamError) => {
+        logUploadError('Error streaming upload from R2:', streamError);
+        if (!res.headersSent) {
+            res.status(500).end();
+        } else {
+            res.destroy(streamError);
+        }
+    });
+    object.body.pipe(res);
 };
 
-registerUploadsStatic('/api');
+const registerUploadsProxy = (basePath) => {
+    app.get(
+        `${basePath}/uploads/:prefix/:filename`,
+        requireAuthForUploads,
+        streamUploadFromR2
+    );
+};
+
+registerUploadsProxy('/api');
 if (API_VERSION && API_BASE_PATH !== '/api') {
-    registerUploadsStatic(API_BASE_PATH);
+    registerUploadsProxy(API_BASE_PATH);
 }
 
 // Authentication middleware

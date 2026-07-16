@@ -1,7 +1,6 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 const { getConfig } = require('../../config/config');
 const config = getConfig();
 const { TaskAttachment, Task } = require('../../models');
@@ -9,9 +8,9 @@ const { uid } = require('../../utils/uid');
 const { logError } = require('../../services/logService');
 const {
     validateFileType,
-    deleteFileFromDisk,
     getFileUrl,
 } = require('../../utils/attachment-utils');
+const r2Service = require('../../services/r2Service');
 const { getAuthenticatedUserId } = require('../../utils/request-utils');
 const permissionsService = require('../../services/permissionsService');
 const {
@@ -21,32 +20,32 @@ const {
 
 const router = express.Router();
 
+// Best-effort removal of an already-uploaded R2 object (used to clean up when a
+// request is rejected after multer-s3 has streamed the file to the bucket).
+const cleanupUploadedObject = async (req) => {
+    if (req.file && req.file.key) {
+        await r2Service.deleteObject(req.file.key).catch(() => {});
+    }
+};
+
 // Ensure authenticated
 const requireAuthMiddleware = async (req, res, next) => {
     const userId = getAuthenticatedUserId(req);
     if (!userId) {
-        if (req.file && req.file.path) {
-            await deleteFileFromDisk(req.file.path).catch(() => {});
-        }
+        await cleanupUploadedObject(req);
         return res.status(401).json({ error: 'Authentication required' });
     }
     req.authUserId = userId;
     next();
 };
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(config.uploadPath, 'tasks');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'task-' + uniqueSuffix + path.extname(file.originalname));
-    },
+// Configure multer to stream uploads directly to Cloudflare R2 under `tasks/`.
+// Object key looks like `tasks/task-<timestamp>-<rand><ext>` (parity with the
+// previous on-disk stored filename), and req.file exposes { key, size, mimetype,
+// originalname } after upload.
+const storage = r2Service.getUploadStorage('tasks', (req, file) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    return 'task-' + uniqueSuffix + path.extname(file.originalname);
 });
 
 const upload = multer({
@@ -76,9 +75,7 @@ router.post(
 
             if (!taskUid) {
                 // Clean up uploaded file
-                if (req.file) {
-                    await deleteFileFromDisk(req.file.path);
-                }
+                await cleanupUploadedObject(req);
                 return res.status(400).json({ error: 'Task UID is required' });
             }
 
@@ -86,9 +83,7 @@ router.post(
             const task = await Task.findOne({ where: { uid: taskUid } });
             if (!task) {
                 // Clean up uploaded file
-                if (req.file) {
-                    await deleteFileFromDisk(req.file.path);
-                }
+                await cleanupUploadedObject(req);
                 return res.status(404).json({ error: 'Task not found' });
             }
 
@@ -101,9 +96,7 @@ router.post(
             const LEVELS = { none: 0, ro: 1, rw: 2, admin: 3 };
             if (LEVELS[access] < LEVELS.rw) {
                 // Clean up uploaded file
-                if (req.file) {
-                    await deleteFileFromDisk(req.file.path);
-                }
+                await cleanupUploadedObject(req);
                 return res
                     .status(403)
                     .json({ error: 'Not authorized to upload to this task' });
@@ -116,9 +109,7 @@ router.post(
 
             if (attachmentCount >= 20) {
                 // Clean up uploaded file
-                if (req.file) {
-                    await deleteFileFromDisk(req.file.path);
-                }
+                await cleanupUploadedObject(req);
                 return res.status(400).json({
                     error: 'Maximum 20 attachments allowed per task',
                 });
@@ -128,22 +119,26 @@ router.post(
                 return res.status(400).json({ error: 'No file uploaded' });
             }
 
+            // multer-s3 exposes the full object key (e.g. `tasks/task-123.pdf`);
+            // stored_filename keeps only the basename for URL building.
+            const storedFilename = path.basename(req.file.key);
+
             // Create attachment record
             const attachment = await TaskAttachment.create({
                 uid: uid(),
                 task_id: task.id,
                 user_id: userId,
                 original_filename: req.file.originalname,
-                stored_filename: req.file.filename,
+                stored_filename: storedFilename,
                 file_size: req.file.size,
                 mime_type: req.file.mimetype,
-                file_path: `tasks/${req.file.filename}`,
+                file_path: req.file.key,
             });
 
             // Return attachment with file URL
             const attachmentData = {
                 ...attachment.toJSON(),
-                file_url: getFileUrl(req.file.filename),
+                file_url: getFileUrl(storedFilename),
             };
 
             res.status(201).json(attachmentData);
@@ -151,9 +146,7 @@ router.post(
             logError('Error uploading attachment:', error);
 
             // Clean up uploaded file on error
-            if (req.file) {
-                await deleteFileFromDisk(req.file.path);
-            }
+            await cleanupUploadedObject(req);
 
             res.status(500).json({
                 error: 'Failed to upload attachment',
@@ -252,9 +245,8 @@ router.delete(
                 return res.status(404).json({ error: 'Attachment not found' });
             }
 
-            // Delete file from disk
-            const filePath = path.join(config.uploadPath, attachment.file_path);
-            await deleteFileFromDisk(filePath);
+            // Delete file from R2 (file_path holds the object key)
+            await r2Service.deleteObject(attachment.file_path);
 
             // Delete database record
             await attachment.destroy();
@@ -303,9 +295,41 @@ router.get(
                     .json({ error: 'Not authorized to download this file' });
             }
 
-            // Send file
-            const filePath = path.join(config.uploadPath, attachment.file_path);
-            res.download(filePath, attachment.original_filename);
+            // Stream file from R2 (file_path holds the object key)
+            let object;
+            try {
+                object = await r2Service.getObjectStream(attachment.file_path);
+            } catch (streamError) {
+                logError('Attachment object not found in R2:', streamError);
+                return res.status(404).json({ error: 'File not found' });
+            }
+
+            res.setHeader(
+                'Content-Type',
+                object.contentType ||
+                    attachment.mime_type ||
+                    'application/octet-stream'
+            );
+            if (object.contentLength != null) {
+                res.setHeader('Content-Length', object.contentLength);
+            }
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="${attachment.original_filename.replace(
+                    /"/g,
+                    ''
+                )}"`
+            );
+
+            object.body.on('error', (streamError) => {
+                logError('Error streaming attachment from R2:', streamError);
+                if (!res.headersSent) {
+                    res.status(500).end();
+                } else {
+                    res.destroy(streamError);
+                }
+            });
+            object.body.pipe(res);
         } catch (error) {
             logError('Error downloading attachment:', error);
             res.status(500).json({

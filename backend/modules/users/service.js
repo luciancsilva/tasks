@@ -46,26 +46,8 @@ const {
 } = require('./apiTokenService');
 const taskSummaryService = require('../tasks/taskSummaryService');
 const { logError } = require('../../services/logService');
-const fs = require('fs').promises;
 const path = require('path');
-const { getConfig } = require('../../config/config');
-
-const config = getConfig();
-
-async function safeDeleteFile(filePath) {
-    if (!filePath) return;
-
-    const uploadDir = path.resolve(config.uploadPath);
-    const resolvedPath = path.resolve(filePath);
-    const relativePath = path.relative(uploadDir, resolvedPath);
-
-    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
-        logError('Attempt to delete file outside upload directory:', filePath);
-        return;
-    }
-
-    await fs.unlink(resolvedPath).catch(() => {});
-}
+const r2Service = require('../../services/r2Service');
 
 class UsersService {
     /**
@@ -236,20 +218,17 @@ class UsersService {
 
         const user = await usersRepository.findById(userId);
         if (!user) {
-            await safeDeleteFile(file.path);
+            await r2Service.deleteObject(file.key);
             throw new NotFoundError('User not found');
         }
 
         if (user.avatar_image) {
-            const oldAvatarPath = path.join(
-                __dirname,
-                '../../uploads/avatars',
-                path.basename(user.avatar_image)
+            await r2Service.deleteObject(
+                `avatars/${path.basename(user.avatar_image)}`
             );
-            await safeDeleteFile(oldAvatarPath);
         }
 
-        const avatarUrl = `/uploads/avatars/${path.basename(file.path)}`;
+        const avatarUrl = `/uploads/avatars/${path.basename(file.key)}`;
         await usersRepository.update(user, { avatar_image: avatarUrl });
 
         return {
@@ -269,12 +248,9 @@ class UsersService {
         }
 
         if (user.avatar_image) {
-            const avatarPath = path.join(
-                __dirname,
-                '../../uploads/avatars',
-                path.basename(user.avatar_image)
+            await r2Service.deleteObject(
+                `avatars/${path.basename(user.avatar_image)}`
             );
-            await safeDeleteFile(avatarPath);
         }
 
         await usersRepository.update(user, { avatar_image: null });
