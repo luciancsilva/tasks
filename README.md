@@ -94,9 +94,9 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ---
 
-## 📜 Changelog Detalhado dos 42 Commits Ahead de `chrisvel/tududi:main`
+## 📜 Changelog Detalhado dos 49 Commits Ahead de `chrisvel/tududi:main`
 
-O repositório `luciancsilva/tasks:main` possui **42 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+O repositório `luciancsilva/tasks:main` possui **49 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
 
 ### 🗄️ Cloudflare D1 via REST API (julho/2026)
 - **`5e705e8b`** (`feat(db): Cloudflare D1 data layer via REST API (TUDUDI_DB_DRIVER=d1)`): Driver sqlite3-compatível (`d1RestDriver.js`) plugado via `dialectModule` + client HTTP (`d1Client.js`) com retry, timeout e rate limiter; 38 testes unitários incluindo round-trip completo do Sequelize contra emulador D1.
@@ -108,12 +108,16 @@ O repositório `luciancsilva/tasks:main` possui **42 commits customizados à fre
 - **`fe4e1651`** (`fix(attachments): remove R2 objects when deleting a whole task`): Deleção de tarefa agora remove do bucket os anexos dela, das subtasks e das recorrências futuras; subtasks deixam de ficar órfãs no banco.
 - **`b707dce8`** (`fix(projects): remove cover image object from R2 when cover is removed or replaced`): PATCH de capa limpa o objeto antigo; falhas de storage passam a ser logadas.
 - **`887e4862`** (`feat(branding): instance-wide custom app name, logos and favicon`): Branding por instância (admin) com fallback pro padrão, endpoints públicos pré-login, upload via pipeline R2 e i18n nos 25 idiomas.
+- **`f40acbe8`** (`refactor: defer R2 object deletion until after database transaction commits`): Adiamento da deleção física de arquivos do R2 para após o commit da transação do banco de dados, evitando perda de arquivos em caso de rollback. (ME-2)
+- **`86edfbec`** (`style(branding): fix formatting and lint errors`): Ajustes e correções de formatação e linting nos arquivos e testes de branding.
 
 ### 🏗️ Governança, Compose & Higiene do Fork (julho/2026)
 - **`44c0ba25`** (`chore(docker): compose file tailored to fork deployment plus D1 env block`): Compose buildando do fork no GitHub, env 100% interpolada do `.env`, bloco D1.
 - **`d553e1b7`** (`chore: remove upstream GitHub Pages site artifacts from fork`): Remoção de `index.html` (landing page), `CNAME`, `.nojekyll` e `screenshots/` — artefatos do site do upstream.
 - **`e6de6648`**, **`e1624ee2`**, **`3fdb7911`**, **`b137dc93`**, **`b13d387b`** (`docs(plans)`): Workflow de planos executáveis por agentes — subplans por esforço (`05a/05b/05c`), plano de atualização do `/docs` (`06`), registro EXECUTADO dos planos implementados e ponto de entrada único (`read the @plans/README.md`).
 - **`656bf687`** (`docs: refresh CLAUDE.md after July 2026 changes`): CLAUDE.md alinhado (R2, D1, branding, plans).
+- **`8a620172`** (`feat(plans): implement 05a-quick-wins.md`): Implementação e validação de 5 melhorias rápidas de baixo esforço (limites de anexo, lifecycle de uploads órfãos do R2, drift i18n, etc.).
+- **`bf7e99f0`** (`docs(plans): update plans status to EXECUTADO`): Atualização de status e documentação dos planos de esforço médio (ME-3 a ME-6) como concluídos.
 
 ### ☁️ Storage em Nuvem & Resiliência Docker (Cloudflare R2)
 - **`af2dd3e4`** (`fix(storage): lazy resolve R2 bucket and interpolate compose env vars`): Converte a propriedade `bucket` do `multer-s3` em função *lazy* (`(req, file, cb) => ...`), evitando crash `bucket is required` no boot da aplicação no Docker. Configura interpolação `${R2_...:-}` no `docker-compose.yml`.
@@ -137,6 +141,8 @@ O repositório `luciancsilva/tasks:main` possui **42 commits customizados à fre
 - **`51b43544`** (`fix(migrations): make add-goal-columns-to-projects idempotent`): Transformação da migração de colunas de metas dos projetos em operação idempotente segura em re-execuções.
 - **`36fe379a`** (`fix(tests): prevent test-created users from silently becoming admin`): Blindagem na suíte de testes de autenticação para impedir que usuários temporários ganhem privilégios de administrador de forma silenciosa.
 - **`5310631d`** (`ci: run frontend tests, typecheck, and npm audit (#2)`): Criação do *workflow* no GitHub Actions para validação automatizada de testes do frontend, verificação de tipagem TypeScript e auditoria de vulnerabilidades (`npm audit`).
+- **`1a095535`** (`refactor: eliminate PRAGMA foreign_keys = OFF global on task delete`): Eliminação de comando PRAGMA global que desligava foreign keys para a sessão inteira do SQLite, garantindo isolamento entre conexões e segurança nas cascatas. (ME-1)
+- **`e1738ce2`** (`refactor(database): remove BaseRepository and implement native cascade deletes`): Remoção completa da classe BaseRepository. Todos os 13 repositórios foram convertidos em classes planas autônomas. Configuração de cascade nativa no banco para tabelas dependentes de tarefas. (ME-3, ME-5)
 
 ### 🎨 Estabilidade UI/UX & Testes de Caracterização
 - **`61c36075`** (`test(frontend): add characterization tests for RecurrenceDisplay`): Implementação de suíte abrangente de testes de caracterização para blindar a lógica de exibição de tarefas recorrentes (`RecurrenceDisplay.test.tsx`).
