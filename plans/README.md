@@ -30,7 +30,7 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 | `05b-medium-effort.md` | 6 itens de esforço médio | Médio | Aberto |
 | `05c-high-effort.md` | 3 itens estruturais | Alto | Aberto |
 | `06-docs-update.md` | Atualização integral do `/docs` | Médio | Aberto |
-| `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | **Pendente — bloqueado por credenciais** |
+| `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | EXECUTADO (2026-07-16) |
 
 ## Regras para o agente executor
 
@@ -59,12 +59,10 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 
 ## Ordem sugerida de execução (hoje)
 
-1. `07-d1-activation.md` assim que as credenciais D1 existirem no `.env`
-   (independente das demais; destrava o banco remoto).
-2. `05a` inteiro (quick wins — risco mínimo, valor imediato).
-3. `06-docs-update.md` (docs alinhados antes das refatorações grandes).
-4. `05b` na ordem ME-1 → ME-2 → ME-3 → ME-4 → ME-5 → ME-6 (ME-1 destrava os demais).
-5. `05c` (estruturais; HE-1 primeiro, absorve parte de ME-4).
+1. `05a` inteiro (quick wins — risco mínimo, valor imediato).
+2. `06-docs-update.md` (docs alinhados antes das refatorações grandes).
+3. `05b` na ordem ME-1 → ME-2 → ME-3 → ME-4 → ME-5 → ME-6 (ME-1 destrava os demais).
+4. `05c` (estruturais; HE-1 primeiro, absorve parte de ME-4).
 
 ## Avisos permanentes ao executor
 

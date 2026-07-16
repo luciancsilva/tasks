@@ -68,6 +68,18 @@ describe('d1RestDriver', () => {
                 'PRAGMA table_info(`tasks`)'
             );
         });
+
+        it('lowercases pragma names (D1 allowlist is case-sensitive)', () => {
+            expect(_translateStatement('PRAGMA TABLE_INFO(`tasks`);')).toBe(
+                'PRAGMA table_info(`tasks`);'
+            );
+            expect(
+                _translateStatement('PRAGMA INDEX_LIST(`SequelizeMeta`)')
+            ).toBe('PRAGMA index_list(`SequelizeMeta`)');
+            expect(
+                _translateStatement('PRAGMA INDEX_INFO(`sqlite_autoindex_1`)')
+            ).toBe('PRAGMA index_info(`sqlite_autoindex_1`)');
+        });
     });
 
     // Promise helpers preserving the sqlite3 `this` context.

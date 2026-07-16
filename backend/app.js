@@ -1,4 +1,10 @@
 require('dotenv').config();
+// Also load the repo-root .env (dotenv never overrides vars already set):
+// backend scripts run with cwd=backend/, where no .env exists.
+require('dotenv').config({
+    path: require('path').resolve(__dirname, '..', '.env'),
+});
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');

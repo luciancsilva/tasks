@@ -72,6 +72,18 @@ function translateStatement(sql) {
             : 'PRAGMA defer_foreign_keys = false';
     }
 
+    // D1 validates pragma names against its allowlist CASE-SENSITIVELY:
+    // `PRAGMA index_list(t)` works while `PRAGMA INDEX_LIST(t)` fails with
+    // SQLITE_AUTH. Sequelize emits uppercase pragma names (TABLE_INFO,
+    // INDEX_LIST, INDEX_INFO), so lowercase the pragma keyword.
+    const pragma = /^(PRAGMA\s+)([A-Za-z_]+)/i.exec(trimmed);
+    if (pragma) {
+        return trimmed.replace(
+            pragma[0],
+            `${pragma[1]}${pragma[2].toLowerCase()}`
+        );
+    }
+
     return sql;
 }
 

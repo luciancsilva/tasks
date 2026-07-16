@@ -7,6 +7,10 @@
 
 try {
     require('dotenv').config();
+    // Repo-root .env fallback (dotenv never overrides already-set vars).
+    require('dotenv').config({
+        path: require('path').resolve(__dirname, '..', '..', '.env'),
+    });
 } catch (_) {}
 const { sequelize } = require('../models');
 

@@ -1,7 +1,9 @@
-# 07 — Ativação do Cloudflare D1 em produção (pendente)
+# 07 — Ativação do Cloudflare D1 em produção
 
-**Status**: PENDENTE — código pronto (commit `5e705e8`), ativação nunca executada
-contra um D1 real. Todos os testes do driver rodaram contra emulador/mocks.
+> **Status: EXECUTADO** em 2026-07-16 — D1 real ativado (database `tasks`,
+> schema completo via sync + 94 migrations registradas) e smoke funcional
+> completo: login, projeto, tarefa, upload de anexo no R2, download, delete
+> com limpeza do objeto no bucket. Ver "Lições da primeira ativação" no fim.
 
 Pré-requisito de leitura: `plans/README.md` (regras) e header de
 `backend/db/d1RestDriver.js` (semântica: transações no-op, `defer_foreign_keys`,
@@ -112,3 +114,25 @@ via `wrangler d1 export` se precisar).
   FK OFF prolongado podem falhar com constraint; mitigação já aplicada no
   delete de tarefa (deleção explícita de dependentes), restante em
   `plans/05b-medium-effort.md` ME-1.
+
+## Lições da primeira ativação (2026-07-16, incorporar em execuções futuras)
+
+1. **Bootstrap é sync-first, não migrations-first.** As migrations do repo são
+   evolutivas/defensivas e assumem o schema base criado por
+   `sequelize.sync()` (`scripts/db-init.js`) — igual ao `backend/cmd/start.sh`
+   em produção. Em D1 vazio: `db-init.js` primeiro, `db:migrate` depois
+   (as 94 entram como no-ops registradas no `SequelizeMeta`).
+2. **Allowlist de PRAGMA do D1 é case-sensitive.** `PRAGMA INDEX_LIST` (como o
+   Sequelize emite) retorna `SQLITE_AUTH`; `index_list` funciona. Corrigido no
+   driver (lowercase automático do nome do pragma).
+3. **Credenciais S3 do R2 são derivadas do API token**: access key = ID do
+   token, secret = SHA-256 do valor do token. Par trocado entre tokens gera o
+   sintoma "leitura OK, escrita 401".
+4. **Tokens**: API D1 exige **User API Token** (`cfut_`, My Profile → API
+   Tokens); Account Owned Token (`cfat_`) autentica em outros endpoints mas
+   retorna 401 genérico no D1.
+5. **`.env` fica na raiz do repo** — scripts backend carregam com fallback
+   explícito (`dotenv` com path da raiz); sem isso, migrations rodam
+   silenciosamente contra o SQLite local.
+6. Suíte de testes tem trava: `config.d1.enabled` é sempre `false` com
+   `NODE_ENV=test` — teste jamais toca o D1 real.

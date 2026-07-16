@@ -182,7 +182,12 @@ const config = {
     // Getters so env vars are read at access time (same rationale as r2).
     d1: {
         get enabled() {
-            return process.env.TUDUDI_DB_DRIVER === 'd1';
+            // Hard-off in the test environment: the suite must always run on
+            // the local SQLite file, never against a real (remote) D1 —
+            // especially now that the repo-root .env is loaded as fallback.
+            return (
+                process.env.TUDUDI_DB_DRIVER === 'd1' && environment !== 'test'
+            );
         },
         get accountId() {
             return process.env.CLOUDFLARE_ACCOUNT_ID;
