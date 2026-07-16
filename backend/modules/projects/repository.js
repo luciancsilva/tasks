@@ -10,11 +10,13 @@ const {
     Note,
     User,
     Permission,
-    TaskAttachment,
     sequelize,
 } = require('../../models');
 const { Op } = require('sequelize');
 const r2Service = require('../../services/r2Service');
+const {
+    deleteAttachmentsForTaskIds,
+} = require('../tasks/attachmentCleanup');
 const { logError } = require('../../services/logService');
 
 class ProjectsRepository extends BaseRepository {
@@ -265,51 +267,27 @@ class ProjectsRepository extends BaseRepository {
                         user_id: userId,
                         parent_task_id: null, // Only get parent tasks
                     },
+                    attributes: ['id'],
                     include: [
-                        {
-                            model: TaskAttachment,
-                            as: 'Attachments',
-                            required: false,
-                        },
                         {
                             model: Task,
                             as: 'Subtasks',
-                            include: [
-                                {
-                                    model: TaskAttachment,
-                                    as: 'Attachments',
-                                    required: false,
-                                },
-                            ],
+                            attributes: ['id'],
                             required: false,
                         },
                     ],
                     transaction,
                 });
 
-                // Helper function to delete attachments for a task
-                const deleteTaskAttachments = async (task) => {
-                    if (task.Attachments && task.Attachments.length > 0) {
-                        for (const attachment of task.Attachments) {
-                            // file_path holds the R2 object key
-                            await r2Service.deleteObject(attachment.file_path);
-                            await attachment.destroy({ transaction });
-                        }
-                    }
-                };
-
-                // Delete attachments for tasks and subtasks
+                // Delete attachments (R2 objects + rows) for tasks and subtasks
+                const taskIds = [];
                 for (const task of tasks) {
-                    // Delete parent task attachments
-                    await deleteTaskAttachments(task);
-
-                    // Delete subtask attachments
-                    if (task.Subtasks && task.Subtasks.length > 0) {
-                        for (const subtask of task.Subtasks) {
-                            await deleteTaskAttachments(subtask);
-                        }
+                    taskIds.push(task.id);
+                    for (const subtask of task.Subtasks || []) {
+                        taskIds.push(subtask.id);
                     }
                 }
+                await deleteAttachmentsForTaskIds(taskIds, { transaction });
 
                 // Delete tasks (including subtasks)
                 await Task.destroy({

@@ -13,6 +13,7 @@ const {
     sequelize,
 } = require('../../models');
 const taskRepository = require('./repository');
+const { deleteAttachmentsForTaskIds } = require('./attachmentCleanup');
 const {
     resetQueryCounter,
     getQueryStats,
@@ -923,6 +924,12 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
 
         const taskId = task.id;
 
+        const subtasks = await Task.findAll({
+            where: { parent_task_id: taskId },
+            attributes: ['id'],
+        });
+        const subtaskIds = subtasks.map((subtask) => subtask.id);
+
         const childTasks = await taskRepository.findRecurringChildren(taskId);
 
         if (childTasks.length > 0) {
@@ -937,6 +944,14 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                 if (!child.due_date) return false;
                 return new Date(child.due_date) <= now;
             });
+
+            // Remove attachments (R2 objects + rows) of future instances
+            // BEFORE destroying them: with foreign keys ON, destroy() would
+            // cascade-delete the attachment rows and leave the R2 objects
+            // orphaned with no record of their keys.
+            await deleteAttachmentsForTaskIds(
+                futureInstances.map((instance) => instance.id)
+            );
 
             for (const futureInstance of futureInstances) {
                 await futureInstance.destroy();
@@ -956,19 +971,37 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
             }
         }
 
+        // Remove attachments (R2 objects + rows) of the task and its subtasks
+        // before the rows are deleted below — task.destroy() runs with foreign
+        // keys OFF, so no cascade would clean these up.
+        await deleteAttachmentsForTaskIds([taskId, ...subtaskIds]);
+
         await sequelize.query('PRAGMA foreign_keys = OFF');
 
         try {
             await TaskEvent.destroy({
-                where: { task_id: taskId },
+                where: { task_id: [taskId, ...subtaskIds] },
                 force: true,
             });
 
-            await sequelize.query('DELETE FROM tasks_tags WHERE task_id = ?', {
-                replacements: [taskId],
-            });
+            await sequelize.query(
+                'DELETE FROM tasks_tags WHERE task_id IN (:taskIds)',
+                {
+                    replacements: { taskIds: [taskId, ...subtaskIds] },
+                }
+            );
 
             await taskRepository.clearRecurringParent(taskId);
+
+            // Subtasks are declared ON DELETE CASCADE, but the cascade never
+            // fires while foreign keys are OFF — delete them explicitly so
+            // they are not left dangling.
+            if (subtaskIds.length > 0) {
+                await Task.destroy({
+                    where: { id: subtaskIds },
+                    force: true,
+                });
+            }
 
             await task.destroy({ force: true });
         } finally {

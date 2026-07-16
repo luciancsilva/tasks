@@ -603,4 +603,75 @@ describe('Task Attachments Routes', () => {
             });
         });
     });
+
+    describe('DELETE /api/task/:uid (whole task) R2 cleanup', () => {
+        const createAttachment = (taskId, name) =>
+            TaskAttachment.create({
+                task_id: taskId,
+                user_id: user.id,
+                original_filename: `${name}.pdf`,
+                stored_filename: `${name}.pdf`,
+                file_size: 1024,
+                mime_type: 'application/pdf',
+                file_path: `tasks/${name}.pdf`,
+            });
+
+        it('should delete all attachments from R2 when the task is deleted', async () => {
+            await createAttachment(task.id, 'whole-delete-1');
+            await createAttachment(task.id, 'whole-delete-2');
+
+            const response = await agent.delete(`/api/task/${task.uid}`);
+
+            expect(response.status).toBe(200);
+
+            const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
+            const deletedKeys = deleteCalls.map(
+                (call) => call.args[0].input.Key
+            );
+            expect(deletedKeys).toContain('tasks/whole-delete-1.pdf');
+            expect(deletedKeys).toContain('tasks/whole-delete-2.pdf');
+
+            const remaining = await TaskAttachment.findAll({
+                where: { task_id: task.id },
+            });
+            expect(remaining).toHaveLength(0);
+        });
+
+        it('should delete subtask attachments from R2 when the parent task is deleted', async () => {
+            const subtask = await Task.create({
+                name: 'Subtask with attachment',
+                user_id: user.id,
+                parent_task_id: task.id,
+            });
+            await createAttachment(subtask.id, 'subtask-delete-1');
+
+            const response = await agent.delete(`/api/task/${task.uid}`);
+
+            expect(response.status).toBe(200);
+
+            const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
+            const deletedKeys = deleteCalls.map(
+                (call) => call.args[0].input.Key
+            );
+            expect(deletedKeys).toContain('tasks/subtask-delete-1.pdf');
+
+            const remainingAttachments = await TaskAttachment.findAll({
+                where: { task_id: subtask.id },
+            });
+            expect(remainingAttachments).toHaveLength(0);
+
+            // Subtask row itself is removed instead of being left dangling
+            const remainingSubtask = await Task.findOne({
+                where: { id: subtask.id },
+            });
+            expect(remainingSubtask).toBeNull();
+        });
+
+        it('should not call R2 delete when the task has no attachments', async () => {
+            const response = await agent.delete(`/api/task/${task.uid}`);
+
+            expect(response.status).toBe(200);
+            expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+        });
+    });
 });

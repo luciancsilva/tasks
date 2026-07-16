@@ -408,7 +408,7 @@ describe('Subtasks Completion Logic Integration', () => {
             expect(updatedParent.status).toBe(Task.STATUS.NOT_STARTED);
         });
 
-        it('should handle deleted parent task gracefully (FK constraints disabled)', async () => {
+        it('should delete subtasks together with the parent task', async () => {
             // Create parent task
             const parentTask = await Task.create({
                 name: 'Parent Task',
@@ -432,10 +432,11 @@ describe('Subtasks Completion Logic Integration', () => {
 
                 .expect(200);
 
-            // Verify subtask remains (orphaned) since FK constraints are disabled in tests
+            // Subtasks are removed explicitly by the delete route (the declared
+            // ON DELETE CASCADE never fires because foreign keys are OFF there),
+            // so no dangling subtask rows are left behind.
             const remainingSubtask = await Task.findByPk(subtask.id);
-            expect(remainingSubtask).not.toBeNull();
-            expect(remainingSubtask.parent_task_id).toBe(parentTask.id); // Points to deleted parent
+            expect(remainingSubtask).toBeNull();
         });
     });
 
