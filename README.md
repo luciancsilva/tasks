@@ -54,21 +54,34 @@ Foram resolvidas falhas estruturais do projeto original causadoras de *crash loo
   - Ajustes de regras ESLint em componentes críticos como `TaskItem.tsx` (`8bce179c`).
   - Atualização da documentação de testes e ganchos de *pre-push* (`docs/testing.md` / `feebf50b`).
 
-### 4. 📋 Governança Arquitetural e Planos de Melhoria (`plans/`)
-Este fork mantém uma pasta dedicada (`plans/`) com o mapeamento técnico completo (gerado via auditoria de arquitetura `improve`), categorizando pendências técnicas e roteiro de execução para agentes de IA e desenvolvedores:
-- [plans/README.md](plans/README.md): Matriz de prioridades e status das correções técnicas.
-- Planos mapeados para execução (Plano 008 a 012):
-  - **Plano 008**: Proteção de autenticação na montagem estática de arquivos `/api/uploads`.
-  - **Plano 009**: Correção do relink de chave estrangeira (FK) de anexos na restauração de backups.
-  - **Plano 010 & 012**: Validações de propriedade de projeto/área nas ferramentas MCP (`create_task`, `list_tasks`).
-  - **Plano 011**: Otimização de performance no *hot-path* das tarefas recorrentes e remoção de logs redundantes.
+### 4. 📋 Governança Arquitetural e Planos Executáveis por Agentes (`plans/`)
+Este fork mantém uma pasta dedicada (`plans/`) de planos de trabalho executáveis por agentes de IA, com protocolo de execução autocontido:
+- [plans/README.md](plans/README.md): ponto de entrada único — o prompt `read the @plans/README.md` basta para um agente listar os planos abertos, perguntar qual executar e rodá-lo fim a fim (baseline de testes, escopo fechado, um commit por item, marcação EXECUTADO).
+- Planos executados permanecem como registro de decisão com banner apontando o commit de implementação (`01`–`04` e `07`).
+- Fila aberta: `05a` (quick wins), `05b` (esforço médio, FK/transações/error handling), `05c` (estruturais), `06` (atualização integral do `/docs`).
 
-### 5. ☁️ Suporte a Object Storage em Nuvem (Cloudflare R2 — `r2Service`)
+### 5. 🗄️ Cloudflare D1 como Banco de Dados via REST API (`TUDUDI_DB_DRIVER=d1`)
+Camada de dados opcional substituindo o SQLite local pelo **Cloudflare D1**, acessado diretamente pela REST API (sem Worker intermediário):
+- **Driver sqlite3-compatível** (`backend/db/d1RestDriver.js`) plugado no Sequelize via `dialectModule` — models, associations, migrations e módulos permanecem intactos; só o transporte muda.
+- **Client HTTP** (`backend/db/d1Client.js`) com Bearer token, timeout, retry exponencial (429/5xx) e rate limiter local sob o teto de 1200 req/5min da conta Cloudflare.
+- **Semântica documentada**: transações viram no-op (API stateless), `PRAGMA foreign_keys` mapeado para `defer_foreign_keys`, nomes de PRAGMA normalizados para minúsculas (allowlist do D1 é case-sensitive).
+- **Ativado e validado em produção real**: schema completo (33 tabelas + 94 migrations) e smoke funcional de ponta a ponta (login → tarefa → anexo no R2 → delete com limpeza no bucket). Lições em [`plans/07-d1-activation.md`](plans/07-d1-activation.md).
+- Sem a flag, o comportamento original (SQLite local) permanece intocado; suíte de testes é travada no SQLite local por design.
+
+### 6. 🎨 Branding Customizável por Instância
+Nome exibido, logos (temas claro/escuro) e favicon configuráveis por admin, com fallback integral pro padrão tududi:
+- Backend `backend/modules/branding/` (settings globais na tabela `settings`, endpoints públicos de leitura/asset + mutações admin-only, upload pelo pipeline R2).
+- Frontend `BrandingContext` aplica título, favicon dinâmico e logos nas telas pré-login (Login/Register/OIDC) e navegação; aba Branding no Profile (admin).
+- Traduções adicionadas nos 25 idiomas suportados.
+
+### 7. ☁️ Suporte a Object Storage em Nuvem (Cloudflare R2 — `r2Service`)
 Para ambientes conteinerizados ou de alta disponibilidade onde o armazenamento local efêmero em disco (`/app/uploads`) é um gargalo, este fork implementa suporte nativo a **Cloudflare R2 (Compatível com S3)**:
 - **Centralização do Serviço (`backend/services/r2Service.js`)**: Gerenciamento unificado do cliente S3 (`@aws-sdk/client-s3`) e da *engine* `multer-s3`. Todos os fluxos de upload — anexos de tarefas (`attachments.js`), avatares de usuário (`profile/avatar`) e imagens de capa de projetos (`projects/routes.js`) — utilizam o mesmo serviço.
 - **Resiliência e Inicialização *Lazy***: O *bucket* é resolvido de forma sob demanda via callback (`bucket: function (req, file, cb)`). Isso impede que a inicialização do Node.js/Docker trave no boot com erro `bucket is required` caso o R2 não esteja configurado, falhando de forma limpa apenas durante uma tentativa de upload se as credenciais estiverem ausentes (`ac6effcf`).
 - **Interpolação no Docker Compose (`${R2_...:-}`)**: As variáveis de ambiente do R2 são declaradas com valores padrão flexíveis no `docker-compose.yml` (`R2_BUCKET=${R2_BUCKET:-}`), permitindo injeção limpa através do arquivo `.env` do host sem que valores vazios explícitos sobrescrevam o ambiente no container.
 - **Paridade de Layout e Zero Migração de Dados**: As chaves dos objetos armazenadas no R2 (`tasks/task-123.pdf`, `avatars/avatar-456.jpg`) seguem exatamente a mesma estrutura dos basenames em disco local (`TaskAttachment.file_path`), dispensando qualquer migração de banco na transição entre disco local e nuvem (`2eddce66`).
+- **Limpeza garantida de objetos órfãos**: deletar uma tarefa remove do bucket os anexos dela, das subtasks e das instâncias recorrentes futuras (`fe4e1651`); remover/trocar a capa de um projeto deleta o objeto antigo (`b707dce8`) — fluxos que antes deixavam lixo acumulando no R2.
+- **Nomes canônicos de variáveis** `CLOUDFLARE_*` compartilhando `CLOUDFLARE_ACCOUNT_ID` entre R2 e D1, com fallback para os legados `R2_*` (`09aaa778`); setup de credenciais documentado em [`.env.example`](.env.example).
 
 ---
 
@@ -80,9 +93,26 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ---
 
-## 📜 Changelog Detalhado dos 26 Commits Ahead de `chrisvel/tududi:main`
+## 📜 Changelog Detalhado dos 42 Commits Ahead de `chrisvel/tududi:main`
 
-O repositório `luciancsilva/tasks:main` possui **26 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+O repositório `luciancsilva/tasks:main` possui **42 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+
+### 🗄️ Cloudflare D1 via REST API (julho/2026)
+- **`5e705e8b`** (`feat(db): Cloudflare D1 data layer via REST API (TUDUDI_DB_DRIVER=d1)`): Driver sqlite3-compatível (`d1RestDriver.js`) plugado via `dialectModule` + client HTTP (`d1Client.js`) com retry, timeout e rate limiter; 38 testes unitários incluindo round-trip completo do Sequelize contra emulador D1.
+- **`753b826a`** (`fix(db): D1 activation fixes from first real-world run`): Correções da primeira ativação real — PRAGMAs em minúsculas (allowlist do D1 é case-sensitive), carregamento do `.env` da raiz pelos scripts backend, trava de segurança que força SQLite local em `NODE_ENV=test`.
+- **`09aaa778`** (`feat(config): unified CLOUDFLARE_* env var naming + D1 activation plan`): Nomes canônicos `CLOUDFLARE_*` para R2/D1 com fallback dos legados; plano de ativação `plans/07`.
+- **`06b04667`** (`docs: add .env.example with Cloudflare token setup instructions`): Guia completo de obtenção/escopo de tokens (R2: par S3 derivado do token; D1: exige User API Token `cfut_`).
+
+### 🧹 Limpeza de Objetos R2 & Branding (julho/2026)
+- **`fe4e1651`** (`fix(attachments): remove R2 objects when deleting a whole task`): Deleção de tarefa agora remove do bucket os anexos dela, das subtasks e das recorrências futuras; subtasks deixam de ficar órfãs no banco.
+- **`b707dce8`** (`fix(projects): remove cover image object from R2 when cover is removed or replaced`): PATCH de capa limpa o objeto antigo; falhas de storage passam a ser logadas.
+- **`887e4862`** (`feat(branding): instance-wide custom app name, logos and favicon`): Branding por instância (admin) com fallback pro padrão, endpoints públicos pré-login, upload via pipeline R2 e i18n nos 25 idiomas.
+
+### 🏗️ Governança, Compose & Higiene do Fork (julho/2026)
+- **`44c0ba25`** (`chore(docker): compose file tailored to fork deployment plus D1 env block`): Compose buildando do fork no GitHub, env 100% interpolada do `.env`, bloco D1.
+- **`d553e1b7`** (`chore: remove upstream GitHub Pages site artifacts from fork`): Remoção de `index.html` (landing page), `CNAME`, `.nojekyll` e `screenshots/` — artefatos do site do upstream.
+- **`e6de6648`**, **`e1624ee2`**, **`3fdb7911`**, **`b137dc93`**, **`b13d387b`** (`docs(plans)`): Workflow de planos executáveis por agentes — subplans por esforço (`05a/05b/05c`), plano de atualização do `/docs` (`06`), registro EXECUTADO dos planos implementados e ponto de entrada único (`read the @plans/README.md`).
+- **`656bf687`** (`docs: refresh CLAUDE.md after July 2026 changes`): CLAUDE.md alinhado (R2, D1, branding, plans).
 
 ### ☁️ Storage em Nuvem & Resiliência Docker (Cloudflare R2)
 - **`af2dd3e4`** (`fix(storage): lazy resolve R2 bucket and interpolate compose env vars`): Converte a propriedade `bucket` do `multer-s3` em função *lazy* (`(req, file, cb) => ...`), evitando crash `bucket is required` no boot da aplicação no Docker. Configura interpolação `${R2_...:-}` no `docker-compose.yml`.
