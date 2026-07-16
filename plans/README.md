@@ -47,7 +47,7 @@ siga os passos abaixo imediatamente.
 | `04-d1-migration.md` | Camada de dados D1 via REST | — | EXECUTADO (`5e705e8`) |
 | `05-future-improvements.md` | Índice do levantamento de melhorias | — | Aberto |
 | `05a-quick-wins.md` | 5 itens de esforço baixo | Baixo | EXECUTADO (2026-07-16) |
-| `05b-medium-effort.md` | 6 itens de esforço médio | Médio | Aberto |
+| `05b-medium-effort.md` | 5 itens de esforço médio | Médio | Aberto |
 | `05c-high-effort.md` | 3 itens estruturais | Alto | Aberto |
 | `06-docs-update.md` | Atualização integral do `/docs` | Médio | Aberto |
 | `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | EXECUTADO (2026-07-16) |

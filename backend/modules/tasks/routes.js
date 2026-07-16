@@ -11,6 +11,8 @@ const {
     RecurringCompletion,
     Project,
     sequelize,
+    CalDAVSyncState,
+    CalDAVOccurrenceOverride,
 } = require('../../models');
 const taskRepository = require('./repository');
 const { deleteAttachmentsForTaskIds } = require('./attachmentCleanup');
@@ -932,81 +934,121 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
 
         const childTasks = await taskRepository.findRecurringChildren(taskId);
 
-        if (childTasks.length > 0) {
-            const now = new Date();
+        await sequelize.transaction(async (t) => {
+            if (childTasks.length > 0) {
+                const now = new Date();
 
-            const futureInstances = childTasks.filter((child) => {
-                if (!child.due_date) return true;
-                return new Date(child.due_date) > now;
-            });
-
-            const pastInstances = childTasks.filter((child) => {
-                if (!child.due_date) return false;
-                return new Date(child.due_date) <= now;
-            });
-
-            // Remove attachments (R2 objects + rows) of future instances
-            // BEFORE destroying them: with foreign keys ON, destroy() would
-            // cascade-delete the attachment rows and leave the R2 objects
-            // orphaned with no record of their keys.
-            await deleteAttachmentsForTaskIds(
-                futureInstances.map((instance) => instance.id)
-            );
-
-            for (const futureInstance of futureInstances) {
-                await futureInstance.destroy();
-            }
-
-            for (const pastInstance of pastInstances) {
-                await pastInstance.update({
-                    recurring_parent_id: null,
-                    recurrence_type: 'none',
-                    recurrence_interval: null,
-                    recurrence_end_date: null,
-                    recurrence_weekday: null,
-                    recurrence_month_day: null,
-                    recurrence_week_of_month: null,
-                    completion_based: false,
+                const futureInstances = childTasks.filter((child) => {
+                    if (!child.due_date) return true;
+                    return new Date(child.due_date) > now;
                 });
+
+                const pastInstances = childTasks.filter((child) => {
+                    if (!child.due_date) return false;
+                    return new Date(child.due_date) <= now;
+                });
+
+                // Remove attachments of future instances
+                await deleteAttachmentsForTaskIds(
+                    futureInstances.map((instance) => instance.id),
+                    { transaction: t }
+                );
+
+                for (const futureInstance of futureInstances) {
+                    const futureInstId = futureInstance.id;
+                    await TaskEvent.destroy({
+                        where: { task_id: futureInstId },
+                        transaction: t,
+                    });
+                    await sequelize.query(
+                        'DELETE FROM tasks_tags WHERE task_id = :taskId',
+                        {
+                            replacements: { taskId: futureInstId },
+                            transaction: t,
+                        }
+                    );
+                    await RecurringCompletion.destroy({
+                        where: { task_id: futureInstId },
+                        transaction: t,
+                    });
+                    await CalDAVSyncState.destroy({
+                        where: { task_id: futureInstId },
+                        transaction: t,
+                    });
+                    await CalDAVOccurrenceOverride.destroy({
+                        where: { parent_task_id: futureInstId },
+                        transaction: t,
+                    });
+                    await futureInstance.destroy({ transaction: t });
+                }
+
+                for (const pastInstance of pastInstances) {
+                    await pastInstance.update({
+                        recurring_parent_id: null,
+                        recurrence_type: 'none',
+                        recurrence_interval: null,
+                        recurrence_end_date: null,
+                        recurrence_weekday: null,
+                        recurrence_month_day: null,
+                        recurrence_week_of_month: null,
+                        completion_based: false,
+                    }, { transaction: t });
+                }
             }
-        }
 
-        // Remove attachments (R2 objects + rows) of the task and its subtasks
-        // before the rows are deleted below — task.destroy() runs with foreign
-        // keys OFF, so no cascade would clean these up.
-        await deleteAttachmentsForTaskIds([taskId, ...subtaskIds]);
+            // Remove attachments (R2 objects + rows) of the task and its subtasks
+            await deleteAttachmentsForTaskIds([taskId, ...subtaskIds], { transaction: t });
 
-        await sequelize.query('PRAGMA foreign_keys = OFF');
+            const allTaskIds = [taskId, ...subtaskIds];
 
-        try {
+            // 1. TaskEvent
             await TaskEvent.destroy({
-                where: { task_id: [taskId, ...subtaskIds] },
-                force: true,
+                where: { task_id: allTaskIds },
+                transaction: t,
             });
 
+            // 2. tasks_tags
             await sequelize.query(
                 'DELETE FROM tasks_tags WHERE task_id IN (:taskIds)',
                 {
-                    replacements: { taskIds: [taskId, ...subtaskIds] },
+                    replacements: { taskIds: allTaskIds },
+                    transaction: t,
                 }
             );
 
-            await taskRepository.clearRecurringParent(taskId);
+            // 3. RecurringCompletion
+            await RecurringCompletion.destroy({
+                where: { task_id: allTaskIds },
+                transaction: t,
+            });
 
-            // Subtasks are declared ON DELETE CASCADE, but the cascade never
-            // fires while foreign keys are OFF — delete them explicitly so
-            // they are not left dangling.
+            // 4. CalDAVSyncState
+            await CalDAVSyncState.destroy({
+                where: { task_id: allTaskIds },
+                transaction: t,
+            });
+
+            // 5. CalDAVOccurrenceOverride
+            await CalDAVOccurrenceOverride.destroy({
+                where: { parent_task_id: allTaskIds },
+                transaction: t,
+            });
+
+            // 6. Clear recurring parent relationships
+            await taskRepository.clearRecurringParent(taskId, { transaction: t });
+
+            // 7. Subtasks
             if (subtaskIds.length > 0) {
                 await Task.destroy({
                     where: { id: subtaskIds },
                     force: true,
+                    transaction: t,
                 });
             }
 
-            await task.destroy({ force: true });
-        } finally {
-            await sequelize.query('PRAGMA foreign_keys = ON');
-        }
+            // 8. The task itself
+            await task.destroy({ force: true, transaction: t });
+        });
 
         res.json({ message: 'Task successfully deleted' });
     } catch (error) {

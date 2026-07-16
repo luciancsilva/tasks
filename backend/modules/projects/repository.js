@@ -11,6 +11,10 @@ const {
     User,
     Permission,
     sequelize,
+    TaskEvent,
+    RecurringCompletion,
+    CalDAVSyncState,
+    CalDAVOccurrenceOverride,
 } = require('../../models');
 const { Op } = require('sequelize');
 const r2Service = require('../../services/r2Service');
@@ -274,8 +278,6 @@ class ProjectsRepository extends BaseRepository {
      */
     async deleteWithOrphaning(project, userId) {
         await sequelize.transaction(async (transaction) => {
-            await sequelize.query('PRAGMA foreign_keys = OFF', { transaction });
-
             try {
                 // Find all tasks belonging to this project (parent tasks only)
                 const tasks = await Task.findAll({
@@ -306,11 +308,73 @@ class ProjectsRepository extends BaseRepository {
                 }
                 await deleteAttachmentsForTaskIds(taskIds, { transaction });
 
-                // Delete tasks (including subtasks)
-                await Task.destroy({
-                    where: { project_id: project.id, user_id: userId },
-                    transaction,
-                });
+                if (taskIds.length > 0) {
+                    // Explicitly delete dependents of tasks in reverse order of dependency
+                    // 1. TaskEvent
+                    await TaskEvent.destroy({
+                        where: { task_id: taskIds },
+                        transaction,
+                    });
+
+                    // 2. tasks_tags
+                    await sequelize.query(
+                        'DELETE FROM tasks_tags WHERE task_id IN (:taskIds)',
+                        {
+                            replacements: { taskIds },
+                            transaction,
+                        }
+                    );
+
+                    // 3. RecurringCompletion
+                    await RecurringCompletion.destroy({
+                        where: { task_id: taskIds },
+                        transaction,
+                    });
+
+                    // 4. CalDAVSyncState
+                    await CalDAVSyncState.destroy({
+                        where: { task_id: taskIds },
+                        transaction,
+                    });
+
+                    // 5. CalDAVOccurrenceOverride
+                    await CalDAVOccurrenceOverride.destroy({
+                        where: { parent_task_id: taskIds },
+                        transaction,
+                    });
+
+                    // 6. Clear recurring parent relationships
+                    await Task.update(
+                        { recurring_parent_id: null },
+                        {
+                            where: { recurring_parent_id: taskIds },
+                            transaction,
+                        }
+                    );
+
+                    // 7. Subtasks
+                    const subtaskIds = [];
+                    for (const task of tasks) {
+                        for (const subtask of task.Subtasks || []) {
+                            subtaskIds.push(subtask.id);
+                        }
+                    }
+                    if (subtaskIds.length > 0) {
+                        await Task.destroy({
+                            where: { id: subtaskIds },
+                            transaction,
+                        });
+                    }
+
+                    // 8. Parent tasks
+                    const parentTaskIds = tasks.map(t => t.id);
+                    if (parentTaskIds.length > 0) {
+                        await Task.destroy({
+                            where: { id: parentTaskIds },
+                            transaction,
+                        });
+                    }
+                }
 
                 // Orphan notes (they are reference material and may be useful without the project)
                 await Note.update(
@@ -324,15 +388,20 @@ class ProjectsRepository extends BaseRepository {
                 // Delete project cover image from R2 if it exists
                 await this.deleteProjectImageFromR2(project.image_url);
 
+                // Explicitly delete project tags
+                await sequelize.query(
+                    'DELETE FROM projects_tags WHERE project_id = :projectId',
+                    {
+                        replacements: { projectId: project.id },
+                        transaction,
+                    }
+                );
+
                 // Delete the project
                 await project.destroy({ transaction });
             } catch (error) {
                 logError('Error deleting project:', error);
                 throw error;
-            } finally {
-                await sequelize.query('PRAGMA foreign_keys = ON', {
-                    transaction,
-                });
             }
         });
     }

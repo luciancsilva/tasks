@@ -98,10 +98,10 @@ class TaskRepository {
         });
     }
 
-    async clearRecurringParent(recurringParentId) {
+    async clearRecurringParent(recurringParentId, options = {}) {
         return await this.model.update(
             { recurring_parent_id: null },
-            { where: { recurring_parent_id: recurringParentId } }
+            { where: { recurring_parent_id: recurringParentId }, ...options }
         );
     }
 

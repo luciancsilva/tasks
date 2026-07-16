@@ -6,22 +6,6 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
 
 ---
 
-## ME-1. Eliminar `PRAGMA foreign_keys = OFF` global no delete de tarefa
-
-- **Onde**: `backend/modules/tasks/routes.js` (handler `DELETE /task/:uid`);
-  padrão repetido em `backend/modules/projects/repository.js` (`deleteWithOrphaning`).
-- **Por quê (alta prioridade)**: o PRAGMA atua na conexão compartilhada fora de
-  transação; requisição concorrente pode rodar sem enforcement, e crash entre
-  OFF e ON deixa a conexão sem FKs. Também é semanticamente diferente no modo
-  D1 (vira `defer_foreign_keys`, escopo por request).
-- **Como**: substituir por deleção explícita em ordem reversa de dependência
-  dentro de `sequelize.transaction` — anexos (já feito), task_events, tasks_tags,
-  recurring_completions, caldav_sync_state/overrides, subtasks, por fim a task.
-  Remover o par PRAGMA OFF/ON. Mesma cirurgia no fluxo de projeto.
-- **Riscos**: mapear TODAS as FKs que apontam para `tasks` antes (grep nas
-  migrations por `references.*tasks`); teste de delete com cada tipo de dependente.
-- **Esforço**: médio. **Dependência**: nenhum, mas facilita ME-2 e ME-3.
-
 ## ME-2. Side effects externos fora da transação de banco
 
 - **Onde**: `backend/modules/projects/repository.js` (`deleteWithOrphaning` chama
