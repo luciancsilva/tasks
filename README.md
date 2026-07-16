@@ -146,18 +146,19 @@ services:
       TUDUDI_ALLOWED_ORIGINS: http://localhost:3002
       TUDUDI_TRUST_PROXY: "true"
       TZ: America/Sao_Paulo
+      # Cloudflare — conta compartilhada entre R2 e D1 (nomes legados R2_* seguem
+      # funcionando como fallback):
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
       # Variáveis Cloudflare R2 (Opcionais - Se configuradas, uploads vão para o R2 em vez do disco local):
-      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
-      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
-      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
-      R2_BUCKET: ${R2_BUCKET:-}
-      R2_ENDPOINT: ${R2_ENDPOINT:-}
+      CLOUDFLARE_R2_ACCESS_KEY_ID: ${CLOUDFLARE_R2_ACCESS_KEY_ID:-}
+      CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-}
+      CLOUDFLARE_R2_BUCKET: ${CLOUDFLARE_R2_BUCKET:-}
+      CLOUDFLARE_R2_ENDPOINT: ${CLOUDFLARE_R2_ENDPOINT:-}
       # Variáveis Cloudflare D1 (Opcionais - Se TUDUDI_DB_DRIVER=d1, o banco
       # passa a ser o Cloudflare D1 acessado via REST API em vez do SQLite local):
       TUDUDI_DB_DRIVER: ${TUDUDI_DB_DRIVER:-}
-      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
       CLOUDFLARE_D1_DATABASE_ID: ${CLOUDFLARE_D1_DATABASE_ID:-}
-      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
 
 #    user: "1001:1001"
 

@@ -10,24 +10,27 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 - **Planos citam código real** (`arquivo:linha`), nunca generalidades — o agente
   executor não deve precisar re-investigar o que o plano já investigou, apenas
   validar que as referências continuam verdadeiras.
-- **Ciclo de vida**: proposto → executado → **removido do diretório**. Plano
-  executado sai daqui no mesmo commit (ou no seguinte) da implementação; o
-  histórico fica no git. Plano permanente vira doc em `/docs`, não mora aqui.
+- **Ciclo de vida**: proposto → executado → **marcado como EXECUTADO** (banner
+  no topo com o commit da implementação) e mantido como registro de decisão.
+  Só saem do diretório planos descartados ou consumidos sem valor de registro
+  (ex.: prompts de planejamento). Conteúdo permanente vira doc em `/docs`.
 - **Numeração**: prefixo `NN-` define ordem sugerida de leitura/execução;
   sufixos de letra (`05a`, `05b`) agrupam segregações de um mesmo levantamento.
 
 ## Estado atual
 
-| Arquivo | O quê | Esforço |
-|---|---|---|
-| `05-future-improvements.md` | Índice do levantamento de melhorias | — |
-| `05a-quick-wins.md` | 5 itens de esforço baixo | Baixo |
-| `05b-medium-effort.md` | 6 itens de esforço médio | Médio |
-| `05c-high-effort.md` | 3 itens estruturais | Alto |
-| `06-docs-update.md` | Atualização integral do `/docs` | Médio |
-
-Planos 000–04 (bugs de R2, branding, migração D1) foram executados nos commits
-`fe4e165`, `b707dce`, `887e486`, `5e705e8` e removidos; conteúdo no histórico git.
+| Arquivo | O quê | Esforço | Status |
+|---|---|---|---|
+| `01-r2-cover-cleanup.md` | Capa de projeto órfã no R2 | — | EXECUTADO (`b707dce`) |
+| `02-r2-task-cleanup.md` | Anexos órfãos ao deletar tarefa | — | EXECUTADO (`fe4e165`) |
+| `03-branding-customization.md` | Logo/favicon/nome customizáveis | — | EXECUTADO (`887e486`) |
+| `04-d1-migration.md` | Camada de dados D1 via REST | — | EXECUTADO (`5e705e8`) |
+| `05-future-improvements.md` | Índice do levantamento de melhorias | — | Aberto |
+| `05a-quick-wins.md` | 5 itens de esforço baixo | Baixo | Aberto |
+| `05b-medium-effort.md` | 6 itens de esforço médio | Médio | Aberto |
+| `05c-high-effort.md` | 3 itens estruturais | Alto | Aberto |
+| `06-docs-update.md` | Atualização integral do `/docs` | Médio | Aberto |
+| `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | **Pendente — bloqueado por credenciais** |
 
 ## Regras para o agente executor
 
@@ -56,10 +59,12 @@ Planos 000–04 (bugs de R2, branding, migração D1) foram executados nos commi
 
 ## Ordem sugerida de execução (hoje)
 
-1. `05a` inteiro (quick wins — risco mínimo, valor imediato).
-2. `06-docs-update.md` (docs alinhados antes das refatorações grandes).
-3. `05b` na ordem ME-1 → ME-2 → ME-3 → ME-4 → ME-5 → ME-6 (ME-1 destrava os demais).
-4. `05c` (estruturais; HE-1 primeiro, absorve parte de ME-4).
+1. `07-d1-activation.md` assim que as credenciais D1 existirem no `.env`
+   (independente das demais; destrava o banco remoto).
+2. `05a` inteiro (quick wins — risco mínimo, valor imediato).
+3. `06-docs-update.md` (docs alinhados antes das refatorações grandes).
+4. `05b` na ordem ME-1 → ME-2 → ME-3 → ME-4 → ME-5 → ME-6 (ME-1 destrava os demais).
+5. `05c` (estruturais; HE-1 primeiro, absorve parte de ME-4).
 
 ## Avisos permanentes ao executor
 

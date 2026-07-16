@@ -17,18 +17,19 @@
           TUDUDI_TRUST_PROXY: ${TUDUDI_TRUST_PROXY}
           TZ: ${TZ}
           
-          # Variáveis R2
-          R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
-          R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
-          R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
-          R2_BUCKET: ${R2_BUCKET}
-          R2_ENDPOINT: ${R2_ENDPOINT}
-
-          # Variáveis Cloudflare D1 (TUDUDI_DB_DRIVER=d1 ativa o banco remoto via REST API)
-          TUDUDI_DB_DRIVER: ${TUDUDI_DB_DRIVER:-}
+          # Cloudflare — conta compartilhada entre R2 e D1
           CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
-          CLOUDFLARE_D1_DATABASE_ID: ${CLOUDFLARE_D1_DATABASE_ID:-}
           CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+
+          # Cloudflare R2 (storage de anexos/avatares/capas/branding)
+          CLOUDFLARE_R2_ACCESS_KEY_ID: ${CLOUDFLARE_R2_ACCESS_KEY_ID:-}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-}
+          CLOUDFLARE_R2_BUCKET: ${CLOUDFLARE_R2_BUCKET:-}
+          CLOUDFLARE_R2_ENDPOINT: ${CLOUDFLARE_R2_ENDPOINT:-}
+
+          # Cloudflare D1 (TUDUDI_DB_DRIVER=d1 ativa o banco remoto via REST API)
+          TUDUDI_DB_DRIVER: ${TUDUDI_DB_DRIVER:-}
+          CLOUDFLARE_D1_DATABASE_ID: ${CLOUDFLARE_D1_DATABASE_ID:-}
 
         volumes:
           - tududi_db:/app/backend/db

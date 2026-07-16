@@ -83,7 +83,7 @@ function getUploadStorage(prefix, filenameFn) {
             if (!bucket) {
                 return cb(
                     new Error(
-                        'R2 storage is not configured: set R2_BUCKET (and R2 credentials)'
+                        'R2 storage is not configured: set CLOUDFLARE_R2_BUCKET (and R2 credentials)'
                     )
                 );
             }
