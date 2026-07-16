@@ -156,6 +156,39 @@ const config = {
         },
     },
 
+    // Cloudflare D1 database accessed directly through the REST API
+    // (no Worker proxy). Activated explicitly with TUDUDI_DB_DRIVER=d1;
+    // otherwise the local SQLite file (dbFile) keeps being used.
+    //
+    // Getters so env vars are read at access time (same rationale as r2).
+    d1: {
+        get enabled() {
+            return process.env.TUDUDI_DB_DRIVER === 'd1';
+        },
+        get accountId() {
+            return process.env.CLOUDFLARE_ACCOUNT_ID;
+        },
+        get databaseId() {
+            return process.env.CLOUDFLARE_D1_DATABASE_ID;
+        },
+        get apiToken() {
+            return process.env.CLOUDFLARE_API_TOKEN;
+        },
+        get baseUrl() {
+            return process.env.D1_API_BASE_URL || undefined;
+        },
+        get timeoutMs() {
+            return process.env.D1_TIMEOUT_MS
+                ? parseInt(process.env.D1_TIMEOUT_MS, 10)
+                : undefined;
+        },
+        get maxRequestsPerWindow() {
+            return process.env.D1_MAX_REQUESTS_PER_WINDOW
+                ? parseInt(process.env.D1_MAX_REQUESTS_PER_WINDOW, 10)
+                : undefined;
+        },
+    },
+
     // API Documentation (Swagger)
     swagger: {
         enabled: process.env.SWAGGER_ENABLED !== 'false',

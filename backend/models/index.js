@@ -3,11 +3,17 @@ const path = require('path');
 const { getConfig } = require('../config/config');
 const config = getConfig();
 
+// When TUDUDI_DB_DRIVER=d1, statements are executed against Cloudflare D1
+// through the REST API via a sqlite3-compatible driver (backend/db/
+// d1RestDriver.js). Everything else about the Sequelize setup is unchanged.
+const useD1 = config.d1.enabled;
+
 let dbConfig;
 
 dbConfig = {
     dialect: 'sqlite',
-    storage: config.dbFile,
+    storage: useD1 ? 'd1-rest' : config.dbFile,
+    dialectModule: useD1 ? require('../db/d1RestDriver') : undefined,
     logging: config.environment === 'development' ? console.log : false,
     define: {
         timestamps: true,
@@ -19,8 +25,9 @@ dbConfig = {
 
 const sequelize = new Sequelize(dbConfig);
 
-// SQLite performance optimizations for slow I/O systems (e.g., Synology NAS with HDDs)
-if (dbConfig.dialect === 'sqlite') {
+// SQLite performance optimizations for slow I/O systems (e.g., Synology NAS
+// with HDDs). Local-file only: these PRAGMAs are meaningless on D1.
+if (dbConfig.dialect === 'sqlite' && !useD1) {
     // Per-connection PRAGMAs via afterConnect, which runs inside _connect() before
     // the connection is returned to the pool. This guarantees busy_timeout is set
     // on every connection before first use, preventing SQLITE_BUSY errors when
