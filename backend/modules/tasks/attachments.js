@@ -135,6 +135,26 @@ router.post(
                 file_path: req.file.key,
             });
 
+            // Re-fetch all attachments for this task, sorted by id ASC (reliable creation order).
+            // If the newly created attachment is not in the first 20 (index >= 20),
+            // it means we hit a race condition that exceeded the limit. Clean up and reject.
+            const allAttachments = await TaskAttachment.findAll({
+                where: { task_id: task.id },
+                order: [['id', 'ASC']],
+            });
+
+            const index = allAttachments.findIndex(
+                (att) => att.id === attachment.id
+            );
+
+            if (index === -1 || index >= 20) {
+                await attachment.destroy();
+                await cleanupUploadedObject(req);
+                return res.status(400).json({
+                    error: 'Maximum 20 attachments allowed per task',
+                });
+            }
+
             // Return attachment with file URL
             const attachmentData = {
                 ...attachment.toJSON(),

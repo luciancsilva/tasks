@@ -228,6 +228,54 @@ describe('Task Attachments Routes', () => {
                     'Maximum 20 attachments allowed per task'
                 );
             });
+
+            it('should reject attachment and clean up when count limit exceeded due to race condition', async () => {
+                // Create 20 attachments
+                for (let i = 0; i < 20; i++) {
+                    await TaskAttachment.create({
+                        task_id: task.id,
+                        user_id: user.id,
+                        original_filename: `file${i}.pdf`,
+                        stored_filename: `task-${i}.pdf`,
+                        file_size: 1024,
+                        mime_type: 'application/pdf',
+                        file_path: `tasks/task-${i}.pdf`,
+                    });
+                }
+
+                // Mock TaskAttachment.count to return 19 to bypass initial check
+                const countSpy = jest
+                    .spyOn(TaskAttachment, 'count')
+                    .mockResolvedValue(19);
+
+                try {
+                    const response = await agent
+                        .post('/api/upload/task-attachment')
+                        .field('taskUid', task.uid)
+                        .attach('file', path.join(testFilesDir, 'test.pdf'));
+
+                    expect(response.status).toBe(400);
+                    expect(response.body.error).toBe(
+                        'Maximum 20 attachments allowed per task'
+                    );
+
+                    // Restore spy first to get actual count
+                    countSpy.mockRestore();
+
+                    // Verify that the 21st record was deleted from database (leaving 20)
+                    const dbCount = await TaskAttachment.count({
+                        where: { task_id: task.id },
+                    });
+                    expect(dbCount).toBe(20);
+
+                    // Verify DeleteObjectCommand was called on R2
+                    const deleteCalls =
+                        s3Mock.commandCalls(DeleteObjectCommand);
+                    expect(deleteCalls.length).toBeGreaterThanOrEqual(1);
+                } finally {
+                    countSpy.mockRestore();
+                }
+            });
         });
 
         describe('Authorization', () => {

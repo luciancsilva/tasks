@@ -310,6 +310,19 @@ const config = {
     },
 };
 
+if (production) {
+    if (!process.env.TUDUDI_SESSION_SECRET) {
+        console.warn(
+            '[Warning] TUDUDI_SESSION_SECRET is not set. A random secret has been generated. Sessions will not persist across restarts and clustering will fail.'
+        );
+    }
+    if (!process.env.ENCRYPTION_KEY && !process.env.SECRET_KEY) {
+        console.warn(
+            '[Warning] ENCRYPTION_KEY or SECRET_KEY is not set. Encryption of external integration credentials (like CalDAV) will fail.'
+        );
+    }
+}
+
 console.log(`Using database file '${config.dbFile}'`);
 
 function setConfig({ dbFile } = {}) {

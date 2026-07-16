@@ -1,5 +1,8 @@
 # 05a — Melhorias de esforço BAIXO (quick wins)
 
+> **Status: EXECUTADO** em 2026-07-16 — commit (Implements plans/05a-quick-wins.md).
+> Mantido como registro de decisão.
+
 Origem: itens do levantamento `05-future-improvements.md`, segregados por esforço.
 Cada item é autocontido e executável por um agente em uma sessão curta.
 Regras de execução: ver `plans/README.md`.

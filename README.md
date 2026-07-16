@@ -82,6 +82,7 @@ Para ambientes conteinerizados ou de alta disponibilidade onde o armazenamento l
 - **Paridade de Layout e Zero Migração de Dados**: As chaves dos objetos armazenadas no R2 (`tasks/task-123.pdf`, `avatars/avatar-456.jpg`) seguem exatamente a mesma estrutura dos basenames em disco local (`TaskAttachment.file_path`), dispensando qualquer migração de banco na transição entre disco local e nuvem (`2eddce66`).
 - **Limpeza garantida de objetos órfãos**: deletar uma tarefa remove do bucket os anexos dela, das subtasks e das instâncias recorrentes futuras (`fe4e1651`); remover/trocar a capa de um projeto deleta o objeto antigo (`b707dce8`) — fluxos que antes deixavam lixo acumulando no R2.
 - **Nomes canônicos de variáveis** `CLOUDFLARE_*` compartilhando `CLOUDFLARE_ACCOUNT_ID` entre R2 e D1, com fallback para os legados `R2_*` (`09aaa778`); setup de credenciais documentado em [`.env.example`](.env.example).
+- **Regras de Lifecycle e Reconciliação**: Instruções para configurar regras de ciclo de vida no bucket R2 (abortar uploads multipartes incompletos) e realizar reconciliação de arquivos órfãos estão documentadas em [docs/15-storage.md](docs/15-storage.md).
 
 ---
 
