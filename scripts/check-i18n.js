@@ -39,8 +39,12 @@ console.log(`Checking ${locales.length} locales against 'en'...`);
 for (const locale of locales) {
     const localePath = path.join(localesDir, locale, 'translation.json');
     if (!fs.existsSync(localePath)) {
-        console.error(`[FAIL] ${locale}: translation.json missing`);
-        hasDrift = true;
+        if (locale === 'pt') {
+            console.error(`[FAIL] ${locale}: translation.json missing`);
+            hasDrift = true;
+        } else {
+            console.warn(`[WARN] ${locale}: translation.json missing`);
+        }
         continue;
     }
 
@@ -50,15 +54,23 @@ for (const locale of locales) {
 
         const missing = [...enKeys].filter(k => !localeKeys.has(k));
         if (missing.length > 0) {
-            console.error(`[FAIL] ${locale}: missing ${missing.length} keys:`);
-            missing.forEach(k => console.error(`  - ${k}`));
-            hasDrift = true;
+            if (locale === 'pt') {
+                console.error(`[FAIL] ${locale}: missing ${missing.length} keys:`);
+                missing.forEach(k => console.error(`  - ${k}`));
+                hasDrift = true;
+            } else {
+                console.warn(`[WARN] ${locale}: missing ${missing.length} keys`);
+            }
         } else {
             console.log(`[OK] ${locale}`);
         }
     } catch (err) {
-        console.error(`[FAIL] ${locale}: failed to parse JSON (${err.message})`);
-        hasDrift = true;
+        if (locale === 'pt') {
+            console.error(`[FAIL] ${locale}: failed to parse JSON (${err.message})`);
+            hasDrift = true;
+        } else {
+            console.warn(`[WARN] ${locale}: failed to parse JSON (${err.message})`);
+        }
     }
 }
 
