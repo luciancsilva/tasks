@@ -66,10 +66,20 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 
 ## Avisos permanentes ao executor
 
+- **O D1 REAL ESTÁ LIGADO no `.env` da raiz** (`TUDUDI_DB_DRIVER=d1`, banco de
+  produção `tasks` na Cloudflare). Scripts backend carregam esse `.env` como
+  fallback — comando com `NODE_ENV=development|production` toca o banco REAL.
+  `NODE_ENV=test` é seguro (trava em `config.d1.enabled` força SQLite local);
+  a suíte Jest pode rodar à vontade. Para dev local isolado, rode com
+  `TUDUDI_DB_DRIVER=` vazio no ambiente do comando.
 - Lint global (`npm run backend:lint`) falha com milhares de `Delete ␍` em
   checkout Windows (CRLF) — ruído pré-existente; lintar os arquivos tocados
   individualmente e ignorar exclusivamente esse erro.
-- Modo D1 (`TUDUDI_DB_DRIVER=d1`): transações são no-op (ver
-  `backend/db/d1RestDriver.js`); não construir fluxo novo que dependa de
-  rollback sem ler `05c` HE-3.
+- Modo D1: transações são no-op (ver header de `backend/db/d1RestDriver.js`);
+  não construir fluxo novo que dependa de rollback sem ler `05c` HE-3. Lições
+  da primeira ativação: `07-d1-activation.md`.
+- Env vars Cloudflare: nomes canônicos `CLOUDFLARE_*` (legados `R2_*`/`D1_*`
+  aceitos como fallback); setup de credenciais documentado em `.env.example`.
 - `docs/MEMORY.md` guarda preferências de PR/commit/testes do repositório.
+- Segredos nunca entram em commit: `.env` e `AGENTS.md` são gitignored
+  (AGENTS.md existe só neste checkout).

@@ -1,8 +1,9 @@
 # Frente 4 — Migração da camada de dados para Cloudflare D1 via REST API
 
 > **Status: EXECUTADO** em 2026-07-16 — commit `5e705e8` (feat(db): Cloudflare D1 data layer via REST API).
-> Mantido como registro de decisão. Nota: a ativação do D1 em produção é um passo
-> separado e pendente — ver `07-d1-activation.md`.
+> Mantido como registro de decisão. A ativação em produção também foi executada
+> no mesmo dia (commit `753b826`) — ver `07-d1-activation.md`, incluindo as
+> lições da primeira ativação incorporadas ao driver.
 
 ## 1. Inventário do estado atual
 

@@ -25,6 +25,14 @@ uma sessão; regras gerais em `plans/README.md`.
 7. **testing.md**: contagens/estruturas podem estar defasadas (suíte hoje:
    ~1667 backend, 65 frontend; mocks R2 com `aws-sdk-client-mock`; emulador D1).
 8. **MEMORY.md**: revisar se preferências continuam válidas (estão).
+9. **Env vars canônicas** (adicionado 2026-07-16): docs que citarem variáveis
+   `R2_*`/`D1_*` devem migrar para os nomes `CLOUDFLARE_*` (commit `09aaa77`;
+   legados seguem como fallback). Referenciar `.env.example` (commit `06b0466`)
+   como fonte canônica de setup de credenciais em vez de duplicar instruções.
+10. **Ativação D1 executada** (adicionado 2026-07-16): `docs/database.md` deve
+   refletir que o modo D1 está operacional e apontar para as lições em
+   `plans/07-d1-activation.md` (bootstrap sync-first, PRAGMAs case-sensitive,
+   derivação de credenciais R2).
 
 ## Execução (ordem)
 
