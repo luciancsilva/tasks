@@ -1,4 +1,4 @@
-# 05b — Melhorias de esforço MÉDIO
+# 05b — Melhorias de esforço MÉDIO [CONCLUÍDO]
 
 Origem: itens do levantamento `05-future-improvements.md`, segregados por esforço.
 Itens desta faixa tocam mais de um módulo ou exigem migração, mas cabem em uma
@@ -6,7 +6,7 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
 
 ---
 
-## ME-3. FKs com `ON DELETE CASCADE` reais e confiáveis
+## [CONCLUÍDO] ME-3. FKs com `ON DELETE CASCADE` reais e confiáveis
 
 - **Onde**: migrations de `task_attachments` (já tem CASCADE), `task_events`,
   `tasks_tags`, `recurring_completions`, caldav_*.
@@ -21,7 +21,7 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
   a migration roda por REST (sem transação real) — janela de inconsistência.
 - **Esforço**: médio. **Dependência**: ME-1 primeiro.
 
-## ME-4. Padronizar tratamento de erro no módulo tasks
+## [CONCLUÍDO] ME-4. Padronizar tratamento de erro no módulo tasks
 
 - **Onde**: `backend/modules/tasks/routes.js` (ex.: delete responde
   `res.status(400)` genérico e descarta o erro original, sem `logError`).
@@ -32,7 +32,7 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
   Manter formato de resposta atual onde os testes o exigem.
 - **Esforço**: médio (muitos handlers, mudança mecânica).
 
-## ME-5. Decidir destino do BaseRepository
+## [CONCLUÍDO] ME-5. Decidir destino do BaseRepository
 
 - **Onde**: `backend/shared/database/BaseRepository.js` e os
   `backend/modules/*/repository.js`.
@@ -43,7 +43,7 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
   legibilidade.
 - **Esforço**: médio.
 
-## ME-6. Renomear locales fora do padrão BCP-47 (`jp`→`ja`, `ua`→`uk`)
+## [CONCLUÍDO] ME-6. Renomear locales fora do padrão BCP-47 (`jp`→`ja`, `ua`→`uk`)
 
 - **Onde**: `public/locales/jp/`, `public/locales/ua/`; referências em
   `frontend/i18n.ts`, dropdown de idiomas, coluna `language` de users.
