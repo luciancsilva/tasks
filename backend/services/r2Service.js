@@ -21,6 +21,7 @@ const {
 } = require('@aws-sdk/client-s3');
 const multerS3 = require('multer-s3');
 const { getConfig } = require('../config/config');
+const { logError } = require('./logService');
 
 let cachedClient = null;
 
@@ -126,6 +127,8 @@ async function deleteObject(key) {
         );
         return true;
     } catch (err) {
+        // Best-effort contract: never throw, but never fail silently either.
+        logError(`Failed to delete R2 object '${key}':`, err);
         return false;
     }
 }

@@ -355,13 +355,28 @@ class ProjectsService {
             updateData.priority = priority === '' ? null : priority;
         if (due_date_at !== undefined)
             updateData.due_date_at = due_date_at === '' ? null : due_date_at;
-        if (image_url !== undefined)
+        let previousImageUrl = null;
+        if (image_url !== undefined) {
             updateData.image_url = image_url === '' ? null : image_url;
+            if (
+                project.image_url &&
+                project.image_url !== updateData.image_url
+            ) {
+                previousImageUrl = project.image_url;
+            }
+        }
         if (color !== undefined) updateData.color = color === '' ? null : color;
         if (status !== undefined) updateData.status = status;
         else if (state !== undefined) updateData.status = state;
 
         await projectsRepository.update(project, updateData);
+
+        // Cover image was removed or replaced: drop the old R2 object only
+        // after the update persisted, so a failed update keeps it reachable.
+        if (previousImageUrl) {
+            await projectsRepository.deleteProjectImageFromR2(previousImageUrl);
+        }
+
         await updateProjectTags(project, tagsData, userId);
 
         const projectWithAssociations =

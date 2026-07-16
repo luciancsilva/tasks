@@ -14,9 +14,7 @@ const {
 } = require('../../models');
 const { Op } = require('sequelize');
 const r2Service = require('../../services/r2Service');
-const {
-    deleteAttachmentsForTaskIds,
-} = require('../tasks/attachmentCleanup');
+const { deleteAttachmentsForTaskIds } = require('../tasks/attachmentCleanup');
 const { logError } = require('../../services/logService');
 
 class ProjectsRepository extends BaseRepository {
@@ -252,6 +250,25 @@ class ProjectsRepository extends BaseRepository {
     }
 
     /**
+     * Best-effort removal of a project cover image object from R2.
+     * Accepts the stored image_url (e.g. '/api/uploads/projects/project-1.jpg')
+     * and ignores anything that does not point at the uploads proxy (external
+     * URLs are never deleted).
+     */
+    async deleteProjectImageFromR2(imageUrl) {
+        if (!imageUrl) {
+            return false;
+        }
+        const urlMatch = String(imageUrl).match(
+            /\/api\/uploads\/projects\/(.+)$/
+        );
+        if (!urlMatch) {
+            return false;
+        }
+        return r2Service.deleteObject(`projects/${urlMatch[1]}`);
+    }
+
+    /**
      * Delete project with cascade deletion of tasks and cleanup of files.
      * Notes are orphaned (project_id set to null) as they are reference material.
      */
@@ -305,16 +322,7 @@ class ProjectsRepository extends BaseRepository {
                 );
 
                 // Delete project cover image from R2 if it exists
-                if (project.image_url) {
-                    // Extract filename from URL like /api/uploads/projects/filename.jpg
-                    const urlMatch = project.image_url.match(
-                        /\/api\/uploads\/projects\/(.+)$/
-                    );
-                    if (urlMatch) {
-                        const filename = urlMatch[1];
-                        await r2Service.deleteObject(`projects/${filename}`);
-                    }
-                }
+                await this.deleteProjectImageFromR2(project.image_url);
 
                 // Delete the project
                 await project.destroy({ transaction });
