@@ -63,6 +63,13 @@ Este fork mantém uma pasta dedicada (`plans/`) com o mapeamento técnico comple
   - **Plano 010 & 012**: Validações de propriedade de projeto/área nas ferramentas MCP (`create_task`, `list_tasks`).
   - **Plano 011**: Otimização de performance no *hot-path* das tarefas recorrentes e remoção de logs redundantes.
 
+### 5. ☁️ Suporte a Object Storage em Nuvem (Cloudflare R2 — `r2Service`)
+Para ambientes conteinerizados ou de alta disponibilidade onde o armazenamento local efêmero em disco (`/app/uploads`) é um gargalo, este fork implementa suporte nativo a **Cloudflare R2 (Compatível com S3)**:
+- **Centralização do Serviço (`backend/services/r2Service.js`)**: Gerenciamento unificado do cliente S3 (`@aws-sdk/client-s3`) e da *engine* `multer-s3`. Todos os fluxos de upload — anexos de tarefas (`attachments.js`), avatares de usuário (`profile/avatar`) e imagens de capa de projetos (`projects/routes.js`) — utilizam o mesmo serviço.
+- **Resiliência e Inicialização *Lazy***: O *bucket* é resolvido de forma sob demanda via callback (`bucket: function (req, file, cb)`). Isso impede que a inicialização do Node.js/Docker trave no boot com erro `bucket is required` caso o R2 não esteja configurado, falhando de forma limpa apenas durante uma tentativa de upload se as credenciais estiverem ausentes (`ac6effcf`).
+- **Interpolação no Docker Compose (`${R2_...:-}`)**: As variáveis de ambiente do R2 são declaradas com valores padrão flexíveis no `docker-compose.yml` (`R2_BUCKET=${R2_BUCKET:-}`), permitindo injeção limpa através do arquivo `.env` do host sem que valores vazios explícitos sobrescrevam o ambiente no container.
+- **Paridade de Layout e Zero Migração de Dados**: As chaves dos objetos armazenadas no R2 (`tasks/task-123.pdf`, `avatars/avatar-456.jpg`) seguem exatamente a mesma estrutura dos basenames em disco local (`TaskAttachment.file_path`), dispensando qualquer migração de banco na transição entre disco local e nuvem (`2eddce66`).
+
 ---
 
 ## 🔄 Protocolo de Sincronização com a Upstream (`git-review.md`)
@@ -73,10 +80,52 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ---
 
+## 📜 Changelog Detalhado dos 26 Commits Ahead de `chrisvel/tududi:main`
+
+O repositório `luciancsilva/tasks:main` possui **26 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+
+### ☁️ Storage em Nuvem & Resiliência Docker (Cloudflare R2)
+- **`af2dd3e4`** (`fix(storage): lazy resolve R2 bucket and interpolate compose env vars`): Converte a propriedade `bucket` do `multer-s3` em função *lazy* (`(req, file, cb) => ...`), evitando crash `bucket is required` no boot da aplicação no Docker. Configura interpolação `${R2_...:-}` no `docker-compose.yml`.
+- **`f93153cf`** (`feat(attachments): migrate file storage from local disk to Cloudflare R2`): Criação do `backend/services/r2Service.js` com `@aws-sdk/client-s3` e `multer-s3`. Substituição de `multer.diskStorage` por `multerS3` nos módulos de anexos de tarefas (`attachments.js`), avatares de usuário (`users/routes.js`) e imagens de projeto (`projects/routes.js`).
+
+### 🌐 Localização PT-BR Integral & Tradução de Interface
+- **`350ddeb7`** (`fix(i18n): add missing translation keys referenced in code`): Adição de chaves de tradução em português (`pt/translation.json`) e inglês para termos referenciados dinamicamente nos componentes React.
+- **`192cbda2`** (`feat(i18n): translate remaining English UI and utils text to pt-BR`): Tradução final de textos em inglês em modais, filtros e utilitários de formatação de strings para o Português do Brasil.
+- **`01de94b5`** (`fix(i18n): correct pt-BR task screen issues (attachments key, Assigned To, date casing)`): Correção na tela de detalhes da tarefa: mapeamento correto da chave do card de anexos (`TaskAttachmentsCard`), rótulo "Atribuído a" e padronização da capitalização de meses/dias da semana.
+- **`bc7229ee`** (`feat(i18n): complete pt-BR localization of remaining frontend UI`): Expansão da cobertura de localização PT-BR para telas secundárias e modais de configuração do frontend React/Vite.
+- **`6febc958`** (`fix(i18n): fill missing pt-BR keys and fix all-caps sidebar labels`): Preenchimento de chaves PT-BR pendentes e remoção da transformação *ALL CAPS* forçada nos rótulos de navegação da barra lateral (*Sidebar*).
+- **`18e8a171`** (`fix(i18n): correct pt-BR translation errors and standardize casing`): Revisão ortográfica, gramatical e padronização visual de maiúsculas/minúsculas em todo o dicionário PT-BR.
+- **`402ccc68`** (`feat(i18n): localize date formatting to Portuguese across Today and Calendar views, and add missing Today gear settings translations`): Adaptação dos formatadores nativos de data para o padrão brasileiro (`pt-BR`) nas visualizações *Hoje* e *Calendário*, e tradução das opções no menu da engrenagem.
+- **`16eb116f`** (`feat(telegram): add Portuguese localization for Telegram bot commands, notifications, and task summaries`): Tradução e adaptação de 100% dos comandos interativos do bot do Telegram (`/start`, `/tasks`, etc.), alertas push e resumos de tarefas (`daily digests`).
+- **`67f3762e`** (`feat(i18n): localize Habits and People modules for Portuguese (PT)`): Localização integral das interfaces e modais dos módulos de Hábitos (*Habits*) e Pessoas (*People*).
+- **`f071873c`** (`i18n: fill in missing PT translations`): Carga inicial e mapeamento de chaves no dicionário `translation.json` em português.
+
+### 🛡️ Idempotência de Banco (Migrations), Autenticação & CI/CD
+- **`a598aa3e`** (`fix(auth): make isAdmin resolve users by numeric id or uid (#1)`): Refatoração crítica em `isAdmin()` para comparar IDs numéricos relacionais e strings UUID (`uid`), corrigindo falhas de permissão ao autenticar via OIDC/SSO e na execução de testes.
+- **`53feb397`** (`fix(migrations): make add-people-to-tasks and add-color-to-people idempotent`): Adição de verificações defensivas (*check-and-add*) nas migrações de *People* e *Colors* do Sequelize para impedir erros de SQL e travamento de contêineres em reinicializações do Docker.
+- **`51b43544`** (`fix(migrations): make add-goal-columns-to-projects idempotent`): Transformação da migração de colunas de metas dos projetos em operação idempotente segura em re-execuções.
+- **`36fe379a`** (`fix(tests): prevent test-created users from silently becoming admin`): Blindagem na suíte de testes de autenticação para impedir que usuários temporários ganhem privilégios de administrador de forma silenciosa.
+- **`5310631d`** (`ci: run frontend tests, typecheck, and npm audit (#2)`): Criação do *workflow* no GitHub Actions para validação automatizada de testes do frontend, verificação de tipagem TypeScript e auditoria de vulnerabilidades (`npm audit`).
+
+### 🎨 Estabilidade UI/UX & Testes de Caracterização
+- **`61c36075`** (`test(frontend): add characterization tests for RecurrenceDisplay`): Implementação de suíte abrangente de testes de caracterização para blindar a lógica de exibição de tarefas recorrentes (`RecurrenceDisplay.test.tsx`).
+- **`989d2fe0`** (`fix(lint): restore eslint-disable coverage for unused destructure in TaskItem`): Correção de aviso de linter TypeScript/ESLint referente a desestruturação não utilizada no componente `TaskItem.tsx`.
+
+### 📚 Governança do Fork, Documentação & Sincronização Upstream
+- **`d038ebc6`** (`Merge upstream/main (v1.2.4) into fork`): Mesclagem de sincronização trazendo todas as melhorias e correções da versão `v1.2.4` da upstream `chrisvel/tududi`.
+- **`a11fa2dc`** (`merge: integrate upstream changes up to v1.2.3 (#1268, #1269)`): Integração autônoma das PRs `#1268` e `#1269` e consolidação com a versão `v1.2.3` da upstream.
+- **`1316a2e0`** (`docs: replace env variables with static example values in README docker compose snippet`): Substituição de placeholders de variáveis genéricas por valores estáticos de exemplo no snippet de Docker Compose do `README.md`.
+- **`b46a04ff`** (`docs: update README with docker compose and configure local docker-compose.yml`): Atualização do guia rápido de instalação e configuração do `docker-compose.yml` local.
+- **`cc5cb740`** (`docs: correct Docker setup steps in README`): Correção e refinamento do passo a passo para deploy conteinerizado via Docker.
+- **`dec60bd3`** (`docs: update git-review workflow and rewrite README with fork differences`): Reestruturação completa do `README.md` apresentando as customizações exclusivas do fork e criação das diretrizes do `git-review.md`.
+- **`feebf50b`** (`docs: correct stale testing docs (#3)`): Atualização da documentação sobre execução de testes unitários e configuração de ganchos de pré-push no repositório.
+
+---
+
 ## 🚀 Como Executar o Projeto Funcional
 
 ### Execução via Docker Compose (Recomendado)
-Para iniciar rapidamente a instância do fork em português usando Docker Compose, crie ou configure seu arquivo `docker-compose.yml` da seguinte forma:
+Para iniciar rapidamente a instância do fork em português usando Docker Compose (incluindo suporte opcional a Cloudflare R2), configure seu arquivo `docker-compose.yml` da seguinte forma:
 
 ```yaml
 services:
@@ -97,6 +146,12 @@ services:
       TUDUDI_ALLOWED_ORIGINS: http://localhost:3002
       TUDUDI_TRUST_PROXY: "true"
       TZ: America/Sao_Paulo
+      # Variáveis Cloudflare R2 (Opcionais - Se configuradas, uploads vão para o R2 em vez do disco local):
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID:-}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID:-}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY:-}
+      R2_BUCKET: ${R2_BUCKET:-}
+      R2_ENDPOINT: ${R2_ENDPOINT:-}
 
 #    user: "1001:1001"
 
