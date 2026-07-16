@@ -642,7 +642,8 @@
       "ai": "ШІ Функції",
       "notifications": "Налаштування сповіщень",
       "oidc": "OIDC/SSO",
-      "caldav": "Синхронізація CalDAV"
+      "caldav": "Синхронізація CalDAV",
+      "branding": "Брендинг"
     },
     "security": "Налаштування безпеки",
     "changePassword": "Змінити пароль",
@@ -904,7 +905,24 @@
       "updateError": "Не вдалося оновити календар"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Брендинг",
+      "description": "Налаштуйте відображувану назву застосунку, логотипи та favicon цього екземпляра. Залиште порожнім, щоб використовувати стандартний брендинг tududi.",
+      "appName": "Назва застосунку",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Логотип (світла тема)",
+      "logoDark": "Логотип (темна тема)",
+      "favicon": "Favicon",
+      "upload": "Завантажити",
+      "remove": "Видалити",
+      "save": "Зберегти",
+      "saved": "Брендинг оновлено",
+      "saveError": "Не вдалося оновити брендинг",
+      "uploadError": "Не вдалося завантажити зображення",
+      "default": "Типовий",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG або ICO, до 2 МБ. Рекомендовано: широкий логотип близько 300x72px, квадратний favicon 32x32px."
+    }
   },
   "task": {
     "suggestions": {

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import i18n from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { getApiPath, getAssetPath } from '../config/paths';
+import { useBranding } from '../contexts/BrandingContext';
 import OIDCProviderButtons from './Auth/OIDCProviderButtons';
 
 const Login: React.FC = () => {
@@ -17,6 +18,7 @@ const Login: React.FC = () => {
     >([]);
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { appName, getLogoSrc } = useBranding();
     const [searchParams] = useSearchParams();
     const [isDarkMode] = useState<boolean>(() => {
         const storedPreference = localStorage.getItem('isDarkMode');
@@ -183,12 +185,8 @@ const Login: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                 <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
                     <img
-                        src={getAssetPath(
-                            isDarkMode
-                                ? 'wide-logo-light.png'
-                                : 'wide-logo-dark.png'
-                        )}
-                        alt="tududi"
+                        src={getLogoSrc(isDarkMode)}
+                        alt={appName}
                         className="h-9 w-auto"
                     />
                 </div>

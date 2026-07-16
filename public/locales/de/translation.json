@@ -550,7 +550,8 @@
       "ai": "KI-Funktionen",
       "notifications": "Benachrichtigungseinstellungen",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV-Synchronisierung"
+      "caldav": "CalDAV-Synchronisierung",
+      "branding": "Branding"
     },
     "security": "Sicherheitseinstellungen",
     "changePassword": "Passwort ändern",
@@ -812,7 +813,24 @@
       "updateError": "Fehler beim Aktualisieren des Kalenders"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@benutzername1, 123456789, @benutzername2"
+    "telegramAllowedUsersPlaceholder": "@benutzername1, 123456789, @benutzername2",
+    "branding": {
+      "title": "Branding",
+      "description": "Passe den angezeigten Anwendungsnamen, die Logos und das Favicon dieser Instanz an. Leer lassen, um das Standard-Branding von tududi zu verwenden.",
+      "appName": "Anwendungsname",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (helles Design)",
+      "logoDark": "Logo (dunkles Design)",
+      "favicon": "Favicon",
+      "upload": "Hochladen",
+      "remove": "Entfernen",
+      "save": "Speichern",
+      "saved": "Branding erfolgreich aktualisiert",
+      "saveError": "Branding konnte nicht aktualisiert werden",
+      "uploadError": "Bild konnte nicht hochgeladen werden",
+      "default": "Standard",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG oder ICO, bis zu 2 MB. Empfohlen: breites Logo ca. 300x72px, quadratisches Favicon 32x32px."
+    }
   },
   "nextTask": {
     "suggestion": "Da nichts in Bearbeitung ist, wie wäre es, mit diesem zu beginnen",

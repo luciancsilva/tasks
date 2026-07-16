@@ -357,7 +357,8 @@
       "ai": "Функции ИИ",
       "notifications": "Настройки уведомлений",
       "oidc": "OIDC/SSO",
-      "caldav": "Синхронизация CalDAV"
+      "caldav": "Синхронизация CalDAV",
+      "branding": "Брендинг"
     },
     "security": "Настройки безопасности",
     "changePassword": "Сменить пароль",
@@ -556,7 +557,24 @@
       "updateError": "Не удалось обновить календарь"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Брендинг",
+      "description": "Настройте отображаемое имя приложения, логотипы и favicon этого экземпляра. Оставьте пустым, чтобы использовать стандартный брендинг tududi.",
+      "appName": "Название приложения",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Логотип (светлая тема)",
+      "logoDark": "Логотип (тёмная тема)",
+      "favicon": "Favicon",
+      "upload": "Загрузить",
+      "remove": "Удалить",
+      "save": "Сохранить",
+      "saved": "Брендинг обновлён",
+      "saveError": "Не удалось обновить брендинг",
+      "uploadError": "Не удалось загрузить изображение",
+      "default": "По умолчанию",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG или ICO, до 2 МБ. Рекомендуется: широкий логотип около 300x72px, квадратный favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Приостановленные проекты",

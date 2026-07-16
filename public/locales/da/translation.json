@@ -364,7 +364,8 @@
       "ai": "AI-funktioner",
       "notifications": "Notifikationsindstillinger",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV Synkronisering"
+      "caldav": "CalDAV Synkronisering",
+      "branding": "Branding"
     },
     "security": "Sikkerhedsindstillinger",
     "changePassword": "Skift adgangskode",
@@ -556,7 +557,24 @@
       "updateError": "Kunne ikke opdatere kalender"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@brugernavn1, 123456789, @brugernavn2"
+    "telegramAllowedUsersPlaceholder": "@brugernavn1, 123456789, @brugernavn2",
+    "branding": {
+      "title": "Branding",
+      "description": "Tilpas det viste programnavn, logoer og favicon for denne instans. Lad feltet stå tomt for at bruge tududis standardbranding.",
+      "appName": "Programnavn",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (lyst tema)",
+      "logoDark": "Logo (mørkt tema)",
+      "favicon": "Favicon",
+      "upload": "Upload",
+      "remove": "Fjern",
+      "save": "Gem",
+      "saved": "Branding opdateret",
+      "saveError": "Kunne ikke opdatere branding",
+      "uploadError": "Kunne ikke uploade billedet",
+      "default": "Standard",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG eller ICO, op til 2 MB. Anbefalet: bredt logo omkring 300x72px, kvadratisk favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Stagnerede Projekter",

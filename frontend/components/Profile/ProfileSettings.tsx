@@ -21,6 +21,7 @@ import {
     CommandLineIcon,
     CpuChipIcon,
     CalendarIcon,
+    PaintBrushIcon,
 } from '@heroicons/react/24/outline';
 import { Squares2X2Icon } from '@heroicons/react/24/solid';
 import TelegramIcon from '../Shared/Icons/TelegramIcon';
@@ -47,6 +48,7 @@ import OIDCTab from './tabs/OIDCTab';
 import ApiKeysTab from './tabs/ApiKeysTab';
 import ProductivityTab from './tabs/ProductivityTab';
 import FeaturesTab from './tabs/FeaturesTab';
+import BrandingTab from './tabs/BrandingTab';
 import TelegramTab from './tabs/TelegramTab';
 import NotificationsTab from './tabs/NotificationsTab';
 import KeyboardShortcutsTab from './tabs/KeyboardShortcutsTab';
@@ -76,6 +78,7 @@ const formatFrequency = (frequency: string): string => {
 };
 
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({
+    currentUser,
     isDarkMode,
     toggleDarkMode,
 }) => {
@@ -1230,6 +1233,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
         },
     ];
 
+    // Instance-wide branding is admin-only.
+    if (currentUser?.is_admin) {
+        tabs.push({
+            id: 'branding',
+            name: t('profile.tabs.branding', 'Branding'),
+            icon: <PaintBrushIcon className="w-5 h-5" />,
+        });
+    }
+
     // Filter tabs based on feature flags
     const visibleTabs = tabs.filter((tab) => {
         if (!tab.featureFlag) return true;
@@ -1441,6 +1453,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                                         }))
                                     }
                                 />
+
+                                {currentUser?.is_admin && (
+                                    <BrandingTab
+                                        isActive={activeTab === 'branding'}
+                                    />
+                                )}
 
                                 <NotificationsTab
                                     isActive={activeTab === 'notifications'}

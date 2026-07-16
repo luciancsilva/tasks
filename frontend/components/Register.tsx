@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getAssetPath } from '../config/paths';
+import { useBranding } from '../contexts/BrandingContext';
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ const Register: React.FC = () => {
     const [passwordAuthEnabled, setPasswordAuthEnabled] = useState(true);
     const [loading, setLoading] = useState(true);
     const { t } = useTranslation();
+    const { appName, getLogoSrc } = useBranding();
     const [isDarkMode] = useState<boolean>(() => {
         const storedPreference = localStorage.getItem('isDarkMode');
         return storedPreference !== null
@@ -109,12 +111,8 @@ const Register: React.FC = () => {
                 <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                     <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
                         <img
-                            src={getAssetPath(
-                                isDarkMode
-                                    ? 'wide-logo-light.png'
-                                    : 'wide-logo-dark.png'
-                            )}
-                            alt="tududi"
+                            src={getLogoSrc(isDarkMode)}
+                            alt={appName}
                             className="h-9 w-auto"
                         />
                     </div>
@@ -153,12 +151,8 @@ const Register: React.FC = () => {
                 <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                     <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
                         <img
-                            src={
-                                isDarkMode
-                                    ? '/wide-logo-light.png'
-                                    : '/wide-logo-dark.png'
-                            }
-                            alt="tududi"
+                            src={getLogoSrc(isDarkMode)}
+                            alt={appName}
                             className="h-9 w-auto"
                         />
                     </div>
@@ -226,12 +220,8 @@ const Register: React.FC = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 text-gray-900 dark:text-white">
                 <div className="h-16 flex items-center px-4 sm:px-6 lg:px-8">
                     <img
-                        src={
-                            isDarkMode
-                                ? '/wide-logo-light.png'
-                                : '/wide-logo-dark.png'
-                        }
-                        alt="tududi"
+                        src={getLogoSrc(isDarkMode)}
+                        alt={appName}
                         className="h-9 w-auto"
                     />
                 </div>

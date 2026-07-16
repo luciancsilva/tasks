@@ -357,7 +357,8 @@
       "ai": "AI-functies",
       "notifications": "Meldingsvoorkeuren",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV Synchronisatie"
+      "caldav": "CalDAV Synchronisatie",
+      "branding": "Huisstijl"
     },
     "security": "Beveiligingsinstellingen",
     "changePassword": "Wachtwoord wijzigen",
@@ -556,7 +557,24 @@
       "updateError": "Kon kalender niet bijwerken"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@gebruikersnaam1, 123456789, @gebruikersnaam2"
+    "telegramAllowedUsersPlaceholder": "@gebruikersnaam1, 123456789, @gebruikersnaam2",
+    "branding": {
+      "title": "Huisstijl",
+      "description": "Pas de weergegeven applicatienaam, logo's en favicon van deze instantie aan. Laat leeg om de standaard tududi-huisstijl te gebruiken.",
+      "appName": "Applicatienaam",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (licht thema)",
+      "logoDark": "Logo (donker thema)",
+      "favicon": "Favicon",
+      "upload": "Uploaden",
+      "remove": "Verwijderen",
+      "save": "Opslaan",
+      "saved": "Huisstijl bijgewerkt",
+      "saveError": "Huisstijl bijwerken mislukt",
+      "uploadError": "Afbeelding uploaden mislukt",
+      "default": "Standaard",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG of ICO, tot 2 MB. Aanbevolen: breed logo van ongeveer 300x72px, vierkante favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Stagnerende Projecten",

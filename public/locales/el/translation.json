@@ -223,7 +223,8 @@
       "ai": "Χαρακτηριστικά A.I.",
       "notifications": "Ειδοποιήσεις",
       "oidc": "OIDC/SSO",
-      "caldav": "Συγχρονισμός CalDAV"
+      "caldav": "Συγχρονισμός CalDAV",
+      "branding": "Επωνυμία"
     },
     "security": "Ρυθμίσεις Ασφάλειας",
     "changePassword": "Αλλαγή Κωδικού",
@@ -453,7 +454,24 @@
       "updateError": "Αποτυχία ενημέρωσης ημερολογίου"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Επωνυμία",
+      "description": "Προσαρμόστε το εμφανιζόμενο όνομα εφαρμογής, τα λογότυπα και το favicon αυτής της εγκατάστασης. Αφήστε κενό για την προεπιλεγμένη επωνυμία του tududi.",
+      "appName": "Όνομα εφαρμογής",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Λογότυπο (φωτεινό θέμα)",
+      "logoDark": "Λογότυπο (σκούρο θέμα)",
+      "favicon": "Favicon",
+      "upload": "Μεταφόρτωση",
+      "remove": "Αφαίρεση",
+      "save": "Αποθήκευση",
+      "saved": "Η επωνυμία ενημερώθηκε",
+      "saveError": "Αποτυχία ενημέρωσης επωνυμίας",
+      "uploadError": "Αποτυχία μεταφόρτωσης εικόνας",
+      "default": "Προεπιλογή",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG ή ICO, έως 2 MB. Προτείνεται: πλατύ λογότυπο περίπου 300x72px, τετράγωνο favicon 32x32px."
+    }
   },
   "errors": {
     "required": "Αυτό το πεδίο είναι υποχρεωτικό",

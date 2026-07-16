@@ -365,7 +365,8 @@
       "ai": "AI-funksjoner",
       "notifications": "Varslingsinnstillinger",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV-synkronisering"
+      "caldav": "CalDAV-synkronisering",
+      "branding": "Merkevare"
     },
     "security": "Sikkerhetsinnstillinger",
     "changePassword": "Endre passord",
@@ -557,7 +558,24 @@
       "updateError": "Kunne ikke oppdatere kalender"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@brukernavn1, 123456789, @brukernavn2"
+    "telegramAllowedUsersPlaceholder": "@brukernavn1, 123456789, @brukernavn2",
+    "branding": {
+      "title": "Merkevare",
+      "description": "Tilpass visningsnavn, logoer og favicon for denne instansen. La stå tomt for å bruke standard tududi-merkevare.",
+      "appName": "Applikasjonsnavn",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (lyst tema)",
+      "logoDark": "Logo (mørkt tema)",
+      "favicon": "Favicon",
+      "upload": "Last opp",
+      "remove": "Fjern",
+      "save": "Lagre",
+      "saved": "Merkevaren er oppdatert",
+      "saveError": "Kunne ikke oppdatere merkevaren",
+      "uploadError": "Kunne ikke laste opp bildet",
+      "default": "Standard",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG eller ICO, opptil 2 MB. Anbefalt: bred logo rundt 300x72px, kvadratisk favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Stagnerte prosjekter",

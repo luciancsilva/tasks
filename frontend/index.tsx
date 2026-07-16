@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { ToastProvider } from './components/Shared/ToastContext';
 import { TelegramStatusProvider } from './contexts/TelegramStatusContext';
+import { BrandingProvider } from './contexts/BrandingContext';
 import './i18n'; // Import i18n config to initialize it
 import './styles/markdown.css'; // Import markdown styles
 import { I18nextProvider } from 'react-i18next';
@@ -55,11 +56,13 @@ if (container) {
     root.render(
         <I18nextProvider i18n={i18n}>
             <BrowserRouter basename={basename || undefined}>
-                <ToastProvider>
-                    <TelegramStatusProvider>
-                        <App />
-                    </TelegramStatusProvider>
-                </ToastProvider>
+                <BrandingProvider>
+                    <ToastProvider>
+                        <TelegramStatusProvider>
+                            <App />
+                        </TelegramStatusProvider>
+                    </ToastProvider>
+                </BrandingProvider>
             </BrowserRouter>
         </I18nextProvider>
     );

@@ -357,7 +357,8 @@
       "ai": "AI 기능",
       "notifications": "알림 설정",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV 동기화"
+      "caldav": "CalDAV 동기화",
+      "branding": "브랜딩"
     },
     "security": "보안 설정",
     "changePassword": "비밀번호 변경",
@@ -556,7 +557,24 @@
       "updateError": "캘린더 업데이트에 실패했습니다"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "브랜딩",
+      "description": "이 인스턴스의 표시 이름, 로고, 파비콘을 사용자 지정합니다. 비워 두면 기본 tududi 브랜딩이 사용됩니다.",
+      "appName": "애플리케이션 이름",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "로고(라이트 테마)",
+      "logoDark": "로고(다크 테마)",
+      "favicon": "파비콘",
+      "upload": "업로드",
+      "remove": "제거",
+      "save": "저장",
+      "saved": "브랜딩이 업데이트되었습니다",
+      "saveError": "브랜딩 업데이트에 실패했습니다",
+      "uploadError": "이미지 업로드에 실패했습니다",
+      "default": "기본값",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG 또는 ICO, 최대 2MB. 권장: 약 300x72px의 가로형 로고, 32x32px 정사각형 파비콘."
+    }
   },
   "productivity": {
     "stalledProjects": "정체된 프로젝트",

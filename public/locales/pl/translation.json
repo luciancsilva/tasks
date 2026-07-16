@@ -364,7 +364,8 @@
       "ai": "Funkcje AI",
       "notifications": "Preferencje powiadomień",
       "oidc": "OIDC/SSO",
-      "caldav": "Synchronizacja CalDAV"
+      "caldav": "Synchronizacja CalDAV",
+      "branding": "Branding"
     },
     "security": "Ustawienia Bezpieczeństwa",
     "changePassword": "Zmień Hasło",
@@ -556,7 +557,24 @@
       "updateError": "Nie udało się zaktualizować kalendarza"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Branding",
+      "description": "Dostosuj wyświetlaną nazwę aplikacji, loga i favicon tej instancji. Pozostaw puste, aby użyć domyślnego brandingu tududi.",
+      "appName": "Nazwa aplikacji",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (jasny motyw)",
+      "logoDark": "Logo (ciemny motyw)",
+      "favicon": "Favicon",
+      "upload": "Prześlij",
+      "remove": "Usuń",
+      "save": "Zapisz",
+      "saved": "Branding zaktualizowany",
+      "saveError": "Nie udało się zaktualizować brandingu",
+      "uploadError": "Nie udało się przesłać obrazu",
+      "default": "Domyślny",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG lub ICO, do 2 MB. Zalecane: szerokie logo ok. 300x72px, kwadratowy favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Zatrzymane projekty",

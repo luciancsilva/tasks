@@ -357,7 +357,8 @@
       "ai": "Funcții AI",
       "notifications": "Preferințe de Notificare",
       "oidc": "OIDC/SSO",
-      "caldav": "Sincronizare CalDAV"
+      "caldav": "Sincronizare CalDAV",
+      "branding": "Branding"
     },
     "security": "Setări de Securitate",
     "changePassword": "Schimbă Parola",
@@ -556,7 +557,24 @@
       "updateError": "Actualizarea calendarului a eșuat"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Branding",
+      "description": "Personalizați numele afișat al aplicației, logourile și faviconul acestei instanțe. Lăsați gol pentru brandingul implicit tududi.",
+      "appName": "Numele aplicației",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (temă luminoasă)",
+      "logoDark": "Logo (temă întunecată)",
+      "favicon": "Favicon",
+      "upload": "Încărcați",
+      "remove": "Eliminați",
+      "save": "Salvați",
+      "saved": "Branding actualizat",
+      "saveError": "Actualizarea brandingului a eșuat",
+      "uploadError": "Încărcarea imaginii a eșuat",
+      "default": "Implicit",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG sau ICO, până la 2 MB. Recomandat: logo lat de aproximativ 300x72px, favicon pătrat 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Proiecte Blocate",

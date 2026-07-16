@@ -492,7 +492,8 @@
             "apiKeys": "Chaves de API",
             "keyboardShortcuts": "Atalhos",
             "mcp": "Integração MCP",
-            "features": "Recursos e complementos"
+            "features": "Recursos e complementos",
+            "branding": "Marca"
         },
         "security": "Configurações de segurança",
         "changePassword": "Alterar senha",
@@ -833,7 +834,24 @@
         "fetchSchedulerStatusError": "Falha ao buscar o status do agendador.",
         "fetchPollingStatusError": "Falha ao buscar o status de sondagem.",
         "sendTestMessageError": "Falha ao enviar a mensagem de teste.",
-        "toggleTaskSummaryError": "Falha ao alternar o resumo de tarefas."
+        "toggleTaskSummaryError": "Falha ao alternar o resumo de tarefas.",
+        "branding": {
+            "title": "Marca",
+            "description": "Personalize o nome exibido, os logos e o favicon desta instância. Deixe em branco para usar a marca padrão do tududi.",
+            "appName": "Nome da aplicação",
+            "appNamePlaceholder": "tududi",
+            "logoLight": "Logo (tema claro)",
+            "logoDark": "Logo (tema escuro)",
+            "favicon": "Favicon",
+            "upload": "Enviar",
+            "remove": "Remover",
+            "save": "Salvar",
+            "saved": "Marca atualizada com sucesso",
+            "saveError": "Falha ao atualizar a marca",
+            "uploadError": "Falha ao enviar a imagem",
+            "default": "Padrão",
+            "assetHelp": "PNG, JPG, GIF, WebP, SVG ou ICO, até 2 MB. Recomendado: logo largo de cerca de 300x72px, favicon quadrado de 32x32px."
+        }
     },
     "productivity": {
         "stalledProjects": "Projetos parados",

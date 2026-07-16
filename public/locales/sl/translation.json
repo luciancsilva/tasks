@@ -364,7 +364,8 @@
       "ai": "AI Funkcije",
       "notifications": "Nastavitve obvestil",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV Sinhronizacija"
+      "caldav": "CalDAV Sinhronizacija",
+      "branding": "Blagovna znamka"
     },
     "security": "Nastavitve varnosti",
     "changePassword": "Spremeni geslo",
@@ -556,7 +557,24 @@
       "updateError": "Posodobitev koledarja ni uspela"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@uporabnik1, 123456789, @uporabnik2"
+    "telegramAllowedUsersPlaceholder": "@uporabnik1, 123456789, @uporabnik2",
+    "branding": {
+      "title": "Blagovna znamka",
+      "description": "Prilagodite prikazano ime aplikacije, logotipe in favicon te instance. Pustite prazno za privzeto blagovno znamko tududi.",
+      "appName": "Ime aplikacije",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logotip (svetla tema)",
+      "logoDark": "Logotip (temna tema)",
+      "favicon": "Favicon",
+      "upload": "Naloži",
+      "remove": "Odstrani",
+      "save": "Shrani",
+      "saved": "Blagovna znamka posodobljena",
+      "saveError": "Posodobitev blagovne znamke ni uspela",
+      "uploadError": "Nalaganje slike ni uspelo",
+      "default": "Privzeto",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG ali ICO, do 2 MB. Priporočeno: širok logotip približno 300x72px, kvadraten favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Zastali projekti",

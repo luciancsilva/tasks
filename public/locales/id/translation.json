@@ -357,7 +357,8 @@
       "ai": "Fitur AI",
       "notifications": "Preferensi Notifikasi",
       "oidc": "OIDC/SSO",
-      "caldav": "Sinkronisasi CalDAV"
+      "caldav": "Sinkronisasi CalDAV",
+      "branding": "Branding"
     },
     "security": "Pengaturan Keamanan",
     "changePassword": "Ubah Kata Sandi",
@@ -556,7 +557,24 @@
       "updateError": "Gagal memperbarui kalender"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2"
+    "telegramAllowedUsersPlaceholder": "@username1, 123456789, @username2",
+    "branding": {
+      "title": "Branding",
+      "description": "Sesuaikan nama aplikasi yang ditampilkan, logo, dan favicon instans ini. Biarkan kosong untuk menggunakan branding bawaan tududi.",
+      "appName": "Nama aplikasi",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (tema terang)",
+      "logoDark": "Logo (tema gelap)",
+      "favicon": "Favicon",
+      "upload": "Unggah",
+      "remove": "Hapus",
+      "save": "Simpan",
+      "saved": "Branding berhasil diperbarui",
+      "saveError": "Gagal memperbarui branding",
+      "uploadError": "Gagal mengunggah gambar",
+      "default": "Bawaan",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG, atau ICO, hingga 2 MB. Disarankan: logo lebar sekitar 300x72px, favicon persegi 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Proyek Terhenti",

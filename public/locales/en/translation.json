@@ -525,7 +525,8 @@
             "apiKeys": "API Keys",
             "keyboardShortcuts": "Shortcuts",
             "mcp": "MCP Integration",
-            "features": "Features & Add-ons"
+            "features": "Features & Add-ons",
+            "branding": "Branding"
         },
         "caldav": {
             "title": "CalDAV Synchronization",
@@ -781,7 +782,24 @@
         "fetchSchedulerStatusError": "Failed to fetch scheduler status.",
         "fetchPollingStatusError": "Failed to fetch polling status.",
         "sendTestMessageError": "Failed to send test message.",
-        "toggleTaskSummaryError": "Failed to toggle task summary."
+        "toggleTaskSummaryError": "Failed to toggle task summary.",
+        "branding": {
+            "title": "Branding",
+            "description": "Customize the displayed application name, logos and favicon for this instance. Leave empty to use the default tududi branding.",
+            "appName": "Application name",
+            "appNamePlaceholder": "tududi",
+            "logoLight": "Logo (light theme)",
+            "logoDark": "Logo (dark theme)",
+            "favicon": "Favicon",
+            "upload": "Upload",
+            "remove": "Remove",
+            "save": "Save",
+            "saved": "Branding updated successfully",
+            "saveError": "Failed to update branding",
+            "uploadError": "Failed to upload image",
+            "default": "Default",
+            "assetHelp": "PNG, JPG, GIF, WebP, SVG or ICO, up to 2 MB. Recommended: wide logo around 300x72px, square favicon 32x32px."
+        }
     },
     "productivity": {
         "stalledProjects": "Stalled Projects",

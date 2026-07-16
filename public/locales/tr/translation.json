@@ -357,7 +357,8 @@
       "ai": "Yapay Zeka Özellikleri",
       "notifications": "Bildirim Tercihleri",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV Senkronizasyonu"
+      "caldav": "CalDAV Senkronizasyonu",
+      "branding": "Markalama"
     },
     "security": "Güvenlik Ayarları",
     "changePassword": "Şifre Değiştir",
@@ -556,7 +557,24 @@
       "updateError": "Takvimi güncelleme başarısız oldu"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@kullanıcıadı1, 123456789, @kullanıcıadı2"
+    "telegramAllowedUsersPlaceholder": "@kullanıcıadı1, 123456789, @kullanıcıadı2",
+    "branding": {
+      "title": "Markalama",
+      "description": "Bu örneğin görüntülenen uygulama adını, logolarını ve faviconunu özelleştirin. Varsayılan tududi markası için boş bırakın.",
+      "appName": "Uygulama adı",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (açık tema)",
+      "logoDark": "Logo (koyu tema)",
+      "favicon": "Favicon",
+      "upload": "Yükle",
+      "remove": "Kaldır",
+      "save": "Kaydet",
+      "saved": "Markalama güncellendi",
+      "saveError": "Markalama güncellenemedi",
+      "uploadError": "Görsel yüklenemedi",
+      "default": "Varsayılan",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG veya ICO, en fazla 2 MB. Önerilen: yaklaşık 300x72px geniş logo, 32x32px kare favicon."
+    }
   },
   "productivity": {
     "stalledProjects": "Duraklayan Projeler",

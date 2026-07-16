@@ -357,7 +357,8 @@
       "ai": "Fonctionnalités IA",
       "notifications": "Préférences de Notification",
       "oidc": "OIDC/SSO",
-      "caldav": "Synchronisation CalDAV"
+      "caldav": "Synchronisation CalDAV",
+      "branding": "Image de marque"
     },
     "security": "Paramètres de sécurité",
     "changePassword": "Changer le mot de passe",
@@ -556,7 +557,24 @@
       "updateError": "Échec de la mise à jour du calendrier"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@nom_utilisateur1, 123456789, @nom_utilisateur2"
+    "telegramAllowedUsersPlaceholder": "@nom_utilisateur1, 123456789, @nom_utilisateur2",
+    "branding": {
+      "title": "Image de marque",
+      "description": "Personnalisez le nom affiché, les logos et le favicon de cette instance. Laissez vide pour utiliser l'image de marque par défaut de tududi.",
+      "appName": "Nom de l'application",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (thème clair)",
+      "logoDark": "Logo (thème sombre)",
+      "favicon": "Favicon",
+      "upload": "Téléverser",
+      "remove": "Supprimer",
+      "save": "Enregistrer",
+      "saved": "Image de marque mise à jour",
+      "saveError": "Échec de la mise à jour de l'image de marque",
+      "uploadError": "Échec du téléversement de l'image",
+      "default": "Par défaut",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG ou ICO, jusqu'à 2 Mo. Recommandé : logo large d'environ 300x72px, favicon carré de 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Projets Bloqués",

@@ -11,7 +11,8 @@ import { useTranslation } from 'react-i18next';
 import PomodoroTimer from './Shared/PomodoroTimer';
 import UniversalSearch from './UniversalSearch/UniversalSearch';
 import NotificationsDropdown from './Notifications/NotificationsDropdown';
-import { getApiPath, getAssetPath } from '../config/paths';
+import { getApiPath } from '../config/paths';
+import { useBranding } from '../contexts/BrandingContext';
 import { getFeatureFlags, FeatureFlags } from '../utils/featureFlags';
 import { setUserTimezone } from '../utils/dateUtils';
 
@@ -36,6 +37,7 @@ const Navbar: React.FC<NavbarProps> = ({
     isDarkMode,
 }) => {
     const { t } = useTranslation();
+    const { appName, getLogoSrc } = useBranding();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     const [pomodoroEnabled, setPomodoroEnabled] = useState(true); // Default to true
@@ -185,12 +187,8 @@ const Navbar: React.FC<NavbarProps> = ({
                         className={`flex items-center no-underline ml-2 ${isSidebarOpen ? 'sm:ml-0' : 'sm:ml-2'}`}
                     >
                         <img
-                            src={getAssetPath(
-                                isDarkMode
-                                    ? 'wide-logo-light.png'
-                                    : 'wide-logo-dark.png'
-                            )}
-                            alt="tududi"
+                            src={getLogoSrc(isDarkMode)}
+                            alt={appName}
                             className="h-9 w-auto"
                         />
                     </Link>

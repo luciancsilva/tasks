@@ -284,6 +284,7 @@ const errorHandler = require('./shared/middleware/errorHandler');
 
 // Modular routes
 const adminModule = require('./modules/admin');
+const brandingModule = require('./modules/branding');
 const areasModule = require('./modules/areas');
 const goalsModule = require('./modules/goals');
 const authModule = require('./modules/auth');
@@ -369,9 +370,12 @@ healthPaths.forEach(registerHealthCheck);
 const registerApiRoutes = (basePath) => {
     app.use(basePath, authModule.routes);
     app.use(basePath, featureFlagsModule.routes);
+    // Branding must be readable pre-login (Login/Register pages).
+    app.use(basePath, brandingModule.publicRoutes);
     app.use(`${basePath}/oidc`, oidcModule.routes);
 
     app.use(basePath, requireAuth);
+    app.use(basePath, brandingModule.adminRoutes);
     app.use(basePath, tasksModule.routes);
     app.use(basePath, habitsModule.routes);
     app.use(basePath, projectsModule.routes);

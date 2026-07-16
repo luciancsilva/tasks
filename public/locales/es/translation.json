@@ -186,7 +186,8 @@
       "ai": "Funciones IA",
       "notifications": "Preferencias de Notificación",
       "oidc": "OIDC/SSO",
-      "caldav": "Sincronización CalDAV"
+      "caldav": "Sincronización CalDAV",
+      "branding": "Marca"
     },
     "security": "Configuración de Seguridad",
     "changePassword": "Cambiar Contraseña",
@@ -453,7 +454,24 @@
       "updateError": "Error al actualizar el calendario"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@nombredeusuario1, 123456789, @nombredeusuario2"
+    "telegramAllowedUsersPlaceholder": "@nombredeusuario1, 123456789, @nombredeusuario2",
+    "branding": {
+      "title": "Marca",
+      "description": "Personaliza el nombre mostrado, los logotipos y el favicon de esta instancia. Déjalo vacío para usar la marca predeterminada de tududi.",
+      "appName": "Nombre de la aplicación",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logotipo (tema claro)",
+      "logoDark": "Logotipo (tema oscuro)",
+      "favicon": "Favicon",
+      "upload": "Subir",
+      "remove": "Eliminar",
+      "save": "Guardar",
+      "saved": "Marca actualizada correctamente",
+      "saveError": "Error al actualizar la marca",
+      "uploadError": "Error al subir la imagen",
+      "default": "Predeterminado",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG o ICO, hasta 2 MB. Recomendado: logotipo ancho de unos 300x72px, favicon cuadrado de 32x32px."
+    }
   },
   "errors": {
     "required": "Este campo es obligatorio",

@@ -364,7 +364,8 @@
       "ai": "AI-ominaisuudet",
       "notifications": "Ilmoitusasetukset",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV Synkronointi"
+      "caldav": "CalDAV Synkronointi",
+      "branding": "Brändäys"
     },
     "security": "Turvallisuusasetukset",
     "changePassword": "Vaihda salasana",
@@ -556,7 +557,24 @@
       "updateError": "Kalenterin päivittäminen epäonnistui"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@käyttäjänimi1, 123456789, @käyttäjänimi2"
+    "telegramAllowedUsersPlaceholder": "@käyttäjänimi1, 123456789, @käyttäjänimi2",
+    "branding": {
+      "title": "Brändäys",
+      "description": "Mukauta tämän instanssin näytettävä sovelluksen nimi, logot ja favicon. Jätä tyhjäksi käyttääksesi tududin oletusbrändäystä.",
+      "appName": "Sovelluksen nimi",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logo (vaalea teema)",
+      "logoDark": "Logo (tumma teema)",
+      "favicon": "Favicon",
+      "upload": "Lataa",
+      "remove": "Poista",
+      "save": "Tallenna",
+      "saved": "Brändäys päivitetty",
+      "saveError": "Brändäyksen päivitys epäonnistui",
+      "uploadError": "Kuvan lataus epäonnistui",
+      "default": "Oletus",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG tai ICO, enintään 2 Mt. Suositus: leveä logo noin 300x72px, neliömäinen favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Jumiutuneet projektit",

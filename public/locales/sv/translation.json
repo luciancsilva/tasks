@@ -364,7 +364,8 @@
       "ai": "AI-funktioner",
       "notifications": "Notifikationsinställningar",
       "oidc": "OIDC/SSO",
-      "caldav": "CalDAV-synkronisering"
+      "caldav": "CalDAV-synkronisering",
+      "branding": "Profilering"
     },
     "security": "Säkerhetsinställningar",
     "changePassword": "Ändra lösenord",
@@ -556,7 +557,24 @@
       "updateError": "Misslyckades med att uppdatera kalendern"
     },
     "telegramTokenPlaceholder": "123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ",
-    "telegramAllowedUsersPlaceholder": "@användarnamn1, 123456789, @användarnamn2"
+    "telegramAllowedUsersPlaceholder": "@användarnamn1, 123456789, @användarnamn2",
+    "branding": {
+      "title": "Profilering",
+      "description": "Anpassa visat programnamn, logotyper och favicon för den här instansen. Lämna tomt för att använda tududis standardprofil.",
+      "appName": "Programnamn",
+      "appNamePlaceholder": "tududi",
+      "logoLight": "Logotyp (ljust tema)",
+      "logoDark": "Logotyp (mörkt tema)",
+      "favicon": "Favicon",
+      "upload": "Ladda upp",
+      "remove": "Ta bort",
+      "save": "Spara",
+      "saved": "Profileringen har uppdaterats",
+      "saveError": "Det gick inte att uppdatera profileringen",
+      "uploadError": "Det gick inte att ladda upp bilden",
+      "default": "Standard",
+      "assetHelp": "PNG, JPG, GIF, WebP, SVG eller ICO, upp till 2 MB. Rekommenderas: bred logotyp cirka 300x72px, kvadratisk favicon 32x32px."
+    }
   },
   "productivity": {
     "stalledProjects": "Stagnerade projekt",
