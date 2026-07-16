@@ -36,7 +36,7 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         { code: 'el', name: t('profile.greek'), flag: '🇬🇷' },
         { code: 'id', name: t('profile.indonesian'), flag: '🇮🇩' },
         { code: 'it', name: t('profile.italian'), flag: '🇮🇹' },
-        { code: 'jp', name: t('profile.japanese'), flag: '🇯🇵' },
+        { code: 'ja', name: t('profile.japanese'), flag: '🇯🇵' },
         { code: 'ko', name: t('profile.korean'), flag: '🇰🇷' },
         { code: 'no', name: t('profile.norwegian'), flag: '🇳🇴' },
         { code: 'pl', name: t('profile.polish'), flag: '🇵🇱' },
@@ -47,7 +47,7 @@ const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         { code: 'es', name: t('profile.spanish'), flag: '🇪🇸' },
         { code: 'sv', name: t('profile.swedish'), flag: '🇸🇪' },
         { code: 'tr', name: t('profile.turkish'), flag: '🇹🇷' },
-        { code: 'ua', name: t('profile.ukrainian'), flag: '🇺🇦' },
+        { code: 'uk', name: t('profile.ukrainian'), flag: '🇺🇦' },
         { code: 'vi', name: t('profile.vietnamese'), flag: '🇻🇳' },
     ].sort((a, b) => a.name.localeCompare(b.name));
 

@@ -40,15 +40,19 @@ const i18nInstance = i18n
 
 i18nInstance
     .init({
-        fallbackLng: 'en',
+        fallbackLng: {
+            jp: ['ja'],
+            ua: ['uk'],
+            default: ['en'],
+        },
         debug: false,
         load: 'languageOnly',
         supportedLngs: [
             'en',
             'es',
             'el',
-            'jp',
-            'ua',
+            'ja',
+            'uk',
             'de',
             'it',
             'fr',

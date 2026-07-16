@@ -1,6 +1,5 @@
 'use strict';
 
-const BaseRepository = require('../../shared/database/BaseRepository');
 const {
     Project,
     Task,
@@ -21,10 +20,44 @@ const r2Service = require('../../services/r2Service');
 const { deleteAttachmentsForTaskIds } = require('../tasks/attachmentCleanup');
 const { logError } = require('../../services/logService');
 
-class ProjectsRepository extends BaseRepository {
+class ProjectsRepository {
     constructor() {
-        super(Project);
+        this.model = Project;
     }
+
+    async findById(id, options = {}) {
+        return this.model.findByPk(id, options);
+    }
+
+    async findOne(where, options = {}) {
+        return this.model.findOne({ where, ...options });
+    }
+
+    async findAll(where = {}, options = {}) {
+        return this.model.findAll({ where, ...options });
+    }
+
+    async create(data, options = {}) {
+        return this.model.create(data, options);
+    }
+
+    async update(instance, data, options = {}) {
+        return instance.update(data, options);
+    }
+
+    async destroy(instance, options = {}) {
+        return instance.destroy(options);
+    }
+
+    async count(where = {}, options = {}) {
+        return this.model.count({ where, ...options });
+    }
+
+    async exists(where) {
+        const count = await this.count(where);
+        return count > 0;
+    }
+
 
     /**
      * Find all projects with filters and includes.
@@ -317,41 +350,7 @@ class ProjectsRepository extends BaseRepository {
                 await deleteAttachmentsForTaskIds(taskIds, { transaction });
 
                 if (taskIds.length > 0) {
-                    // Explicitly delete dependents of tasks in reverse order of dependency
-                    // 1. TaskEvent
-                    await TaskEvent.destroy({
-                        where: { task_id: taskIds },
-                        transaction,
-                    });
-
-                    // 2. tasks_tags
-                    await sequelize.query(
-                        'DELETE FROM tasks_tags WHERE task_id IN (:taskIds)',
-                        {
-                            replacements: { taskIds },
-                            transaction,
-                        }
-                    );
-
-                    // 3. RecurringCompletion
-                    await RecurringCompletion.destroy({
-                        where: { task_id: taskIds },
-                        transaction,
-                    });
-
-                    // 4. CalDAVSyncState
-                    await CalDAVSyncState.destroy({
-                        where: { task_id: taskIds },
-                        transaction,
-                    });
-
-                    // 5. CalDAVOccurrenceOverride
-                    await CalDAVOccurrenceOverride.destroy({
-                        where: { parent_task_id: taskIds },
-                        transaction,
-                    });
-
-                    // 6. Clear recurring parent relationships
+                    // Clear recurring parent relationships
                     await Task.update(
                         { recurring_parent_id: null },
                         {
@@ -360,28 +359,11 @@ class ProjectsRepository extends BaseRepository {
                         }
                     );
 
-                    // 7. Subtasks
-                    const subtaskIds = [];
-                    for (const task of tasks) {
-                        for (const subtask of task.Subtasks || []) {
-                            subtaskIds.push(subtask.id);
-                        }
-                    }
-                    if (subtaskIds.length > 0) {
-                        await Task.destroy({
-                            where: { id: subtaskIds },
-                            transaction,
-                        });
-                    }
-
-                    // 8. Parent tasks
-                    const parentTaskIds = tasks.map(t => t.id);
-                    if (parentTaskIds.length > 0) {
-                        await Task.destroy({
-                            where: { id: parentTaskIds },
-                            transaction,
-                        });
-                    }
+                    // Delete the tasks belonging to the project (dependents will be deleted automatically by database ON DELETE CASCADE)
+                    await Task.destroy({
+                        where: { project_id: project.id, user_id: userId },
+                        transaction,
+                    });
                 }
 
                 // Orphan notes (they are reference material and may be useful without the project)
@@ -396,16 +378,7 @@ class ProjectsRepository extends BaseRepository {
                 // Delete project cover image from R2 if it exists
                 await this.deleteProjectImageFromR2(project.image_url, transaction);
 
-                // Explicitly delete project tags
-                await sequelize.query(
-                    'DELETE FROM projects_tags WHERE project_id = :projectId',
-                    {
-                        replacements: { projectId: project.id },
-                        transaction,
-                    }
-                );
-
-                // Delete the project
+                // Delete the project (project tags and other dependents will be deleted automatically by database ON DELETE CASCADE)
                 await project.destroy({ transaction });
             } catch (error) {
                 logError('Error deleting project:', error);

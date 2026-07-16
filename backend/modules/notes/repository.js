@@ -1,6 +1,5 @@
 'use strict';
 
-const BaseRepository = require('../../shared/database/BaseRepository');
 const { Note, Tag, Project } = require('../../models');
 
 const PUBLIC_ATTRIBUTES = [
@@ -36,10 +35,44 @@ const PROJECT_INCLUDE_WITH_ID = {
     attributes: ['id', 'name', 'uid', 'color'],
 };
 
-class NotesRepository extends BaseRepository {
+class NotesRepository {
     constructor() {
-        super(Note);
+        this.model = Note;
     }
+
+    async findById(id, options = {}) {
+        return this.model.findByPk(id, options);
+    }
+
+    async findOne(where, options = {}) {
+        return this.model.findOne({ where, ...options });
+    }
+
+    async findAll(where = {}, options = {}) {
+        return this.model.findAll({ where, ...options });
+    }
+
+    async create(data, options = {}) {
+        return this.model.create(data, options);
+    }
+
+    async update(instance, data, options = {}) {
+        return instance.update(data, options);
+    }
+
+    async destroy(instance, options = {}) {
+        return instance.destroy(options);
+    }
+
+    async count(where = {}, options = {}) {
+        return this.model.count({ where, ...options });
+    }
+
+    async exists(where) {
+        const count = await this.count(where);
+        return count > 0;
+    }
+
 
     /**
      * Find all notes by where clause with includes.

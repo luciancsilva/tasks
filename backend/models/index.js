@@ -46,6 +46,8 @@ if (dbConfig.dialect === 'sqlite' && !useD1) {
                     'PRAGMA temp_store=MEMORY;',
                     // Enable memory-mapped I/O (256MB): faster reads on large databases
                     'PRAGMA mmap_size=268435456;',
+                    // Enforce foreign key constraints globally in development
+                    'PRAGMA foreign_keys=ON;',
                 ].join('\n'),
                 (err) => {
                     if (err) reject(err);
@@ -135,16 +137,18 @@ InboxItem.belongsTo(User, { foreignKey: 'user_id' });
 
 User.hasMany(TaskEvent, { foreignKey: 'user_id', as: 'TaskEvents' });
 TaskEvent.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
-Task.hasMany(TaskEvent, { foreignKey: 'task_id', as: 'TaskEvents' });
-TaskEvent.belongsTo(Task, { foreignKey: 'task_id', as: 'Task' });
+Task.hasMany(TaskEvent, { foreignKey: 'task_id', as: 'TaskEvents', onDelete: 'CASCADE' });
+TaskEvent.belongsTo(Task, { foreignKey: 'task_id', as: 'Task', onDelete: 'CASCADE' });
 
 Task.belongsTo(Task, {
     as: 'ParentTask',
     foreignKey: 'parent_task_id',
+    onDelete: 'CASCADE',
 });
 Task.hasMany(Task, {
     as: 'Subtasks',
     foreignKey: 'parent_task_id',
+    onDelete: 'CASCADE',
 });
 
 Task.belongsTo(Task, {
@@ -159,10 +163,12 @@ Task.hasMany(Task, {
 Task.hasMany(RecurringCompletion, {
     as: 'Completions',
     foreignKey: 'task_id',
+    onDelete: 'CASCADE',
 });
 RecurringCompletion.belongsTo(Task, {
     foreignKey: 'task_id',
     as: 'Task',
+    onDelete: 'CASCADE',
 });
 
 Task.belongsToMany(Tag, {
@@ -221,8 +227,8 @@ Notification.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 // TaskAttachment associations
 User.hasMany(TaskAttachment, { foreignKey: 'user_id' });
 TaskAttachment.belongsTo(User, { foreignKey: 'user_id' });
-Task.hasMany(TaskAttachment, { foreignKey: 'task_id', as: 'Attachments' });
-TaskAttachment.belongsTo(Task, { foreignKey: 'task_id' });
+Task.hasMany(TaskAttachment, { foreignKey: 'task_id', as: 'Attachments', onDelete: 'CASCADE' });
+TaskAttachment.belongsTo(Task, { foreignKey: 'task_id', onDelete: 'CASCADE' });
 
 // Backup associations
 User.hasMany(Backup, { foreignKey: 'user_id', as: 'Backups' });
@@ -250,8 +256,9 @@ CalDAVSyncState.belongsTo(CalDAVCalendar, {
 Task.hasMany(CalDAVSyncState, {
     foreignKey: 'task_id',
     as: 'CalDAVSyncStates',
+    onDelete: 'CASCADE',
 });
-CalDAVSyncState.belongsTo(Task, { foreignKey: 'task_id', as: 'Task' });
+CalDAVSyncState.belongsTo(Task, { foreignKey: 'task_id', as: 'Task', onDelete: 'CASCADE' });
 
 CalDAVCalendar.hasMany(CalDAVOccurrenceOverride, {
     foreignKey: 'calendar_id',
@@ -264,10 +271,12 @@ CalDAVOccurrenceOverride.belongsTo(CalDAVCalendar, {
 Task.hasMany(CalDAVOccurrenceOverride, {
     foreignKey: 'parent_task_id',
     as: 'CalDAVOccurrenceOverrides',
+    onDelete: 'CASCADE',
 });
 CalDAVOccurrenceOverride.belongsTo(Task, {
     foreignKey: 'parent_task_id',
     as: 'ParentTask',
+    onDelete: 'CASCADE',
 });
 
 User.hasMany(CalDAVRemoteCalendar, {

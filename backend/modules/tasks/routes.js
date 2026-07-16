@@ -40,6 +40,7 @@ const {
 } = require('../../utils/timezone-utils');
 const permissionsService = require('../../services/permissionsService');
 const { isValidUid } = require('../../utils/slug-utils');
+const { ValidationError, NotFoundError, ForbiddenError } = require('../../shared/errors');
 
 const {
     validateProjectAccess,
@@ -205,7 +206,7 @@ function expandRecurringTasks(
     return expandedTasks;
 }
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', async (req, res, next) => {
     const startTime = Date.now();
     resetQueryCounter();
 
@@ -387,13 +388,13 @@ router.get('/tasks', async (req, res) => {
     } catch (error) {
         logError('Error fetching tasks:', error);
         if (error.message === 'Invalid order column specified.') {
-            return res.status(400).json({ error: error.message });
+            return next(new ValidationError(error.message));
         }
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 
-router.get('/tasks/metrics', async (req, res) => {
+router.get('/tasks/metrics', async (req, res, next) => {
     try {
         const response = await getTaskMetrics(
             req.currentUser.id,
@@ -404,11 +405,11 @@ router.get('/tasks/metrics', async (req, res) => {
         res.json(response);
     } catch (error) {
         logError('Error fetching task metrics:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 
-router.post('/task', async (req, res) => {
+router.post('/task', async (req, res, next) => {
     try {
         const {
             name,
@@ -424,7 +425,7 @@ router.post('/task', async (req, res) => {
         const tagsData = tags || Tags;
 
         if (!name || name.trim() === '') {
-            return res.status(400).json({ error: 'Task name is required.' });
+            return next(new ValidationError('Task name is required.'));
         }
 
         const timezone = getSafeTimezone(req.currentUser.timezone);
@@ -447,7 +448,7 @@ router.post('/task', async (req, res) => {
                 recurringParentEndDate
             );
         } catch (error) {
-            return res.status(400).json({ error: error.message });
+            return next(new ValidationError(error.message));
         }
 
         try {
@@ -457,9 +458,10 @@ router.post('/task', async (req, res) => {
             );
             if (validProjectId) taskAttributes.project_id = validProjectId;
         } catch (error) {
-            return res
-                .status(error.message === 'Forbidden' ? 403 : 400)
-                .json({ error: error.message });
+            if (error.message === 'Forbidden') {
+                return next(new ForbiddenError());
+            }
+            return next(new ValidationError(error.message));
         }
 
         try {
@@ -469,7 +471,7 @@ router.post('/task', async (req, res) => {
             );
             if (validAreaId) taskAttributes.area_id = validAreaId;
         } catch (error) {
-            return res.status(400).json({ error: error.message });
+            return next(new ValidationError(error.message));
         }
 
         try {
@@ -479,7 +481,7 @@ router.post('/task', async (req, res) => {
             );
             if (validParentId) taskAttributes.parent_task_id = validParentId;
         } catch (error) {
-            return res.status(400).json({ error: error.message });
+            return next(new ValidationError(error.message));
         }
 
         const task = await taskRepository.create(taskAttributes);
@@ -527,25 +529,18 @@ router.post('/task', async (req, res) => {
         res.status(201).json(serializedTask);
     } catch (error) {
         logError('Error creating task:', error);
-        logError('Error stack:', error.stack);
-        logError('Error name:', error.name);
-        res.status(400).json({
-            error: 'There was a problem creating the task.',
-            details: error.errors
-                ? error.errors.map((e) => e.message)
-                : [error.message],
-        });
+        next(error);
     }
 });
 
-router.get('/task/:uid', requireTaskReadAccess, async (req, res) => {
+router.get('/task/:uid', requireTaskReadAccess, async (req, res, next) => {
     try {
         const task = await taskRepository.findByUid(req.params.uid, {
             include: TASK_INCLUDES_WITH_SUBTASKS,
         });
 
         if (!task) {
-            return res.status(404).json({ error: 'Task not found.' });
+            return next(new NotFoundError('Task not found.'));
         }
 
         const serializedTask = await serializeTask(
@@ -557,11 +552,11 @@ router.get('/task/:uid', requireTaskReadAccess, async (req, res) => {
         res.json(serializedTask);
     } catch (error) {
         logError('Error fetching task:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 
-router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
+router.patch('/task/:uid', requireTaskWriteAccess, async (req, res, next) => {
     try {
         const {
             status,
@@ -666,7 +661,7 @@ router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                 recurringParentEndDate
             );
         } catch (error) {
-            return res.status(400).json({ error: error.message });
+            return next(new ValidationError(error.message));
         }
 
         await handleCompletionStatus(taskAttributes, status, task);
@@ -681,9 +676,10 @@ router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                 );
                 taskAttributes.project_id = validProjectId;
             } catch (error) {
-                return res
-                    .status(error.message === 'Forbidden' ? 403 : 400)
-                    .json({ error: error.message });
+                if (error.message === 'Forbidden') {
+                    return next(new ForbiddenError());
+                }
+                return next(new ValidationError(error.message));
             }
         }
 
@@ -696,7 +692,7 @@ router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                 );
                 taskAttributes.area_id = validAreaId;
             } catch (error) {
-                return res.status(400).json({ error: error.message });
+                return next(new ValidationError(error.message));
             }
         }
 
@@ -709,7 +705,7 @@ router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                     );
                     taskAttributes.parent_task_id = validParentId;
                 } catch (error) {
-                    return res.status(400).json({ error: error.message });
+                    return next(new ValidationError(error.message));
                 }
             } else {
                 taskAttributes.parent_task_id = null;
@@ -907,21 +903,16 @@ router.patch('/task/:uid', requireTaskWriteAccess, async (req, res) => {
         res.json(serializedTask);
     } catch (error) {
         logError('Error updating task:', error);
-        res.status(400).json({
-            error: 'There was a problem updating the task.',
-            details: error.errors
-                ? error.errors.map((e) => e.message)
-                : [error.message],
-        });
+        next(error);
     }
 });
 
-router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
+router.delete('/task/:uid', requireTaskWriteAccess, async (req, res, next) => {
     try {
         const task = await taskRepository.findByUid(req.params.uid);
 
         if (!task) {
-            return res.status(404).json({ error: 'Task not found.' });
+            return next(new NotFoundError('Task not found.'));
         }
 
         const taskId = task.id;
@@ -955,30 +946,6 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
                 );
 
                 for (const futureInstance of futureInstances) {
-                    const futureInstId = futureInstance.id;
-                    await TaskEvent.destroy({
-                        where: { task_id: futureInstId },
-                        transaction: t,
-                    });
-                    await sequelize.query(
-                        'DELETE FROM tasks_tags WHERE task_id = :taskId',
-                        {
-                            replacements: { taskId: futureInstId },
-                            transaction: t,
-                        }
-                    );
-                    await RecurringCompletion.destroy({
-                        where: { task_id: futureInstId },
-                        transaction: t,
-                    });
-                    await CalDAVSyncState.destroy({
-                        where: { task_id: futureInstId },
-                        transaction: t,
-                    });
-                    await CalDAVOccurrenceOverride.destroy({
-                        where: { parent_task_id: futureInstId },
-                        transaction: t,
-                    });
                     await futureInstance.destroy({ transaction: t });
                 }
 
@@ -999,69 +966,24 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res) => {
             // Remove attachments (R2 objects + rows) of the task and its subtasks
             await deleteAttachmentsForTaskIds([taskId, ...subtaskIds], { transaction: t });
 
-            const allTaskIds = [taskId, ...subtaskIds];
-
-            // 1. TaskEvent
-            await TaskEvent.destroy({
-                where: { task_id: allTaskIds },
-                transaction: t,
-            });
-
-            // 2. tasks_tags
-            await sequelize.query(
-                'DELETE FROM tasks_tags WHERE task_id IN (:taskIds)',
-                {
-                    replacements: { taskIds: allTaskIds },
-                    transaction: t,
-                }
-            );
-
-            // 3. RecurringCompletion
-            await RecurringCompletion.destroy({
-                where: { task_id: allTaskIds },
-                transaction: t,
-            });
-
-            // 4. CalDAVSyncState
-            await CalDAVSyncState.destroy({
-                where: { task_id: allTaskIds },
-                transaction: t,
-            });
-
-            // 5. CalDAVOccurrenceOverride
-            await CalDAVOccurrenceOverride.destroy({
-                where: { parent_task_id: allTaskIds },
-                transaction: t,
-            });
-
-            // 6. Clear recurring parent relationships
+            // Clear recurring parent relationships
             await taskRepository.clearRecurringParent(taskId, { transaction: t });
 
-            // 7. Subtasks
-            if (subtaskIds.length > 0) {
-                await Task.destroy({
-                    where: { id: subtaskIds },
-                    force: true,
-                    transaction: t,
-                });
-            }
-
-            // 8. The task itself
+            // The task itself (subtasks and all other dependents will be deleted by database ON DELETE CASCADE)
             await task.destroy({ force: true, transaction: t });
         });
 
         res.json({ message: 'Task successfully deleted' });
     } catch (error) {
-        res.status(400).json({
-            error: 'There was a problem deleting the task.',
-        });
+        logError('Error deleting task:', error);
+        next(error);
     }
 });
 
-router.get('/task/:uid/subtasks', async (req, res) => {
+router.get('/task/:uid/subtasks', async (req, res, next) => {
     try {
         if (!isValidUid(req.params.uid)) {
-            return res.status(400).json({ error: 'Invalid UID' });
+            return next(new ValidationError('Invalid UID'));
         }
 
         const task = await taskRepository.findByUid(req.params.uid);
@@ -1076,7 +998,7 @@ router.get('/task/:uid/subtasks', async (req, res) => {
         );
 
         if (result.error === 'Forbidden') {
-            return res.status(403).json({ error: 'Forbidden' });
+            return next(new ForbiddenError());
         }
 
         if (result.error === 'Not found') {
@@ -1086,25 +1008,25 @@ router.get('/task/:uid/subtasks', async (req, res) => {
         res.json(result.subtasks);
     } catch (error) {
         logError('Error fetching subtasks:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        next(error);
     }
 });
 
-router.get('/task/:uid/next-iterations', async (req, res) => {
+router.get('/task/:uid/next-iterations', async (req, res, next) => {
     try {
         if (!isValidUid(req.params.uid)) {
-            return res.status(400).json({ error: 'Invalid UID' });
+            return next(new ValidationError('Invalid UID'));
         }
 
         const task = await taskRepository.findByUid(req.params.uid);
 
         if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
+            return next(new NotFoundError('Task not found'));
         }
 
         // Verify user owns this task
         if (task.user_id !== req.currentUser.id) {
-            return res.status(403).json({ error: 'Access denied' });
+            return next(new ForbiddenError('Access denied'));
         }
 
         if (!task.recurrence_type || task.recurrence_type === 'none') {
@@ -1120,7 +1042,7 @@ router.get('/task/:uid/next-iterations', async (req, res) => {
         res.json({ iterations });
     } catch (error) {
         logError('Error getting next iterations:', error);
-        res.status(500).json({ error: 'Failed to get next iterations' });
+        next(error);
     }
 });
 
