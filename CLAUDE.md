@@ -8,7 +8,7 @@ This documentation is designed for AI assistants and developers working with the
 
 Tududi is a self-hosted task management system with hierarchical organization (Areas > Goals > Projects > Tasks), smart recurring tasks, and multi-channel integration.
 
-**Tech Stack:** React 18 + TypeScript, Express + Sequelize, SQLite
+**Tech Stack:** React 18 + TypeScript, Express + Sequelize, SQLite (optional Cloudflare D1 via REST), Cloudflare R2 object storage
 
 **Get Started:**
 ```bash
@@ -240,9 +240,13 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 
 **Backend:**
 - Express 4.21 + Sequelize 6.37 (ORM)
-- SQLite 5.1 (WAL mode, optimized)
+- SQLite 5.1 (WAL mode, optimized) — or Cloudflare D1 via REST API when
+  `TUDUDI_DB_DRIVER=d1` (driver in `/backend/db/`, no transactions, see
+  driver header for semantics)
+- Cloudflare R2 (S3-compatible) object storage for attachments, avatars,
+  project covers and branding assets (`/backend/services/r2Service.js`)
 - bcrypt + express-session (auth)
-- Swagger (API docs), Multer (uploads)
+- Swagger (API docs), Multer + multer-s3 (uploads streamed to R2)
 - node-cron (scheduling), Nodemailer (email)
 
 **Testing:**
@@ -263,6 +267,10 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 | API routes | `/backend/modules/[module]/routes.js` |
 | Global state | `/frontend/store/useStore.ts` |
 | API client | `/frontend/utils/[resource]Service.ts` |
+| Object storage (R2) | `/backend/services/r2Service.js` |
+| D1 REST data layer | `/backend/db/d1Client.js`, `/backend/db/d1RestDriver.js` |
+| Instance branding | `/backend/modules/branding/`, `/frontend/contexts/BrandingContext.tsx` |
+| Executable work plans | `/plans/` (rules in `/plans/README.md`) |
 
 ---
 
@@ -274,6 +282,8 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 | [CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contributors | PR workflow, code of conduct |
 | [docs.tududi.com](https://docs.tududi.com) | End users | Full user documentation |
 | [Swagger API docs](http://localhost:3002/api-docs) | API consumers | API endpoints (after auth) |
+| [AGENTS.md](AGENTS.md) | AI agents | Project pointers + response style |
+| [plans/README.md](plans/README.md) | Developers, AI | Executable work plans + agent execution rules |
 | **CLAUDE.md** | Developers, AI | Codebase architecture, patterns |
 
 ---
@@ -289,6 +299,6 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 
 ---
 
-**Document Version:** 1.0.0
-**Last Updated:** 2026-03-14
+**Document Version:** 1.1.0
+**Last Updated:** 2026-07-16 (R2 storage, optional D1 REST data layer, instance branding, /plans workflow)
 **Maintainer:** Update when architecture changes or patterns evolve
