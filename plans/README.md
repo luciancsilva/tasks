@@ -3,6 +3,24 @@
 Diretório de planos de implementação deste fork. Serve tanto para humanos quanto
 para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 
+## Instruções ao agente — COMECE AQUI
+
+Se você recebeu apenas "leia plans/README.md e siga as instruções":
+
+1. Leia este arquivo inteiro e o `CLAUDE.md` da raiz.
+2. Liste ao usuário os planos com status **Aberto** (tabela "Estado atual"
+   abaixo) com uma linha de descrição cada e **pergunte em qual plano (ou
+   item de plano) vai trabalhar** — não escolha sozinho.
+3. Confirmado o plano, execute-o do início ao fim **sem pausar para pedir
+   aprovação entre etapas**, seguindo as "Regras para o agente executor"
+   abaixo (baseline de testes → implementação → testes/lint → um commit por
+   item citando o plano → marcar EXECUTADO/atualizar tabelas).
+4. Só interrompa por decisão que apenas o dono do repositório pode tomar
+   (credencial, escolha de produto, mudança de API pública).
+5. Ao final, entregue resumo: o que foi feito, resultado dos testes, desvios.
+6. Antes de qualquer comando fora de `NODE_ENV=test`, leia os "Avisos
+   permanentes" — o `.env` da raiz aponta para um banco D1 REAL de produção.
+
 ## Racional
 
 - **Um plano = uma unidade de trabalho commitável.** Cada arquivo descreve algo
