@@ -86,9 +86,7 @@ publicRoutes.get('/branding/asset/:filename', async (req, res) => {
     }
 
     try {
-        const object = await r2Service.getObjectStream(
-            `branding/${filename}`
-        );
+        const object = await r2Service.getObjectStream(`branding/${filename}`);
 
         res.setHeader(
             'Content-Type',

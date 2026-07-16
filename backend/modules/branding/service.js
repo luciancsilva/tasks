@@ -85,9 +85,7 @@ async function getBranding() {
  */
 async function setAppName(appName) {
     const value =
-        appName === null || appName === undefined
-            ? ''
-            : String(appName).trim();
+        appName === null || appName === undefined ? '' : String(appName).trim();
     if (value.length > 100) {
         const error = new Error(
             'Application name must be at most 100 characters'
@@ -106,10 +104,7 @@ async function setAppName(appName) {
 async function setAsset(kind, objectKey) {
     const previousUrl = await getSettingValue(SETTING_KEYS[kind]);
     const filename = objectKey.split('/').pop();
-    await setSettingValue(
-        SETTING_KEYS[kind],
-        `${ASSET_URL_PREFIX}${filename}`
-    );
+    await setSettingValue(SETTING_KEYS[kind], `${ASSET_URL_PREFIX}${filename}`);
 
     const previousKey = assetUrlToObjectKey(previousUrl);
     if (previousKey && previousKey !== objectKey) {

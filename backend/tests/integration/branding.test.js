@@ -30,10 +30,7 @@ describe('Branding API', () => {
     beforeAll(async () => {
         await fs.mkdir(testFilesDir, { recursive: true });
         await fs.writeFile(path.join(testFilesDir, 'logo.png'), 'PNG bytes');
-        await fs.writeFile(
-            path.join(testFilesDir, 'favicon.ico'),
-            'ICO bytes'
-        );
+        await fs.writeFile(path.join(testFilesDir, 'favicon.ico'), 'ICO bytes');
         await fs.writeFile(path.join(testFilesDir, 'evil.exe'), 'MZ');
     });
 
