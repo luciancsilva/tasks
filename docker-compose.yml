@@ -12,16 +12,18 @@ services:
       - TUDUDI_TRUST_PROXY=false
       - TUDUDI_UPLOAD_PATH=/app/uploads
       # Cloudflare R2 (S3-compatible) object storage.
+      # Values are interpolated from a .env file next to this docker-compose.yml
+      # (that file is gitignored — put the real secrets there, not here).
       # When all of R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET and
-      # (R2_ENDPOINT or R2_ACCOUNT_ID) are set, uploads go to R2 instead of
-      # the local ./uploads volume. Leave blank to keep local-disk storage.
-      - R2_ACCOUNT_ID=
-      - R2_ACCESS_KEY_ID=
-      - R2_SECRET_ACCESS_KEY=
-      - R2_BUCKET=
+      # (R2_ENDPOINT or R2_ACCOUNT_ID) are set, uploads go to R2; otherwise the
+      # app still boots and upload requests fail cleanly until R2 is configured.
+      - R2_ACCOUNT_ID=${R2_ACCOUNT_ID:-}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID:-}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY:-}
+      - R2_BUCKET=${R2_BUCKET:-}
       # Optional: explicit endpoint (defaults to https://<account_id>.r2.cloudflarestorage.com)
-      - R2_ENDPOINT=
-      - R2_REGION=auto
+      - R2_ENDPOINT=${R2_ENDPOINT:-}
+      - R2_REGION=${R2_REGION:-auto}
       # Runtime UID/GID configuration - set these to match your host user/group
       - PUID=1001
       - PGID=1001

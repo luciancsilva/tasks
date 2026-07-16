@@ -73,7 +73,21 @@ function getBucket() {
 function getUploadStorage(prefix, filenameFn) {
     return multerS3({
         s3: getClient(),
-        bucket: getBucket(),
+        // Resolve the bucket lazily (as a function) so the storage engine can be
+        // constructed at module load even when R2 is not configured yet. This
+        // prevents multer-s3 from throwing "bucket is required" at boot; an
+        // unconfigured bucket instead fails cleanly on the actual upload request.
+        bucket: function (req, file, cb) {
+            const bucket = getBucket();
+            if (!bucket) {
+                return cb(
+                    new Error(
+                        'R2 storage is not configured: set R2_BUCKET (and R2 credentials)'
+                    )
+                );
+            }
+            cb(null, bucket);
+        },
         contentType: multerS3.AUTO_CONTENT_TYPE,
         key: function (req, file, cb) {
             try {
