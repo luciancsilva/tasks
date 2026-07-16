@@ -137,8 +137,16 @@ InboxItem.belongsTo(User, { foreignKey: 'user_id' });
 
 User.hasMany(TaskEvent, { foreignKey: 'user_id', as: 'TaskEvents' });
 TaskEvent.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
-Task.hasMany(TaskEvent, { foreignKey: 'task_id', as: 'TaskEvents', onDelete: 'CASCADE' });
-TaskEvent.belongsTo(Task, { foreignKey: 'task_id', as: 'Task', onDelete: 'CASCADE' });
+Task.hasMany(TaskEvent, {
+    foreignKey: 'task_id',
+    as: 'TaskEvents',
+    onDelete: 'CASCADE',
+});
+TaskEvent.belongsTo(Task, {
+    foreignKey: 'task_id',
+    as: 'Task',
+    onDelete: 'CASCADE',
+});
 
 Task.belongsTo(Task, {
     as: 'ParentTask',
@@ -227,7 +235,11 @@ Notification.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 // TaskAttachment associations
 User.hasMany(TaskAttachment, { foreignKey: 'user_id' });
 TaskAttachment.belongsTo(User, { foreignKey: 'user_id' });
-Task.hasMany(TaskAttachment, { foreignKey: 'task_id', as: 'Attachments', onDelete: 'CASCADE' });
+Task.hasMany(TaskAttachment, {
+    foreignKey: 'task_id',
+    as: 'Attachments',
+    onDelete: 'CASCADE',
+});
 TaskAttachment.belongsTo(Task, { foreignKey: 'task_id', onDelete: 'CASCADE' });
 
 // Backup associations
@@ -258,7 +270,11 @@ Task.hasMany(CalDAVSyncState, {
     as: 'CalDAVSyncStates',
     onDelete: 'CASCADE',
 });
-CalDAVSyncState.belongsTo(Task, { foreignKey: 'task_id', as: 'Task', onDelete: 'CASCADE' });
+CalDAVSyncState.belongsTo(Task, {
+    foreignKey: 'task_id',
+    as: 'Task',
+    onDelete: 'CASCADE',
+});
 
 CalDAVCalendar.hasMany(CalDAVOccurrenceOverride, {
     foreignKey: 'calendar_id',

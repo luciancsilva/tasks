@@ -41,7 +41,6 @@ class HabitsRepository {
         return count > 0;
     }
 
-
     async findAllByUser(userId) {
         return this.model.findAll({
             where: {

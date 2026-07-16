@@ -38,7 +38,6 @@ class SyncStateRepository {
         return count > 0;
     }
 
-
     async findByTaskId(taskId, options = {}) {
         return this.findAll({ task_id: taskId }, options);
     }

@@ -58,7 +58,6 @@ class ProjectsRepository {
         return count > 0;
     }
 
-
     /**
      * Find all projects with filters and includes.
      */
@@ -376,7 +375,10 @@ class ProjectsRepository {
                 );
 
                 // Delete project cover image from R2 if it exists
-                await this.deleteProjectImageFromR2(project.image_url, transaction);
+                await this.deleteProjectImageFromR2(
+                    project.image_url,
+                    transaction
+                );
 
                 // Delete the project (project tags and other dependents will be deleted automatically by database ON DELETE CASCADE)
                 await project.destroy({ transaction });

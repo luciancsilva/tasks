@@ -40,7 +40,11 @@ const {
 } = require('../../utils/timezone-utils');
 const permissionsService = require('../../services/permissionsService');
 const { isValidUid } = require('../../utils/slug-utils');
-const { ValidationError, NotFoundError, ForbiddenError } = require('../../shared/errors');
+const {
+    ValidationError,
+    NotFoundError,
+    ForbiddenError,
+} = require('../../shared/errors');
 
 const {
     validateProjectAccess,
@@ -950,24 +954,31 @@ router.delete('/task/:uid', requireTaskWriteAccess, async (req, res, next) => {
                 }
 
                 for (const pastInstance of pastInstances) {
-                    await pastInstance.update({
-                        recurring_parent_id: null,
-                        recurrence_type: 'none',
-                        recurrence_interval: null,
-                        recurrence_end_date: null,
-                        recurrence_weekday: null,
-                        recurrence_month_day: null,
-                        recurrence_week_of_month: null,
-                        completion_based: false,
-                    }, { transaction: t });
+                    await pastInstance.update(
+                        {
+                            recurring_parent_id: null,
+                            recurrence_type: 'none',
+                            recurrence_interval: null,
+                            recurrence_end_date: null,
+                            recurrence_weekday: null,
+                            recurrence_month_day: null,
+                            recurrence_week_of_month: null,
+                            completion_based: false,
+                        },
+                        { transaction: t }
+                    );
                 }
             }
 
             // Remove attachments (R2 objects + rows) of the task and its subtasks
-            await deleteAttachmentsForTaskIds([taskId, ...subtaskIds], { transaction: t });
+            await deleteAttachmentsForTaskIds([taskId, ...subtaskIds], {
+                transaction: t,
+            });
 
             // Clear recurring parent relationships
-            await taskRepository.clearRecurringParent(taskId, { transaction: t });
+            await taskRepository.clearRecurringParent(taskId, {
+                transaction: t,
+            });
 
             // The task itself (subtasks and all other dependents will be deleted by database ON DELETE CASCADE)
             await task.destroy({ force: true, transaction: t });

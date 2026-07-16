@@ -38,7 +38,6 @@ class OverrideRepository {
         return count > 0;
     }
 
-
     async findByParentTaskId(parentTaskId, options = {}) {
         return this.findAll({ parent_task_id: parentTaskId }, options);
     }

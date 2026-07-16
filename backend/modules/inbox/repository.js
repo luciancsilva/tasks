@@ -50,7 +50,6 @@ class InboxRepository {
         return count > 0;
     }
 
-
     /**
      * Find all active inbox items for a user (status = 'added').
      */

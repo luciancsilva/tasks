@@ -38,7 +38,6 @@ class CalendarRepository {
         return count > 0;
     }
 
-
     async findByUserId(userId, options = {}) {
         return this.findAll({ user_id: userId }, options);
     }

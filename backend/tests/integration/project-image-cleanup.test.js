@@ -124,7 +124,9 @@ describe('Project cover image R2 cleanup', () => {
             const { Note } = require('../../models');
             const originalUpdate = Note.update;
             // Force Note.update to fail inside the transaction
-            Note.update = jest.fn().mockRejectedValue(new Error('Forced DB Error'));
+            Note.update = jest
+                .fn()
+                .mockRejectedValue(new Error('Forced DB Error'));
 
             const response = await agent.delete(`/api/project/${project.uid}`);
 

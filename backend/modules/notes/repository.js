@@ -73,7 +73,6 @@ class NotesRepository {
         return count > 0;
     }
 
-
     /**
      * Find all notes by where clause with includes.
      */

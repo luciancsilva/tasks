@@ -41,7 +41,6 @@ class TagsRepository {
         return count > 0;
     }
 
-
     /**
      * Find all tags for a user, ordered alphabetically (case-insensitive).
      */

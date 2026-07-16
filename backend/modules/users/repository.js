@@ -82,7 +82,6 @@ class UsersRepository {
         return count > 0;
     }
 
-
     /**
      * Find all users with basic attributes.
      */

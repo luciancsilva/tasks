@@ -40,7 +40,6 @@ class ViewsRepository {
         return count > 0;
     }
 
-
     async findAllByUser(userId) {
         return this.model.findAll({
             where: { user_id: userId },

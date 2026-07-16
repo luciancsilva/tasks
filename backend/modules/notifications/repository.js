@@ -40,7 +40,6 @@ class NotificationsRepository {
         return count > 0;
     }
 
-
     async getUserNotifications(userId, options) {
         return Notification.getUserNotifications(userId, options);
     }
