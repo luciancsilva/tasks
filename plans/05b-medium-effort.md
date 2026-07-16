@@ -6,21 +6,6 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
 
 ---
 
-## ME-2. Side effects externos fora da transação de banco
-
-- **Onde**: `backend/modules/projects/repository.js` (`deleteWithOrphaning` chama
-  `r2Service.deleteObject` dentro de `sequelize.transaction`).
-- **Por quê**: rollback não desfaz delete no bucket; storage lento segura o lock
-  de escrita do SQLite.
-- **Como**: dentro da transação apenas coletar as keys (attachments + capa);
-  executar os `deleteObject` após o commit bem-sucedido. Atualizar
-  `deleteAttachmentsForTaskIds` para aceitar modo "collect keys" ou dividir em
-  duas fases (rows na transação, objetos depois).
-- **Testes**: os testes de `project-image-cleanup.test.js` e
-  `task-attachments.test.js` continuam valendo; adicionar caso de rollback
-  (falha no meio) confirmando que objetos NÃO foram deletados.
-- **Esforço**: médio. **Dependência**: idealmente após ME-1.
-
 ## ME-3. FKs com `ON DELETE CASCADE` reais e confiáveis
 
 - **Onde**: migrations de `task_attachments` (já tem CASCADE), `task_events`,

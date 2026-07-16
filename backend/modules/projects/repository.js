@@ -259,7 +259,7 @@ class ProjectsRepository extends BaseRepository {
      * and ignores anything that does not point at the uploads proxy (external
      * URLs are never deleted).
      */
-    async deleteProjectImageFromR2(imageUrl) {
+    async deleteProjectImageFromR2(imageUrl, transaction = null) {
         if (!imageUrl) {
             return false;
         }
@@ -269,7 +269,15 @@ class ProjectsRepository extends BaseRepository {
         if (!urlMatch) {
             return false;
         }
-        return r2Service.deleteObject(`projects/${urlMatch[1]}`);
+        const objectKey = `projects/${urlMatch[1]}`;
+        if (transaction) {
+            transaction.afterCommit(async () => {
+                await r2Service.deleteObject(objectKey);
+            });
+            return true;
+        } else {
+            return r2Service.deleteObject(objectKey);
+        }
     }
 
     /**
@@ -386,7 +394,7 @@ class ProjectsRepository extends BaseRepository {
                 );
 
                 // Delete project cover image from R2 if it exists
-                await this.deleteProjectImageFromR2(project.image_url);
+                await this.deleteProjectImageFromR2(project.image_url, transaction);
 
                 // Explicitly delete project tags
                 await sequelize.query(

@@ -119,5 +119,24 @@ describe('Project cover image R2 cleanup', () => {
             const gone = await Project.findByPk(project.id);
             expect(gone).toBeNull();
         });
+
+        it('does not delete the cover image from R2 if the transaction rolls back', async () => {
+            const { Note } = require('../../models');
+            const originalUpdate = Note.update;
+            // Force Note.update to fail inside the transaction
+            Note.update = jest.fn().mockRejectedValue(new Error('Forced DB Error'));
+
+            const response = await agent.delete(`/api/project/${project.uid}`);
+
+            // Restore original Note.update
+            Note.update = originalUpdate;
+
+            expect(response.status).toBe(500);
+            expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
+
+            // Verify project still exists
+            const stillExists = await Project.findByPk(project.id);
+            expect(stillExists).not.toBeNull();
+        });
     });
 });

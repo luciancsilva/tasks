@@ -34,10 +34,22 @@ async function deleteAttachmentsForTaskIds(taskIds, options = {}) {
         transaction: options.transaction,
     });
 
+    const filePaths = attachments.map((a) => a.file_path);
+
     for (const attachment of attachments) {
-        // file_path holds the R2 object key (e.g. 'tasks/task-123.pdf')
-        await r2Service.deleteObject(attachment.file_path);
         await attachment.destroy({ transaction: options.transaction });
+    }
+
+    if (options.transaction) {
+        options.transaction.afterCommit(async () => {
+            for (const filePath of filePaths) {
+                await r2Service.deleteObject(filePath);
+            }
+        });
+    } else {
+        for (const filePath of filePaths) {
+            await r2Service.deleteObject(filePath);
+        }
     }
 
     return attachments.length;
