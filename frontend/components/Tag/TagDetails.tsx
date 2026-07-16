@@ -1006,7 +1006,8 @@ const TagDetails: React.FC = () => {
                     title={t('tags.deleteTag', 'Delete Tag')}
                     message={t(
                         'tags.deleteTagConfirm',
-                        `Are you sure you want to delete the tag "${tag.name}"?`
+                        `Are you sure you want to delete the tag "${tag.name}"?`,
+                        { name: tag.name }
                     )}
                     onConfirm={handleDeleteTag}
                     onCancel={() => setIsConfirmDialogOpen(false)}
@@ -1019,7 +1020,8 @@ const TagDetails: React.FC = () => {
                     title={t('notes.deleteNote', 'Delete Note')}
                     message={t(
                         'notes.deleteNoteConfirm',
-                        `Are you sure you want to delete the note "${noteToDelete.title}"?`
+                        `Are you sure you want to delete the note "${noteToDelete.title}"?`,
+                        { title: noteToDelete.title }
                     )}
                     onConfirm={handleConfirmDeleteNote}
                     onCancel={() => {

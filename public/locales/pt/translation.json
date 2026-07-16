@@ -100,7 +100,15 @@
         "select": "Selecione...",
         "dateTimeAt": "{{date}} às {{time}}",
         "loadingApplication": "Carregando aplicação... Por favor, aguarde.",
-        "loadingPreview": "Carregando prévia..."
+        "loadingPreview": "Carregando prévia...",
+        "saved": "Salvo",
+        "unsavedChanges": "Alterações não salvas",
+        "restore": "Restaurada",
+        "priority": {
+            "low": "Baixa",
+            "medium": "Média",
+            "high": "Alta"
+        }
     },
     "sidebar": {
         "dashboard": "Painel",
@@ -821,7 +829,11 @@
             "testMessageError": "Falha ao enviar mensagem de teste."
         },
         "taskSummaryToggleError": "Falha ao alternar resumo de tarefas.",
-        "updateFrequencyError": "Falha ao atualizar frequência do resumo de tarefas."
+        "updateFrequencyError": "Falha ao atualizar frequência do resumo de tarefas.",
+        "fetchSchedulerStatusError": "Falha ao buscar o status do agendador.",
+        "fetchPollingStatusError": "Falha ao buscar o status de sondagem.",
+        "sendTestMessageError": "Falha ao enviar a mensagem de teste.",
+        "toggleTaskSummaryError": "Falha ao alternar o resumo de tarefas."
     },
     "productivity": {
         "stalledProjects": "Projetos parados",
@@ -1010,7 +1022,10 @@
         "passwordsDoNotMatch": "As senhas não coincidem",
         "registerError": "Falha no registro",
         "passwordPlaceholder": "Mínimo de 8 caracteres",
-        "logoutError": "Falha ao sair"
+        "logoutError": "Falha ao sair",
+        "unlinkError": "Falha ao desvincular a conta",
+        "linkInitError": "Falha ao iniciar a vinculação da conta",
+        "required": "Autenticação necessária"
     },
     "dropdown": {
         "createNew": "Criar novo",
@@ -1121,7 +1136,41 @@
         "failedToLoadUsers": "Falha ao carregar usuários",
         "failedToLoadShares": "Falha ao carregar compartilhamentos",
         "fetchError": "Ocorreu um erro ao buscar os dados.",
-        "requestFailed": "Solicitação falhou"
+        "requestFailed": "Solicitação falhou",
+        "failedToDeleteNote": "Falha ao excluir a nota.",
+        "loadMcpTools": "Falha ao carregar ferramentas MCP",
+        "imageUrlMissing": "URL da imagem ausente na resposta do upload",
+        "projectNameTooLong": "O nome do projeto deve ter no máximo {{max}} caracteres",
+        "failedToDeleteProject": "Falha ao excluir o projeto.",
+        "failedToSaveView": "Falha ao salvar a visualização",
+        "fetchConfigError": "Falha ao buscar a configuração do servidor",
+        "fetchCsrfTokenError": "Falha ao buscar o token CSRF",
+        "fetchGoalsError": "Falha ao buscar as metas.",
+        "createGoalError": "Falha ao criar a meta.",
+        "updateGoalError": "Falha ao atualizar a meta.",
+        "deleteGoalError": "Falha ao excluir a meta.",
+        "invalidProjectUid": "Não é possível excluir o projeto: UID de projeto inválido",
+        "projectDeleteFailedWithStatus": "Falha ao excluir o projeto: {{status}} - {{errorText}}",
+        "shareError": "Falha ao compartilhar o recurso",
+        "revokeShareError": "Falha ao revogar o compartilhamento",
+        "uidRequired": "UID é obrigatório",
+        "projectUidRequired": "O uid do projeto é obrigatório",
+        "noteUidRequired": "O uid da nota é obrigatório",
+        "tagUidRequired": "O uid da tag é obrigatório",
+        "fetchTaskCompletionTimeError": "Falha ao buscar o tempo de conclusão da tarefa: {{status}}",
+        "fetchProductivityMetricsError": "Falha ao buscar métricas de produtividade: {{status}}",
+        "fetchActivitySummaryError": "Falha ao buscar o resumo de atividades: {{status}}",
+        "fetchCompletionAnalyticsError": "Falha ao buscar a análise de conclusões: {{status}}",
+        "fetchMetricsError": "Falha ao buscar métricas.",
+        "tasksNotArray": "As tarefas resultantes não são um array.",
+        "taskCreationFailed": "Falha ao criar a tarefa.",
+        "taskSaveFailed": "Falha ao atualizar a tarefa.",
+        "taskDeletionFailed": "Falha ao excluir a tarefa.",
+        "failedToLoadTask": "Falha ao buscar a tarefa.",
+        "fetchSubtasksError": "Falha ao buscar as subtarefas.",
+        "fetchTaskIterationsError": "Falha ao buscar as iterações da tarefa.",
+        "extractUrlTitleError": "Falha ao extrair o título da URL",
+        "extractTitleFromTextError": "Falha ao extrair o título do texto"
     },
     "inbox": {
         "title": "Caixa de entrada",
@@ -1398,7 +1447,12 @@
         "timelineAfterSaving": "A linha do tempo aparecerá após salvar",
         "assignToPlaceholder": "Pesquisar usuários...",
         "unassignUser": "Remover atribuição",
-        "noAssignedUser": "Atribuir a um usuário"
+        "noAssignedUser": "Atribuir a um usuário",
+        "statusDone": "Concluída",
+        "statusNotStarted": "Não iniciada",
+        "statusInProgress": "Em andamento",
+        "statusArchived": "Arquivada",
+        "statusWaiting": "Aguardando"
     },
     "projects": {
         "loading": "Carregando projetos...",
@@ -1605,7 +1659,12 @@
         "deleteNoteAria": "Excluir {{title}}",
         "projectFilter": {
             "searchPlaceholder": "Pesquisar projetos..."
-        }
+        },
+        "toggleDropdownMenu": "Alternar menu suspenso",
+        "deleteNoteConfirm": "Tem certeza de que deseja excluir a nota \"{{title}}\"?",
+        "createError": "Falha ao criar a nota.",
+        "updateError": "Falha ao atualizar a nota.",
+        "deleteError": "Falha ao excluir a nota."
     },
     "tags": {
         "loading": "Carregando tags...",
@@ -1654,7 +1713,12 @@
         "removeTagAria": "Remover tag {{tag}}",
         "projectFilter": {
             "searchPlaceholder": "Pesquisar projetos..."
-        }
+        },
+        "deleteTagConfirm": "Tem certeza de que deseja excluir a tag \"{{name}}\"?",
+        "removeTag": "Remover tag {{tag}}",
+        "createTagNamed": "Criar \"{{name}}\"",
+        "createError": "Falha ao criar a tag.",
+        "updateError": "Falha ao atualizar a tag."
     },
     "recurrence": {
         "none": "Nenhum",
@@ -1963,7 +2027,8 @@
         "noItemsMatchCriteria": "Nenhum item encontrado com os critérios da visão",
         "noSavedViews": "Nenhuma visualização salva",
         "addError": "Falha ao criar visualização",
-        "deleteError": "Falha ao excluir visualização"
+        "deleteError": "Falha ao excluir visualização",
+        "viewSavedSuccessfully": "Visualização salva com sucesso!"
     },
     "search": {
         "placeholder": "Pesquisar ou digite ? para ajuda...",
@@ -2128,7 +2193,8 @@
         "backupVersion": "Versão do backup",
         "restoreButton": "Restaurar",
         "delete": "Excluir",
-        "validationFailed": "Falha na validação"
+        "validationFailed": "Falha na validação",
+        "listError": "Falha ao listar backups."
     },
     "notifications": {
         "table": {
@@ -2442,7 +2508,8 @@
     "viewDetail": {
         "deleteError": "Falha ao excluir visualização",
         "searchPlaceholder": "Pesquisar nesta visualização...",
-        "addTaskAria": "Adicionar tarefa à visualização"
+        "addTaskAria": "Adicionar tarefa à visualização",
+        "loading": "Carregando visualização..."
     },
     "apiKeys": {
         "createError": "Falha ao criar chave de API",
@@ -2461,7 +2528,9 @@
         "syncError": "Falha na sincronização",
         "syncStatusError": "Falha ao buscar status de sincronização",
         "conflictsError": "Falha ao buscar conflitos",
-        "resolveError": "Falha ao resolver conflito"
+        "resolveError": "Falha ao resolver conflito",
+        "fetchError": "Falha ao buscar calendários",
+        "fetchOneError": "Falha ao buscar o calendário"
     },
     "suggestions": {
         "reasons": {
@@ -2484,5 +2553,14 @@
     },
     "timezones": {
         "noResults": "Nenhum fuso horário encontrado para \"{{query}}\""
+    },
+    "taskDetails": {
+        "attachments": {
+            "uploadError": "Falha ao enviar o anexo",
+            "fetchError": "Falha ao buscar anexos",
+            "deleteError": "Falha ao excluir o anexo",
+            "sizeLimitExceeded": "O tamanho do arquivo excede o limite de {{limit}}MB",
+            "fileTypeNotAllowed": "Tipo de arquivo não permitido"
+        }
     }
 }

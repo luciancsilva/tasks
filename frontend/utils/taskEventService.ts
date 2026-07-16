@@ -49,7 +49,8 @@ export const getTaskCompletionTime = async (
         throw new Error(
             i18n.t(
                 'errors.fetchTaskCompletionTimeError',
-                `Failed to fetch task completion time: ${response.statusText}`
+                `Failed to fetch task completion time: ${response.statusText}`,
+                { status: response.statusText }
             )
         );
     }
@@ -80,7 +81,8 @@ export const getUserProductivityMetrics = async (
         throw new Error(
             i18n.t(
                 'errors.fetchProductivityMetricsError',
-                `Failed to fetch productivity metrics: ${response.statusText}`
+                `Failed to fetch productivity metrics: ${response.statusText}`,
+                { status: response.statusText }
             )
         );
     }
@@ -111,7 +113,8 @@ export const getUserActivitySummary = async (
         throw new Error(
             i18n.t(
                 'errors.fetchActivitySummaryError',
-                `Failed to fetch activity summary: ${response.statusText}`
+                `Failed to fetch activity summary: ${response.statusText}`,
+                { status: response.statusText }
             )
         );
     }
@@ -146,7 +149,8 @@ export const getCompletionAnalytics = async (
         throw new Error(
             i18n.t(
                 'errors.fetchCompletionAnalyticsError',
-                `Failed to fetch completion analytics: ${response.statusText}`
+                `Failed to fetch completion analytics: ${response.statusText}`,
+                { status: response.statusText }
             )
         );
     }

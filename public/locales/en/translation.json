@@ -100,7 +100,15 @@
         "select": "Select...",
         "dateTimeAt": "{{date}} at {{time}}",
         "loadingApplication": "Loading application... Please wait.",
-        "loadingPreview": "Loading preview..."
+        "loadingPreview": "Loading preview...",
+        "saved": "Saved",
+        "unsavedChanges": "Unsaved changes",
+        "restore": "Restored",
+        "priority": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High"
+        }
     },
     "sidebar": {
         "dashboard": "Dashboard",
@@ -769,7 +777,11 @@
             "testMessageError": "Failed to send test message."
         },
         "taskSummaryToggleError": "Failed to toggle task summary.",
-        "updateFrequencyError": "Failed to update task summary frequency."
+        "updateFrequencyError": "Failed to update task summary frequency.",
+        "fetchSchedulerStatusError": "Failed to fetch scheduler status.",
+        "fetchPollingStatusError": "Failed to fetch polling status.",
+        "sendTestMessageError": "Failed to send test message.",
+        "toggleTaskSummaryError": "Failed to toggle task summary."
     },
     "productivity": {
         "stalledProjects": "Stalled Projects",
@@ -957,7 +969,10 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "registerError": "Registration failed",
         "passwordPlaceholder": "Minimum 8 characters",
-        "logoutError": "Failed to logout"
+        "logoutError": "Failed to logout",
+        "unlinkError": "Failed to unlink account",
+        "linkInitError": "Failed to initiate account linking",
+        "required": "Authentication required"
     },
     "dropdown": {
         "createNew": "Create New",
@@ -1067,7 +1082,41 @@
         "failedToLoadUsers": "Failed to load users",
         "failedToLoadShares": "Failed to load shares",
         "fetchError": "An error occurred while fetching the data.",
-        "requestFailed": "Request failed"
+        "requestFailed": "Request failed",
+        "failedToDeleteNote": "Failed to delete note.",
+        "loadMcpTools": "Failed to load MCP tools",
+        "imageUrlMissing": "Image URL missing from upload response",
+        "projectNameTooLong": "Project name must be {{max}} characters or less",
+        "failedToDeleteProject": "Failed to delete project.",
+        "failedToSaveView": "Failed to save view",
+        "fetchConfigError": "Failed to fetch server configuration",
+        "fetchCsrfTokenError": "Failed to fetch CSRF token",
+        "fetchGoalsError": "Failed to fetch goals.",
+        "createGoalError": "Failed to create goal.",
+        "updateGoalError": "Failed to update goal.",
+        "deleteGoalError": "Failed to delete goal.",
+        "invalidProjectUid": "Cannot delete project: Invalid project UID",
+        "projectDeleteFailedWithStatus": "Failed to delete project: {{status}} - {{errorText}}",
+        "shareError": "Failed to share resource",
+        "revokeShareError": "Failed to revoke share",
+        "uidRequired": "UID is required",
+        "projectUidRequired": "Project uid is required",
+        "noteUidRequired": "Note uid is required",
+        "tagUidRequired": "Tag uid is required",
+        "fetchTaskCompletionTimeError": "Failed to fetch task completion time: {{status}}",
+        "fetchProductivityMetricsError": "Failed to fetch productivity metrics: {{status}}",
+        "fetchActivitySummaryError": "Failed to fetch activity summary: {{status}}",
+        "fetchCompletionAnalyticsError": "Failed to fetch completion analytics: {{status}}",
+        "fetchMetricsError": "Failed to fetch metrics.",
+        "tasksNotArray": "Resulting tasks are not an array.",
+        "taskCreationFailed": "Failed to create task.",
+        "taskSaveFailed": "Failed to update task.",
+        "taskDeletionFailed": "Failed to delete task.",
+        "failedToLoadTask": "Failed to fetch task.",
+        "fetchSubtasksError": "Failed to fetch subtasks.",
+        "fetchTaskIterationsError": "Failed to fetch task iterations.",
+        "extractUrlTitleError": "Failed to extract URL title",
+        "extractTitleFromTextError": "Failed to extract title from text"
     },
     "inbox": {
         "title": "Inbox",
@@ -1337,7 +1386,12 @@
         "timelineAfterSaving": "Timeline will appear after saving",
         "assignToPlaceholder": "Search users...",
         "unassignUser": "Remove assignment",
-        "noAssignedUser": "Assign to a user"
+        "noAssignedUser": "Assign to a user",
+        "statusDone": "Completed",
+        "statusNotStarted": "Not Started",
+        "statusInProgress": "In Progress",
+        "statusArchived": "Archived",
+        "statusWaiting": "Waiting"
     },
     "subtasks": {
         "placeholder": "Add a subtask...",
@@ -1548,7 +1602,12 @@
         "deleteNoteAria": "Delete {{title}}",
         "projectFilter": {
             "searchPlaceholder": "Search projects..."
-        }
+        },
+        "toggleDropdownMenu": "Toggle dropdown menu",
+        "deleteNoteConfirm": "Are you sure you want to delete the note \"{{title}}\"?",
+        "createError": "Failed to create note.",
+        "updateError": "Failed to update note.",
+        "deleteError": "Failed to delete note."
     },
     "tags": {
         "loading": "Loading tags...",
@@ -1597,7 +1656,12 @@
         "removeTagAria": "Remove tag {{tag}}",
         "projectFilter": {
             "searchPlaceholder": "Search projects..."
-        }
+        },
+        "deleteTagConfirm": "Are you sure you want to delete the tag \"{{name}}\"?",
+        "removeTag": "Remove tag {{tag}}",
+        "createTagNamed": "Create \"{{name}}\"",
+        "createError": "Failed to create tag.",
+        "updateError": "Failed to update tag."
     },
     "habits": {
         "title": "Habits",
@@ -2014,7 +2078,8 @@
         "noItemsMatchCriteria": "No items found matching the view criteria",
         "noSavedViews": "No saved views",
         "addError": "Failed to create view",
-        "deleteError": "Failed to delete view"
+        "deleteError": "Failed to delete view",
+        "viewSavedSuccessfully": "View saved successfully!"
     },
     "search": {
         "placeholder": "Search or type ? for help...",
@@ -2169,7 +2234,8 @@
         "versionIncompatible": "Version Incompatible",
         "backupVersion": "Backup version",
         "delete": "Delete",
-        "validationFailed": "Validation failed"
+        "validationFailed": "Validation failed",
+        "listError": "Failed to list backups."
     },
     "notifications": {
         "table": {
@@ -2345,7 +2411,8 @@
     "viewDetail": {
         "deleteError": "Failed to delete view",
         "searchPlaceholder": "Search within this view...",
-        "addTaskAria": "Add task to view"
+        "addTaskAria": "Add task to view",
+        "loading": "Loading view..."
     },
     "apiKeys": {
         "createError": "Failed to create API key",
@@ -2364,7 +2431,9 @@
         "syncError": "Sync failed",
         "syncStatusError": "Failed to fetch sync status",
         "conflictsError": "Failed to fetch conflicts",
-        "resolveError": "Failed to resolve conflict"
+        "resolveError": "Failed to resolve conflict",
+        "fetchError": "Failed to fetch calendars",
+        "fetchOneError": "Failed to fetch calendar"
     },
     "suggestions": {
         "reasons": {
@@ -2387,5 +2456,14 @@
     },
     "timezones": {
         "noResults": "No timezones found matching \"{{query}}\""
+    },
+    "taskDetails": {
+        "attachments": {
+            "uploadError": "Failed to upload attachment",
+            "fetchError": "Failed to fetch attachments",
+            "deleteError": "Failed to delete attachment",
+            "sizeLimitExceeded": "File size exceeds {{limit}}MB limit",
+            "fileTypeNotAllowed": "File type not allowed"
+        }
     }
 }

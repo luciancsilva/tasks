@@ -298,7 +298,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             setError(
                 t(
                     'errors.projectNameTooLong',
-                    `Project name must be ${MAX_LENGTH} characters or less`
+                    `Project name must be ${MAX_LENGTH} characters or less`,
+                    { max: MAX_LENGTH }
                 )
             );
             return;
