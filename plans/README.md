@@ -5,7 +5,9 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 
 ## Instruções ao agente — COMECE AQUI
 
-Se você recebeu apenas "leia plans/README.md e siga as instruções":
+**Ler este arquivo É a instrução de trabalho.** Se o usuário só mandou
+"read the @plans/README.md" (ou equivalente), não espere mais contexto:
+siga os passos abaixo imediatamente.
 
 1. Leia este arquivo inteiro e o `CLAUDE.md` da raiz.
 2. Liste ao usuário os planos com status **Aberto** (tabela "Estado atual"
