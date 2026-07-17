@@ -126,9 +126,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-| Esforço | Arquivo | O quê | Depende de |
-|---|---|---|---|
-| Baixo | `21-inbox-mention-cleanup-ascii-regex.md` | `@pessoa` acentuada deixa resto no título ao criar tarefa/nota pelo Inbox (fallback de limpeza usa regex ASCII-only) | - |
+*(nenhum plano aberto)*
 
 ### Prioridade BAIXA
 
@@ -147,6 +145,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `21-inbox-mention-cleanup-ascii-regex.md` | `@pessoa` acentuada deixa resto no título ao criar tarefa/nota pelo Inbox (limpeza por token inteiro) | EXECUTADO (2026-07-17) |
 | `19l-caldav-delete-missing-method.md` | `SyncStateRepository.deleteByTaskId` não existe — sync de deleção CalDAV lança `TypeError` em runtime (merge/push-phase) | EXECUTADO (2026-07-17) |
 | `22-frontend-jest-esm-transform-remark-breaks.md` | Baseline `frontend:test` vermelha: `remark-breaks` (ESM) quebra o Jest, sem mudança de código | EXECUTADO (2026-07-17) |
 | `01-r2-cover-cleanup.md` | Capa de projeto órfã no R2 | EXECUTADO (`b707dce`) |

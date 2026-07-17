@@ -111,6 +111,74 @@ const extractFirstUrlFromText = (text: string): string | null => {
     return null;
 };
 
+export const tokenizeQuickCaptureText = (text: string): string[] => {
+    const MAX_TEXT_LENGTH = 10000;
+    const tokens: string[] = [];
+    let currentToken = '';
+    let inQuotes = false;
+    let i = 0;
+
+    const textLength = Math.min(text.length, MAX_TEXT_LENGTH);
+
+    while (i < textLength) {
+        const char = text[i];
+
+        if (
+            char === '"' &&
+            (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+        ) {
+            inQuotes = true;
+            currentToken += char;
+        } else if (char === '"' && inQuotes) {
+            inQuotes = false;
+            currentToken += char;
+        } else if (/\s/.test(char) && !inQuotes) {
+            if (currentToken) {
+                tokens.push(currentToken);
+                currentToken = '';
+            }
+        } else {
+            currentToken += char;
+        }
+        i++;
+    }
+
+    if (currentToken) {
+        tokens.push(currentToken);
+    }
+
+    return tokens;
+};
+
+export const cleanQuickCaptureText = (text: string): string => {
+    const trimmedText = text.trim();
+    const tokens = tokenizeQuickCaptureText(trimmedText);
+    const cleanedTokens: string[] = [];
+
+    let i = 0;
+    while (i < tokens.length) {
+        if (
+            tokens[i].startsWith('#') ||
+            tokens[i].startsWith('+') ||
+            tokens[i].startsWith('@')
+        ) {
+            while (
+                i < tokens.length &&
+                (tokens[i].startsWith('#') ||
+                    tokens[i].startsWith('+') ||
+                    tokens[i].startsWith('@'))
+            ) {
+                i++;
+            }
+        } else {
+            cleanedTokens.push(tokens[i]);
+            i++;
+        }
+    }
+
+    return cleanedTokens.join(' ').trim();
+};
+
 const QuickCaptureInput = React.forwardRef<
     QuickCaptureInputHandle,
     QuickCaptureInputProps
@@ -1032,16 +1100,11 @@ const QuickCaptureInput = React.forwardRef<
         };
 
         const getCleanedContent = (text: string): string => {
-            if (analysisResult && lastAnalyzedTextRef.current === text) {
+            if (analysisResult && lastAnalyzedTextRef.current === text.trim()) {
                 return analysisResult.cleaned_content;
             }
 
-            return text
-                .replace(/#[a-zA-Z0-9_-]+/g, '')
-                .replace(/@"[^"]*"/g, '')
-                .replace(/@[a-zA-Z0-9_-]+/g, '')
-                .replace(/\+\S+/g, '')
-                .trim();
+            return cleanQuickCaptureText(text);
         };
 
         const buildTagObjects = (hashtagNames: string[]) => {
@@ -1136,7 +1199,7 @@ const QuickCaptureInput = React.forwardRef<
                     if (response.ok) {
                         const result = await response.json();
                         setAnalysisResult(result);
-                        lastAnalyzedTextRef.current = text;
+                        lastAnalyzedTextRef.current = text.trim();
                     } else {
                         console.error(
                             'Failed to analyze text:',
