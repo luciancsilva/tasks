@@ -188,14 +188,22 @@ e a camada D1 morta pelos `09a`/`09b`.
    (`fix:`/`feat:`/`refactor:`/`docs:`), corpo citando o plano (ex.: "Implements
    plans/10a"). Sem emojis, sem `Co-authored-by` (preferências em
    `docs/MEMORY.md`). **Commit sim, push não** — ver Armadilhas.
-6. **Encerramento**, no mesmo commit:
+6. **Branch**: cada plano declara no banner onde trabalhar. Regra geral:
+   **correção e documentação vão direto na `main`** (local; push continua
+   proibido sem autorização); **feature nova vai em branch própria**
+   (`feat/NN-...`), criada a partir da `main`, **sem merge** — o dono valida a
+   feature na branch e decide se mantém. Motivo: o Docker builda da `main` do
+   GitHub, então a `main` precisa estar sempre em estado pushável; feature
+   não validada não pode ficar no caminho de um push urgente de correção.
+   Plano sem indicação de branch = `main` direto.
+7. **Encerramento**, no mesmo commit:
    - banner no topo do plano, neste formato:
      ```
      > **Status: EXECUTADO** em AAAA-MM-DD — <o que foi feito, 1-2 linhas>.
      ```
    - mover a linha do plano para a tabela "Executados" deste README;
    - se o plano tinha itens e sobrou algum, remover só os itens feitos.
-7. **Bloqueio**: só interromper por decisão que exige o dono do repositório
+8. **Bloqueio**: só interromper por decisão que exige o dono do repositório
    (credencial, escolha de produto, mudança de API pública). O resto: decidir
    pelo padrão já documentado e registrar o desvio no commit/resumo.
 

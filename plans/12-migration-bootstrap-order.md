@@ -1,5 +1,7 @@
 # 12 — Migration fora de ordem quebra o bootstrap por migrations
 
+> **Branch: `main` direto** (correção)
+
 Regras de execução: `plans/README.md`. Achado durante a revisão de documentação
 de 2026-07-17, ao validar se `db:migrate` servia como comando de setup (não serve).
 

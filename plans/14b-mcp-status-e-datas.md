@@ -3,7 +3,8 @@
 > **Prioridade: ALTA** (o MCP seta/filtra o status errado hoje) —
 > **Esforço: médio** — **Julgamento: não exige** (a semântica está definida
 > abaixo; não invente) — **Depende de: nada** (independente do 14a; tocam o
-> mesmo arquivo, executar em sequência se ambos abertos)
+> mesmo arquivo, executar em sequência se ambos abertos) —
+> **Branch: `main` direto** (correção)
 
 ## Contexto
 

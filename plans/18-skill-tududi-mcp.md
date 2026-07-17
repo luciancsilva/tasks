@@ -2,7 +2,7 @@
 
 > **Prioridade: BAIXA** — **Esforço: baixo** — **Julgamento: não exige** —
 > **Depende de: 14a/14b apenas para ATUALIZAR a skill** (a v1 já documenta os
-> bugs atuais como armadilha)
+> bugs atuais como armadilha) — **Branch: `main` direto** (doc/skill)
 
 ## Contexto
 

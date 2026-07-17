@@ -3,7 +3,12 @@
 > **Prioridade: BAIXA por risco, ALTA por valor** (é o gap que impede replicar
 > o fluxo GTD do TickTick) — **Esforço: médio** — **Julgamento: pouco** (a
 > semântica está definida; dúvidas de UI seguem o padrão existente) —
-> **Depende de: nada** (14b recomendado antes, para o MCP enxergar `waiting`)
+> **Depende de: nada** (14b recomendado antes, para o MCP enxergar `waiting`) —
+> **Branch: criar `feat/16-views-gtd` a partir da `main`** (feature nova).
+> Todos os commits deste plano vão na branch; **NÃO fazer merge na `main`** —
+> o dono valida a feature rodando `npm start` na branch e decide se mantém.
+> Encerramento (banner EXECUTADO + tabela do README) também fica na branch,
+> junto do último commit.
 
 ## Contexto
 

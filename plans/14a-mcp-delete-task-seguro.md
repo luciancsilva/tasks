@@ -2,7 +2,7 @@
 
 > **Prioridade: ALTA** (perda de dados: anexos órfãos no R2 + histórico de
 > recorrência destruído) — **Esforço: baixo** — **Julgamento: não exige** —
-> **Depende de: nada**
+> **Depende de: nada** — **Branch: `main` direto** (correção)
 
 ## Contexto
 

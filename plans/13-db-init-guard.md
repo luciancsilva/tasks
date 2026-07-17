@@ -1,7 +1,8 @@
 # 13 — Guarda genérica contra wipe no `db-init`
 
 > **Prioridade: ALTA** (risco de perda de dados) — **Esforço: baixo** —
-> **Julgamento: não exige** (mecânico) — **Depende de: nada**
+> **Julgamento: não exige** (mecânico) — **Depende de: nada** —
+> **Branch: `main` direto** (correção)
 
 ## Contexto
 

@@ -1,7 +1,8 @@
 # 15 — Retenção de snapshot por ambiente
 
 > **Prioridade: BAIXA** (só morde se dois ambientes dividirem o mesmo bucket)
-> — **Esforço: baixo** — **Julgamento: não exige** — **Depende de: nada**
+> — **Esforço: baixo** — **Julgamento: não exige** — **Depende de: nada** —
+> **Branch: `main` direto** (correção)
 
 ## Contexto
 

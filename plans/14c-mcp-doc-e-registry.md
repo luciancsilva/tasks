@@ -2,7 +2,8 @@
 
 > **Prioridade: BAIXA** (doc/consistência; nenhum dado em risco) —
 > **Esforço: médio** — **Julgamento: não exige** — **Depende de: 14a e 14b**
-> (a doc deve descrever o comportamento pós-fix, não o bugado)
+> (a doc deve descrever o comportamento pós-fix, não o bugado) —
+> **Branch: `main` direto** (doc + consistência interna, sem feature)
 
 ## Contexto
 

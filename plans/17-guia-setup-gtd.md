@@ -1,8 +1,9 @@
 # 17 — Guia de setup GTD no tududi (documentação, sem código)
 
 > **Prioridade: BAIXA** — **Esforço: baixo** — **Julgamento: não exige**
-> (o conteúdo está especificado abaixo) — **Depende de: 16** (as views de
-> status/pessoa precisam existir para o guia ser executável)
+> (o conteúdo está especificado abaixo) — **Depende de: 16 JÁ MERGEADO na
+> `main` pelo dono** (as views de status/pessoa precisam existir; se o 16 for
+> descartado, este plano morre junto) — **Branch: `main` direto** (doc)
 
 ## Contexto
 
