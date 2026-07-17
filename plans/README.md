@@ -118,6 +118,14 @@ só os arquivos que você tocou, individualmente.
 
 Dentro de cada prioridade, do menor para o maior esforço.
 
+### Prioridade ALTA
+
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Baixo | `13-db-init-guard.md` | Guarda genérica contra `db:init` em banco existente (a guarda do D1 morreu com o D1) | — |
+| Baixo | `14a-mcp-delete-task-seguro.md` | MCP `delete_task` orfana anexos no R2 e apaga histórico de recorrência | — |
+| Médio | `14b-mcp-status-e-datas.md` | MCP: enum de status errado (archived↔planned), `waiting` inacessível, today/upcoming sem filtro de data | — |
+
 ### Prioridade MÉDIA
 
 | Esforço | Arquivo | O quê | Depende de |
@@ -126,7 +134,13 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade BAIXA
 
-Nada aberto.
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Baixo | `15-backup-prune-por-ambiente.md` | Retenção de snapshot mistura ambientes no prune | — |
+| Baixo | `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` (instalação é do dono) | 14a, 14b (só p/ atualizar) |
+| Baixo | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | 16 |
+| Médio | `16-views-gtd-status-pessoa.md` | Views por status de tarefa (waiting) e por pessoa — "Aguardando"/"Delegadas" (valor ALTO p/ GTD) | — (14b recomendado antes) |
+| Médio | `14c-mcp-doc-e-registry.md` | Doc do MCP (16→44 tools) e `listMcpTools` derivado do registry | 14a, 14b |
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
 registro, não trabalho.
