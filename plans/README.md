@@ -3,6 +3,10 @@
 Diretório de planos de implementação deste fork. Serve tanto para humanos quanto
 para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 
+Os planos são escritos para serem executados **por um agente que não conhece o
+repo**. Cada um traz seu próprio contexto, referências `arquivo:linha` e critério
+de pronto. Este README traz o que vale para todos.
+
 ## Instruções ao agente — COMECE AQUI
 
 **Ler este arquivo É a instrução de trabalho.** Se o usuário só mandou
@@ -10,55 +14,125 @@ para agentes de IA (Claude Code, etc.) que forem executar trabalho aqui.
 siga os passos abaixo imediatamente.
 
 1. Leia este arquivo inteiro e o `CLAUDE.md` da raiz.
-2. Liste ao usuário os planos **Abertos** (tabela abaixo) com uma linha de
-   descrição cada e **pergunte em qual plano (ou item de plano) vai trabalhar** —
-   não escolha sozinho.
-3. Confirmado o plano, execute-o do início ao fim **sem pausar para pedir
-   aprovação entre etapas**, seguindo as "Regras para o agente executor"
-   abaixo (baseline de testes → implementação → testes/lint → um commit por
-   item citando o plano → marcar EXECUTADO/atualizar tabelas).
-4. Só interrompa por decisão que apenas o dono do repositório pode tomar
+2. Liste ao usuário os planos **Abertos** (tabelas abaixo) com uma linha de
+   descrição cada e **pergunte em qual plano vai trabalhar** — não escolha
+   sozinho. Se o usuário já nomeou o plano, pule esta etapa.
+3. Confirme as **dependências** do plano escolhido (coluna "Depende de"). Plano
+   com dependência aberta não deve ser executado antes dela.
+4. Execute o plano do início ao fim **sem pausar para pedir aprovação entre
+   etapas**: baseline de testes → implementação → testes/lint → commit citando o
+   plano → marcar EXECUTADO e atualizar as tabelas deste README.
+5. Só interrompa por decisão que apenas o dono do repositório pode tomar
    (credencial, escolha de produto, mudança de API pública).
-5. Ao final, entregue resumo: o que foi feito, resultado dos testes, desvios.
-6. Antes de qualquer comando fora de `NODE_ENV=test`, leia os "Avisos
-   permanentes".
+6. Ao final, entregue resumo: o que foi feito, resultado dos testes, desvios.
+
+## ⚠️ Armadilhas — leia antes de rodar qualquer comando
+
+Cada uma destas já causou estrago real ou daria falso positivo:
+
+1. **`npm run db:init` e `npm run db:reset` DESTROEM o banco.** São
+   `sequelize.sync({ force: true })` = DROP de todas as tabelas. **Nunca** rode
+   para "preparar o ambiente" — foi exatamente esse comando, disparado
+   automaticamente no boot, que zerou o banco de produção duas vezes em
+   2026-07-16/17 (`09a-d1-code-removal.md` §Registro). Para inspecionar o banco
+   use `npm run db:status`.
+2. **`docker compose up --build` NÃO testa seu código local.** O
+   `docker-compose.yml` builda de
+   `context: https://github.com/luciancsilva/tasks.git#main` — ou seja, o
+   container roda a `main` do GitHub, não o working tree. Smoke test de mudança
+   local é com `npm start` (frontend :8080, backend :3002). Só use o compose para
+   validar algo que já está na `main`.
+3. **`NODE_ENV=test` é o único seguro por construção.** Comando com
+   `NODE_ENV=development|production` toca o banco real do checkout. A suíte Jest
+   pode rodar à vontade.
+4. **Nunca commitar segredo.** `.env` e `AGENTS.md` são gitignored (AGENTS.md
+   existe só neste checkout). Se um plano pedir mudança no `.env`, avise o dono —
+   não tente versionar.
+5. **Não faça `git push` sem autorização explícita** do dono. Commit local sim,
+   push não. A `main` é o que o Docker builda: publicar ali afeta o ambiente dele.
+
+## Comandos
+
+Da **raiz** do repo:
+
+```bash
+npm run backend:test          # suíte backend inteira (NODE_ENV=test)
+npm run backend:test:unit     # só tests/unit
+npm run frontend:test         # suíte frontend
+npm run db:status             # inspecionar o banco (seguro, só lê)
+npm start                     # sobe a app local: frontend :8080, backend :3002
+```
+
+De dentro de `backend/` (para o que é pontual):
+
+```bash
+npx cross-env NODE_ENV=test npx jest tests/unit/foo.test.js   # um arquivo de teste
+npx eslint caminho/do/arquivo.js                              # lint de um arquivo
+npx eslint --fix caminho/do/arquivo.js                        # corrige formatação
+```
+
+**Não rode `npm run backend:lint` (lint global)**: em checkout Windows ele falha
+com milhares de `Delete ␍` (CRLF) — ruído pré-existente, não é seu bug. Linte
+só os arquivos que você tocou, individualmente.
 
 ## Racional
 
 - **Um plano = uma unidade de trabalho commitável.** Cada arquivo descreve algo
-  que pode ser implementado, testado e commitado de forma independente.
+  que pode ser implementado, testado e commitado de forma independente. Planos
+  grandes são quebrados em menores (`10a`, `10b`, ...) para que cada pedaço seja
+  executável isoladamente.
 - **Planos citam código real** (`arquivo:linha`), nunca generalidades — o agente
   executor não deve precisar re-investigar o que o plano já investigou, apenas
   validar que as referências continuam verdadeiras.
 - **Ciclo de vida**: proposto → executado → **marcado como EXECUTADO** (banner
-  no topo com o commit da implementação) e mantido como registro de decisão.
-  Saem do diretório: planos descartados, consumidos sem valor de registro
-  (ex.: prompts de planejamento) e **planos de tecnologia removida do código** —
-  nesse caso a história e a decisão ficam registradas no plano de remoção
-  (exceção aplicada em 2026-07-17 ao remover o Cloudflare D1, ver `09`).
-  Conteúdo permanente vira doc em `/docs`.
-- **Numeração**: prefixo `NN-` é **identidade, não posição** — mensagens de
+  no topo) e mantido como registro de decisão. Saem do diretório: planos
+  descartados, consumidos sem valor de registro (ex.: prompts de planejamento) e
+  **planos de tecnologia removida do código** — nesse caso a história e a decisão
+  ficam registradas no plano de remoção (exceção aplicada em 2026-07-17 ao
+  remover o Cloudflare D1, ver `09a`).
+- **Numeração**: o prefixo `NN-` é **identidade, não posição** — mensagens de
   commit citam o plano pelo número ("Implements plans/05b ME-1"), então um número
   aponta para sempre ao mesmo trabalho. **Números não são reciclados**: buracos
   na sequência (hoje 04, 07, 08) são planos removidos, e reusá-los faria um
-  commit antigo apontar para um plano que não é o dele. Sufixos de letra
-  (`05a`, `05b`) agrupam segregações de um mesmo levantamento. Ordem de execução
-  é a das tabelas abaixo, não a do número.
+  commit antigo apontar para o plano errado. Sufixos de letra agrupam
+  segregações de um mesmo trabalho. **A ordem de execução é a das tabelas
+  abaixo, não a do número.**
 
 ## Estado atual
 
-### Abertos — por esforço
+**Prioridade** é risco, não gosto:
+- **Alta** — risco de perda de dados ou de indisponibilidade.
+- **Média** — dívida que já causou incidente, ou que bloqueia trabalho futuro.
+- **Baixa** — qualidade e consistência, sem risco imediato.
 
-| Esforço | Arquivo | O quê |
-|---|---|---|
-| Baixo | `11-backup-dir-volume.md` | Backup lógico grava em diretório efêmero (`/app/backend/backups`, fora de volume) |
-| Médio | `09-d1-removal.md` | Remover a camada de dados Cloudflare D1 do código (~500 linhas + wiring) |
-| Médio | `10-db-backup-r2.md` | Snapshot periódico do SQLite no R2 (disaster recovery offsite) |
-| Médio | `06-docs-update.md` | Atualização integral do `/docs` |
-| Alto | `05c-high-effort.md` | 2 itens estruturais: extrair service/controller do tasks (HE-1), cobertura de testes frontend (HE-2) |
-| — | `05-future-improvements.md` | Índice do levantamento de melhorias (não é trabalho; aponta os 05x) |
+Dentro de cada prioridade, do menor para o maior esforço.
 
-### Executados — registro de decisão
+### Prioridade ALTA — não há backup offsite; uma perda do host perde tudo
+
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Baixo | `10a-r2-put-and-list.md` | `r2Service`: subir arquivo do disco + listar objetos (2 funções + testes) | — |
+| Baixo | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | `10b` |
+| Baixo | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | `10b`, `10c` |
+| Baixo | `11-backup-dir-volume.md` | Backup lógico grava em diretório efêmero (fora de volume) | — |
+| Médio | `10b-db-snapshot-service.md` | `createSnapshot()`: VACUUM INTO + upload + retenção | `10a` |
+
+### Prioridade MÉDIA — código morto que já mordeu uma vez
+
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Baixo | `09b-d1-docs-cleanup.md` | Tirar D1 do `CLAUDE.md` e do `README.md` | `09a` |
+| Médio | `09a-d1-code-removal.md` | Remover driver, wiring e env vars do D1 (~500 linhas) | — |
+| Médio | `06-docs-update.md` | Atualização integral do `/docs` (validar o que já foi feito) | — |
+
+### Prioridade BAIXA — estrutural
+
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Alto | `05c-high-effort.md` | HE-1 extrair service/controller do tasks; HE-2 cobertura de testes frontend | — |
+| — | `05-future-improvements.md` | Índice do levantamento (não é trabalho; aponta os `05x`) | — |
+
+### Executados — registro de decisão, não mexer
 
 | Arquivo | O quê | Status |
 |---|---|---|
@@ -70,57 +144,49 @@ siga os passos abaixo imediatamente.
 
 ## Regras para o agente executor
 
-1. **Antes de começar**: ler `CLAUDE.md` (aponta os docs de arquitetura e
-   convenções) e o plano inteiro. Validar as referências `arquivo:linha` do
-   plano contra o código atual — se divergirem muito, atualizar o plano antes
-   de implementar.
-2. **Baseline**: rodar `npm run backend:test` antes de qualquer mudança e
-   registrar o resultado. Suíte vermelha na baseline = parar e reportar.
+1. **Antes de começar**: ler `CLAUDE.md` e o plano inteiro. Validar as
+   referências `arquivo:linha` do plano contra o código atual — elas envelhecem.
+   Se divergirem muito, **atualizar o plano antes de implementar** e dizer isso
+   no resumo.
+2. **Baseline**: rodar `npm run backend:test` **antes** de qualquer mudança e
+   registrar o resultado. Suíte vermelha na baseline = parar e reportar; não é
+   você que quebrou.
 3. **Escopo**: implementar somente o que o plano descreve. Descoberta nova no
-   caminho vira plano novo (ou item num subplan `05x` **aberto**), não scope
-   creep — e nunca item novo em plano já EXECUTADO, que o reabriria.
-4. **Testes**: toda mudança de comportamento ganha teste de integração seguindo
-   os padrões existentes (`backend/tests/integration/`, mock R2 via
-   `aws-sdk-client-mock`, ver `task-attachments.test.js`). Rodar a suíte
-   completa + lint dos arquivos tocados antes do commit.
-5. **Commit**: um commit por plano (ou por item, nos subplans 05x), mensagem
-   convencional (`fix:`/`feat:`/`refactor:`), corpo citando o plano
-   (ex.: "Implements plans/05b ME-1"). Sem emojis, sem `Co-authored-by`
-   (preferências em `docs/MEMORY.md`).
-6. **Encerramento**: remover do plano o item executado (ou o arquivo inteiro,
-   se esgotado) no mesmo commit; atualizar o índice `05-future-improvements.md`
-   e as tabelas "Estado atual" deste README.
+   caminho vira **plano novo**, não scope creep — e nunca item novo em plano já
+   EXECUTADO, que o reabriria.
+4. **Testes**: toda mudança de comportamento ganha teste seguindo os padrões
+   existentes (`backend/tests/integration/`, mock R2 via `aws-sdk-client-mock`,
+   ver `task-attachments.test.js`). Suíte completa + lint dos arquivos tocados
+   antes do commit.
+5. **Commit**: um commit por plano, mensagem convencional
+   (`fix:`/`feat:`/`refactor:`/`docs:`), corpo citando o plano (ex.: "Implements
+   plans/10a"). Sem emojis, sem `Co-authored-by` (preferências em
+   `docs/MEMORY.md`). **Commit sim, push não** — ver Armadilhas.
+6. **Encerramento**, no mesmo commit:
+   - banner no topo do plano, neste formato:
+     ```
+     > **Status: EXECUTADO** em AAAA-MM-DD — <o que foi feito, 1-2 linhas>.
+     ```
+   - mover a linha do plano para a tabela "Executados" deste README;
+   - se o plano tinha itens e sobrou algum, remover só os itens feitos.
 7. **Bloqueio**: só interromper por decisão que exige o dono do repositório
    (credencial, escolha de produto, mudança de API pública). O resto: decidir
    pelo padrão já documentado e registrar o desvio no commit/resumo.
 
-## Ordem sugerida de execução (hoje)
-
-1. `09-d1-removal.md` — tira código morto do caminho; os planos abaixo mexem em
-   `config.js`/`models` e ficam mais simples sem os branches de D1.
-2. `11-backup-dir-volume.md` — quick win; o repo hoje não tem backup nenhum
-   confiável.
-3. `10-db-backup-r2.md` — disaster recovery de verdade (offsite).
-4. `06-docs-update.md` — docs alinhados antes das refatorações grandes; validar
-   antes o status real dos itens (parte parece já executada).
-5. `05c` — estruturais; HE-1 (módulo tasks) é o de maior risco no repo.
-
-## Avisos permanentes ao executor
+## Contexto permanente
 
 - **O banco é SQLite local**: `/app/db/production.sqlite3` no container, via
-  volume `tududi_db`. O Cloudflare D1 foi tentado e revertido em 2026-07-17
-  (latência inviável por REST + wipe recorrente); o código do driver ainda está
-  no repo até `09-d1-removal.md` ser executado, mas **desligado**
-  (`TUDUDI_DB_DRIVER=` vazio). Não religar sem ler o `09` §Registro.
-- **Nunca decidir "o banco existe?" por artefato local** (arquivo, volume, path)
-  se o banco for remoto — nenhum deles descreve um banco remoto. Essa confusão
-  zerou o banco de produção duas vezes em 2026-07-16/17 (`09` §Registro).
-- Lint global (`npm run backend:lint`) falha com milhares de `Delete ␍` em
-  checkout Windows (CRLF) — ruído pré-existente; lintar os arquivos tocados
-  individualmente e ignorar exclusivamente esse erro.
+  volume `tududi_db`. Em dev, `backend/db/development.sqlite3`. Roda em WAL.
+- **Cloudflare R2** guarda anexos, avatares, capas e branding
+  (`backend/services/r2Service.js`). **`CLOUDFLARE_ACCOUNT_ID` é usada pelo R2**
+  para montar o endpoint — não remover junto com o D1.
+- **O Cloudflare D1 foi tentado e revertido** em 2026-07-17: latência inviável
+  (1 round-trip HTTP por statement) e wipe recorrente do banco. O código do
+  driver segue no repo até o `09a` ser executado, mas **desligado**
+  (`TUDUDI_DB_DRIVER=` vazio). Não religar sem ler o `09a` §Registro.
+- **Lição que custou caro**: nunca decidir *"o banco existe?"* por artefato local
+  (arquivo, volume, path) se o banco for remoto — nenhum deles descreve um banco
+  remoto. Foi essa confusão que zerou a produção duas vezes.
 - Env vars Cloudflare: nomes canônicos `CLOUDFLARE_*` (legados `R2_*` aceitos
-  como fallback); setup documentado em `.env.example`. **`CLOUDFLARE_ACCOUNT_ID`
-  é usada pelo R2** para montar o endpoint — não remover junto com o D1.
+  como fallback); setup documentado em `.env.example`.
 - `docs/MEMORY.md` guarda preferências de PR/commit/testes do repositório.
-- Segredos nunca entram em commit: `.env` e `AGENTS.md` são gitignored
-  (AGENTS.md existe só neste checkout).

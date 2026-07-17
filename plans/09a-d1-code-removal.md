@@ -1,9 +1,13 @@
-# 09 — Remoção da camada de dados Cloudflare D1
+# 09a — Remoção da camada de dados Cloudflare D1 (código)
 
-> **Status: Aberto.** Plano de remoção. Substitui e consolida os antigos planos
-> `04-d1-migration.md` (implantação), `07-d1-activation.md` (ativação) e
-> `08-d1-rollback-sqlite.md` (rollback), apagados por este plano — ver "Registro"
-> abaixo, que preserva a história e a lição.
+> **Status: Aberto.** Prioridade: média. Esforço: médio.
+> **Exige julgamento**: mexe em `config.js` e `models/index.js`; não é tarefa
+> mecânica. A limpeza da documentação é o `09b`, e depende deste.
+>
+> Este plano substitui e consolida os antigos `04-d1-migration.md`
+> (implantação), `07-d1-activation.md` (ativação) e `08-d1-rollback-sqlite.md`
+> (rollback), apagados em `3bb1e213` — o §Registro abaixo preserva a história e
+> a lição.
 
 Pré-requisito de leitura: `plans/README.md` (regras) e `CLAUDE.md`.
 
@@ -95,44 +99,11 @@ Arquivos: `docker-compose.yml` (bloco `environment`, linhas 20-32), `.env.exampl
 (linha 70 e o bloco D1; a linha 23 do `CLOUDFLARE_ACCOUNT_ID` fica), `.env` local
 (não versionado — avisar o dono, não commitar).
 
-### 09-4. Docs
+### 09a-4. Fora deste plano
 
-- `CLAUDE.md` — tirar D1 do "Tech Stack" (bloco do backend), da tabela "Critical
-  Paths Quick Reference" (linha `D1 REST data layer`), da menção em "Technology
-  Stack" e do rodapé "Last Updated" (bump + motivo).
-- `README.md:84` — a linha de env vars canônicas diz "compartilhando
-  `CLOUDFLARE_ACCOUNT_ID` entre R2 e D1"; e `README.md:190-191`, no exemplo de
-  compose, passa `CLOUDFLARE_API_TOKEN`.
-- `docs/` — **nada a fazer**: o grep confirma que o D1 nunca chegou a ser
-  documentado lá (era justamente o que o `06-docs-update.md` propunha).
-
-### 09-5. Limpar os planos
-
-- **Apagar**: `04-d1-migration.md`, `07-d1-activation.md`,
-  `08-d1-rollback-sqlite.md`. A história deles está na seção "Registro" acima.
-- **`05c-high-effort.md`**: apagar a seção **HE-3** inteira ("Consolidação
-  pós-D1: transação de verdade nos fluxos compostos"). Sobram HE-1 e HE-2.
-- **`05-future-improvements.md`**: na tabela do índice, a linha do `05c` cita
-  "transações reais no modo D1" — tirar, deixando os dois itens restantes.
-- **`05b-medium-effort.md`**: em ME-3 (já CONCLUÍDO), a linha de **Riscos**
-  menciona "no modo D1 a migration roda por REST (sem transação real)" — tirar
-  só a menção, o resto do item é histórico válido.
-- **`06-docs-update.md`**: apagar os itens de D1 (2, 6, 7 e 10) e os trechos de
-  D1 dos passos 3, 6 e 7 da execução. **Não reescrever** — sem D1 no código não
-  há o que documentar. Ao mexer, validar o status real do plano: o passo 1
-  (`docs/15-storage.md`) aparenta já estar executado, embora o `README.md` do
-  `/plans` marque o `06` como Aberto.
-
-### 09-6. `plans/README.md`
-
-- Tabela "Estado atual": remover as linhas de `04`, `07` e `08`; acrescentar `09`
-  (este) e `10` (`10-db-backup-r2.md`) como **Abertos**.
-- "Avisos permanentes": a linha do D1 (hoje já diz "DESLIGADO desde 2026-07-17")
-  e a linha "Modo D1: transações são no-op..." saem inteiras.
-- **§Racional**: registrar a exceção ao ciclo de vida, senão a regra passa a ser
-  violada pelo próprio diretório. Redação sugerida: *plano de tecnologia removida
-  do código sai do diretório; a história e a decisão ficam registradas no plano
-  de remoção.*
+- **Documentação** (`CLAUDE.md`, `README.md`): é o `09b-d1-docs-cleanup.md`.
+- **Limpeza do `/plans`**: já feita em `3bb1e213` (apagados 04/07/08, removido o
+  HE-3 do `05c`, tiradas as menções de `05`, `05b` e `06`).
 
 ## Verificação
 
@@ -140,8 +111,8 @@ Arquivos: `docker-compose.yml` (bloco `environment`, linhas 20-32), `.env.exampl
    suites / 1665 testes.
 2. Depois: a contagem **cai** (3 suítes de D1 + os casos da trava). Conferir que
    a queda é exatamente essa e que nada mais quebrou.
-3. `grep -rniE "d1|TUDUDI_DB_DRIVER" --include=*.js --include=*.md .` ignorando
-   `node_modules/` e `plans/` não retorna nada em código.
+3. `grep -rniE "d1|TUDUDI_DB_DRIVER" --include=*.js .` ignorando `node_modules/`
+   não retorna nada. (Docs ainda citam D1 até o `09b` rodar — é esperado.)
 4. **Smoke — o risco real é o R2, não o banco**: subir o app, login, criar
    tarefa e **anexar um arquivo**; baixar o anexo. Isso prova que o
    `CLOUDFLARE_ACCOUNT_ID` compartilhado sobreviveu à remoção. Depois
@@ -149,4 +120,4 @@ Arquivos: `docker-compose.yml` (bloco `environment`, linhas 20-32), `.env.exampl
    (não pode aparecer `first-time installation`).
 5. Lint só nos arquivos tocados (lint global tem ruído CRLF pré-existente).
 6. Commit único: `refactor(db): remove the Cloudflare D1 data layer`, corpo
-   citando `plans/09`.
+   citando `plans/09a`.
