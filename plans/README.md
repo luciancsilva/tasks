@@ -131,7 +131,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `19g-backend-pagination-max-limit.md` | AM-4: Ausência de teto máximo (`MAX_LIMIT`) na paginação das rotas `notifications`, `inbox` e `events` (DOS) | - |
 | Baixo | `19h-frontend-race-conditions.md` | AM-1, AM-5, AM-7: Race condition/stale state e duplo polling no frontend (`ProjectDetails`, `ViewDetail`, `ProfileSettings`) | - |
 | Baixo | `19i-frontend-memory-leaks.md` | AM-2, AM-3, AM-6: Memory leaks via `setTimeout` sem cleanup na desmontagem/abertura de modais e perfil | - |
 | Baixo | `19j-frontend-null-safety-subtasks.md` | AM-8: Crash de UI (`Cannot read properties of null`) ao renderizar subtarefas nulas (`TaskItem.tsx:80`) | - |
@@ -179,6 +178,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | EXECUTADO (2026-07-17, branch `feat/16-views-gtd`) |
 | `19c-r2-deep-subtasks-cascade.md` | AL-3: deleteWithOrphaning coleta subtarefas profundas (nível 3+) p/ R2 | EXECUTADO (2026-07-17) |
 | `19f-project-sharing-deadlock-fix.md` | AL-7: propaga ctx.tx em collectProjectDescendants (evita SQLITE_BUSY no share) | EXECUTADO (2026-07-17) |
+| `19g-backend-pagination-max-limit.md` | AM-4: teto MAX_LIMIT=100 em notifications/inbox/events | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

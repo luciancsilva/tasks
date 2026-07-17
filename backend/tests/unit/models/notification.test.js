@@ -179,4 +179,52 @@ describe('Notification Model', () => {
             });
         });
     });
+
+    describe('getUserNotifications', () => {
+        beforeEach(async () => {
+            for (let i = 0; i < 5; i++) {
+                await Notification.create({
+                    user_id: testUser.id,
+                    type: 'task_due_soon',
+                    title: `Notification ${i}`,
+                    message: 'This is a test notification',
+                    sources: [],
+                    level: 'info',
+                    sent_at: new Date(),
+                });
+            }
+        });
+
+        it('should cap an excessively large limit at MAX_LIMIT (100)', async () => {
+            const spy = jest.spyOn(Notification, 'findAndCountAll');
+
+            const result = await Notification.getUserNotifications(
+                testUser.id,
+                { limit: 999999 }
+            );
+
+            expect(spy.mock.calls[0][0].limit).toBe(100);
+            expect(result.notifications.length).toBeLessThanOrEqual(100);
+
+            spy.mockRestore();
+        });
+
+        it('should still respect a valid small limit', async () => {
+            const result = await Notification.getUserNotifications(
+                testUser.id,
+                { limit: 2 }
+            );
+
+            expect(result.notifications.length).toBe(2);
+        });
+
+        it('should default to 10 when no limit is provided', async () => {
+            const result = await Notification.getUserNotifications(
+                testUser.id,
+                {}
+            );
+
+            expect(result.notifications.length).toBe(5);
+        });
+    });
 });

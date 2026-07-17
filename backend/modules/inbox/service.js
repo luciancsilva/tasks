@@ -18,10 +18,11 @@ class InboxService {
      * Supports pagination if limit/offset provided.
      */
     async getAll(userId, { limit, offset } = {}) {
+        const MAX_LIMIT = 100;
         const hasPagination = limit !== undefined || offset !== undefined;
 
         if (hasPagination) {
-            const parsedLimit = parseInt(limit, 10) || 20;
+            const parsedLimit = Math.min(parseInt(limit, 10) || 20, MAX_LIMIT);
             const parsedOffset = parseInt(offset, 10) || 0;
 
             const [items, totalCount] = await Promise.all([
@@ -43,8 +44,9 @@ class InboxService {
             };
         }
 
-        // Return simple array for backward compatibility
-        return inboxRepository.findAllActive(userId);
+        // Return simple array for backward compatibility, capped to prevent
+        // unbounded queries (no explicit pagination requested).
+        return inboxRepository.findAllActive(userId, { limit: MAX_LIMIT });
     }
 
     /**

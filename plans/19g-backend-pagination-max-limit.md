@@ -1,6 +1,6 @@
 # 19g — Teto Máximo na Paginação via `limit` (Prevenção de Out-Of-Memory DOS)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — teto MAX_LIMIT=100 aplicado à paginação de notifications, tasks/events e inbox, prevenindo exaustão de memória por limit gigante.
 > **Escopo:** Padronizar um teto máximo seguro (`MAX_LIMIT = 100`) para todas as consultas paginadas que aceitam `req.query.limit` em `notifications`, `inbox` e `tasks/events`.
 > **Depende de:** -
 

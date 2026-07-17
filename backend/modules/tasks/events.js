@@ -167,7 +167,7 @@ router.get('/tasks/completion-analytics', async (req, res) => {
                 { model: Project, attributes: ['name'], required: false },
             ],
             order: [['completed_at', 'DESC']],
-            limit: parseInt(limit),
+            limit: Math.min(parseInt(limit, 10) || 50, 100),
             offset: parseInt(offset),
         });
 

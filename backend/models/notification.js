@@ -333,12 +333,14 @@ module.exports = (sequelize) => {
     };
 
     Notification.getUserNotifications = async function (userId, options = {}) {
-        const {
-            limit = 10,
-            offset = 0,
-            includeRead = true,
-            type = null,
-        } = options;
+        const MAX_LIMIT = 100;
+        const { offset = 0, includeRead = true, type = null } = options;
+
+        const parsedLimit = parseInt(options.limit, 10);
+        const limit =
+            !isNaN(parsedLimit) && parsedLimit > 0
+                ? Math.min(parsedLimit, MAX_LIMIT)
+                : 10;
 
         const where = {
             user_id: userId,

@@ -201,6 +201,26 @@ describe('Inbox Routes', () => {
             expect(response.body.pagination.limit).toBe(40);
         });
 
+        it('should cap an excessively large limit at MAX_LIMIT (100)', async () => {
+            // Create a handful of extra inbox items
+            for (let i = 1; i <= 5; i++) {
+                await InboxItem.create({
+                    content: `Extra item ${i}`,
+                    status: 'added',
+                    source: 'test',
+                    user_id: user.id,
+                });
+            }
+
+            const response = await agent.get(
+                '/api/inbox?limit=999999&offset=0'
+            );
+
+            expect(response.status).toBe(200);
+            expect(response.body.pagination.limit).toBe(100);
+            expect(response.body.items.length).toBeLessThanOrEqual(100);
+        });
+
         it('should return items in newest-first order when paginating', async () => {
             // Create 25 inbox items
             for (let i = 1; i <= 25; i++) {
