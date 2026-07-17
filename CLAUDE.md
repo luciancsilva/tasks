@@ -299,7 +299,7 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 | [CONTRIBUTING.md](.github/CONTRIBUTING.md) | Contributors | PR workflow, code of conduct |
 | [docs.tududi.com](https://docs.tududi.com) | End users | Full user documentation |
 | [Swagger API docs](http://localhost:3002/api-docs) | API consumers | API endpoints (after auth) |
-| [AGENTS.md](AGENTS.md) | AI agents | Project pointers + response style |
+| AGENTS.md | AI agents | Project pointers + response style. **Gitignored** — existe só no checkout local, não vem no clone |
 | [plans/README.md](plans/README.md) | Developers, AI | Executable work plans + agent execution rules |
 | **CLAUDE.md** | Developers, AI | Codebase architecture, patterns |
 
@@ -316,6 +316,6 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 
 ---
 
-**Document Version:** 1.2.0
-**Last Updated:** 2026-07-17 (docs index now mirrors /docs: added storage, branding, OIDC, CalDAV; tasks module split into controller/service)
+**Document Version:** 1.2.1
+**Last Updated:** 2026-07-17 (Profile tabs covered by frontend tests; README realigned — D1 section removed, backup documented)
 **Maintainer:** Update when architecture changes or patterns evolve

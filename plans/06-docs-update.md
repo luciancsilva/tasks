@@ -11,7 +11,7 @@ branding, limpeza do fork). Plano executável por agente em uma sessão; regras
 gerais em `plans/README.md`.
 
 > **Atenção ao executar**: este plano foi escrito em 2026-07-16, antes da remoção
-> do Cloudflare D1 (`plans/09-d1-removal.md`). Os itens de D1 já foram retirados
+> do Cloudflare D1 (`plans/09a-d1-code-removal.md`). Os itens de D1 já foram retirados
 > daqui. Validar o status real dos demais antes de mexer — o passo 1
 > (`docs/15-storage.md`) aparenta já estar executado.
 

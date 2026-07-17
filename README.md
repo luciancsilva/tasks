@@ -57,16 +57,14 @@ Foram resolvidas falhas estruturais do projeto original causadoras de *crash loo
 ### 4. 📋 Governança Arquitetural e Planos Executáveis por Agentes (`plans/`)
 Este fork mantém uma pasta dedicada (`plans/`) de planos de trabalho executáveis por agentes de IA, com protocolo de execução autocontido:
 - [plans/README.md](plans/README.md): ponto de entrada único — o prompt `read the @plans/README.md` basta para um agente listar os planos abertos, perguntar qual executar e rodá-lo fim a fim (baseline de testes, escopo fechado, um commit por item, marcação EXECUTADO).
-- Planos executados permanecem como registro de decisão com banner apontando o commit de implementação (`01`–`04` e `07`).
-- Fila aberta: `05a` (quick wins), `05b` (esforço médio, FK/transações/error handling), `05c` (estruturais), `06` (atualização integral do `/docs`).
+- Planos executados permanecem como registro de decisão, com banner apontando o commit de implementação.
+- **Fila vazia** desde 2026-07-17: todos os planos propostos foram executados. Trabalho novo entra como arquivo novo, com número novo.
 
-### 5. 🗄️ Cloudflare D1 como Banco de Dados via REST API (`TUDUDI_DB_DRIVER=d1`)
-Camada de dados opcional substituindo o SQLite local pelo **Cloudflare D1**, acessado diretamente pela REST API (sem Worker intermediário):
-- **Driver sqlite3-compatível** (`backend/db/d1RestDriver.js`) plugado no Sequelize via `dialectModule` — models, associations, migrations e módulos permanecem intactos; só o transporte muda.
-- **Client HTTP** (`backend/db/d1Client.js`) com Bearer token, timeout, retry exponencial (429/5xx) e rate limiter local sob o teto de 1200 req/5min da conta Cloudflare.
-- **Semântica documentada**: transações viram no-op (API stateless), `PRAGMA foreign_keys` mapeado para `defer_foreign_keys`, nomes de PRAGMA normalizados para minúsculas (allowlist do D1 é case-sensitive).
-- **Ativado e validado em produção real**: schema completo (33 tabelas + 94 migrations) e smoke funcional de ponta a ponta (login → tarefa → anexo no R2 → delete com limpeza no bucket). Lições em [`plans/07-d1-activation.md`](plans/07-d1-activation.md).
-- Sem a flag, o comportamento original (SQLite local) permanece intocado; suíte de testes é travada no SQLite local por design.
+### 5. 💾 Backup do Banco para o R2 (Disaster Recovery)
+O banco é um arquivo SQLite num volume Docker — uma perda do host levaria tudo junto. Este fork adiciona snapshot offsite:
+- **Snapshot consistente** via `VACUUM INTO` (seguro com o banco em uso, em WAL) e upload para o R2, em `backend/services/dbBackupService.js`.
+- **Agendado por `node-cron`** (`TUDUDI_DB_BACKUP_CRON`, padrão 03:00), com retenção configurável (`TUDUDI_DB_BACKUP_RETENTION`, padrão 7 snapshots). Desligado por padrão (`TUDUDI_DB_BACKUP_ENABLED=false`).
+- **Restore documentado e testado de verdade**, não só descrito: procedimento em [docs/backups.md](docs/backups.md).
 
 ### 6. 🎨 Branding Customizável por Instância
 Nome exibido, logos (temas claro/escuro) e favicon configuráveis por admin, com fallback integral pro padrão tududi:
@@ -81,7 +79,7 @@ Para ambientes conteinerizados ou de alta disponibilidade onde o armazenamento l
 - **Interpolação no Docker Compose (`${R2_...:-}`)**: As variáveis de ambiente do R2 são declaradas com valores padrão flexíveis no `docker-compose.yml` (`R2_BUCKET=${R2_BUCKET:-}`), permitindo injeção limpa através do arquivo `.env` do host sem que valores vazios explícitos sobrescrevam o ambiente no container.
 - **Paridade de Layout e Zero Migração de Dados**: As chaves dos objetos armazenadas no R2 (`tasks/task-123.pdf`, `avatars/avatar-456.jpg`) seguem exatamente a mesma estrutura dos basenames em disco local (`TaskAttachment.file_path`), dispensando qualquer migração de banco na transição entre disco local e nuvem (`2eddce66`).
 - **Limpeza garantida de objetos órfãos**: deletar uma tarefa remove do bucket os anexos dela, das subtasks e das instâncias recorrentes futuras (`fe4e1651`); remover/trocar a capa de um projeto deleta o objeto antigo (`b707dce8`) — fluxos que antes deixavam lixo acumulando no R2.
-- **Nomes canônicos de variáveis** `CLOUDFLARE_*` compartilhando `CLOUDFLARE_ACCOUNT_ID` entre R2 e D1, com fallback para os legados `R2_*` (`09aaa778`); setup de credenciais documentado em [`.env.example`](.env.example).
+- **Nomes canônicos de variáveis** `CLOUDFLARE_*` (`CLOUDFLARE_ACCOUNT_ID` monta o endpoint do R2), com fallback para os legados `R2_*` (`09aaa778`); setup de credenciais documentado em [`.env.example`](.env.example).
 - **Regras de Lifecycle e Reconciliação**: Instruções para configurar regras de ciclo de vida no bucket R2 (abortar uploads multipartes incompletos) e realizar reconciliação de arquivos órfãos estão documentadas em [docs/15-storage.md](docs/15-storage.md).
 
 ---
@@ -94,15 +92,22 @@ Para evitar que a evolução contínua do projeto original (`chrisvel/tududi`) s
 
 ---
 
-## 📜 Changelog Detalhado dos 51 Commits Ahead de `chrisvel/tududi:main`
+## 📜 Changelog Detalhado dos Commits Ahead de `chrisvel/tududi:main`
 
-O repositório `luciancsilva/tasks:main` possui **51 commits customizados à frente** da branch original `chrisvel/tududi:main` (`upstream/main`). Abaixo está a categorização técnica e funcional de todas as melhorias exclusivas introduzidas:
+O repositório `luciancsilva/tasks:main` está **66 commits à frente** da branch original `chrisvel/tududi:main` (`upstream/main`), medido em 2026-07-17. Abaixo está a categorização técnica das mudanças exclusivas do fork — incluindo uma linha de trabalho que foi revertida, mantida aqui como registro:
 
-### 🗄️ Cloudflare D1 via REST API (julho/2026)
-- **`5e705e8b`** (`feat(db): Cloudflare D1 data layer via REST API (TUDUDI_DB_DRIVER=d1)`): Driver sqlite3-compatível (`d1RestDriver.js`) plugado via `dialectModule` + client HTTP (`d1Client.js`) com retry, timeout e rate limiter; 38 testes unitários incluindo round-trip completo do Sequelize contra emulador D1.
-- **`753b826a`** (`fix(db): D1 activation fixes from first real-world run`): Correções da primeira ativação real — PRAGMAs em minúsculas (allowlist do D1 é case-sensitive), carregamento do `.env` da raiz pelos scripts backend, trava de segurança que força SQLite local em `NODE_ENV=test`.
-- **`09aaa778`** (`feat(config): unified CLOUDFLARE_* env var naming + D1 activation plan`): Nomes canônicos `CLOUDFLARE_*` para R2/D1 com fallback dos legados; plano de ativação `plans/07`.
-- **`06b04667`** (`docs: add .env.example with Cloudflare token setup instructions`): Guia completo de obtenção/escopo de tokens (R2: par S3 derivado do token; D1: exige User API Token `cfut_`).
+### 🗄️ Cloudflare D1 — tentado e **revertido** (julho/2026)
+Esta linha de trabalho **não existe mais no código**. Fica registrada porque os commits estão na história e porque a lição custou caro: o D1 faz 1 round-trip HTTP por statement (latência inviável) e a operação zerou o banco de produção duas vezes. O registro completo está em [`plans/09a-d1-code-removal.md`](plans/09a-d1-code-removal.md).
+- **`5e705e8b`** (`feat(db): Cloudflare D1 data layer via REST API`): Driver sqlite3-compatível (`d1RestDriver.js`) plugado via `dialectModule` + client HTTP com retry, timeout e rate limiter.
+- **`753b826a`** (`fix(db): D1 activation fixes from first real-world run`): PRAGMAs em minúsculas, carregamento do `.env` da raiz, trava que força SQLite local em `NODE_ENV=test`.
+- **`09aaa778`** (`feat(config): unified CLOUDFLARE_* env var naming`): Nomes canônicos `CLOUDFLARE_*` com fallback dos legados. **A parte R2 sobreviveu à remoção do D1.**
+- **`06b04667`** (`docs: add .env.example with Cloudflare token setup instructions`): Guia de obtenção/escopo de tokens.
+- **Removido** em 2026-07-17 (`09a`, `09b`): driver, client, testes e documentação apagados. O banco é SQLite local, ponto.
+
+### 💾 Backup do Banco para o R2 (julho/2026)
+- **`0c9332b7`** (`feat(backup): snapshot the SQLite database to R2`): `VACUUM INTO` + upload, com retenção. Planos `10a`/`10b`.
+- **`d21f8790`** (`feat(backup): schedule the database snapshot`): Agendamento via `node-cron` e env vars. Plano `10c`.
+- **`3ef1c2cd`** (`docs(backups): document the R2 snapshot and its restore`): Restore **executado de verdade** e documentado. Plano `10d`.
 
 ### 🧹 Limpeza de Objetos R2 & Branding (julho/2026)
 - **`fe4e1651`** (`fix(attachments): remove R2 objects when deleting a whole task`): Deleção de tarefa agora remove do bucket os anexos dela, das subtasks e das recorrências futuras; subtasks deixam de ficar órfãs no banco.
@@ -112,10 +117,12 @@ O repositório `luciancsilva/tasks:main` possui **51 commits customizados à fre
 - **`86edfbec`** (`style(branding): fix formatting and lint errors`): Ajustes e correções de formatação e linting nos arquivos e testes de branding.
 
 ### 🏗️ Governança, Compose & Higiene do Fork (julho/2026)
-- **`44c0ba25`** (`chore(docker): compose file tailored to fork deployment plus D1 env block`): Compose buildando do fork no GitHub, env 100% interpolada do `.env`, bloco D1.
+- **`44c0ba25`** (`chore(docker): compose file tailored to fork deployment plus D1 env block`): Compose buildando do fork no GitHub, env 100% interpolada do `.env`. O bloco D1 que este commit adicionou foi removido depois (`09a`).
 - **`d553e1b7`** (`chore: remove upstream GitHub Pages site artifacts from fork`): Remoção de `index.html` (landing page), `CNAME`, `.nojekyll` e `screenshots/` — artefatos do site do upstream.
 - **`e6de6648`**, **`e1624ee2`**, **`3fdb7911`**, **`b137dc93`**, **`b13d387b`** (`docs(plans)`): Workflow de planos executáveis por agentes — subplans por esforço (`05a/05b/05c`), plano de atualização do `/docs` (`06`), registro EXECUTADO dos planos implementados e ponto de entrada único (`read the @plans/README.md`).
-- **`656bf687`** (`docs: refresh CLAUDE.md after July 2026 changes`): CLAUDE.md alinhado (R2, D1, branding, plans).
+- **`656bf687`** (`docs: refresh CLAUDE.md after July 2026 changes`): CLAUDE.md alinhado (R2, branding, plans).
+- **`8f86039a`** (`refactor(tasks): extract controller and service from routes`): `routes.js` do módulo tasks de 1064 para 39 linhas. Plano `05c` HE-1.
+- **`5565d758`** (`docs: align /docs with the current code`): Atualização integral do `/docs` contra o código, incluindo a correção do troubleshooting que mandava rodar `db:init` (o comando que zerou a produção). Plano `06`.
 - **`8a620172`** (`feat(plans): implement 05a-quick-wins.md`): Implementação e validação de 5 melhorias rápidas de baixo esforço (limites de anexo, lifecycle de uploads órfãos do R2, drift i18n, etc.).
 - **`bf7e99f0`** (`docs(plans): update plans status to EXECUTADO`): Atualização de status e documentação dos planos de esforço médio (ME-3 a ME-6) como concluídos.
 - **`3741b706`** (`style: lint and formatting fixes on modified files`): Ajustes e correções de formatação e linting em arquivos e rotas refatoradas para conformidade com o linter no CI.
@@ -129,7 +136,7 @@ O repositório `luciancsilva/tasks:main` possui **51 commits customizados à fre
 - **`350ddeb7`** (`fix(i18n): add missing translation keys referenced in code`): Adição de chaves de tradução em português (`pt/translation.json`) e inglês para termos referenciados dinamicamente nos componentes React.
 - **`192cbda2`** (`feat(i18n): translate remaining English UI and utils text to pt-BR`): Tradução final de textos em inglês em modais, filtros e utilitários de formatação de strings para o Português do Brasil.
 - **`01de94b5`** (`fix(i18n): correct pt-BR task screen issues (attachments key, Assigned To, date casing)`): Correção na tela de detalhes da tarefa: mapeamento correto da chave do card de anexos (`TaskAttachmentsCard`), rótulo "Atribuído a" e padronização da capitalização de meses/dias da semana.
-- **`bc7229ee`** (`feat(i18n): complete pt-BR localization of remaining frontend UI`): Expansão da cobertura de localização PT-BR para telas secundárias e modais de configuração do frontend React/Vite.
+- **`bc7229ee`** (`feat(i18n): complete pt-BR localization of remaining frontend UI`): Expansão da cobertura de localização PT-BR para telas secundárias e modais de configuração do frontend React.
 - **`6febc958`** (`fix(i18n): fill missing pt-BR keys and fix all-caps sidebar labels`): Preenchimento de chaves PT-BR pendentes e remoção da transformação *ALL CAPS* forçada nos rótulos de navegação da barra lateral (*Sidebar*).
 - **`18e8a171`** (`fix(i18n): correct pt-BR translation errors and standardize casing`): Revisão ortográfica, gramatical e padronização visual de maiúsculas/minúsculas em todo o dicionário PT-BR.
 - **`402ccc68`** (`feat(i18n): localize date formatting to Portuguese across Today and Calendar views, and add missing Today gear settings translations`): Adaptação dos formatadores nativos de data para o padrão brasileiro (`pt-BR`) nas visualizações *Hoje* e *Calendário*, e tradução das opções no menu da engrenagem.
@@ -185,22 +192,26 @@ services:
       TUDUDI_ALLOWED_ORIGINS: http://localhost:3002
       TUDUDI_TRUST_PROXY: "true"
       TZ: America/Sao_Paulo
-      # Cloudflare — conta compartilhada entre R2 e D1 (nomes legados R2_* seguem
-      # funcionando como fallback):
+      # Cloudflare — conta usada pelo R2 (nomes legados R2_* seguem funcionando
+      # como fallback):
       CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
-      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
-      # Variáveis Cloudflare R2 (Opcionais - Se configuradas, uploads vão para o R2 em vez do disco local):
+      # Cloudflare R2 (Opcionais - Se configuradas, uploads vão para o R2 em vez do disco local):
       CLOUDFLARE_R2_ACCESS_KEY_ID: ${CLOUDFLARE_R2_ACCESS_KEY_ID:-}
       CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-}
       CLOUDFLARE_R2_BUCKET: ${CLOUDFLARE_R2_BUCKET:-}
       CLOUDFLARE_R2_ENDPOINT: ${CLOUDFLARE_R2_ENDPOINT:-}
-      # Variáveis Cloudflare D1 (Opcionais - Se TUDUDI_DB_DRIVER=d1, o banco
-      # passa a ser o Cloudflare D1 acessado via REST API em vez do SQLite local):
-      TUDUDI_DB_DRIVER: ${TUDUDI_DB_DRIVER:-}
-      CLOUDFLARE_D1_DATABASE_ID: ${CLOUDFLARE_D1_DATABASE_ID:-}
+      # Backup lógico (precisa cair num volume persistente):
+      TUDUDI_BACKUP_PATH: ${TUDUDI_BACKUP_PATH:-/app/db/backups}
+      # Snapshot do banco para o R2 (disaster recovery) — ver docs/backups.md:
+      TUDUDI_DB_BACKUP_ENABLED: ${TUDUDI_DB_BACKUP_ENABLED:-false}
+      TUDUDI_DB_BACKUP_CRON: ${TUDUDI_DB_BACKUP_CRON:-0 3 * * *}
+      TUDUDI_DB_BACKUP_RETENTION: ${TUDUDI_DB_BACKUP_RETENTION:-7}
 
 #    user: "1001:1001"
 
+    # Caminhos definidos no Dockerfile (VOLUME/DB_FILE/TUDUDI_UPLOAD_PATH).
+    # Montar em /app/backend/db como nas versões < v1.2.0 deixa o banco num
+    # volume anônimo, que o Docker descarta a cada recriação do container.
     volumes:
       - tududi_db:/app/db
       - tududi_uploads:/app/uploads
@@ -212,6 +223,11 @@ volumes:
 
 Acesse **http://localhost:3002** para utilizar o sistema.
 
+> O `docker-compose.yml` versionado neste repo builda de
+> `context: https://github.com/luciancsilva/tasks.git#main` — ou seja, sobe a
+> `main` do GitHub, **não** o seu working tree. Para testar mudança local, use
+> `npm start`.
+
 ### Desenvolvimento Local (Modo Código Fonte)
 ```bash
 # 1. Clonar o repositório do fork
@@ -221,15 +237,26 @@ cd tasks
 # 2. Instalar todas as dependências (Backend + Frontend)
 npm install
 
-# 3. Executar servidores de desenvolvimento
-npm run backend:dev   # Terminal 1 — API Node.js rodando na porta 3001
-npm run frontend:dev  # Terminal 2 — React/Vite rodando na porta 8080
+# 3. Subir os dois servidores de uma vez
+npm start             # frontend :8080, backend :3002
+
+# ...ou separadamente:
+npm run backend:dev   # Terminal 1 — API Node.js na porta 3002
+npm run frontend:dev  # Terminal 2 — React/webpack-dev-server na porta 8080
 ```
+
+> ⚠️ **`npm run db:init` e `npm run db:reset` destroem o banco** — são
+> `sequelize.sync({ force: true })`. Não são comandos de setup. Para inspecionar
+> o banco use `npm run db:status`.
 
 ---
 
 ## 📚 Documentação Adicional do Repositório
 
+* [CLAUDE.md](CLAUDE.md) — Guia de arquitetura e padrões do codebase; índice de todo o `/docs`.
 * [git-review.md](git-review.md) — Diretrizes de manutenção de fork e regras de integração upstream.
-* [plans/README.md](plans/README.md) — Roteiro de melhorias arquiteturais e status de execução.
+* [plans/README.md](plans/README.md) — Planos executáveis por agentes, armadilhas do repo e status de execução.
+* [docs/backups.md](docs/backups.md) — Backup do banco e procedimento de restore.
+* [docs/15-storage.md](docs/15-storage.md) — Object storage no Cloudflare R2.
+* [docs/16-branding.md](docs/16-branding.md) — Branding customizável por instância.
 * [docs/MEMORY.md](docs/MEMORY.md) — Memória técnica do repositório e contexto do sistema.
