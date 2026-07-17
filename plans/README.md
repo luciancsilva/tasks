@@ -122,16 +122,27 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19c-r2-deep-subtasks-cascade.md` | AL-3: `deleteWithOrphaning` omite subtarefas profundas (nível 3+) no R2 | - |
+| Baixo | `19f-project-sharing-deadlock-fix.md` | AL-7: Deadlocks `SQLITE_BUSY` por omissão de `transaction: ctx.tx` (`permissionsCalculators.js:16`) | - |
+| Médio | `19a-tasks-transactions.md` | AL-1: Falta de transação atômica (`sequelize.transaction`) na criação/atualização de tasks (`tasks/service.js:385, 533`) | - |
+| Médio | `19d-caldav-sync-batching-and-tx.md` | AL-4 e AL-6: N+1 requests HTTP em loop no CalDAV (`pull-phase.js`) e ausência de transação em `merge-phase.js` | - |
+| Médio | `19e-projects-transactions-and-tags.md` | AL-5: Falta de transação em `ProjectsService.create/update` e erro engolido em tags (`projects/service.js:293`) | - |
+| Alto | `19b-backup-restore-mentions.md` | AL-2: `exportUserData`/`importUserData` omitem `Person`/`@mentions` e importam por IDs numéricos brutos | - |
 
 ### Prioridade MÉDIA
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19g-backend-pagination-max-limit.md` | AM-4: Ausência de teto máximo (`MAX_LIMIT`) na paginação das rotas `notifications`, `inbox` e `events` (DOS) | - |
+| Baixo | `19h-frontend-race-conditions.md` | AM-1, AM-5, AM-7: Race condition/stale state e duplo polling no frontend (`ProjectDetails`, `ViewDetail`, `ProfileSettings`) | - |
+| Baixo | `19i-frontend-memory-leaks.md` | AM-2, AM-3, AM-6: Memory leaks via `setTimeout` sem cleanup na desmontagem/abertura de modais e perfil | - |
+| Baixo | `19j-frontend-null-safety-subtasks.md` | AM-8: Crash de UI (`Cannot read properties of null`) ao renderizar subtarefas nulas (`TaskItem.tsx:80`) | - |
 
 ### Prioridade BAIXA
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19k-windows-tests-and-fixtures.md` | AB-1 e AB-2: Correção da baseline de testes (paths em sub-processo `execSync` no Windows e mock sem `parsed_people`) | - |
 | Baixo | `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` (instalação é do dono) | 14a, 14b (só p/ atualizar) |
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
