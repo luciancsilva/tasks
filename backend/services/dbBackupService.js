@@ -31,8 +31,8 @@ function formatTimestamp(date) {
  *
  * @returns {Promise<number>} number of objects pruned
  */
-async function pruneOldSnapshots(retention) {
-    const objects = await listObjects('db-backups/');
+async function pruneOldSnapshots(retention, prefix) {
+    const objects = await listObjects(prefix);
     const keys = objects.map((obj) => obj.Key).sort();
 
     const excess = keys.length - retention;
@@ -82,7 +82,10 @@ async function createSnapshot() {
         await putObjectFromFile(key, tmpPath, 'application/x-sqlite3');
 
         const { size } = fs.statSync(tmpPath);
-        const pruned = await pruneOldSnapshots(config.dbBackupRetention);
+        const pruned = await pruneOldSnapshots(
+            config.dbBackupRetention,
+            `db-backups/${config.environment}-`
+        );
 
         logInfo(
             `[dbBackupService] Snapshot uploaded: ${key} (${size} bytes, pruned ${pruned})`

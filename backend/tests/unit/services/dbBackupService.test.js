@@ -122,5 +122,45 @@ describe('dbBackupService.createSnapshot', () => {
             expect(result.pruned).toBe(0);
             expect(s3Mock.commandCalls(DeleteObjectCommand)).toHaveLength(0);
         });
+
+        it('prunes only current environment snapshots when mixed in the bucket', async () => {
+            process.env.TUDUDI_DB_BACKUP_RETENTION = '1';
+            s3Mock.on(PutObjectCommand).resolves({});
+            s3Mock.on(ListObjectsV2Command).callsFake((input) => {
+                if (input.Prefix === 'db-backups/test-') {
+                    return {
+                        IsTruncated: false,
+                        Contents: [
+                            { Key: 'db-backups/test-20260101T000000.sqlite3' },
+                            { Key: 'db-backups/test-20260102T000000.sqlite3' },
+                        ],
+                    };
+                }
+                return {
+                    IsTruncated: false,
+                    Contents: [
+                        {
+                            Key: 'db-backups/development-20260101T000000.sqlite3',
+                        },
+                        { Key: 'db-backups/test-20260101T000000.sqlite3' },
+                        { Key: 'db-backups/test-20260102T000000.sqlite3' },
+                    ],
+                };
+            });
+            s3Mock.on(DeleteObjectCommand).resolves({});
+
+            const result = await dbBackupService.createSnapshot();
+
+            expect(result.pruned).toBe(1);
+            const listCalls = s3Mock.commandCalls(ListObjectsV2Command);
+            expect(listCalls).toHaveLength(1);
+            expect(listCalls[0].args[0].input.Prefix).toBe('db-backups/test-');
+
+            const deleteCalls = s3Mock.commandCalls(DeleteObjectCommand);
+            expect(deleteCalls).toHaveLength(1);
+            expect(deleteCalls[0].args[0].input.Key).toBe(
+                'db-backups/test-20260101T000000.sqlite3'
+            );
+        });
     });
 });

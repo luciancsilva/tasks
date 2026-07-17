@@ -1,5 +1,7 @@
 # 15 — Retenção de snapshot por ambiente
 
+> **Status: EXECUTADO** em 2026-07-17 — Escopou o backup prune para o prefixo do ambiente atual.
+
 > **Prioridade: BAIXA** (só morde se dois ambientes dividirem o mesmo bucket)
 > — **Esforço: baixo** — **Julgamento: não exige** — **Depende de: nada** —
 > **Branch: `main` direto** (correção)
