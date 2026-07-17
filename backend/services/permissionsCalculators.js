@@ -11,16 +11,19 @@ function pushDelete(changes, d) {
     changes.deletes.push(d);
 }
 
-async function collectProjectDescendants(projectId) {
+async function collectProjectDescendants(projectId, options = {}) {
+    const { transaction } = options;
     // tasks (all levels) and notes
     const rootTasks = await Task.findAll({
         where: { project_id: projectId },
         attributes: ['id', 'uid', 'parent_task_id'],
+        transaction,
         raw: true,
     });
     const notes = await Note.findAll({
         where: { project_id: projectId },
         attributes: ['uid'],
+        transaction,
         raw: true,
     });
 
@@ -32,6 +35,7 @@ async function collectProjectDescendants(projectId) {
         const children = await Task.findAll({
             where: { parent_task_id: node.id },
             attributes: ['id', 'uid'],
+            transaction,
             raw: true,
         });
         for (const c of children) {
@@ -57,7 +61,9 @@ async function calculateProjectPerms(ctx, action) {
     });
     if (!project) return changes;
 
-    const { taskUids, noteUids } = await collectProjectDescendants(project.id);
+    const { taskUids, noteUids } = await collectProjectDescendants(project.id, {
+        transaction: ctx.tx,
+    });
 
     if (action.verb === 'share_grant') {
         const direct = {

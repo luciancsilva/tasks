@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `19f-project-sharing-deadlock-fix.md` | AL-7: Deadlocks `SQLITE_BUSY` por omissão de `transaction: ctx.tx` (`permissionsCalculators.js:16`) | - |
 | Médio | `19a-tasks-transactions.md` | AL-1: Falta de transação atômica (`sequelize.transaction`) na criação/atualização de tasks (`tasks/service.js:385, 533`) | - |
 | Médio | `19d-caldav-sync-batching-and-tx.md` | AL-4 e AL-6: N+1 requests HTTP em loop no CalDAV (`pull-phase.js`) e ausência de transação em `merge-phase.js` | - |
 | Médio | `19e-projects-transactions-and-tags.md` | AL-5: Falta de transação em `ProjectsService.create/update` e erro engolido em tags (`projects/service.js:293`) | - |
@@ -179,6 +178,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `16-views-gtd-status-pessoa.md` | Views por status de tarefa (waiting) e por pessoa — "Aguardando"/"Delegadas" | EXECUTADO (2026-07-17) |
 | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | EXECUTADO (2026-07-17, branch `feat/16-views-gtd`) |
 | `19c-r2-deep-subtasks-cascade.md` | AL-3: deleteWithOrphaning coleta subtarefas profundas (nível 3+) p/ R2 | EXECUTADO (2026-07-17) |
+| `19f-project-sharing-deadlock-fix.md` | AL-7: propaga ctx.tx em collectProjectDescendants (evita SQLITE_BUSY no share) | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

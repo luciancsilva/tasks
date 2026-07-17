@@ -1,6 +1,6 @@
 # 19f — Propagação de `transaction: ctx.tx` em `permissionsCalculators.js` (Deadlock `SQLITE_BUSY`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — collectProjectDescendants agora recebe e propaga a transação ativa (ctx.tx) em todas as queries, evitando SQLITE_BUSY e leitura de snapshot obsoleto no compartilhamento.
 > **Escopo:** Garantir a passagem explícita de `{ transaction: ctx.tx }` para as consultas do Sequelize dentro de `collectProjectDescendants` em `backend/services/permissionsCalculators.js:16-36`.
 > **Depende de:** -
 
