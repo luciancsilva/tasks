@@ -122,11 +122,13 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19l-caldav-delete-missing-method.md` | `SyncStateRepository.deleteByTaskId` não existe — sync de deleção CalDAV lança `TypeError` em runtime (merge/push-phase) | - |
 
 ### Prioridade MÉDIA
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19m-backup-tag-name-collision.md` | Restore de backup entre usuários colide em `UNIQUE(user_id, name)` de tags e aborta a restauração inteira | - |
 
 ### Prioridade BAIXA
 
