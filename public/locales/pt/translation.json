@@ -1230,6 +1230,8 @@
         },
         "shortcutTag": "para marcar com uma etiqueta",
         "shortcutProject": "para atribuir a um projeto",
+        "shortcutPerson": "para vincular uma pessoa",
+        "removePerson": "Remover pessoa",
         "linkPreview": "Prévia do link",
         "linkPreviewError": "Não foi possível obter os detalhes do link",
         "aboutInbox": "Sobre a caixa de entrada"
@@ -2085,8 +2087,10 @@
             "task": "tarefa",
             "project": "projeto",
             "area": "área",
-            "note": "nota"
+            "note": "nota",
+            "person": "pessoa"
         },
+        "dueLabel": ", vence",
         "thatAre": ", que são",
         "extras": "Extras",
         "recurringFilter": {

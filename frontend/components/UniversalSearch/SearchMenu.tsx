@@ -45,6 +45,12 @@ const filterTypes = [
         fallback: 'note',
         color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     },
+    {
+        value: 'Person',
+        labelKey: 'search.entityTypes.person',
+        fallback: 'person',
+        color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+    },
 ];
 
 const priorityOptions = [
@@ -298,7 +304,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 (opt) => opt.value === selectedDue
             );
             const dueLabel = dueOption ? t(dueOption.labelKey, dueOption.fallback) : selectedDue;
-            const dueText = typeof t('search.due') === 'string' && t('search.due') !== 'search.due' ? t('search.due') : ', due';
+            const dueText = t('search.dueLabel', ', due');
             parts.push(<span key="due-label">{dueText + ' '}</span>);
             parts.push(
                 <span

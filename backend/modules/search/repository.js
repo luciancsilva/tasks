@@ -1,6 +1,14 @@
 'use strict';
 
-const { Task, Tag, Project, Area, Note, sequelize } = require('../../models');
+const {
+    Task,
+    Tag,
+    Project,
+    Area,
+    Note,
+    Person,
+    sequelize,
+} = require('../../models');
 const { Op } = require('sequelize');
 
 class SearchRepository {
@@ -123,6 +131,25 @@ class SearchRepository {
      */
     async findTags(conditions, limit, offset) {
         return Tag.findAll({
+            where: conditions,
+            limit,
+            offset,
+            order: [['name', 'ASC']],
+        });
+    }
+
+    /**
+     * Count people matching conditions.
+     */
+    async countPeople(conditions) {
+        return Person.count({ where: conditions });
+    }
+
+    /**
+     * Find people matching conditions.
+     */
+    async findPeople(conditions, limit, offset) {
+        return Person.findAll({
             where: conditions,
             limit,
             offset,

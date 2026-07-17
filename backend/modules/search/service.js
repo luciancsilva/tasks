@@ -2,7 +2,7 @@
 
 const { Op } = require('sequelize');
 const moment = require('moment-timezone');
-const { Task, Tag, Project, sequelize } = require('../../models');
+const { Task, Tag, Project, Person, sequelize } = require('../../models');
 const searchRepository = require('./repository');
 const { parseSearchParams, priorityToInt } = require('./validation');
 const { serializeTasks } = require('../tasks/core/serializers');
@@ -474,6 +474,55 @@ class SearchService {
     }
 
     /**
+     * Search people.
+     */
+    async searchPeople(userId, params) {
+        const { searchQuery, hasPagination, limit, offset } = params;
+
+        const conditions = { user_id: userId, archived: false };
+
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            conditions[Op.or] = [
+                sequelize.where(
+                    sequelize.fn('LOWER', sequelize.col('Person.name')),
+                    {
+                        [Op.like]: `%${lowerQuery}%`,
+                    }
+                ),
+                sequelize.where(
+                    sequelize.fn('LOWER', sequelize.col('Person.notes')),
+                    {
+                        [Op.like]: `%${lowerQuery}%`,
+                    }
+                ),
+            ];
+        }
+
+        let count = 0;
+        if (hasPagination) {
+            count = await searchRepository.countPeople(conditions);
+        }
+
+        const people = await searchRepository.findPeople(
+            conditions,
+            limit,
+            offset
+        );
+
+        return {
+            count,
+            results: people.map((person) => ({
+                type: 'Person',
+                id: person.id,
+                uid: person.uid,
+                name: person.name,
+                description: person.relationship_type || '',
+            })),
+        };
+    }
+
+    /**
      * Universal search across all entity types.
      */
     async search(userId, query, timezone = 'UTC') {
@@ -562,6 +611,12 @@ class SearchService {
             const tagResults = await this.searchTags(userId, params);
             results.push(...tagResults.results);
             totalCount += tagResults.count;
+        }
+
+        if (filterTypes.includes('Person')) {
+            const peopleResults = await this.searchPeople(userId, params);
+            results.push(...peopleResults.results);
+            totalCount += peopleResults.count;
         }
 
         if (hasPagination) {

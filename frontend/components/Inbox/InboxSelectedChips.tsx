@@ -1,26 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TagIcon, FolderIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+    TagIcon,
+    FolderIcon,
+    UserIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { Tag } from '../../entities/Tag';
 import { Project } from '../../entities/Project';
+import { Person } from '../../entities/Person';
 
 interface InboxSelectedChipsProps {
     selectedTags: string[];
     selectedProjects: string[];
+    selectedPeople?: string[];
     tags: Tag[];
     projects: Project[];
+    people?: Person[];
     onRemoveTag: (tagName: string) => void;
     onRemoveProject: (projectName: string) => void;
+    onRemovePerson?: (personName: string) => void;
 }
 
 const InboxSelectedChips: React.FC<InboxSelectedChipsProps> = ({
     selectedTags,
     selectedProjects,
+    selectedPeople = [],
     tags,
     projects,
+    people = [],
     onRemoveTag,
     onRemoveProject,
+    onRemovePerson,
 }) => {
     const { t } = useTranslation();
     const slugify = (text: string) =>
@@ -136,6 +148,65 @@ const InboxSelectedChips: React.FC<InboxSelectedChipsProps> = ({
         );
     };
 
+    const renderPersonChip = (personName: string, index: number) => {
+        const person = people.find(
+            (p) => p.name.toLowerCase() === personName.toLowerCase()
+        );
+
+        if (person) {
+            const personPath = person.uid ? `/person/${person.uid}` : null;
+            return (
+                <span
+                    key={`${personName}-${index}`}
+                    data-testid={`selected-person-${personName}`}
+                    data-person-exists="true"
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-50 dark:bg-indigo-900/20 rounded text-indigo-600 dark:text-indigo-400"
+                >
+                    {personPath ? (
+                        <Link
+                            to={personPath}
+                            className="hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {personName}
+                        </Link>
+                    ) : (
+                        <span>{personName}</span>
+                    )}
+                    {onRemovePerson && (
+                        <button
+                            onClick={() => onRemovePerson(personName)}
+                            className="h-3 w-3 text-indigo-400 hover:text-red-500 transition-colors"
+                            title={t('inbox.removePerson', 'Remove person')}
+                        >
+                            <XMarkIcon className="h-3 w-3" />
+                        </button>
+                    )}
+                </span>
+            );
+        }
+
+        return (
+            <span
+                key={`${personName}-${index}`}
+                data-testid={`selected-person-${personName}`}
+                data-person-exists="false"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 dark:bg-orange-900/20 rounded text-orange-500 dark:text-orange-400"
+            >
+                {personName}
+                {onRemovePerson && (
+                    <button
+                        onClick={() => onRemovePerson(personName)}
+                        className="h-3 w-3 text-orange-400 hover:text-red-500 transition-colors"
+                        title={t('inbox.removePerson', 'Remove person')}
+                    >
+                        <XMarkIcon className="h-3 w-3" />
+                    </button>
+                )}
+            </span>
+        );
+    };
+
     return (
         <>
             {selectedTags.length > 0 && (
@@ -161,6 +232,20 @@ const InboxSelectedChips: React.FC<InboxSelectedChipsProps> = ({
                     <div className="flex flex-wrap gap-1">
                         {selectedProjects.map((projectName, index) =>
                             renderProjectChip(projectName, index)
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {selectedPeople.length > 0 && (
+                <div
+                    data-testid="selected-people-container"
+                    className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1 flex-wrap gap-1"
+                >
+                    <UserIcon className="h-3 w-3 mr-1" />
+                    <div className="flex flex-wrap gap-1">
+                        {selectedPeople.map((personName, index) =>
+                            renderPersonChip(personName, index)
                         )}
                     </div>
                 </div>

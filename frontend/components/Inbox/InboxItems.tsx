@@ -24,6 +24,8 @@ import { createNote } from '../../utils/notesService';
 import { isUrl } from '../../utils/urlService';
 import { fetchAreas } from '../../utils/areasService';
 import { fetchProjects } from '../../utils/projectsService';
+import { fetchPeople } from '../../utils/peopleService';
+import { Person } from '../../entities/Person';
 import { useStore } from '../../store/useStore';
 
 const InboxItems: React.FC = () => {
@@ -50,6 +52,7 @@ const InboxItems: React.FC = () => {
     } = useStore((state) => state.tagsStore);
 
     const [projects, setProjects] = useState<Project[]>([]);
+    const [people, setPeople] = useState<Person[]>([]);
 
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
@@ -79,6 +82,17 @@ const InboxItems: React.FC = () => {
             }
         };
         loadInitialProjects();
+
+        const loadInitialPeople = async () => {
+            try {
+                const peopleData = await fetchPeople({ archived: false });
+                setPeople(Array.isArray(peopleData) ? peopleData : []);
+            } catch (error) {
+                console.error('Failed to load initial people:', error);
+                setPeople([]);
+            }
+        };
+        loadInitialPeople();
 
         const loadInitialAreas = async () => {
             try {
@@ -478,6 +492,15 @@ const InboxItems: React.FC = () => {
                                         'to assign to a project'
                                     )}
                                 </span>
+                                <span>
+                                    <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono">
+                                        @pessoa
+                                    </code>{' '}
+                                    {t(
+                                        'inbox.shortcutPerson',
+                                        'to link a person'
+                                    )}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -487,6 +510,7 @@ const InboxItems: React.FC = () => {
                     onTaskCreate={handleSaveTask}
                     onNoteCreate={handleSaveNote}
                     projects={projects}
+                    people={people}
                     autoFocus={true}
                     openTaskModal={handleOpenTaskModal}
                     openProjectModal={handleOpenProjectModal}

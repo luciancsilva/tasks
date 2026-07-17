@@ -103,6 +103,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
             'caldav',
             'mcp',
             'features',
+            'branding',
         ];
         return section && validTabs.includes(section) ? section : 'general';
     }, [location.search]);

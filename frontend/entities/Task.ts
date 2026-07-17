@@ -1,4 +1,5 @@
 import { Tag } from './Tag';
+import { Person } from './Person';
 import { Project } from './Project';
 import { Area } from './Area';
 import { Attachment } from './Attachment';
@@ -49,6 +50,9 @@ export interface Task {
     habit_last_completion_at?: string;
     assigned_to?: string | null;
     involves?: string[];
+    // @mention link (many-to-many, parity with tags)
+    InvolvedPeople?: Person[];
+    people?: Array<{ uid?: string; name: string }>;
     // Transient UI field set by suggestion scoring - never persisted or sent to server
     _suggestionMeta?: {
         score: number;

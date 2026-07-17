@@ -10,12 +10,14 @@ import { Task } from '../../entities/Task';
 import { Tag } from '../../entities/Tag';
 import { Project } from '../../entities/Project';
 import { Note } from '../../entities/Note';
+import { Person } from '../../entities/Person';
 import { useToast } from '../Shared/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { createInboxItemWithStore } from '../../utils/inboxService';
 import { isAuthError } from '../../utils/authUtils';
 import { createTag } from '../../utils/tagsService';
 import { createProject } from '../../utils/projectsService';
+import { createPerson } from '../../utils/peopleService';
 import {
     ClipboardDocumentListIcon,
     DocumentTextIcon,
@@ -49,6 +51,7 @@ interface QuickCaptureInputProps {
     onTaskCreate?: (task: Task) => Promise<void>;
     onNoteCreate?: (note: Note) => Promise<void>;
     projects?: Project[];
+    people?: Person[];
     autoFocus?: boolean;
     mode?: 'create' | 'edit';
     initialValue?: string;
@@ -117,6 +120,7 @@ const QuickCaptureInput = React.forwardRef<
             onTaskCreate,
             onNoteCreate,
             projects: propProjects = [],
+            people: propPeople = [],
             autoFocus = false,
             mode = 'create',
             initialValue = '',
@@ -145,10 +149,15 @@ const QuickCaptureInput = React.forwardRef<
         const [showProjectSuggestions, setShowProjectSuggestions] =
             useState(false);
         const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+        const [showPeopleSuggestions, setShowPeopleSuggestions] =
+            useState(false);
+        const [filteredPeople, setFilteredPeople] = useState<Person[]>([]);
         const projects = propProjects;
+        const people = propPeople;
         const [cursorPosition, setCursorPosition] = useState(0);
         const [, setCurrentHashtagQuery] = useState('');
         const [, setCurrentProjectQuery] = useState('');
+        const [, setCurrentPeopleQuery] = useState('');
         const [dropdownPosition, setDropdownPosition] = useState({
             left: 0,
             top: 0,
@@ -159,6 +168,7 @@ const QuickCaptureInput = React.forwardRef<
         const [analysisResult, setAnalysisResult] = useState<{
             parsed_tags: string[];
             parsed_projects: string[];
+            parsed_people: string[];
             cleaned_content: string;
             suggested_type: 'task' | 'note' | null;
             suggested_reason: string | null;
@@ -207,12 +217,17 @@ const QuickCaptureInput = React.forwardRef<
 
             let i = 0;
             while (i < words.length) {
-                if (words[i].startsWith('#') || words[i].startsWith('+')) {
+                if (
+                    words[i].startsWith('#') ||
+                    words[i].startsWith('+') ||
+                    words[i].startsWith('@')
+                ) {
                     let groupEnd = i;
                     while (
                         groupEnd < words.length &&
                         (words[groupEnd].startsWith('#') ||
-                            words[groupEnd].startsWith('+'))
+                            words[groupEnd].startsWith('+') ||
+                            words[groupEnd].startsWith('@'))
                     ) {
                         groupEnd++;
                     }
@@ -247,12 +262,17 @@ const QuickCaptureInput = React.forwardRef<
 
             let i = 0;
             while (i < tokens.length) {
-                if (tokens[i].startsWith('#') || tokens[i].startsWith('+')) {
+                if (
+                    tokens[i].startsWith('#') ||
+                    tokens[i].startsWith('+') ||
+                    tokens[i].startsWith('@')
+                ) {
                     let groupEnd = i;
                     while (
                         groupEnd < tokens.length &&
                         (tokens[groupEnd].startsWith('#') ||
-                            tokens[groupEnd].startsWith('+'))
+                            tokens[groupEnd].startsWith('+') ||
+                            tokens[groupEnd].startsWith('@'))
                     ) {
                         groupEnd++;
                     }
@@ -271,6 +291,55 @@ const QuickCaptureInput = React.forwardRef<
                             if (projectName && !matches.includes(projectName)) {
                                 matches.push(projectName);
                                 return matches;
+                            }
+                        }
+                    }
+
+                    i = groupEnd;
+                } else {
+                    i++;
+                }
+            }
+
+            return matches;
+        };
+
+        const parsePeopleRefs = (text: string): string[] => {
+            const trimmedText = text.trim();
+            const matches: string[] = [];
+
+            const tokens = tokenizeText(trimmedText);
+
+            let i = 0;
+            while (i < tokens.length) {
+                if (
+                    tokens[i].startsWith('#') ||
+                    tokens[i].startsWith('+') ||
+                    tokens[i].startsWith('@')
+                ) {
+                    let groupEnd = i;
+                    while (
+                        groupEnd < tokens.length &&
+                        (tokens[groupEnd].startsWith('#') ||
+                            tokens[groupEnd].startsWith('+') ||
+                            tokens[groupEnd].startsWith('@'))
+                    ) {
+                        groupEnd++;
+                    }
+
+                    for (let j = i; j < groupEnd; j++) {
+                        if (tokens[j].startsWith('@')) {
+                            let personName = tokens[j].substring(1);
+
+                            if (
+                                personName.startsWith('"') &&
+                                personName.endsWith('"')
+                            ) {
+                                personName = personName.slice(1, -1);
+                            }
+
+                            if (personName && !matches.includes(personName)) {
+                                matches.push(personName);
                             }
                         }
                     }
@@ -368,7 +437,10 @@ const QuickCaptureInput = React.forwardRef<
             while (i < text.length) {
                 const char = text[i];
 
-                if (char === '"' && (i === 0 || text[i - 1] === '+')) {
+                if (
+                    char === '"' &&
+                    (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+                ) {
                     inQuotes = true;
                     currentToken += char;
                 } else if (char === '"' && inQuotes) {
@@ -468,6 +540,49 @@ const QuickCaptureInput = React.forwardRef<
             return '';
         };
 
+        const getCurrentPeopleQuery = (
+            text: string,
+            position: number
+        ): string => {
+            const beforeCursor = text.substring(0, position);
+            const afterCursor = text.substring(position);
+            const personMatch = beforeCursor.match(
+                /@(?:"([^"]*)"|([a-zA-Z0-9_\s]*))$/
+            );
+
+            if (!personMatch) return '';
+
+            const personQuery = personMatch[1] || personMatch[2] || '';
+
+            const personStart = beforeCursor.lastIndexOf('@');
+            const textBeforePerson = text.substring(0, personStart).trim();
+            const textAfterCursor = afterCursor.trim();
+
+            if (textAfterCursor === '') {
+                return personQuery;
+            }
+
+            if (textBeforePerson === '') {
+                return personQuery;
+            }
+
+            const wordsBeforePerson = textBeforePerson
+                .split(/\s+/)
+                .filter((word) => word.length > 0);
+            const allWordsAreTagsOrProjects = wordsBeforePerson.every(
+                (word) =>
+                    word.startsWith('#') ||
+                    word.startsWith('+') ||
+                    word.startsWith('@')
+            );
+
+            if (allWordsAreTagsOrProjects) {
+                return personQuery;
+            }
+
+            return '';
+        };
+
         const escapeRegExp = (value: string) =>
             value.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 
@@ -513,6 +628,28 @@ const QuickCaptureInput = React.forwardRef<
             }
         };
 
+        const removePersonFromText = (personToRemove: string) => {
+            const escaped = escapeRegExp(personToRemove);
+            const quotedPattern = new RegExp(
+                `(^|\\s)@"${escaped}"(?=$|\\s)`,
+                'gi'
+            );
+            const simplePattern = new RegExp(
+                `(^|\\s)@${escaped}(?=$|\\s)`,
+                'gi'
+            );
+            const updated = cleanInputSpacing(
+                inputText
+                    .replace(quotedPattern, (_, prefix) => prefix ?? '')
+                    .replace(simplePattern, (_, prefix) => prefix ?? '')
+            );
+            setInputText(updated);
+            setAnalysisResult(null);
+            if (inputRef.current) {
+                inputRef.current.focus();
+            }
+        };
+
         const calculateDropdownPosition = (
             input: HTMLInputElement | HTMLTextAreaElement,
             cursorPos: number
@@ -534,6 +671,7 @@ const QuickCaptureInput = React.forwardRef<
             const afterCursor = inputText.substring(cursorPos);
             const hashtagMatch = beforeCursor.match(/#[a-zA-Z0-9_]*$/);
             const projectMatch = beforeCursor.match(/\+[a-zA-Z0-9_\s]*$/);
+            const personMatch = beforeCursor.match(/@[a-zA-Z0-9_\s]*$/);
 
             if (hashtagMatch) {
                 const hashtagStart = beforeCursor.lastIndexOf('#');
@@ -551,7 +689,10 @@ const QuickCaptureInput = React.forwardRef<
                         .split(/\s+/)
                         .filter((word) => word.length > 0);
                     const allWordsAreTagsOrProjects = wordsBeforeHashtag.every(
-                        (word) => word.startsWith('#') || word.startsWith('+')
+                        (word) =>
+                        word.startsWith('#') ||
+                        word.startsWith('+') ||
+                        word.startsWith('@')
                     );
                     if (allWordsAreTagsOrProjects) {
                         showDropdown = true;
@@ -601,7 +742,10 @@ const QuickCaptureInput = React.forwardRef<
                         .split(/\s+/)
                         .filter((word) => word.length > 0);
                     const allWordsAreTagsOrProjects = wordsBeforeProject.every(
-                        (word) => word.startsWith('#') || word.startsWith('+')
+                        (word) =>
+                        word.startsWith('#') ||
+                        word.startsWith('+') ||
+                        word.startsWith('@')
                     );
                     if (allWordsAreTagsOrProjects) {
                         showDropdown = true;
@@ -635,6 +779,59 @@ const QuickCaptureInput = React.forwardRef<
                 }
             }
 
+            if (personMatch) {
+                const personStart = beforeCursor.lastIndexOf('@');
+                const textBeforePerson = inputText
+                    .substring(0, personStart)
+                    .trim();
+                const textAfterCursor = afterCursor.trim();
+
+                let showDropdown = false;
+
+                if (textAfterCursor === '' || textBeforePerson === '') {
+                    showDropdown = true;
+                } else {
+                    const wordsBeforePerson = textBeforePerson
+                        .split(/\s+/)
+                        .filter((word) => word.length > 0);
+                    const allWordsAreTagsOrProjects = wordsBeforePerson.every(
+                        (word) =>
+                            word.startsWith('#') ||
+                            word.startsWith('+') ||
+                            word.startsWith('@')
+                    );
+                    if (allWordsAreTagsOrProjects) {
+                        showDropdown = true;
+                    }
+                }
+
+                if (showDropdown) {
+                    const tempToPerson = document.createElement('span');
+                    tempToPerson.style.visibility = 'hidden';
+                    tempToPerson.style.position = 'absolute';
+                    tempToPerson.style.fontSize =
+                        getComputedStyle(input).fontSize;
+                    tempToPerson.style.fontFamily =
+                        getComputedStyle(input).fontFamily;
+                    tempToPerson.style.fontWeight =
+                        getComputedStyle(input).fontWeight;
+                    tempToPerson.textContent = inputText.substring(
+                        0,
+                        personStart
+                    );
+
+                    document.body.appendChild(tempToPerson);
+                    const personOffset =
+                        tempToPerson.getBoundingClientRect().width;
+                    document.body.removeChild(tempToPerson);
+
+                    return {
+                        left: inputRect.left + personOffset,
+                        top: inputRect.bottom + 4,
+                    };
+                }
+            }
+
             return { left: inputRect.left + textWidth, top: inputRect.bottom + 4 };
         };
 
@@ -659,6 +856,12 @@ const QuickCaptureInput = React.forwardRef<
             );
             setCurrentProjectQuery(projectQuery);
 
+            const peopleQuery = getCurrentPeopleQuery(
+                newText,
+                newCursorPosition
+            );
+            setCurrentPeopleQuery(peopleQuery);
+
             if (
                 (newText.charAt(newCursorPosition - 1) === '#' ||
                     hashtagQuery) &&
@@ -666,6 +869,8 @@ const QuickCaptureInput = React.forwardRef<
             ) {
                 setShowProjectSuggestions(false);
                 setFilteredProjects([]);
+                setShowPeopleSuggestions(false);
+                setFilteredPeople([]);
                 setSelectedSuggestionIndex(-1);
 
                 const filtered = tags
@@ -692,6 +897,8 @@ const QuickCaptureInput = React.forwardRef<
             ) {
                 setShowTagSuggestions(false);
                 setFilteredTags([]);
+                setShowPeopleSuggestions(false);
+                setFilteredPeople([]);
                 setSelectedSuggestionIndex(-1);
 
                 const alreadyHasProject = parseProjectRefs(newText).some(
@@ -720,11 +927,41 @@ const QuickCaptureInput = React.forwardRef<
                     setShowProjectSuggestions(true);
                     setSelectedSuggestionIndex(-1);
                 }
+            } else if (
+                (newText.charAt(newCursorPosition - 1) === '@' ||
+                    peopleQuery) &&
+                peopleQuery !== ''
+            ) {
+                setShowTagSuggestions(false);
+                setFilteredTags([]);
+                setShowProjectSuggestions(false);
+                setFilteredProjects([]);
+                setSelectedSuggestionIndex(-1);
+
+                const filtered = people
+                    .filter((person) =>
+                        person.name
+                            .toLowerCase()
+                            .includes(peopleQuery.toLowerCase())
+                    )
+                    .slice(0, 5);
+
+                const position = calculateDropdownPosition(
+                    e.target,
+                    newCursorPosition
+                );
+                setDropdownPosition(position);
+
+                setFilteredPeople(filtered);
+                setShowPeopleSuggestions(true);
+                setSelectedSuggestionIndex(-1);
             } else {
                 setShowTagSuggestions(false);
                 setFilteredTags([]);
                 setShowProjectSuggestions(false);
                 setFilteredProjects([]);
+                setShowPeopleSuggestions(false);
+                setFilteredPeople([]);
                 setSelectedSuggestionIndex(-1);
             }
         };
@@ -770,6 +1007,30 @@ const QuickCaptureInput = React.forwardRef<
             return parseProjectRefs(text);
         };
 
+        const getAllPeople = (text: string): string[] => {
+            if (
+                analysisResult &&
+                lastAnalyzedTextRef.current === text.trim() &&
+                analysisResult.parsed_people
+            ) {
+                return analysisResult.parsed_people;
+            }
+
+            return parsePeopleRefs(text);
+        };
+
+        const buildPersonObjects = (personNames: string[]) => {
+            return personNames.map((personName) => {
+                const existingPerson = people.find(
+                    (person) =>
+                        person.name.toLowerCase() === personName.toLowerCase()
+                );
+                return existingPerson
+                    ? { uid: existingPerson.uid, name: existingPerson.name }
+                    : { name: personName };
+            });
+        };
+
         const getCleanedContent = (text: string): string => {
             if (analysisResult && lastAnalyzedTextRef.current === text) {
                 return analysisResult.cleaned_content;
@@ -777,6 +1038,8 @@ const QuickCaptureInput = React.forwardRef<
 
             return text
                 .replace(/#[a-zA-Z0-9_-]+/g, '')
+                .replace(/@"[^"]*"/g, '')
+                .replace(/@[a-zA-Z0-9_-]+/g, '')
                 .replace(/\+\S+/g, '')
                 .trim();
         };
@@ -989,6 +1252,44 @@ const QuickCaptureInput = React.forwardRef<
             }
         };
 
+        const handlePersonSelect = (personName: string) => {
+            const beforeCursor = inputText.substring(0, cursorPosition);
+            const afterCursor = inputText.substring(cursorPosition);
+            const personMatch = beforeCursor.match(
+                /@(?:"([^"]*)"|([a-zA-Z0-9_\s]*))$/
+            );
+
+            if (personMatch) {
+                const formattedPersonName = personName.includes(' ')
+                    ? `"${personName}"`
+                    : personName;
+
+                const newText =
+                    beforeCursor.replace(
+                        /@(?:"([^"]*)"|([a-zA-Z0-9_\s]*))$/,
+                        `@${formattedPersonName} `
+                    ) + afterCursor;
+                setInputText(newText);
+                setShowPeopleSuggestions(false);
+                setFilteredPeople([]);
+                setSelectedSuggestionIndex(-1);
+
+                setTimeout(() => {
+                    if (inputRef.current) {
+                        inputRef.current.focus();
+                        const newCursorPos = beforeCursor.replace(
+                            /@(?:"([^"]*)"|([a-zA-Z0-9_\s]*))$/,
+                            `@${formattedPersonName} `
+                        ).length;
+                        inputRef.current.setSelectionRange(
+                            newCursorPos,
+                            newCursorPos
+                        );
+                    }
+                }, 0);
+            }
+        };
+
         const createMissingTags = async (text: string): Promise<void> => {
             const hashtagsInText = getAllTags(text);
             const currentTags = tagsStore.getTags();
@@ -1047,6 +1348,28 @@ const QuickCaptureInput = React.forwardRef<
             }
         };
 
+        const createMissingPeople = async (text: string): Promise<void> => {
+            const peopleInText = getAllPeople(text);
+            const existingPersonNames = people.map((person) =>
+                person.name.toLowerCase()
+            );
+            const missingPeople = peopleInText.filter(
+                (personName) =>
+                    !existingPersonNames.includes(personName.toLowerCase())
+            );
+
+            for (const personName of missingPeople) {
+                try {
+                    await createPerson({ name: personName });
+                } catch (error) {
+                    console.error(
+                        `Failed to create person "${personName}":`,
+                        error
+                    );
+                }
+            }
+        };
+
         const handleSubmit = useCallback(
             async (forceInbox = false) => {
                 const trimmedText = inputText.trim();
@@ -1058,6 +1381,7 @@ const QuickCaptureInput = React.forwardRef<
                     if (onSubmitOverride) {
                         await createMissingTags(trimmedText);
                         await createMissingProjects(trimmedText);
+                        await createMissingPeople(trimmedText);
                         await onSubmitOverride(trimmedText);
                         onAfterSubmit?.();
                         setIsSaving(false);
@@ -1071,6 +1395,7 @@ const QuickCaptureInput = React.forwardRef<
                     ) {
                         await createMissingTags(trimmedText);
                         await createMissingProjects(trimmedText);
+                        await createMissingPeople(trimmedText);
 
                         const cleanedText = getCleanedContent(trimmedText);
 
@@ -1083,6 +1408,10 @@ const QuickCaptureInput = React.forwardRef<
                                 );
                                 return existingTag || { name: tagName };
                             }
+                        );
+
+                        const taskPeople = buildPersonObjects(
+                            analysisResult.parsed_people || []
                         );
 
                         let projectUid: string | undefined = undefined;
@@ -1104,6 +1433,7 @@ const QuickCaptureInput = React.forwardRef<
                             status: 'not_started',
                             priority: 'low',
                             tags: taskTags,
+                            people: taskPeople,
                             project_uid: projectUid,
                             completed_at: null,
                         };
@@ -1132,6 +1462,7 @@ const QuickCaptureInput = React.forwardRef<
                     ) {
                         await createMissingTags(trimmedText);
                         await createMissingProjects(trimmedText);
+                        await createMissingPeople(trimmedText);
 
                         const cleanedText = getCleanedContent(trimmedText);
 
@@ -1212,6 +1543,7 @@ const QuickCaptureInput = React.forwardRef<
                     try {
                         await createMissingTags(trimmedText);
                         await createMissingProjects(trimmedText);
+                        await createMissingPeople(trimmedText);
                         await createInboxItemWithStore(trimmedText);
                         showSuccessToast(t('inbox.itemAdded'));
                         setInputText('');
@@ -1445,7 +1777,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1462,7 +1795,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1479,7 +1813,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1501,6 +1836,9 @@ const QuickCaptureInput = React.forwardRef<
                                             const hasProjectSuggestions =
                                                 showProjectSuggestions &&
                                                 filteredProjects.length > 0;
+                                            const hasPeopleSuggestions =
+                                                showPeopleSuggestions &&
+                                                filteredPeople.length > 0;
 
                                             if (hasTagSuggestions) {
                                                 if (e.key === 'ArrowDown') {
@@ -1624,10 +1962,72 @@ const QuickCaptureInput = React.forwardRef<
                                                 }
                                             }
 
+                                            if (hasPeopleSuggestions) {
+                                                if (e.key === 'ArrowDown') {
+                                                    e.preventDefault();
+                                                    setSelectedSuggestionIndex(
+                                                        (prev) =>
+                                                            prev <
+                                                            filteredPeople.length -
+                                                                1
+                                                                ? prev + 1
+                                                                : 0
+                                                    );
+                                                    return;
+                                                } else if (
+                                                    e.key === 'ArrowUp'
+                                                ) {
+                                                    e.preventDefault();
+                                                    setSelectedSuggestionIndex(
+                                                        (prev) =>
+                                                            prev > 0
+                                                                ? prev - 1
+                                                                : filteredPeople.length -
+                                                                  1
+                                                    );
+                                                    return;
+                                                } else if (e.key === 'Tab') {
+                                                    e.preventDefault();
+                                                    const selectedPerson =
+                                                        selectedSuggestionIndex >=
+                                                        0
+                                                            ? filteredPeople[
+                                                                  selectedSuggestionIndex
+                                                              ]
+                                                            : filteredPeople[0];
+                                                    handlePersonSelect(
+                                                        selectedPerson.name
+                                                    );
+                                                    return;
+                                                } else if (
+                                                    e.key === 'Enter' &&
+                                                    selectedSuggestionIndex >= 0
+                                                ) {
+                                                    e.preventDefault();
+                                                    handlePersonSelect(
+                                                        filteredPeople[
+                                                            selectedSuggestionIndex
+                                                        ].name
+                                                    );
+                                                    return;
+                                                } else if (e.key === 'Escape') {
+                                                    e.preventDefault();
+                                                    setShowPeopleSuggestions(
+                                                        false
+                                                    );
+                                                    setFilteredPeople([]);
+                                                    setSelectedSuggestionIndex(
+                                                        -1
+                                                    );
+                                                    return;
+                                                }
+                                            }
+
                                             if (
                                                 e.key === 'Escape' &&
                                                 !hasTagSuggestions &&
-                                                !hasProjectSuggestions
+                                                !hasProjectSuggestions &&
+                                                !hasPeopleSuggestions
                                             ) {
                                                 e.preventDefault();
                                                 if (isEditMode && !isSaving) {
@@ -1643,7 +2043,8 @@ const QuickCaptureInput = React.forwardRef<
                                             ) {
                                                 if (
                                                     hasTagSuggestions ||
-                                                    hasProjectSuggestions
+                                                    hasProjectSuggestions ||
+                                                    hasPeopleSuggestions
                                                 ) {
                                                     return;
                                                 }
@@ -1668,7 +2069,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1685,7 +2087,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1702,7 +2105,8 @@ const QuickCaptureInput = React.forwardRef<
                                             setCursorPosition(pos);
                                             if (
                                                 showTagSuggestions ||
-                                                showProjectSuggestions
+                                                showProjectSuggestions ||
+                                                showPeopleSuggestions
                                             ) {
                                                 const position =
                                                     calculateDropdownPosition(
@@ -1724,6 +2128,9 @@ const QuickCaptureInput = React.forwardRef<
                                             const hasProjectSuggestions =
                                                 showProjectSuggestions &&
                                                 filteredProjects.length > 0;
+                                            const hasPeopleSuggestions =
+                                                showPeopleSuggestions &&
+                                                filteredPeople.length > 0;
 
                                             if (hasTagSuggestions) {
                                                 if (e.key === 'ArrowDown') {
@@ -1847,10 +2254,72 @@ const QuickCaptureInput = React.forwardRef<
                                                 }
                                             }
 
+                                            if (hasPeopleSuggestions) {
+                                                if (e.key === 'ArrowDown') {
+                                                    e.preventDefault();
+                                                    setSelectedSuggestionIndex(
+                                                        (prev) =>
+                                                            prev <
+                                                            filteredPeople.length -
+                                                                1
+                                                                ? prev + 1
+                                                                : 0
+                                                    );
+                                                    return;
+                                                } else if (
+                                                    e.key === 'ArrowUp'
+                                                ) {
+                                                    e.preventDefault();
+                                                    setSelectedSuggestionIndex(
+                                                        (prev) =>
+                                                            prev > 0
+                                                                ? prev - 1
+                                                                : filteredPeople.length -
+                                                                  1
+                                                    );
+                                                    return;
+                                                } else if (e.key === 'Tab') {
+                                                    e.preventDefault();
+                                                    const selectedPerson =
+                                                        selectedSuggestionIndex >=
+                                                        0
+                                                            ? filteredPeople[
+                                                                  selectedSuggestionIndex
+                                                              ]
+                                                            : filteredPeople[0];
+                                                    handlePersonSelect(
+                                                        selectedPerson.name
+                                                    );
+                                                    return;
+                                                } else if (
+                                                    e.key === 'Enter' &&
+                                                    selectedSuggestionIndex >= 0
+                                                ) {
+                                                    e.preventDefault();
+                                                    handlePersonSelect(
+                                                        filteredPeople[
+                                                            selectedSuggestionIndex
+                                                        ].name
+                                                    );
+                                                    return;
+                                                } else if (e.key === 'Escape') {
+                                                    e.preventDefault();
+                                                    setShowPeopleSuggestions(
+                                                        false
+                                                    );
+                                                    setFilteredPeople([]);
+                                                    setSelectedSuggestionIndex(
+                                                        -1
+                                                    );
+                                                    return;
+                                                }
+                                            }
+
                                             if (
                                                 e.key === 'Escape' &&
                                                 !hasTagSuggestions &&
-                                                !hasProjectSuggestions
+                                                !hasProjectSuggestions &&
+                                                !hasPeopleSuggestions
                                             ) {
                                                 e.preventDefault();
                                                 if (isEditMode && !isSaving) {
@@ -1866,7 +2335,8 @@ const QuickCaptureInput = React.forwardRef<
                                             ) {
                                                 if (
                                                     hasTagSuggestions ||
-                                                    hasProjectSuggestions
+                                                    hasProjectSuggestions ||
+                                                    hasPeopleSuggestions
                                                 ) {
                                                     return;
                                                 }
@@ -1881,10 +2351,13 @@ const QuickCaptureInput = React.forwardRef<
                             <InboxSelectedChips
                                 selectedTags={getAllTags(inputText)}
                                 selectedProjects={getAllProjects(inputText)}
+                                selectedPeople={getAllPeople(inputText)}
                                 tags={tags}
                                 projects={projects}
+                                people={people}
                                 onRemoveTag={removeTagFromText}
                                 onRemoveProject={removeProjectFromText}
+                                onRemovePerson={removePersonFromText}
                             />
 
                             <SuggestionsDropdown
@@ -1911,6 +2384,20 @@ const QuickCaptureInput = React.forwardRef<
                                     handleProjectSelect(project.name)
                                 }
                                 renderLabel={(project) => <>+{project.name}</>}
+                            />
+
+                            <SuggestionsDropdown
+                                isVisible={
+                                    showPeopleSuggestions &&
+                                    filteredPeople.length > 0
+                                }
+                                items={filteredPeople}
+                                position={dropdownPosition}
+                                selectedIndex={selectedSuggestionIndex}
+                                onSelect={(person) =>
+                                    handlePersonSelect(person.name)
+                                }
+                                renderLabel={(person) => <>@{person.name}</>}
                             />
 
                             {urlPreview && (

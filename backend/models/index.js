@@ -324,6 +324,19 @@ Person.hasMany(Task, {
     sourceKey: 'uid',
     as: 'AssignedTasks',
 });
+// Many-to-many @mention link (parity with tags), separate from single assigned_to FK
+Task.belongsToMany(Person, {
+    through: 'tasks_people',
+    foreignKey: 'task_id',
+    otherKey: 'person_id',
+    as: 'InvolvedPeople',
+});
+Person.belongsToMany(Task, {
+    through: 'tasks_people',
+    foreignKey: 'person_id',
+    otherKey: 'task_id',
+    as: 'InvolvedTasks',
+});
 
 // Seed system tags for every new user
 User.addHook('afterCreate', async (user) => {

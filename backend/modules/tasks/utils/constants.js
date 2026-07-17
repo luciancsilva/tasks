@@ -1,4 +1,4 @@
-const { Tag, Project, Area, Task } = require('../../../models');
+const { Tag, Project, Area, Task, Person } = require('../../../models');
 
 const TASK_INCLUDES = [
     {
@@ -14,6 +14,13 @@ const TASK_INCLUDES = [
     {
         model: Area,
         attributes: ['id', 'name', 'uid', 'color'],
+        required: false,
+    },
+    {
+        model: Person,
+        as: 'InvolvedPeople',
+        attributes: ['id', 'name', 'uid', 'color'],
+        through: { attributes: [] },
         required: false,
     },
 ];

@@ -8,7 +8,12 @@ import {
     ChevronDownIcon,
     CheckIcon,
 } from '@heroicons/react/24/outline';
-import { TagIcon, FolderIcon, FireIcon } from '@heroicons/react/24/solid';
+import {
+    TagIcon,
+    FolderIcon,
+    FireIcon,
+    UserIcon,
+} from '@heroicons/react/24/solid';
 import { useTranslation } from 'react-i18next';
 import TaskPriorityIcon from '../Shared/Icons/TaskPriorityIcon';
 import { Project } from '../../entities/Project';
@@ -165,14 +170,35 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
         : null;
 
     // Check if task has metadata (project, tags, due_date, completed_at, recurrence_type, recurring_parent_id, or defer_until)
+    const involvedPeople = task.InvolvedPeople || [];
+
     const hasMetadata =
         (project && !hideProjectName) ||
         (task.tags && task.tags.length > 0) ||
+        involvedPeople.length > 0 ||
         task.due_date ||
         (isTaskCompleted(task.status) && task.completed_at) ||
         (task.recurrence_type && task.recurrence_type !== 'none') ||
         task.recurring_parent_id ||
         !!formattedDeferUntil;
+
+    const renderPeopleChips = () =>
+        involvedPeople.length > 0 ? (
+            <div className="flex items-center gap-1.5">
+                <UserIcon className="h-3 w-3 flex-shrink-0 text-gray-400 dark:text-gray-500" />
+                {involvedPeople.map((person) => (
+                    <Link
+                        key={person.uid || person.name}
+                        to={person.uid ? `/person/${person.uid}` : '#'}
+                        className="inline-flex items-center px-2 py-px rounded-full text-[10px] font-medium transition-opacity hover:opacity-80 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-300"
+                        style={tagColorStyle(person.color || undefined)}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {person.name}
+                    </Link>
+                ))}
+            </div>
+        ) : null;
 
     return (
         <div
@@ -279,6 +305,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                                         ))}
                                     </div>
                                 )}
+                                {renderPeopleChips()}
                             </div>
                         ) : (
                             <div className="flex items-center gap-1.5 flex-1 min-w-0">
@@ -354,6 +381,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                                         ))}
                                     </div>
                                 )}
+                                {renderPeopleChips()}
                                 {task.due_date && (
                                     <div className="flex items-center whitespace-nowrap">
                                         <CalendarIcon className="h-3 w-3 mr-1" />
@@ -515,6 +543,7 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({
                                     ))}
                                 </div>
                             )}
+                            {renderPeopleChips()}
                             {!isUpcomingView && task.due_date && (
                                 <div className="flex items-center whitespace-nowrap">
                                     <CalendarIcon className="h-3 w-3 mr-1" />

@@ -81,8 +81,11 @@ const tokenizeText = (text) => {
     while (i < textLength) {
         const char = text[i];
 
-        if (char === '"' && (i === 0 || text[i - 1] === '+')) {
-            // Start of a quoted string after +
+        if (
+            char === '"' &&
+            (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+        ) {
+            // Start of a quoted string after + or @
             inQuotes = true;
             currentToken += char;
         } else if (char === '"' && inQuotes) {
@@ -127,13 +130,18 @@ const parseHashtags = (text) => {
     let i = 0;
     while (i < words.length) {
         // Check if current word starts a tag/project group
-        if (words[i].startsWith('#') || words[i].startsWith('+')) {
-            // Found start of a group, collect all consecutive tags/projects
+        if (
+            words[i].startsWith('#') ||
+            words[i].startsWith('+') ||
+            words[i].startsWith('@')
+        ) {
+            // Found start of a group, collect all consecutive tags/projects/people
             let groupEnd = i;
             while (
                 groupEnd < words.length &&
                 (words[groupEnd].startsWith('#') ||
-                    words[groupEnd].startsWith('+'))
+                    words[groupEnd].startsWith('+') ||
+                    words[groupEnd].startsWith('@'))
             ) {
                 groupEnd++;
             }
@@ -178,13 +186,18 @@ const parseProjectRefs = (text) => {
     let i = 0;
     while (i < tokens.length) {
         // Check if current token starts a tag/project group
-        if (tokens[i].startsWith('#') || tokens[i].startsWith('+')) {
+        if (
+            tokens[i].startsWith('#') ||
+            tokens[i].startsWith('+') ||
+            tokens[i].startsWith('@')
+        ) {
             // Found start of a group, collect all consecutive tags/projects
             let groupEnd = i;
             while (
                 groupEnd < tokens.length &&
                 (tokens[groupEnd].startsWith('#') ||
-                    tokens[groupEnd].startsWith('+'))
+                    tokens[groupEnd].startsWith('+') ||
+                    tokens[groupEnd].startsWith('@'))
             ) {
                 groupEnd++;
             }
@@ -219,6 +232,61 @@ const parseProjectRefs = (text) => {
 };
 
 /**
+ * Parse people references (@name) from text (consecutive groups anywhere)
+ * @param {string} text - Text to parse
+ * @returns {string[]} Array of person names
+ */
+const parsePeopleRefs = (text) => {
+    const trimmedText = text.trim();
+    const matches = [];
+
+    const tokens = tokenizeText(trimmedText);
+
+    let i = 0;
+    while (i < tokens.length) {
+        if (
+            tokens[i].startsWith('#') ||
+            tokens[i].startsWith('+') ||
+            tokens[i].startsWith('@')
+        ) {
+            let groupEnd = i;
+            while (
+                groupEnd < tokens.length &&
+                (tokens[groupEnd].startsWith('#') ||
+                    tokens[groupEnd].startsWith('+') ||
+                    tokens[groupEnd].startsWith('@'))
+            ) {
+                groupEnd++;
+            }
+
+            for (let j = i; j < groupEnd; j++) {
+                if (tokens[j].startsWith('@')) {
+                    let personName = tokens[j].substring(1);
+
+                    // Handle quoted names (@"Full Name")
+                    if (
+                        personName.startsWith('"') &&
+                        personName.endsWith('"')
+                    ) {
+                        personName = personName.slice(1, -1);
+                    }
+
+                    if (personName && !matches.includes(personName)) {
+                        matches.push(personName);
+                    }
+                }
+            }
+
+            i = groupEnd;
+        } else {
+            i++;
+        }
+    }
+
+    return matches;
+};
+
+/**
  * Clean text by removing tags and project references (consecutive groups anywhere)
  * @param {string} text - Text to clean
  * @returns {string} Cleaned text
@@ -231,11 +299,17 @@ const cleanTextFromTagsAndProjects = (text) => {
     let i = 0;
     while (i < tokens.length) {
         // Check if current token starts a tag/project group
-        if (tokens[i].startsWith('#') || tokens[i].startsWith('+')) {
+        if (
+            tokens[i].startsWith('#') ||
+            tokens[i].startsWith('+') ||
+            tokens[i].startsWith('@')
+        ) {
             // Skip this entire consecutive group
             while (
                 i < tokens.length &&
-                (tokens[i].startsWith('#') || tokens[i].startsWith('+'))
+                (tokens[i].startsWith('#') ||
+                    tokens[i].startsWith('+') ||
+                    tokens[i].startsWith('@'))
             ) {
                 i++;
             }
@@ -337,6 +411,7 @@ const processInboxItem = (content) => {
     // Parse the content
     const tags = parseHashtags(content);
     const projects = parseProjectRefs(content);
+    const people = parsePeopleRefs(content);
     const cleanedContent = cleanTextFromTagsAndProjects(content);
 
     // Generate suggestion
@@ -350,6 +425,7 @@ const processInboxItem = (content) => {
     return {
         parsed_tags: tags,
         parsed_projects: projects,
+        parsed_people: people,
         cleaned_content: cleanedContent,
         suggested_type: suggestion.type,
         suggested_reason: suggestion.reason,
@@ -368,6 +444,7 @@ module.exports = {
     // Parsing functions
     parseHashtags,
     parseProjectRefs,
+    parsePeopleRefs,
     cleanTextFromTagsAndProjects,
     tokenizeText,
 

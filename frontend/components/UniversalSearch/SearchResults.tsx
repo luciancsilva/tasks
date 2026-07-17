@@ -7,6 +7,7 @@ import {
     RectangleStackIcon,
     DocumentTextIcon,
     TagIcon,
+    UserIcon,
 } from '@heroicons/react/24/outline';
 import { searchUniversal } from '../../utils/searchService';
 
@@ -22,7 +23,7 @@ interface SearchResultsProps {
 }
 
 interface SearchResult {
-    type: 'Task' | 'Project' | 'Area' | 'Note' | 'Tag';
+    type: 'Task' | 'Project' | 'Area' | 'Note' | 'Tag' | 'Person';
     id: number;
     uid?: string;
     name: string;
@@ -110,6 +111,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 return <DocumentTextIcon className="h-5 w-5 text-yellow-500" />;
             case 'Tag':
                 return <TagIcon className="h-5 w-5 text-pink-500" />;
+            case 'Person':
+                return <UserIcon className="h-5 w-5 text-indigo-500" />;
             default:
                 return null;
         }
@@ -168,6 +171,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 if (result.uid) {
                     const slug = createSlug(result.name);
                     navigate(`/tag/${result.uid}-${slug}`);
+                }
+                break;
+            }
+            case 'Person': {
+                // People use uid directly
+                if (result.uid) {
+                    navigate(`/person/${result.uid}`);
                 }
                 break;
             }

@@ -23,6 +23,7 @@ const {
     calculateNextIterations,
 } = require('./operations/recurring');
 const { updateTaskTags } = require('./operations/tags');
+const { updateTaskPeople } = require('./operations/people');
 const { handleCompletionStatus } = require('./operations/completion');
 const {
     handleParentChildOnStatusChange,
@@ -325,9 +326,12 @@ const tasksService = {
             parent_task_id,
             tags,
             Tags,
+            people,
+            People,
             subtasks,
         } = body;
         const tagsData = tags || Tags;
+        const peopleData = people || People;
 
         if (!name || name.trim() === '') {
             throw new ValidationError('Task name is required.');
@@ -380,6 +384,7 @@ const tasksService = {
 
         const task = await taskRepository.create(taskAttributes);
         await updateTaskTags(task, tagsData, userId);
+        await updateTaskPeople(task, peopleData, userId);
         await createSubtasks(task.id, subtasks, userId);
 
         const taskWithAssociations = await taskRepository.findById(task.id, {
@@ -413,11 +418,14 @@ const tasksService = {
             parent_task_id,
             tags,
             Tags,
+            people,
+            People,
             subtasks,
             update_parent_recurrence,
         } = body;
 
         const tagsData = tags || Tags;
+        const peopleData = people || People;
 
         const task = await taskRepository.findByUid(uid, {
             include: TASK_INCLUDES_WITH_SUBTASKS,
@@ -549,6 +557,7 @@ const tasksService = {
         }
 
         await updateTaskTags(task, tagsData, userId);
+        await updateTaskPeople(task, peopleData, userId);
         await updateSubtasks(task.id, subtasks, userId);
         await logTaskChanges(task, oldValues, body, tagsData, userId);
 

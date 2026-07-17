@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import rehypeHighlight from 'rehype-highlight';
 import hljs from 'highlight.js';
 
@@ -99,7 +100,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     return (
         <div className={`markdown-content ${className}`}>
             <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkBreaks]}
                 rehypePlugins={[
                     [rehypeHighlight, { detect: true, ignoreMissing: true }],
                 ]}

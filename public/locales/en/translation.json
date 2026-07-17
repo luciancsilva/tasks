@@ -1176,6 +1176,8 @@
         },
         "shortcutTag": "to label with a tag",
         "shortcutProject": "to assign to a project",
+        "shortcutPerson": "to link a person",
+        "removePerson": "Remove person",
         "linkPreview": "Link preview",
         "linkPreviewError": "Could not fetch link details",
         "aboutInbox": "About Inbox"
@@ -2148,8 +2150,10 @@
             "task": "task",
             "project": "project",
             "area": "area",
-            "note": "note"
+            "note": "note",
+            "person": "person"
         },
+        "dueLabel": ", due",
         "viewNow": "View now",
         "saveViewModal": {
             "editTitle": "Edit Saved View",
