@@ -1,6 +1,8 @@
 # 19b — Preservação de Pessoas (`Person`) e Menções (`tasks_people`) no Backup/Restore
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — `exportUserData` passa a incluir `people` e os vínculos de @menção (`involved_person_uids` por task, no padrão de `tag_uids`), além de `project_uid`/`parent_task_uid`/`recurring_parent_uid` nas tasks e `project_uid` nas notes. `importUserData` importa People cedo, resolve FKs via `uidToIdMap` (com fallback ao id bruto legado), reconstrói `tasks_people` e preserva `assigned_to`.
+>
+> **Desvios:** (1) as menções são exportadas como `involved_person_uids` por task (espelhando `tag_uids`) em vez de uma lista `task_people` separada — mais consistente com o código existente; (2) `assigned_to` (FK única de assignee → `people.uid`) também é preservado, embora o plano só citasse as menções M:N; (3) descoberto no caminho um limite pré-existente: restaurar o backup de um usuário sobre outro que já tem tags de mesmo nome colide em `UNIQUE(user_id, name)` — distinto deste plano, candidato a plano novo (`19m`).
 > **Escopo:** Incluir a tabela `Person` e as menções (`tasks_people`) na rotina de exportação/importação do `backend/services/backupService.js` e resolver foreign keys (`project_id`, `parent_task_id`) exclusivamente via `uidToIdMap`.
 > **Depende de:** -
 

@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Alto | `19b-backup-restore-mentions.md` | AL-2: `exportUserData`/`importUserData` omitem `Person`/`@mentions` e importam por IDs numéricos brutos | - |
 
 ### Prioridade MÉDIA
 
@@ -179,6 +178,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `19a-tasks-transactions.md` | AL-1: create/update de tasks atômicos (sequelize.transaction) propagada a tags/people/subtasks/parent-child | EXECUTADO (2026-07-17) |
 | `19e-projects-transactions-and-tags.md` | AL-5: create/update de projects atômicos + erro de tag deixa de ser engolido | EXECUTADO (2026-07-17) |
 | `19d-caldav-sync-batching-and-tx.md` | AL-4/AL-6: pull-phase em lotes paralelos + merge-phase create/update transacionais | EXECUTADO (2026-07-17) |
+| `19b-backup-restore-mentions.md` | AL-2: backup/restore inclui Person + @mentions e resolve FKs por UID | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

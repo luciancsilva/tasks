@@ -11,6 +11,7 @@ const {
     View,
     RecurringCompletion,
     TaskAttachment,
+    Person,
     Backup,
 } = require('../models');
 const fs = require('fs').promises;
@@ -84,6 +85,31 @@ function checkVersionCompatibility(backupVersion) {
 }
 
 /**
+ * Resolve a foreign key during import. Prefers the portable UID mapped to the
+ * freshly-imported row; falls back to the legacy raw-id lookup for older
+ * backups that predate UID export. Returns the new local id or null.
+ * @param {object} uidMap - map of exported uid -> newly created local id
+ * @param {string|undefined} refUid - exported uid of the referenced row
+ * @param {number|undefined} legacyId - exported raw id (legacy backups)
+ * @param {object} Model - Sequelize model to fall back to
+ * @param {object} transaction - active transaction
+ * @returns {Promise<number|null>}
+ */
+async function resolveMappedId(uidMap, refUid, legacyId, Model, transaction) {
+    if (refUid && uidMap[refUid]) {
+        return uidMap[refUid];
+    }
+    if (legacyId) {
+        const row = await Model.findOne({
+            where: { id: legacyId },
+            transaction,
+        });
+        return row ? row.id : null;
+    }
+    return null;
+}
+
+/**
  * Export all data for a specific user
  * @param {number} userId - The user ID to export data for
  * @returns {Promise<object>} - The backup data as JSON
@@ -116,6 +142,7 @@ async function exportUserData(userId) {
             inboxItems,
             taskEvents,
             views,
+            people,
         ] = await Promise.all([
             Area.findAll({ where: { user_id: userId } }),
             Project.findAll({
@@ -144,6 +171,12 @@ async function exportUserData(userId) {
                         model: TaskAttachment,
                         as: 'Attachments',
                     },
+                    {
+                        model: Person,
+                        as: 'InvolvedPeople',
+                        through: { attributes: [] },
+                        attributes: ['uid'],
+                    },
                 ],
             }),
             Tag.findAll({ where: { user_id: userId } }),
@@ -160,7 +193,13 @@ async function exportUserData(userId) {
             InboxItem.findAll({ where: { user_id: userId } }),
             TaskEvent.findAll({ where: { user_id: userId } }),
             View.findAll({ where: { user_id: userId } }),
+            Person.findAll({ where: { user_id: userId } }),
         ]);
+
+        // Numeric-id -> uid maps so foreign keys are exported as stable UIDs.
+        // Raw autoincrement ids are meaningless once restored into another DB.
+        const projectIdToUid = new Map(projects.map((p) => [p.id, p.uid]));
+        const taskIdToUid = new Map(tasks.map((t) => [t.id, t.uid]));
 
         // Build the backup object
         const backup = {
@@ -202,17 +241,36 @@ async function exportUserData(userId) {
                     const taskData = task.toJSON();
                     // Extract tag UIDs and related data
                     taskData.tag_uids = (task.Tags || []).map((tag) => tag.uid);
+                    // Resolve foreign keys to UIDs for portable restore.
+                    taskData.project_uid = task.project_id
+                        ? projectIdToUid.get(task.project_id) || null
+                        : null;
+                    taskData.parent_task_uid = task.parent_task_id
+                        ? taskIdToUid.get(task.parent_task_id) || null
+                        : null;
+                    taskData.recurring_parent_uid = task.recurring_parent_id
+                        ? taskIdToUid.get(task.recurring_parent_id) || null
+                        : null;
+                    // @mention links (people) as UIDs, mirroring tag_uids.
+                    taskData.involved_person_uids = (
+                        task.InvolvedPeople || []
+                    ).map((person) => person.uid);
                     taskData.completions = taskData.Completions || [];
                     taskData.attachments = taskData.Attachments || [];
                     delete taskData.Tags;
                     delete taskData.Completions;
                     delete taskData.Attachments;
+                    delete taskData.InvolvedPeople;
                     return taskData;
                 }),
                 tags: tags.map((tag) => tag.toJSON()),
+                people: people.map((person) => person.toJSON()),
                 notes: notes.map((note) => {
                     const noteData = note.toJSON();
                     noteData.tag_uids = (note.Tags || []).map((tag) => tag.uid);
+                    noteData.project_uid = note.project_id
+                        ? projectIdToUid.get(note.project_id) || null
+                        : null;
                     delete noteData.Tags;
                     return noteData;
                 }),
@@ -257,6 +315,7 @@ async function importUserData(userId, backupData, options = { merge: true }) {
             projects: { created: 0, skipped: 0 },
             tasks: { created: 0, skipped: 0 },
             tags: { created: 0, skipped: 0 },
+            people: { created: 0, skipped: 0 },
             notes: { created: 0, skipped: 0 },
             inbox_items: { created: 0, skipped: 0 },
             views: { created: 0, skipped: 0 },
@@ -268,6 +327,7 @@ async function importUserData(userId, backupData, options = { merge: true }) {
             projects: {},
             tasks: {},
             tags: {},
+            people: {},
             notes: {},
         };
 
@@ -320,6 +380,39 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                     );
                     stats.areas.created++;
                     uidToIdMap.areas[areaData.uid] = newArea.id;
+                }
+            }
+        }
+
+        // Import people (depends only on user). Must run before tasks so
+        // assigned_to (FK -> people.uid) and @mention links resolve.
+        if (backupData.data.people) {
+            for (const personData of backupData.data.people) {
+                const existingPerson = await Person.findOne({
+                    where: { uid: personData.uid, user_id: userId },
+                    transaction,
+                });
+
+                if (existingPerson && options.merge) {
+                    stats.people.skipped++;
+                    uidToIdMap.people[personData.uid] = existingPerson.id;
+                } else if (!existingPerson) {
+                    const newPerson = await Person.create(
+                        {
+                            uid: personData.uid,
+                            name: personData.name,
+                            relationship_type: personData.relationship_type,
+                            email: personData.email,
+                            phone: personData.phone,
+                            notes: personData.notes,
+                            archived: personData.archived,
+                            color: personData.color,
+                            user_id: userId,
+                        },
+                        { transaction }
+                    );
+                    stats.people.created++;
+                    uidToIdMap.people[personData.uid] = newPerson.id;
                 }
             }
         }
@@ -396,15 +489,23 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                     stats.tasks.skipped++;
                     uidToIdMap.tasks[taskData.uid] = existingTask.id;
                 } else if (!existingTask) {
-                    // Map project_id if it exists
-                    let projectId = null;
-                    if (taskData.project_id) {
-                        const project = await Project.findOne({
-                            where: { id: taskData.project_id },
-                            transaction,
-                        });
-                        projectId = project ? project.id : null;
-                    }
+                    // Resolve project by UID (portable) with a fallback to the
+                    // legacy raw-id lookup for backups made before UIDs existed.
+                    const projectId = await resolveMappedId(
+                        uidToIdMap.projects,
+                        taskData.project_uid,
+                        taskData.project_id,
+                        Project,
+                        transaction
+                    );
+
+                    // assigned_to is a Person UID (FK -> people.uid); keep it
+                    // only when that person came in with this backup.
+                    const assignedTo =
+                        taskData.assigned_to &&
+                        uidToIdMap.people[taskData.assigned_to]
+                            ? taskData.assigned_to
+                            : null;
 
                     const newTask = await Task.create(
                         {
@@ -428,6 +529,7 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                             completed_at: taskData.completed_at,
                             user_id: userId,
                             project_id: projectId,
+                            assigned_to: assignedTo,
                         },
                         { transaction }
                     );
@@ -441,6 +543,21 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                             .filter(Boolean);
                         if (tagIds.length > 0) {
                             await newTask.setTags(tagIds, { transaction });
+                        }
+                    }
+
+                    // Re-link @mentioned people (tasks_people M:N)
+                    if (
+                        taskData.involved_person_uids &&
+                        taskData.involved_person_uids.length > 0
+                    ) {
+                        const personIds = taskData.involved_person_uids
+                            .map((uid) => uidToIdMap.people[uid])
+                            .filter(Boolean);
+                        if (personIds.length > 0) {
+                            await newTask.setInvolvedPeople(personIds, {
+                                transaction,
+                            });
                         }
                     }
 
@@ -482,9 +599,15 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                 }
             }
 
-            // Second pass: update parent_task_id and recurring_parent_id
+            // Second pass: update parent_task_id and recurring_parent_id,
+            // resolved via UID (portable) with legacy raw-id fallback.
             for (const taskData of backupData.data.tasks) {
-                if (taskData.parent_task_id || taskData.recurring_parent_id) {
+                const hasParentRef =
+                    taskData.parent_task_id ||
+                    taskData.recurring_parent_id ||
+                    taskData.parent_task_uid ||
+                    taskData.recurring_parent_uid;
+                if (hasParentRef) {
                     const task = await Task.findOne({
                         where: { uid: taskData.uid, user_id: userId },
                         transaction,
@@ -493,31 +616,26 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                     if (task) {
                         const updates = {};
 
-                        if (taskData.parent_task_id) {
-                            const parentTask = await Task.findOne({
-                                where: {
-                                    id: taskData.parent_task_id,
-                                    user_id: userId,
-                                },
-                                transaction,
-                            });
-                            if (parentTask) {
-                                updates.parent_task_id = parentTask.id;
-                            }
+                        const parentId = await resolveMappedId(
+                            uidToIdMap.tasks,
+                            taskData.parent_task_uid,
+                            taskData.parent_task_id,
+                            Task,
+                            transaction
+                        );
+                        if (parentId) {
+                            updates.parent_task_id = parentId;
                         }
 
-                        if (taskData.recurring_parent_id) {
-                            const recurringParent = await Task.findOne({
-                                where: {
-                                    id: taskData.recurring_parent_id,
-                                    user_id: userId,
-                                },
-                                transaction,
-                            });
-                            if (recurringParent) {
-                                updates.recurring_parent_id =
-                                    recurringParent.id;
-                            }
+                        const recurringParentId = await resolveMappedId(
+                            uidToIdMap.tasks,
+                            taskData.recurring_parent_uid,
+                            taskData.recurring_parent_id,
+                            Task,
+                            transaction
+                        );
+                        if (recurringParentId) {
+                            updates.recurring_parent_id = recurringParentId;
                         }
 
                         if (Object.keys(updates).length > 0) {
@@ -539,15 +657,14 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                 if (existingNote && options.merge) {
                     stats.notes.skipped++;
                 } else if (!existingNote) {
-                    // Map project_id if it exists
-                    let projectId = null;
-                    if (noteData.project_id) {
-                        const project = await Project.findOne({
-                            where: { id: noteData.project_id },
-                            transaction,
-                        });
-                        projectId = project ? project.id : null;
-                    }
+                    // Resolve project by UID (portable) with legacy fallback.
+                    const projectId = await resolveMappedId(
+                        uidToIdMap.projects,
+                        noteData.project_uid,
+                        noteData.project_id,
+                        Project,
+                        transaction
+                    );
 
                     const newNote = await Note.create(
                         {
