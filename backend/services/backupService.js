@@ -683,7 +683,7 @@ function validateBackupData(backupData) {
  * @returns {Promise<string>} - Path to backups directory
  */
 async function getBackupsDirectory() {
-    const backupsDir = path.join(__dirname, '../backups');
+    const backupsDir = getConfig().backupPath;
     try {
         await fs.access(backupsDir);
     } catch {

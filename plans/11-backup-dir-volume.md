@@ -1,6 +1,6 @@
 # 11 — Backup lógico grava em diretório efêmero
 
-> **Status: Aberto.** Esforço: baixo.
+> **Status: EXECUTADO** em 2026-07-17 — `TUDUDI_BACKUP_PATH` adicionado ao config, `getBackupsDirectory()` usa a config, var declarada no Dockerfile/`.env.example`/`docker-compose.yml`; testes unitários cobrindo o comportamento.
 
 Pré-requisito de leitura: `plans/README.md`.
 

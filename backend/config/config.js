@@ -103,6 +103,14 @@ const config = {
     uploadPath:
         process.env.TUDUDI_UPLOAD_PATH || path.join(projectRootPath, 'uploads'),
 
+    // Directory where the logical (per-user) backups are stored.
+    // Must be on a persistent volume; defaults to db/backups so it shares
+    // the tududi_db volume with the SQLite database file.
+    // Override with TUDUDI_BACKUP_PATH to use a dedicated mount point.
+    backupPath:
+        process.env.TUDUDI_BACKUP_PATH ||
+        path.join(projectRootPath, '..', 'db', 'backups'),
+
     // File upload limit in MB (default 10MB)
     fileUploadLimitMB: process.env.FILE_UPLOAD_LIMIT_MB
         ? parseInt(process.env.FILE_UPLOAD_LIMIT_MB, 10)

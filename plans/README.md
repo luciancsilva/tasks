@@ -114,7 +114,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | Baixo | `10a-r2-put-and-list.md` | `r2Service`: subir arquivo do disco + listar objetos (2 funções + testes) | — |
 | Baixo | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | `10b` |
 | Baixo | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | `10b`, `10c` |
-| Baixo | `11-backup-dir-volume.md` | Backup lógico grava em diretório efêmero (fora de volume) | — |
 | Médio | `10b-db-snapshot-service.md` | `createSnapshot()`: VACUUM INTO + upload + retenção | `10a` |
 
 ### Prioridade MÉDIA — código morto que já mordeu uma vez
@@ -141,6 +140,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `05b-medium-effort.md` | 4 itens de esforço médio | EXECUTADO (2026-07-16) |
 | `09a-d1-code-removal.md` | Remoção da camada de dados D1 (código) | EXECUTADO (2026-07-17) |
 | `09b-d1-docs-cleanup.md` | Tirar D1 da documentação | EXECUTADO (2026-07-17) |
+| `11-backup-dir-volume.md` | Backup lógico em diretório persistente | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

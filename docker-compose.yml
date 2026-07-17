@@ -26,6 +26,9 @@
           CLOUDFLARE_R2_BUCKET: ${CLOUDFLARE_R2_BUCKET:-}
           CLOUDFLARE_R2_ENDPOINT: ${CLOUDFLARE_R2_ENDPOINT:-}
 
+          # Logical backup directory (must be on a persistent volume)
+          TUDUDI_BACKUP_PATH: ${TUDUDI_BACKUP_PATH:-/app/db/backups}
+
 
 
         # Caminhos definidos no Dockerfile (VOLUME/DB_FILE/TUDUDI_UPLOAD_PATH).
