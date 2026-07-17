@@ -36,8 +36,10 @@
 ├── Git & GitHub
 ├── .gitignore
 ├── .github/
-│   ├── CONTRIBUTING.md    # Contribution guidelines
-│   └── workflows/         # GitHub Actions
+│   ├── CONTRIBUTING.md          # Upstream's contribution guide (this fork is personal)
+│   ├── codeql-config.yml        # CodeQL scan config
+│   ├── copilot-instructions.md  # Agent response style
+│   └── workflows/               # GitHub Actions (ci.yml)
 │
 ├── Source Code
 ├── backend/               # Express backend → See Backend Structure

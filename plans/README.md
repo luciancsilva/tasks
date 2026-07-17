@@ -26,16 +26,27 @@ siga os passos abaixo imediatamente.
    (credencial, escolha de produto, mudança de API pública).
 6. Ao final, entregue resumo: o que foi feito, resultado dos testes, desvios.
 
-## ⚠️ Armadilhas — leia antes de rodar qualquer comando
+## Armadilhas
 
-Cada uma destas já causou estrago real ou daria falso positivo:
+⚠️ **Leia antes de rodar qualquer comando.** Cada uma destas já causou estrago
+real ou daria falso positivo. Esta seção é a **fonte única** — `CLAUDE.md` e
+`docs/MEMORY.md` apontam para cá em vez de duplicar.
 
 1. **`npm run db:init` e `npm run db:reset` DESTROEM o banco.** São
-   `sequelize.sync({ force: true })` = DROP de todas as tabelas. **Nunca** rode
-   para "preparar o ambiente" — foi exatamente esse comando, disparado
-   automaticamente no boot, que zerou o banco de produção duas vezes em
-   2026-07-16/17 (`09a-d1-code-removal.md` §Registro). Para inspecionar o banco
-   use `npm run db:status`.
+   `sequelize.sync({ force: true })` = DROP de todas as tabelas. Foi exatamente
+   esse comando, disparado automaticamente no boot, que zerou o banco de
+   produção duas vezes em 2026-07-16/17 (`09a-d1-code-removal.md` §Registro).
+   **Como agente executor, você nunca precisa rodar nenhum dos dois**: o banco
+   de dev já existe neste checkout, e a suíte usa `NODE_ENV=test`. Para
+   inspecionar, `npm run db:status` (só lê).
+
+   Nuance que não cabe esquecer: num banco que **ainda não existe**, `db:init` é
+   o caminho *correto* — é o que `backend/cmd/start.sh:92` faz. `db:migrate`
+   sozinho não bootstrapa: a ordem alfabética roda
+   `20250116...-add-first-day-of-week-to-users` antes de `20250615...-create-users`,
+   `safeAddColumns` pula em silêncio e marca a migration como executada — a
+   coluna nunca é criada. O perigo do `db:init` é exclusivamente contra banco que
+   **já existe**.
 2. **`docker compose up --build` NÃO testa seu código local.** O
    `docker-compose.yml` builda de
    `context: https://github.com/luciancsilva/tasks.git#main` — ou seja, o
@@ -107,25 +118,22 @@ só os arquivos que você tocou, individualmente.
 
 Dentro de cada prioridade, do menor para o maior esforço.
 
-### Prioridade ALTA — vazia
-
-Nada aberto. O risco que ocupava esta faixa era a ausência de backup offsite;
-fechado em 2026-07-17 pelos `10a`–`10d` (snapshot para o R2, agendado, com
-restore executado e documentado em `docs/backups.md`).
-
-### Prioridade MÉDIA — vazia
-
-Nada aberto. A dívida que ocupava esta faixa era a camada D1 morta; removida em
-2026-07-17 (`09a`, `09b`).
-
-### Prioridade BAIXA — estrutural
+### Prioridade MÉDIA
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| — | `05-future-improvements.md` | Índice do levantamento (não é trabalho; aponta os `05x`) | — |
+| Médio | `12-migration-bootstrap-order.md` | Migration fora de ordem faz o bootstrap por migrations gerar schema quebrado em silêncio | — |
 
-**Não há trabalho aberto.** Todo plano proposto foi executado. Novo trabalho
-entra como arquivo novo aqui, com número novo (ver §Numeração).
+### Prioridade BAIXA
+
+Nada aberto.
+
+`05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
+registro, não trabalho.
+
+Os riscos que ocupavam a faixa ALTA foram fechados em 2026-07-17: a ausência de
+backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado),
+e a camada D1 morta pelos `09a`/`09b`.
 
 ### Executados — registro de decisão, não mexer
 

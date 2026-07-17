@@ -1,130 +1,94 @@
-# Git Review & Upstream Synchronization
+# Sincronização com o upstream
 
-## Purpose
+Política deste fork em relação a `chrisvel/tududi`. Vale para humanos e para
+agentes de IA.
 
-Evaluate and selectively integrate changes from the upstream repository into the current fork while preserving all fork-specific customizations.
+## Posição: hard fork de fato
 
-Act as the repository maintainer. Complete every safe action autonomously. Only stop and request human input if an action is destructive, irreversible, or genuinely ambiguous.
+**Não sincronize por rotina.** Este fork está 68 commits à frente do upstream e
+o que vem de lá entrega pouco valor para este uso. Tempo passar não é motivo
+para fazer merge.
 
----
+Sincronize apenas quando houver **um motivo nomeado**:
 
-## Repository Discovery
+- correção de segurança no upstream;
+- um bug que te afeta e que já foi corrigido lá;
+- uma feature específica que você quer.
 
-* Detect the current Git repository.
-* Detect the configured `origin` and `upstream` remotes.
-* If no `upstream` remote exists:
+Em qualquer um dos três: traga **aquele commit**, não a branch.
 
-  * Attempt to determine the original repository automatically.
-  * Only ask for confirmation if it cannot be determined reliably.
+## Antes de qualquer coisa: meça
 
-Determine the synchronization status between the active branch and its upstream counterpart.
+O número que importa não é "quantos commits estou à frente" — é quantos commits
+do upstream faltam entrar, e se eles tocam nas áreas que este fork reescreveu.
 
----
+```bash
+git fetch upstream
+git rev-list --count main..upstream/main    # o que falta entrar (custo real)
+git log --oneline main..upstream/main       # o que é
+```
 
-## Safety Checks
+Se o resultado for zero, não há trabalho. Estar à frente não gera pendência.
 
-Before making any modifications:
+## Mapa de conflito — onde vai doer
 
-* Fetch all remotes.
-* Verify that the working tree is clean.
-* If uncommitted changes exist:
+Duas áreas deste fork conflitam com quase todo commit upstream que as toque.
+Saber disso antes economiza a tentativa:
 
-  * Stash them automatically when it is safe to do so.
-  * Otherwise, stop and explain why manual intervention is required.
+**i18n (conflito textual, garantido).** Este fork substituiu texto hardcoded em
+inglês por `t()` em dezenas de componentes. O upstream segue com o hardcode.
+Qualquer commit dele nesses arquivos conflita.
 
----
+**Refatorações estruturais (conflito semântico, pior).** `BaseRepository` não
+existe mais aqui (`e1738ce2`); o `routes.js` do módulo tasks tem 39 linhas aqui
+e 1064 lá (`8f86039a`). O upstream mexe em arquivos que aqui não existem. O git
+não avisa — o merge "passa" e o comportamento quebra.
 
-## Review Process
+Diante de um commit upstream nessas áreas: prefira **reimplementar a intenção** a
+aplicar o diff.
 
-Identify every upstream commit that has not yet been integrated into the current branch.
+## Procedimento
 
-For each missing commit:
+1. **Fetch e meça** (acima). Zero pendente = pare aqui.
+2. **Working tree limpo** antes de mexer. Se houver mudança não commitada, pare
+   e avise — não faça stash automático de trabalho alheio.
+3. **Para cada commit candidato**, decida e registre: **Apply** (aplica limpo),
+   **Adapt** (reimplementa a intenção) ou **Skip** (não interessa / já
+   implementado aqui de outro jeito / depende de um Skip anterior).
+4. **Traga por `cherry-pick`**, não merge. Merge arrasta o que você não avaliou.
+5. **Valide**: `npm run backend:test` e `npm run frontend:test` verdes. Falhou e
+   não dá pra consertar com segurança? Reverta a integração.
+6. **Commit local. Push só com autorização explícita do dono** — a `main` é o
+   que o Docker builda, publicar ali mexe no ambiente dele.
+7. **Atualize [`docs/fork-changelog.md`](docs/fork-changelog.md)** apenas se a
+   integração mudou o que o fork *é*. A contagem de commits daquele arquivo é
+   gerada por comando — não a edite à mão.
 
-* Understand its purpose.
-* Review the affected files.
-* Evaluate compatibility with the current fork.
-* Determine whether the commit should be:
+## O caminho que reduz divergência de verdade
 
-  * **Apply** (integrate unchanged)
-  * **Adapt** (integrate with modifications)
-  * **Skip** (do not integrate)
+Alguns commits daqui consertam bugs **do upstream**, não são features deste fork:
+migrations idempotentes (`51b43544`, `53feb397`), `isAdmin` com OIDC (`a598aa3e`),
+`db-init` zerando o banco no boot (`ef690f67`).
 
-Do not assume every upstream commit should be incorporated.
+Cada um desses aceito como PR no upstream **sai do delta daqui para sempre**. É o
+único movimento que diminui a divergência em vez de mudá-la de lugar. Hoje este
+fork não abre PR upstream por padrão; essa classe específica é a exceção que vale
+reconsiderar.
 
-If a commit has already been fully or partially implemented within the fork, recognize it and avoid duplicate work.
+## O que não fazer
 
-Consider dependencies between upstream commits. If a prerequisite commit is intentionally skipped, evaluate whether dependent commits should also be skipped.
+- **Não mantenha changelog à mão.** A versão anterior desta política mandava
+  atualizar o `README.md` a cada sync com a lista de diferenças commit a commit.
+  Resultado: cinco commits que só mexiam num número (`6d4b31c4`, `aec32dc4`,
+  `bf8bf593`, `1ded0189`, `299c73b2`) e a contagem ainda assim errada — dizia 51
+  quando eram 66. `git log` já faz isso de graça e sem mentir.
+- **Não faça merge de `upstream/main` inteiro** para "ficar em dia". Foi assim
+  que o delta virou uma superfície de conflito em vez de uma lista de escolhas.
+- **Não rode `npm run db:init`/`db:reset`** para "preparar o ambiente". São
+  `sequelize.sync({ force: true })`. Ver [plans/README.md](plans/README.md#armadilhas).
 
----
+## Relatório esperado
 
-## Integration
-
-Choose the synchronization strategy that best preserves the fork history while minimizing risk.
-
-Use whichever approach is most appropriate:
-
-* merge
-* cherry-pick
-* rebase
-* manual implementation
-
-Avoid blindly merging or rebasing if doing so would overwrite or degrade fork-specific functionality.
-
-Resolve merge conflicts carefully and prefer the technically superior solution rather than automatically favoring either upstream or fork.
-
-Perform every required Git operation autonomously, including:
-
-* fetch
-* checkout (when needed)
-* merge
-* cherry-pick
-* rebase
-* conflict resolution
-* commit creation (when necessary)
-* push
-
----
-
-## Validation
-
-After integration:
-
-* Ensure the project builds successfully.
-* Execute the project's available tests.
-* Resolve any issues introduced during integration whenever possible.
-
-If validation fails and the issue cannot be resolved safely, revert or roll back the problematic integration before pushing.
-
-Only push changes once the repository is in a consistent and validated state.
-
----
-
-## Fork Documentation & README Synchronization
-
-* Every time upstream changes are reviewed, merged, or adapted, you MUST verify and update `README.md`.
-* `README.md` serves as the functional summary and living documentation of all differences, bug fixes, localization (pt-BR), and custom enhancements between this fork (`luciancsilva/tasks`) and the original project (`chrisvel/tududi`).
-* Always populate and refine `README.md` during synchronization to ensure it accurately reflects:
-  * The current divergence and list of custom features vs. upstream.
-  * Newly integrated upstream versions/commits.
-  * Active implementation plans and bug fixes (`plans/`).
-
----
-
-## Deliverables
-
-Provide a concise report containing:
-
-1. The missing upstream commits that were evaluated.
-2. The decision for each commit:
-
-   * Apply
-   * Adapt
-   * Skip
-3. A brief justification for every decision.
-4. The Git operations that were performed.
-5. Any conflicts encountered and how they were resolved.
-6. Validation results.
-7. Remaining risks or recommended follow-up work.
-8. Confirmation that `README.md` has been updated with any new changes or differences between the fork and upstream.
-
-The goal is not simply to synchronize with upstream, but to keep the fork healthy, maintainable, functionally correct, and well-documented.
+Ao final de uma sincronização, entregue: commits avaliados, decisão e
+justificativa de cada um, operações git feitas, conflitos e como foram
+resolvidos, resultado dos testes, e riscos remanescentes.
