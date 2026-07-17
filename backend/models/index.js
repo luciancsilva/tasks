@@ -95,6 +95,7 @@ const CalDAVRemoteCalendar = require('./caldav_remote_calendar')(sequelize);
 const CalendarToken = require('./calendar_token')(sequelize);
 const Goal = require('./goal')(sequelize);
 const Person = require('./person')(sequelize);
+const UserProjectArea = require('./user_project_area')(sequelize);
 
 User.hasMany(Area, { foreignKey: 'user_id' });
 Area.belongsTo(User, { foreignKey: 'user_id' });
@@ -310,6 +311,19 @@ User.hasMany(CalendarToken, {
 });
 CalendarToken.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 
+// UserProjectArea associations (per-user area placement for shared projects)
+User.hasMany(UserProjectArea, {
+    foreignKey: 'user_id',
+    as: 'ProjectAreaOverrides',
+});
+UserProjectArea.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
+Project.hasMany(UserProjectArea, {
+    foreignKey: 'project_id',
+    as: 'AreaOverrides',
+});
+UserProjectArea.belongsTo(Project, { foreignKey: 'project_id', as: 'Project' });
+UserProjectArea.belongsTo(Area, { foreignKey: 'area_id', as: 'Area' });
+
 // Person associations
 User.hasMany(Person, { foreignKey: 'user_id', as: 'People' });
 Person.belongsTo(User, { foreignKey: 'user_id' });
@@ -380,4 +394,5 @@ module.exports = {
     CalDAVRemoteCalendar,
     CalendarToken,
     Person,
+    UserProjectArea,
 };

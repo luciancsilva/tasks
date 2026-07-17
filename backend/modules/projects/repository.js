@@ -9,6 +9,8 @@ const {
     Note,
     User,
     Permission,
+    UserProjectArea,
+    TaskAttachment,
     sequelize,
     TaskEvent,
     RecurringCompletion,
@@ -416,6 +418,44 @@ class ProjectsRepository {
      */
     async createTag(name, userId, options = {}) {
         return Tag.create({ name, user_id: userId }, options);
+    }
+
+    /**
+     * Upsert a per-user area override for a shared project.
+     * area_id may be null to remove the project from the user's area.
+     */
+    async upsertUserProjectArea(userId, projectId, areaId) {
+        const [record] = await UserProjectArea.upsert(
+            { user_id: userId, project_id: projectId, area_id: areaId },
+            { conflictFields: ['user_id', 'project_id'] }
+        );
+        return record;
+    }
+
+    /**
+     * Get all per-user area overrides for a given user indexed by project_id.
+     */
+    async getUserProjectAreaOverrides(userId) {
+        const rows = await UserProjectArea.findAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: Area,
+                    as: 'Area',
+                    required: false,
+                    attributes: ['id', 'uid', 'name', 'color'],
+                },
+            ],
+            raw: false,
+        });
+        const map = {};
+        rows.forEach((row) => {
+            map[row.project_id] = {
+                area_id: row.area_id,
+                Area: row.Area ? row.Area.toJSON() : null,
+            };
+        });
+        return map;
     }
 }
 
