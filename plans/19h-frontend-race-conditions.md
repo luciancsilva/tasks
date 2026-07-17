@@ -1,6 +1,6 @@
 # 19h — Prevenção de Race Conditions / Stale State no Frontend (`ProjectDetails`, `ViewDetail` e `ProfileSettings`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — guardas isMounted/AbortController em ProjectDetails e ViewDetail evitam sobrescrita por resposta obsoleta; ref de polling único em ProfileSettings elimina duplo start-polling.
 > **Escopo:** Adicionar `AbortController` ou verificações de montagem (`isMounted`) nas requisições assíncronas em `ProjectDetails.tsx`, `ViewDetail.tsx` e unificar a inicialização de polling em `ProfileSettings.tsx`.
 > **Depende de:** -
 

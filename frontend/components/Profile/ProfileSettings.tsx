@@ -179,6 +179,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
     );
     // Update URL query parameter when tab changes (not on mount)
     const isInitialMount = React.useRef(true);
+    // Ensures handleStartPolling fires at most once per mount, even though
+    // both fetchProfile and fetchTelegramInfo can independently decide to
+    // start polling.
+    const isPollingStartedRef = React.useRef(false);
     useEffect(() => {
         if (isInitialMount.current) {
             isInitialMount.current = false;
@@ -609,7 +613,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                 const data = await response.json();
                 setIsPolling(data.status?.running || false);
 
-                if (data.telegram_bot_token && !data.status?.running) {
+                if (
+                    data.telegram_bot_token &&
+                    !data.status?.running &&
+                    !isPollingStartedRef.current
+                ) {
+                    isPollingStartedRef.current = true;
                     handleStartPolling();
                 }
             } catch (error) {
@@ -663,7 +672,11 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                         const pollingData = await pollingResponse.json();
                         setIsPolling(pollingData.status?.running || false);
 
-                        if (!pollingData.status?.running) {
+                        if (
+                            !pollingData.status?.running &&
+                            !isPollingStartedRef.current
+                        ) {
+                            isPollingStartedRef.current = true;
                             setTimeout(() => {
                                 handleStartPolling();
                             }, 1000);

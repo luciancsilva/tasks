@@ -137,6 +137,9 @@ const ViewDetail: React.FC = () => {
     // Ref for dropdown and title edit
     const titleInputRef = useRef<HTMLInputElement>(null);
 
+    // Guard against stale responses overwriting state after uid change/unmount
+    const isMountedRef = useRef(true);
+
     // Sort options for tasks
     const sortOptions: SortOption[] = [
         { value: 'due_date:asc', label: t('sort.due_date', 'Due Date') },
@@ -372,7 +375,11 @@ const ViewDetail: React.FC = () => {
     const showCompletedTasks = taskStatusFilter !== 'active';
 
     useEffect(() => {
+        isMountedRef.current = true;
         fetchViewAndResults();
+        return () => {
+            isMountedRef.current = false;
+        };
     }, [uid]);
 
     // Load people once to resolve the assigned_to filter chip into a name.
@@ -453,6 +460,7 @@ const ViewDetail: React.FC = () => {
                 return;
             }
             const viewData = await viewResponse.json();
+            if (!isMountedRef.current) return;
             const normalizedView: View = {
                 ...viewData,
                 tags: viewData.tags || [],
@@ -483,6 +491,8 @@ const ViewDetail: React.FC = () => {
                 offset: currentOffset,
                 excludeSubtasks: true,
             });
+
+            if (!isMountedRef.current) return;
 
             // Separate results by type
             const taskResults: Task[] = [];
@@ -517,10 +527,12 @@ const ViewDetail: React.FC = () => {
             }
         } catch (error) {
             console.error('Error fetching view:', error);
-            navigate('/views');
+            if (isMountedRef.current) navigate('/views');
         } finally {
-            setIsLoading(false);
-            setIsLoadingMore(false);
+            if (isMountedRef.current) {
+                setIsLoading(false);
+                setIsLoadingMore(false);
+            }
         }
     };
 

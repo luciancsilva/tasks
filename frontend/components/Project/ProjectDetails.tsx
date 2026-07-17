@@ -231,11 +231,14 @@ const ProjectDetails: React.FC = () => {
 
     useEffect(() => {
         if (!uidSlug) return;
+        const controller = new AbortController();
+        let isMounted = true;
         const loadProjectData = async () => {
             try {
                 if (!project) setLoading(true);
                 setError(false);
                 const projectData = await fetchProjectBySlug(uidSlug);
+                if (!isMounted) return;
                 setProject(projectData);
                 setTasks(projectData.tasks || projectData.Tasks || []);
                 const savedSort = localStorage.getItem('project_order_by');
@@ -252,11 +255,16 @@ const ProjectDetails: React.FC = () => {
                 );
                 setLoading(false);
             } catch {
+                if (!isMounted) return;
                 setError(true);
                 setLoading(false);
             }
         };
         loadProjectData();
+        return () => {
+            isMounted = false;
+            controller.abort();
+        };
     }, [uidSlug]);
 
     useEffect(() => {
