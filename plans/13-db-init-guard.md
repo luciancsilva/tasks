@@ -65,8 +65,13 @@ function isInitBlocked(storagePath, allowFlag) {
   liberar com `TUDUDI_ALLOW_DB_INIT=1`, e que `db:migrate` é o caminho para
   banco existente) e `process.exit(1)`.
 - Exportar `isInitBlocked` no `module.exports` junto de `initDatabase`.
-- Aplicar exatamente o mesmo guard em `backend/scripts/db-reset.js` **se o
-  arquivo existir** (verificar; se o reset for outro script, replicar lá).
+- **`backend/scripts/db-reset.js` (existe, 30 linhas)**: mesmo
+  `sequelize.sync({ force: true })` e — pior — chama `resetDatabase()` no
+  nível do módulo, ou seja, **executa no require** (não tem o guard de
+  `require.main` que o db-init tem). Aplicar lá: (a) o mesmo
+  `isInitBlocked` importado de `./db-init` (não duplicar a função);
+  (b) envolver a chamada em `if (require.main === module)` e exportar
+  `resetDatabase`, espelhando o padrão do `db-init.js:36-40`.
 
 ### 3. Testes
 
@@ -88,10 +93,11 @@ cd backend && npx eslint scripts/db-init.js tests/unit/db-init-guard.test.js
 
 ## Critério de pronto
 
-- [ ] `npm run db:init` com banco de dev existente **recusa e sai com código 1** (testar manualmente e desfazer nada — a recusa não toca o banco).
-- [ ] Com `TUDUDI_ALLOW_DB_INIT=1`, o comportamento antigo é preservado (NÃO testar contra o banco de dev — confiar nos testes unitários).
-- [ ] Boot de banco novo continua funcionando (o caminho `start.sh` não seta a flag e o arquivo não existe → guard libera).
+- [ ] Casos unitários de `isInitBlocked` cobrindo: arquivo com conteúdo → bloqueia; flag `'1'` → libera; arquivo inexistente / `:memory:` / `undefined` → libera.
+- [ ] `db-reset.js` não executa mais nada no require (teste no padrão de `db-init-guard.test.js`: `require('../../scripts/db-reset')` retorna sem tocar o banco).
+- [ ] Boot de banco novo preservado (caminho `start.sh`: arquivo não existe → guard libera; provado pelo caso unitário, sem execução real).
 - [ ] Suíte backend verde; lint dos arquivos tocados limpo.
+- [ ] **NÃO rode `npm run db:init` nem `db:reset` de verdade em momento nenhum** — nem para "provar a recusa". A prova é a suíte. Se o guard estiver bugado, a execução real destrói o banco de dev; o teste unitário não.
 
 ## Commit
 

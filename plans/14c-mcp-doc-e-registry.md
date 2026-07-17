@@ -29,13 +29,15 @@ npm run backend:test
     array vazio e um server dummy `{ }` (os registers só fazem `tools.push`,
     não usam `server` — conferir e manter assim);
   - devolve `[{ name, description }]` a partir de `tools`.
-- `controller.js` `listMcpTools` passa a montar as categorias a partir de
-  `listToolNames()`, agrupando pelo prefixo do arquivo de origem **ou**
-  simplesmente devolvendo a lista plana `{ count, tools: [...] }` — escolher a
-  lista plana (mais simples e não quebra consumidor conhecido: o frontend
-  `McpTab.tsx` deve ser conferido; se ele espera categorias, manter o formato
-  `{ tools: [{ category, count, tools }] }` derivando a categoria de um mapa
-  estático arquivo→categoria dentro do registry).
+- **O formato de resposta com categorias é obrigatório**: o frontend
+  `frontend/components/Profile/tabs/McpTab.tsx:27-29` tipa
+  `{ category, count, tools[] }` e renderiza `category.category (category.count)`
+  na linha ~258-264. Manter `{ tools: [{ category, count, tools }] }`.
+  Para derivar a categoria: em `toolRegistry.js`, registrar as tools por
+  categoria num mapa estático `{ Tasks: registerTaskTools, Projects: ..., Areas: ...,
+  Habits: ..., Inbox: ..., Notes: ..., Tags: ..., Misc: registerMiscTools }` e
+  montar a resposta iterando esse mapa — `count` = length real do array que
+  cada register preencheu, nunca número escrito à mão.
 - Teste unitário existente: `backend/tests/unit/modules/mcp/controller.test.js`
   e `toolRegistry.test.js` — atualizar expectativas; o teste novo deve falhar
   se alguém adicionar tool sem ela aparecer no endpoint (comparar contra o

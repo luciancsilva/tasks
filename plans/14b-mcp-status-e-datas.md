@@ -79,12 +79,19 @@ Substituir o bloco por esta semântica exata (usar `Op` já importado):
   `+7 dias`
 - `all` ou ausente → sem filtro adicional
 
-"Fim de hoje": calcular no timezone do usuário (`context.user.timezone`,
-fallback `'UTC'`), da mesma forma que `backend/modules/tasks/service.js` usa o
-timezone nos handlers de list — inspecionar `operations/list.js` e reusar
-helper existente se houver um exportado; senão, calcular com `Date` puro:
-data local do usuário via `new Intl.DateTimeFormat('en-CA', { timeZone: tz })`
-para obter `YYYY-MM-DD` e montar os limites do dia a partir disso.
+Limites de dia: usar `moment-timezone`, que já é dependência e já é usado
+neste exato contexto em `backend/modules/tasks/operations/list.js:20`. Código
+a usar (não inventar outro):
+
+```js
+const moment = require('moment-timezone');
+const tz = context.user.timezone || 'UTC';
+const endOfToday = moment.tz(tz).endOf('day').toDate();
+const now = new Date();
+const endOfWindow = moment.tz(tz).add(7, 'days').endOf('day').toDate();
+// today:    due_date <= endOfToday (OU today = true)
+// upcoming: due_date entre now e endOfWindow
+```
 
 - Ordenação: quando `type` for `today`/`upcoming`, ordenar por
   `[['due_date', 'ASC']]` em vez de `created_at DESC`.

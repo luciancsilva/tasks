@@ -33,21 +33,24 @@ Pontos de extensão já existentes (sem migration):
 npm run backend:test && npm run frontend:test
 ```
 
-### 2. Backend — aceitar e persistir os novos filtros
+### 2. Backend — persistência JÁ FUNCIONA; falta só validação
 
-- Conferir em `backend/modules/views/service.js` se `extras` já é aceito no
-  create/update (o model tem o campo; o service repassa `filters`, `tags`,
-  `priority`, `due`...). Se não estiver na lista de campos, adicionar `extras`
-  em create e update.
-- Validação (`backend/modules/views/validation.js`): se `extras.task_status`
-  vier, exigir um de
+- **`extras` já é aceito e persistido**: `backend/modules/views/service.js`
+  destrutura e repassa `extras` tanto no `create` (linhas ~24-51, default
+  `[]`) quanto no `update` (linhas ~53-80). Nenhuma mudança de persistência é
+  necessária. Atenção: o default atual é array `[]`; os novos filtros vão como
+  **objeto** `{ task_status?, assigned_to? }` — o campo é TEXT+JSON e aceita
+  ambos, e view antiga com `[]` simplesmente não tem os filtros (checar com
+  `view.extras?.task_status`, que em array é `undefined`).
+- Validação (`backend/modules/views/validation.js` — hoje só valida `name`):
+  criar `validateExtras(extras)`: se `extras.task_status` vier, exigir um de
   `['not_started','in_progress','done','archived','waiting','cancelled','planned']`;
-  se `extras.assigned_to` vier, exigir string não vazia. Campos ausentes =
-  sem filtro (retrocompat total com views existentes).
-- Teste de integração: já existe suíte de views? (`backend/tests/` — procurar
-  `views`; se não houver, criar `backend/tests/integration/views-extras.test.js`
-  no padrão de `areas.test.js`): criar view com
-  `extras: { task_status: 'waiting' }`, ler de volta, verificar round-trip.
+  se `extras.assigned_to` vier, exigir string não vazia. Chamar no create e no
+  update do service. Campos ausentes = sem filtro (retrocompat total).
+- Teste de integração: estender a suíte existente
+  `backend/tests/integration/views.test.js` (seguir o padrão dos casos que já
+  estão lá): criar view com `extras: { task_status: 'waiting' }`, ler de
+  volta, verificar round-trip; e caso de rejeição com `task_status` inválido.
 
 ### 3. Frontend — SaveViewModal
 
@@ -56,9 +59,11 @@ npm run backend:test && npm run frontend:test
 - `task_status` — select com os status de tarefa (usar as chaves i18n de
   status já existentes; conferir `frontend/components/Shared/StatusDropdown.tsx`
   para reusar labels);
-- `assigned_to` — select de pessoas (fonte: onde o app já lista People para
-  o campo "Atribuído a" do TaskModal — localizar o componente/endpoint
-  `/api/people` e reusar o mesmo fetch/store).
+- `assigned_to` — select de pessoas. Fonte pronta:
+  `frontend/utils/peopleService.ts` (fetch) e, como referência de uso, o card
+  "Atribuído a" em
+  `frontend/components/Task/TaskDetails/TaskAssignedToCard.tsx` — reusar o
+  mesmo service, valor = `uid` da Person.
 
 ### 4. Frontend — ViewDetail aplicar os filtros
 
@@ -68,9 +73,10 @@ Em `frontend/components/ViewDetail.tsx`, junto do filtro de completion
   normalizado bata (atenção: tasks chegam com status string OU número — o
   arquivo já trata os dois; usar o mesmo padrão de comparação dupla);
 - se `view.extras?.assigned_to` presente: manter só tasks com
-  `task.assigned_to === extras.assigned_to` (conferir se o serializer inclui
-  `assigned_to`; se não incluir, adicioná-lo em
-  `backend/modules/tasks/core/serializers.js`);
+  `task.assigned_to === extras.assigned_to`. **O serializer NÃO expõe
+  `assigned_to` hoje** (verificado em 2026-07-17: zero ocorrências em
+  `backend/modules/tasks/core/serializers.js`) — adicionar o campo lá é parte
+  obrigatória deste plano (repassar o valor cru; é o `uid` da Person);
 - exibir os filtros ativos nos chips do cabeçalho da view (padrão dos chips de
   tags/filters existente no mesmo arquivo, linhas ~739-800).
 

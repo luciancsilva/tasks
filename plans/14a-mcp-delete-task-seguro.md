@@ -61,6 +61,10 @@ testes existentes no arquivo; mock R2 com `aws-sdk-client-mock` como em
 - criar task recorrente com uma instância filha **passada** (due_date ontem,
   `recurring_parent_id` apontando para a pai), deletar a pai via tool,
   verificar que a filha **continua existindo** com `recurring_parent_id: null`.
+  Padrão de seed de recorrência pronto para copiar:
+  `backend/tests/integration/smart-recurring-deletion.test.js` (cria pai +
+  filhas passadas/futuras e afirma exatamente esse comportamento na rota REST —
+  replicar o cenário trocando a chamada da rota pela tool MCP).
 
 ### 4. Validação e lint
 ```bash
