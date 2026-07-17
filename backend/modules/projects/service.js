@@ -1,6 +1,7 @@
 'use strict';
 
 const { Op } = require('sequelize');
+const { sequelize } = require('../../models');
 const projectsRepository = require('./repository');
 const { validateUid, validateName, formatDate } = require('./validation');
 const { NotFoundError, ValidationError } = require('../../shared/errors');
@@ -13,12 +14,12 @@ const {
 } = require('../../utils/timezone-utils');
 const { uid: generateUid } = require('../../utils/uid');
 const { extractUidFromSlug } = require('../../utils/slug-utils');
-const { logError } = require('../../services/logService');
 
 /**
  * Update project tags.
  */
-async function updateProjectTags(project, tagsData, userId) {
+async function updateProjectTags(project, tagsData, userId, options = {}) {
+    const { transaction } = options;
     if (!tagsData) return;
 
     const validTagNames = [];
@@ -42,13 +43,14 @@ async function updateProjectTags(project, tagsData, userId) {
     }
 
     if (validTagNames.length === 0) {
-        await project.setTags([]);
+        await project.setTags([], { transaction });
         return;
     }
 
     const existingTags = await projectsRepository.findTagsByNames(
         userId,
-        validTagNames
+        validTagNames,
+        { transaction }
     );
     const existingTagNames = existingTags.map((tag) => tag.name);
     const newTagNames = validTagNames.filter(
@@ -56,10 +58,12 @@ async function updateProjectTags(project, tagsData, userId) {
     );
 
     const createdTags = await Promise.all(
-        newTagNames.map((name) => projectsRepository.createTag(name, userId))
+        newTagNames.map((name) =>
+            projectsRepository.createTag(name, userId, { transaction })
+        )
     );
 
-    await project.setTags([...existingTags, ...createdTags]);
+    await project.setTags([...existingTags, ...createdTags], { transaction });
 }
 
 /**
@@ -290,16 +294,18 @@ class ProjectsService {
             user_id: userId,
         };
 
-        const project = await projectsRepository.create(projectData);
-
-        try {
-            await updateProjectTags(project, tagsData, userId);
-        } catch (tagError) {
-            logError(
-                'Tag update failed, but project created successfully:',
-                tagError.message
-            );
-        }
+        // Create the project and link its tags atomically: a tag failure must
+        // roll the project back instead of leaving orphaned tags and a
+        // tag-less project committed (the old try/catch swallowed the error).
+        const project = await sequelize.transaction(async (t) => {
+            const created = await projectsRepository.create(projectData, {
+                transaction: t,
+            });
+            await updateProjectTags(created, tagsData, userId, {
+                transaction: t,
+            });
+            return created;
+        });
 
         return {
             ...project.toJSON(),
@@ -369,15 +375,23 @@ class ProjectsService {
         if (status !== undefined) updateData.status = status;
         else if (state !== undefined) updateData.status = state;
 
-        await projectsRepository.update(project, updateData);
+        // Persist the field changes and the tag links atomically so a tag
+        // failure can no longer commit a half-updated project.
+        await sequelize.transaction(async (t) => {
+            await projectsRepository.update(project, updateData, {
+                transaction: t,
+            });
+            await updateProjectTags(project, tagsData, userId, {
+                transaction: t,
+            });
+        });
 
         // Cover image was removed or replaced: drop the old R2 object only
-        // after the update persisted, so a failed update keeps it reachable.
+        // after the whole update committed, so a failed update keeps it
+        // reachable.
         if (previousImageUrl) {
             await projectsRepository.deleteProjectImageFromR2(previousImageUrl);
         }
-
-        await updateProjectTags(project, tagsData, userId);
 
         const projectWithAssociations =
             await projectsRepository.findByUidWithTagsAndArea(validatedUid);

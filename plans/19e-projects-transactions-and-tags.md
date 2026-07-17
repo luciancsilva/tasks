@@ -1,6 +1,6 @@
 # 19e — Transações no Cadastro de Projetos e Correção de Erro Engolido em Tags (`ProjectsService`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — `ProjectsService.create` e `update` rodam em `sequelize.transaction()` com a transação propagada a `updateProjectTags`/`findTagsByNames`/`createTag`/`setTags`; o `try/catch` que engolia falha de tag foi removido (agora aborta e faz rollback). Delete da imagem antiga no R2 movido para pós-commit.
 > **Escopo:** Envolver `ProjectsService.create` e `update` em `sequelize.transaction()` e remover o `try/catch` que engole falhas de vinculação de tags em `projects/service.js:293-302` e `58-62`.
 > **Depende de:** -
 

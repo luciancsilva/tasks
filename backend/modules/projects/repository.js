@@ -404,17 +404,18 @@ class ProjectsRepository {
     /**
      * Find existing tags by names for a user.
      */
-    async findTagsByNames(userId, tagNames) {
+    async findTagsByNames(userId, tagNames, options = {}) {
         return Tag.findAll({
             where: { user_id: userId, name: tagNames },
+            ...options,
         });
     }
 
     /**
      * Create a tag.
      */
-    async createTag(name, userId) {
-        return Tag.create({ name, user_id: userId });
+    async createTag(name, userId, options = {}) {
+        return Tag.create({ name, user_id: userId }, options);
     }
 }
 

@@ -123,7 +123,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
 | Médio | `19d-caldav-sync-batching-and-tx.md` | AL-4 e AL-6: N+1 requests HTTP em loop no CalDAV (`pull-phase.js`) e ausência de transação em `merge-phase.js` | - |
-| Médio | `19e-projects-transactions-and-tags.md` | AL-5: Falta de transação em `ProjectsService.create/update` e erro engolido em tags (`projects/service.js:293`) | - |
 | Alto | `19b-backup-restore-mentions.md` | AL-2: `exportUserData`/`importUserData` omitem `Person`/`@mentions` e importam por IDs numéricos brutos | - |
 
 ### Prioridade MÉDIA
@@ -179,6 +178,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `19h-frontend-race-conditions.md` | AM-1/5/7: isMounted/AbortController em ProjectDetails, ViewDetail, ProfileSettings | EXECUTADO (2026-07-17) |
 | `19i-frontend-memory-leaks.md` | AM-2/3/6: clearTimeout em usePersistedModal, AreaModal, ProfileSettings | EXECUTADO (2026-07-17) |
 | `19a-tasks-transactions.md` | AL-1: create/update de tasks atômicos (sequelize.transaction) propagada a tags/people/subtasks/parent-child | EXECUTADO (2026-07-17) |
+| `19e-projects-transactions-and-tags.md` | AL-5: create/update de projects atômicos + erro de tag deixa de ser engolido | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
