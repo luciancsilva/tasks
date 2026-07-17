@@ -8,9 +8,12 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest'
+    '^.+\\.(js|jsx|mjs)$': ['babel-jest', { presets: ['@babel/preset-env', '@babel/preset-react'], configFile: false, babelrc: false }]
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json'],
+  transformIgnorePatterns: [
+    'node_modules[/\\\\](?!(remark-breaks|mdast-util-newline-to-break|mdast-util-find-and-replace|escape-string-regexp|unist-util-visit-parents|unist-util-is)[/\\\\])'
+  ],
   setupFilesAfterEnv: ['<rootDir>/frontend/__tests__/setup.ts'],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
