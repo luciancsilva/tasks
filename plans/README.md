@@ -121,7 +121,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `09b-d1-docs-cleanup.md` | Tirar D1 do `CLAUDE.md` e do `README.md` | `09a` |
 | Médio | `06-docs-update.md` | Atualização integral do `/docs` (validar o que já foi feito) | — |
 
 ### Prioridade BAIXA — estrutural
@@ -141,6 +140,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `05a-quick-wins.md` | 5 itens de esforço baixo | EXECUTADO (2026-07-16) |
 | `05b-medium-effort.md` | 4 itens de esforço médio | EXECUTADO (2026-07-16) |
 | `09a-d1-code-removal.md` | Remoção da camada de dados D1 (código) | EXECUTADO (2026-07-17) |
+| `09b-d1-docs-cleanup.md` | Tirar D1 da documentação | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
@@ -179,11 +179,10 @@ Dentro de cada prioridade, do menor para o maior esforço.
   volume `tududi_db`. Em dev, `backend/db/development.sqlite3`. Roda em WAL.
 - **Cloudflare R2** guarda anexos, avatares, capas e branding
   (`backend/services/r2Service.js`). **`CLOUDFLARE_ACCOUNT_ID` é usada pelo R2**
-  para montar o endpoint — não remover junto com o D1.
-- **O Cloudflare D1 foi tentado e revertido** em 2026-07-17: latência inviável
-  (1 round-trip HTTP por statement) e wipe recorrente do banco. O código do
-  driver segue no repo até o `09a` ser executado, mas **desligado**
-  (`TUDUDI_DB_DRIVER=` vazio). Não religar sem ler o `09a` §Registro.
+  para montar o endpoint.
+- **O Cloudflare D1 foi tentado e removido** em 2026-07-17 (`09a`): latência
+  inviável (1 round-trip HTTP por statement) e wipe recorrente do banco. Código
+  do driver apagado; o §Registro no `09a` preserva a história e a lição.
 - **Lição que custou caro**: nunca decidir *"o banco existe?"* por artefato local
   (arquivo, volume, path) se o banco for remoto — nenhum deles descreve um banco
   remoto. Foi essa confusão que zerou a produção duas vezes.

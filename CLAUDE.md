@@ -8,7 +8,7 @@ This documentation is designed for AI assistants and developers working with the
 
 Tududi is a self-hosted task management system with hierarchical organization (Areas > Goals > Projects > Tasks), smart recurring tasks, and multi-channel integration.
 
-**Tech Stack:** React 18 + TypeScript, Express + Sequelize, SQLite (optional Cloudflare D1 via REST), Cloudflare R2 object storage
+**Tech Stack:** React 18 + TypeScript, Express + Sequelize, SQLite, Cloudflare R2 object storage
 
 **Get Started:**
 ```bash
@@ -240,9 +240,7 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 
 **Backend:**
 - Express 4.21 + Sequelize 6.37 (ORM)
-- SQLite 5.1 (WAL mode, optimized) — or Cloudflare D1 via REST API when
-  `TUDUDI_DB_DRIVER=d1` (driver in `/backend/db/`, no transactions, see
-  driver header for semantics)
+- SQLite 5.1 (WAL mode, optimized)
 - Cloudflare R2 (S3-compatible) object storage for attachments, avatars,
   project covers and branding assets (`/backend/services/r2Service.js`)
 - bcrypt + express-session (auth)
@@ -268,7 +266,6 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 | Global state | `/frontend/store/useStore.ts` |
 | API client | `/frontend/utils/[resource]Service.ts` |
 | Object storage (R2) | `/backend/services/r2Service.js` |
-| D1 REST data layer | `/backend/db/d1Client.js`, `/backend/db/d1RestDriver.js` |
 | Instance branding | `/backend/modules/branding/`, `/frontend/contexts/BrandingContext.tsx` |
 | Executable work plans | `/plans/` (rules in `/plans/README.md`) |
 
@@ -300,5 +297,5 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 ---
 
 **Document Version:** 1.1.0
-**Last Updated:** 2026-07-16 (R2 storage, optional D1 REST data layer, instance branding, /plans workflow)
+**Last Updated:** 2026-07-17 (R2 storage, instance branding, /plans workflow; D1 data layer removed)
 **Maintainer:** Update when architecture changes or patterns evolve

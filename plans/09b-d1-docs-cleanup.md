@@ -1,6 +1,6 @@
 # 09b — Tirar o Cloudflare D1 da documentação
 
-> **Status: Aberto.** Prioridade: média. Esforço: baixo.
+> **Status: EXECUTADO** em 2026-07-17 — Removido D1 de CLAUDE.md (tech stack, backend, critical paths, footer). README.md e docs/ já não tinham referências.
 > **Depende de**: `09a-d1-code-removal.md` (execute depois; sem isso a doc
 > descreveria código que ainda existe).
 
