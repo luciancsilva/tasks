@@ -1,6 +1,6 @@
 const { AppError } = require('../../../shared/errors/AppError');
 const logger = require('../../../services/logService');
-const { Task } = require('../../../models');
+const { Task, sequelize } = require('../../../models');
 const SyncStateRepository = require('../repositories/sync-state-repository');
 const CalendarRepository = require('../repositories/calendar-repository');
 const ConflictResolver = require('./conflict-resolver');
@@ -287,26 +287,44 @@ class MergePhase {
 
         const taskData = this._sanitizeRemoteTask(remoteTask);
 
-        let task;
-        if (existingTask) {
-            await existingTask.update({
-                ...taskData,
-                uid: existingTask.uid,
-                user_id: calendar.user_id,
-            });
-            task = existingTask;
-        } else {
-            task = await Task.create({
-                ...taskData,
-                user_id: calendar.user_id,
-            });
-        }
+        // Persist the task row and its sync-state atomically: if the sync-state
+        // write fails after the task is created, an untracked task would be
+        // recreated as a duplicate on the next sync (etag never stored).
+        const task = await sequelize.transaction(async (t) => {
+            let created;
+            if (existingTask) {
+                await existingTask.update(
+                    {
+                        ...taskData,
+                        uid: existingTask.uid,
+                        user_id: calendar.user_id,
+                    },
+                    { transaction: t }
+                );
+                created = existingTask;
+            } else {
+                created = await Task.create(
+                    {
+                        ...taskData,
+                        user_id: calendar.user_id,
+                    },
+                    { transaction: t }
+                );
+            }
 
-        await SyncStateRepository.createOrUpdate(task.id, calendar.id, {
-            etag,
-            last_modified: new Date(),
-            last_synced_at: new Date(),
-            sync_status: 'synced',
+            await SyncStateRepository.createOrUpdate(
+                created.id,
+                calendar.id,
+                {
+                    etag,
+                    last_modified: new Date(),
+                    last_synced_at: new Date(),
+                    sync_status: 'synced',
+                },
+                { transaction: t }
+            );
+
+            return created;
         });
 
         results.merged.push({
@@ -336,18 +354,30 @@ class MergePhase {
             return;
         }
 
-        await existingTask.update({
-            ...this._sanitizeRemoteTask(remoteTask),
-            id: existingTask.id,
-            uid: existingTask.uid,
-            user_id: existingTask.user_id,
-        });
+        // Task field update and sync-state update must land together so the
+        // stored etag always matches the persisted task version.
+        await sequelize.transaction(async (t) => {
+            await existingTask.update(
+                {
+                    ...this._sanitizeRemoteTask(remoteTask),
+                    id: existingTask.id,
+                    uid: existingTask.uid,
+                    user_id: existingTask.user_id,
+                },
+                { transaction: t }
+            );
 
-        await SyncStateRepository.createOrUpdate(existingTask.id, calendar.id, {
-            etag,
-            last_modified: new Date(),
-            last_synced_at: new Date(),
-            sync_status: 'synced',
+            await SyncStateRepository.createOrUpdate(
+                existingTask.id,
+                calendar.id,
+                {
+                    etag,
+                    last_modified: new Date(),
+                    last_synced_at: new Date(),
+                    sync_status: 'synced',
+                },
+                { transaction: t }
+            );
         });
 
         results.merged.push({

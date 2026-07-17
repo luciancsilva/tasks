@@ -1,6 +1,8 @@
 # 19d — Batching e Transações no Sync CalDAV (`pull-phase` e `merge-phase`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — `pull-phase` agora resolve os fetches individuais (quando o servidor omite `calendar-data`) em lotes paralelos de 10, eliminando o N+1 sequencial; `merge-phase._createNewTask` e `_updateTaskFromRemote` envolvem `Task.create/update` + `SyncStateRepository.createOrUpdate` em `sequelize.transaction()`.
+>
+> **Desvio:** o caminho de deleção (`merge-phase.js:101-102`) **não** foi envolvido em transação porque `SyncStateRepository.deleteByTaskId` **não existe** (chamado em merge-phase e push-phase, quebraria em runtime). É um bug latente distinto de transação — registrado no plano novo `19l-caldav-delete-missing-method.md`.
 > **Escopo:** Evitar N+1 requisições HTTP em `pull-phase.js:238` e adicionar transações atômicas ao `merge-phase.js:299` nas operações conjuntas entre `Task` e `SyncStateRepository`.
 > **Depende de:** -
 

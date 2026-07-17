@@ -164,6 +164,10 @@ class PullPhase {
         });
 
         const changedTasks = [];
+        // Items whose calendar-data the server omitted must be fetched
+        // individually. Collect them here and resolve in bounded-parallel
+        // batches after the parse loop instead of one-at-a-time (N+1 HTTP).
+        const deferredFetchUrls = [];
         const baseUrl = remoteCalendar.server_url.replace(/\/$/, '');
 
         const responses =
@@ -235,13 +239,7 @@ class PullPhase {
                     // to prevent double-slash when server_url has a trailing slash
                     const hrefPath = href.startsWith('/') ? href : `/${href}`;
                     const taskUrl = `${baseUrl}${hrefPath}`;
-                    const taskData = await this._fetchTaskData(
-                        taskUrl,
-                        remoteCalendar
-                    );
-                    if (taskData) {
-                        changedTasks.push(taskData);
-                    }
+                    deferredFetchUrls.push(taskUrl);
                     continue;
                 }
 
@@ -259,6 +257,33 @@ class PullPhase {
                     `Failed to parse task from remote: ${error.message}`,
                     error
                 );
+            }
+        }
+
+        // Resolve the deferred per-item fetches in bounded-parallel batches so
+        // a calendar with hundreds of items no longer triggers a sequential
+        // N+1 HTTP storm (which timed out the event loop / hit server
+        // rate-limits). Concurrency is capped to stay polite to the server.
+        const FETCH_CONCURRENCY = 10;
+        for (let i = 0; i < deferredFetchUrls.length; i += FETCH_CONCURRENCY) {
+            const batch = deferredFetchUrls.slice(i, i + FETCH_CONCURRENCY);
+            const results = await Promise.all(
+                batch.map((taskUrl) =>
+                    this._fetchTaskData(taskUrl, remoteCalendar).catch(
+                        (error) => {
+                            logger.logError(
+                                `Failed to fetch task data from ${taskUrl}: ${error.message}`,
+                                error
+                            );
+                            return null;
+                        }
+                    )
+                )
+            );
+            for (const taskData of results) {
+                if (taskData) {
+                    changedTasks.push(taskData);
+                }
             }
         }
 
