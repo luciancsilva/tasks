@@ -120,9 +120,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade ALTA
 
-| Esforço | Arquivo | O quê | Depende de |
-|---|---|---|---|
-| Baixo | `20-caldav-delete-by-calendar-id-broken-method.md` | `SyncStateRepository.deleteByCalendarId` chama `this.delete`, método que não existe (só `destroy`) — `TypeError` ao deletar calendário CalDAV | - |
+*(nenhum plano aberto)*
 
 ### Prioridade MÉDIA
 
@@ -145,6 +143,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `20-caldav-delete-by-calendar-id-broken-method.md` | `SyncStateRepository.deleteByCalendarId` chama `this.delete`, método que não existe (só `destroy`) — `TypeError` ao deletar calendário CalDAV | EXECUTADO (2026-07-17) |
 | `21-inbox-mention-cleanup-ascii-regex.md` | `@pessoa` acentuada deixa resto no título ao criar tarefa/nota pelo Inbox (limpeza por token inteiro) | EXECUTADO (2026-07-17) |
 | `19l-caldav-delete-missing-method.md` | `SyncStateRepository.deleteByTaskId` não existe — sync de deleção CalDAV lança `TypeError` em runtime (merge/push-phase) | EXECUTADO (2026-07-17) |
 | `22-frontend-jest-esm-transform-remark-breaks.md` | Baseline `frontend:test` vermelha: `remark-breaks` (ESM) quebra o Jest, sem mudança de código | EXECUTADO (2026-07-17) |

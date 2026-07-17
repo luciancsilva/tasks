@@ -212,7 +212,7 @@ class SyncStateRepository {
         const syncStates = await this.findByCalendarId(calendarId, options);
 
         await Promise.all(
-            syncStates.map((state) => this.delete(state, options))
+            syncStates.map((state) => this.destroy(state, options))
         );
 
         return syncStates.length;

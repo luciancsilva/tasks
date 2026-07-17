@@ -2,6 +2,7 @@ const { AppError } = require('../../../shared/errors/AppError');
 const CalendarRepository = require('../repositories/calendar-repository');
 const SyncStateRepository = require('../repositories/sync-state-repository');
 const { uid } = require('../../../utils/uid');
+const { sequelize } = require('../../../models');
 
 class CalendarController {
     async listCalendars(req, res, next) {
@@ -217,9 +218,14 @@ class CalendarController {
                 throw new AppError('Unauthorized access to calendar', 403);
             }
 
-            await SyncStateRepository.deleteByCalendarId(calendar.id);
-
-            await CalendarRepository.destroy(calendar);
+            await sequelize.transaction(async (t) => {
+                await SyncStateRepository.deleteByCalendarId(calendar.id, {
+                    transaction: t,
+                });
+                await CalendarRepository.destroy(calendar, {
+                    transaction: t,
+                });
+            });
 
             res.status(204).send();
         } catch (error) {
