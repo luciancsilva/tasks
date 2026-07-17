@@ -111,8 +111,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | `10b`, `10c` |
-
 ### Prioridade MÉDIA — código morto que já mordeu uma vez
 
 | Esforço | Arquivo | O quê | Depende de |
@@ -141,6 +139,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `10a-r2-put-and-list.md` | Funções putObjectFromFile e listObjects no r2Service | EXECUTADO (2026-07-17) |
 | `10b-db-snapshot-service.md` | createSnapshot(): VACUUM INTO + upload R2 + retenção | EXECUTADO (2026-07-17) |
 | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | EXECUTADO (2026-07-17) |
+| `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

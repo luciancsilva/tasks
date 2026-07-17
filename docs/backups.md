@@ -271,6 +271,110 @@ The automatic backup script is located at `/backend/cmd/start.sh` (lines 9-78).
 
 ---
 
+## Offsite Snapshot to Cloudflare R2
+
+The SQLite file backups above stay on the same host/volume as the database —
+they don't protect against losing that host or volume, which is what actually
+happened twice on 2026-07-16/17 (see `plans/09a-d1-code-removal.md`
+§Registro). The R2 snapshot is the offsite copy that covers that scenario.
+
+**What it is:** a periodic, consistent snapshot of the whole SQLite database
+(`VACUUM INTO`, so it's safe to run against a live WAL-mode database) uploaded
+to the same Cloudflare R2 bucket used for attachments/avatars/branding.
+
+**What it is not:** it does not back up file attachments, avatars, or branding
+assets — those already live in R2 directly and don't need a separate backup.
+It's disaster recovery (host/volume loss), not point-in-time recovery or a
+queryable replica.
+
+### Where it lives
+
+- Bucket prefix: `db-backups/`
+- Key format: `db-backups/<environment>-<YYYYMMDDTHHMMSS>.sqlite3` (UTC
+  timestamp), e.g. `db-backups/production-20260717T030000.sqlite3`. The
+  timestamp makes lexicographic and chronological order match, which the
+  retention logic depends on.
+- Cadence and retention are both configurable, snapshot created by
+  `backend/services/dbBackupService.js`, scheduled by
+  `backend/services/dbBackupScheduler.js`:
+
+| Env var | Default | What |
+|---|---|---|
+| `TUDUDI_DB_BACKUP_ENABLED` | `false` | Turns the scheduled job on |
+| `TUDUDI_DB_BACKUP_CRON` | `0 3 * * *` | When (daily at 03:00) |
+| `TUDUDI_DB_BACKUP_RETENTION` | `7` | How many snapshots to keep in R2 |
+
+Disabled by default — it's instance infrastructure configured via env var,
+the same way as `CALDAV_ENABLED` or `FF_ENABLE_BACKUPS`, not a per-user
+preference.
+
+### Verifying a snapshot without restoring
+
+Download the object, then check its tables without touching the running app:
+
+```bash
+sqlite3 downloaded-snapshot.sqlite3 ".tables"
+sqlite3 downloaded-snapshot.sqlite3 "PRAGMA integrity_check;"
+```
+
+### Restore procedure
+
+This is the procedure actually executed against a real snapshot and a real
+database on 2026-07-17 (development environment; the container-specific
+paths below come from the `Dockerfile`/`docker-compose.yml` and have not
+been separately re-verified against a running container).
+
+1. **Get the snapshot.** From the Cloudflare dashboard (R2 → bucket →
+   `db-backups/`) or the S3-compatible API used by `r2Service.js`
+   (`getObjectStream`). Pick the most recent key, or an older one if you're
+   recovering from a bad write rather than a lost host.
+2. **Stop the app.** `docker-compose down` in production/Docker, or
+   `Ctrl+C` / kill the `node app.js` process in development. The database
+   must not be open while you swap the file.
+3. **Back up the current file first**, even if it looks broken — it may
+   still hold data the snapshot doesn't:
+   ```bash
+   cp production.sqlite3 production.sqlite3.before-restore
+   ```
+4. **Delete `-wal` and `-shm` files next to the target, if present.**
+   SQLite in WAL mode (`backend/models/index.js`) can leave uncommitted-to-main
+   data sitting only in `<file>-wal`, not yet checkpointed into the main
+   file. If you copy the snapshot over the main file but leave a stale
+   `-wal`/`-shm` pair behind, SQLite replays that stale WAL against the
+   *new* file on next open and you get a corrupted mix of old and restored
+   data. **Caught this for real while validating this doc**: restoring
+   without removing `-wal` first can silently produce an empty-looking
+   database if the pre-restore main file had never been checkpointed.
+   ```bash
+   rm -f production.sqlite3-wal production.sqlite3-shm
+   ```
+5. **Put the snapshot in place** at the exact path the app expects:
+   `/app/db/production.sqlite3` in the container (defined in the
+   `Dockerfile`, on the `tududi_db` volume); `backend/db/development.sqlite3`
+   in development.
+   ```bash
+   cp downloaded-snapshot.sqlite3 production.sqlite3
+   ```
+6. **Ownership and permissions (container only).** The entrypoint
+   (`backend/cmd/start.sh`) runs as `app:app` and expects the db file at
+   `660`. A file copied in by hand (e.g. as root) may need:
+   ```bash
+   chown app:app production.sqlite3
+   chmod 660 production.sqlite3
+   ```
+7. **Start the app** and confirm: log in, and check that tasks/projects/areas
+   that should be there are actually there.
+   ```bash
+   docker-compose up -d   # or: npm start
+   ```
+
+### Alternative rejected: replicating writes to Cloudflare D1
+
+See `plans/10b-db-snapshot-service.md` for the full rationale (latency,
+lack of transactions over the D1 REST driver, rate limits, silent
+divergence). Kept out of this doc on purpose so it isn't reproposed without
+that context.
+
 ## Related Documentation
 
 - [Database & Migrations](database.md) - Schema changes and migrations

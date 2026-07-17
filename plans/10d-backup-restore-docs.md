@@ -1,12 +1,14 @@
 # 10d — Documentar e testar o restore do snapshot
 
-> **Status: Aberto.** Prioridade: alta. Esforço: baixo.
-> **Depende de**: `10b` e `10c` (precisa existir snapshot real no R2 para
-> restaurar).
->
-> **Este plano é o que dá valor aos anteriores.** Backup não testado não é
-> backup — é esperança. Sem o `10d`, o `10b`/`10c` são só código que sobe
-> arquivo.
+> **Status: EXECUTADO** em 2026-07-17 — restore real executado em
+> desenvolvimento (Docker indisponível neste ambiente de execução; passos de
+> container documentados a partir do `Dockerfile`/`docker-compose.yml`, não
+> re-verificados ao vivo em container). Achado real durante a validação:
+> `development.sqlite3` original tinha só 4KB — os dados viviam só no
+> `-wal`, nunca checkpointado. Restaurar sem remover `-wal`/`-shm` antes
+> produz banco vazio; documentado em `docs/backups.md` §Restore procedure,
+> passo 4. Seção nova em `docs/backups.md`: "Offsite Snapshot to Cloudflare
+> R2".
 
 Pré-requisito de leitura: `plans/README.md` e `docs/backups.md` (o doc atual).
 
