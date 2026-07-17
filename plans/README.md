@@ -121,7 +121,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Alto | `05c-high-effort.md` | HE-1 extrair service/controller do tasks; HE-2 cobertura de testes frontend | — |
+| Alto | `05c-high-effort.md` | HE-2 cobertura de testes frontend (HE-1 executado em 2026-07-17) | — |
 | — | `05-future-improvements.md` | Índice do levantamento (não é trabalho; aponta os `05x`) | — |
 
 ### Executados — registro de decisão, não mexer

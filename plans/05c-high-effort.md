@@ -4,31 +4,20 @@ Origem: itens do levantamento `05-future-improvements.md`, segregados por esfor�
 Itens desta faixa são refatorações estruturais ou trabalho contínuo — quebrar em
 etapas com commits intermediários e suíte verde a cada etapa. Regras: `plans/README.md`.
 
+> **HE-1 EXECUTADO** em 2026-07-17 — `routes.js` do módulo tasks reduzido de 1064
+> para 39 linhas via `controller.js` + `service.js`. Item removido deste plano.
+
 ---
-
-## HE-1. Extrair service/controller do módulo tasks
-
-- **Onde**: `backend/modules/tasks/routes.js` (~1000 linhas com lógica de negócio
-  inline: delete com recorrência, SQL cru em `tasks_tags`, serialização, métricas).
-- **Por quê (alta prioridade)**: é o módulo mais crítico e o único fora do padrão
-  controller→service→repository usado em projects/areas/goals; os bugs das
-  limpezas de R2 nasceram aqui.
-- **Como (etapas)**:
-  1. Criar `tasks/controller.js` + `tasks/service.js` vazios seguindo o molde de
-     `backend/modules/projects/`.
-  2. Migrar um endpoint por vez (começar pelos simples: GET subtasks, GET metrics),
-     rodando a suíte a cada migração.
-  3. Delete e update (com recorrência) por último — extrair para
-     `tasks/operations/` o que for regra de negócio pura.
-  4. `routes.js` final: só definição de rotas + middlewares.
-- **Critério de pronto**: `routes.js` < 200 linhas; nenhum acesso direto a model
-  nas rotas; suíte integral verde sem mudança de contrato HTTP.
-- **Esforço**: alto (várias sessões). **Dependência**: absorve ME-1/ME-4 se feitos juntos.
 
 ## HE-2. Cobertura de testes do frontend em fluxos críticos
 
-- **Onde**: `frontend/__tests__/` (hoje 4 suítes / 65 testes) vs superfície real
-  (ProfileSettings ~1500 linhas, fluxos de upload, branding, views).
+- **Onde**: as suítes de frontend são **colocadas**, não centralizadas —
+  `frontend/components/Shared/__tests__/MarkdownRenderer.checkbox.test.tsx`,
+  `frontend/components/Task/TaskDetails/__tests__/TaskContentCard.test.tsx`,
+  `frontend/components/Task/__tests__/RecurrenceDisplay.test.tsx` e
+  `frontend/utils/dateUtils.test.ts` (4 suítes no total). `frontend/__tests__/`
+  só contém `setup.ts`. Superfície real muito maior: ProfileSettings ~1500
+  linhas, fluxos de upload, branding, views.
 - **Por quê**: regressões de UI só aparecem no E2E Playwright (lento, não roda em
   cada PR localmente).
 - **Como (incremental, sem big-bang)**:
@@ -38,3 +27,8 @@ etapas com commits intermediários e suíte verde a cada etapa. Regras: `plans/R
   3. Meta inicial: +1 suíte por PR que tocar componente sem teste (regra de
      revisão), não uma força-tarefa.
 - **Esforço**: alto/contínuo.
+- **Nota**: HE-2 é uma **regra de revisão contínua**, não uma unidade de trabalho
+  commitável — não tem critério de pronto e por construção nunca "termina".
+  Decidir se vira convenção de contribuição (`.github/CONTRIBUTING.md`) e sai do
+  `/plans`, ou se vira um plano fechado com alvo explícito (ex.: "cobrir
+  BrandingTab e GeneralTab avatar").

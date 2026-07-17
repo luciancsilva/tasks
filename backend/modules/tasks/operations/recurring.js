@@ -1,12 +1,128 @@
 const { Task } = require('../../../models');
 const taskRepository = require('../repository');
-const { calculateNextDueDate } = require('../recurringTaskService');
+const {
+    calculateNextDueDate,
+    shouldGenerateNextTask,
+} = require('../recurringTaskService');
 const {
     processDueDateForResponse,
     getSafeTimezone,
     dateStringToUTC,
     getCurrentDateInTimezone,
 } = require('../../../utils/timezone-utils');
+
+const RECURRENCE_FIELDS = [
+    'recurrence_type',
+    'recurrence_interval',
+    'recurrence_end_date',
+    'recurrence_weekday',
+    'recurrence_weekdays',
+    'recurrence_month_day',
+    'recurrence_week_of_month',
+    'completion_based',
+];
+
+/**
+ * Applies a recurring instance's recurrence edits to its parent template, so
+ * editing one occurrence can retune the whole series. Fields absent from the
+ * payload keep the parent's current value.
+ */
+async function propagateRecurrenceToParent(task, body, userId) {
+    if (!task.recurring_parent_id) return;
+
+    const parentTask = await taskRepository.findByIdAndUser(
+        task.recurring_parent_id,
+        userId
+    );
+
+    if (!parentTask) return;
+
+    const updates = {};
+    for (const field of RECURRENCE_FIELDS) {
+        updates[field] =
+            body[field] !== undefined ? body[field] : parentTask[field];
+    }
+
+    await parentTask.update(updates);
+}
+
+/**
+ * Works out what completing a recurring parent implies: the completion record
+ * to store, and - when the series has not ended - the next occurrence the task
+ * should roll forward to.
+ *
+ * Returns null when the update is not the completion of a recurring parent.
+ */
+function planRecurrenceAdvance(
+    task,
+    taskAttributes,
+    status,
+    resolveFinalValue
+) {
+    const finalRecurrenceType = resolveFinalValue('recurrence_type');
+    const finalCompletionBased = resolveFinalValue('completion_based');
+    const finalDueDateBeforeAdvance =
+        taskAttributes.due_date !== undefined
+            ? taskAttributes.due_date
+            : task.due_date;
+
+    const isCompletingRecurringParent =
+        status !== undefined &&
+        (taskAttributes.status === Task.STATUS.DONE ||
+            taskAttributes.status === 'done') &&
+        finalRecurrenceType &&
+        finalRecurrenceType !== 'none' &&
+        !task.recurring_parent_id;
+
+    if (!isCompletingRecurringParent) return null;
+
+    const completedAt = new Date();
+    const hasOriginalDueDate =
+        finalDueDateBeforeAdvance !== undefined &&
+        finalDueDateBeforeAdvance !== null &&
+        finalDueDateBeforeAdvance !== '';
+    const originalDueDate = hasOriginalDueDate
+        ? new Date(finalDueDateBeforeAdvance)
+        : new Date(completedAt);
+
+    const recurrenceContext = {
+        ...(typeof task.get === 'function' ? task.get({ plain: true }) : task),
+        recurrence_type: finalRecurrenceType,
+        recurrence_interval: resolveFinalValue('recurrence_interval'),
+        recurrence_end_date: resolveFinalValue('recurrence_end_date'),
+        recurrence_weekday: resolveFinalValue('recurrence_weekday'),
+        recurrence_weekdays: resolveFinalValue('recurrence_weekdays'),
+        recurrence_month_day: resolveFinalValue('recurrence_month_day'),
+        recurrence_week_of_month: resolveFinalValue('recurrence_week_of_month'),
+        completion_based: finalCompletionBased,
+        due_date: originalDueDate,
+    };
+
+    const baseDate = finalCompletionBased
+        ? completedAt
+        : new Date(originalDueDate);
+    const nextDueDate = calculateNextDueDate(recurrenceContext, baseDate);
+
+    return {
+        completionPayload: {
+            task_id: task.id,
+            completed_at: completedAt,
+            original_due_date: new Date(originalDueDate),
+            skipped: false,
+        },
+        advanceInfo: {
+            originalDueDate: new Date(originalDueDate),
+            completedAt,
+            nextDueDate,
+        },
+        completionBased: finalCompletionBased,
+        // Only roll forward while the series is still running.
+        shouldAdvance: Boolean(
+            nextDueDate &&
+                shouldGenerateNextTask(recurrenceContext, nextDueDate)
+        ),
+    };
+}
 
 async function handleRecurrenceUpdate(task, recurrenceFields, reqBody) {
     // Check if recurrence fields changed
@@ -263,6 +379,9 @@ async function calculateNextIterations(task, startFromDate, userTimezone) {
 }
 
 module.exports = {
+    RECURRENCE_FIELDS,
+    propagateRecurrenceToParent,
+    planRecurrenceAdvance,
     handleRecurrenceUpdate,
     calculateNextIterations,
 };
