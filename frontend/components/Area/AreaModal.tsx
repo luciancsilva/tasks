@@ -49,13 +49,18 @@ const AreaModal: React.FC<AreaModalProps> = ({
                 color: area?.color || '',
             });
             setError(null);
-
-            // Auto-focus on the name input when modal opens
-            setTimeout(() => {
-                nameInputRef.current?.focus();
-            }, 100);
         }
     }, [isOpen, area]);
+
+    // Auto-focus on the name input when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            const focusTimer = setTimeout(() => {
+                nameInputRef.current?.focus();
+            }, 100);
+            return () => clearTimeout(focusTimer);
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

@@ -1,6 +1,6 @@
 # 19i — Limpeza de Timers (`clearTimeout`) e Prevenção de Memory Leaks no Frontend
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — timers de setTimeout agora têm clearTimeout no cleanup/reentrância em usePersistedModal, AreaModal e ProfileSettings, evitando update em componente desmontado e vazamento de listeners. Areas.tsx já limpava o timer no cleanup (sem alteração).
 > **Escopo:** Garantir a limpeza de timers (`clearTimeout`) em `usePersistedModal.ts`, `Areas.tsx`, `AreaModal.tsx` e `ProfileSettings.tsx`.
 > **Depende de:** -
 

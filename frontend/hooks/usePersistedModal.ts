@@ -46,6 +46,10 @@ export const usePersistedModal = (projectId?: number) => {
     }, []);
 
     const openModal = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
         const state: PersistedModalState = {
             isOpen: true,
             projectId,

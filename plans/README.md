@@ -131,7 +131,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `19i-frontend-memory-leaks.md` | AM-2, AM-3, AM-6: Memory leaks via `setTimeout` sem cleanup na desmontagem/abertura de modais e perfil | - |
 
 ### Prioridade BAIXA
 
@@ -179,6 +178,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `19g-backend-pagination-max-limit.md` | AM-4: teto MAX_LIMIT=100 em notifications/inbox/events | EXECUTADO (2026-07-17) |
 | `19j-frontend-null-safety-subtasks.md` | AM-8: null-safety em fetchSubtasks/loadSubtasks (evita crash de UI) | EXECUTADO (2026-07-17) |
 | `19h-frontend-race-conditions.md` | AM-1/5/7: isMounted/AbortController em ProjectDetails, ViewDetail, ProfileSettings | EXECUTADO (2026-07-17) |
+| `19i-frontend-memory-leaks.md` | AM-2/3/6: clearTimeout em usePersistedModal, AreaModal, ProfileSettings | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

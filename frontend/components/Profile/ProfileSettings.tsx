@@ -629,6 +629,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
     }, []);
 
     useEffect(() => {
+        let timerId: ReturnType<typeof setTimeout> | undefined;
+
         const fetchTelegramInfo = async () => {
             if (profile?.telegram_bot_token) {
                 try {
@@ -677,7 +679,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                             !isPollingStartedRef.current
                         ) {
                             isPollingStartedRef.current = true;
-                            setTimeout(() => {
+                            timerId = setTimeout(() => {
                                 handleStartPolling();
                             }, 1000);
                         } else {
@@ -691,6 +693,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
         };
 
         fetchTelegramInfo();
+
+        return () => {
+            if (timerId) {
+                clearTimeout(timerId);
+            }
+        };
     }, [profile?.telegram_bot_token]);
 
     useEffect(() => {}, [updateKey, i18n.language]);
