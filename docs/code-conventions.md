@@ -183,7 +183,7 @@ import clsx from 'clsx';
 | **Files** | kebab-case | `recurring-task-service.js`, `task-item.tsx` |
 | **React Components** | PascalCase | `TaskItem.tsx`, `ProjectForm.tsx` |
 | **Functions** | camelCase | `findTaskById`, `createTask`, `handleSubmit` |
-| **Classes** | PascalCase | `TaskService`, `BaseRepository` |
+| **Classes** | PascalCase | `TaskRepository`, `AppError` |
 | **Constants** | UPPER_SNAKE_CASE | `API_VERSION`, `MAX_FILE_SIZE` |
 | **Variables** | camelCase | `userId`, `taskList`, `isCompleted` |
 | **Database Tables** | PascalCase | `Tasks`, `Projects`, `Users` |

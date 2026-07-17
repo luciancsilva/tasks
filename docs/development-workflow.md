@@ -31,10 +31,20 @@ npm install
 npm run db:init
 
 # This command:
-# 1. Creates /backend/database.sqlite
+# 1. Creates /backend/db/<environment>.sqlite3 (e.g. development.sqlite3)
 # 2. Runs all migrations from /backend/migrations/
 # 3. Sets up tables and relationships
 ```
+
+> **⚠️ `npm run db:init` and `npm run db:reset` DESTROY the database.** Both run
+> `sequelize.sync({ force: true })`, which DROPs every table before recreating
+> it. They are first-time setup commands only — never run them to "prepare the
+> environment" or to fix a problem on a database that holds data you want. To
+> inspect the database safely, use `npm run db:status` (read-only).
+
+The database path comes from `DB_FILE`, defaulting to
+`backend/db/<environment>.sqlite3`. In Docker it lives at `/app/db/` on the
+`tududi_db` volume.
 
 ### Create Test User (Optional)
 
@@ -110,7 +120,7 @@ TUDUDI_USER_PASSWORD=your-secure-password
 
 # Optional - Server config
 NODE_ENV=development
-DB_FILE=database.sqlite
+DB_FILE=db/development.sqlite3   # default: backend/db/<environment>.sqlite3
 FRONTEND_URL=http://localhost:8080
 BACKEND_URL=http://localhost:3002
 PORT=3002
@@ -145,6 +155,12 @@ TUDUDI_ALLOWED_ORIGINS=http://localhost:8080
 # Optional - Registration
 REGISTRATION_TOKEN_EXPIRY_HOURS=24
 ```
+
+**`.env.example` in the repo root is the canonical reference** for every
+supported variable, including the `CLOUDFLARE_*` object storage credentials
+(canonical names; legacy `R2_*` names still work as fallbacks). Consult it rather
+than the abridged list above — see [Object Storage](15-storage.md) for what the
+storage variables do.
 
 **Generate secure session secret:**
 ```bash
@@ -549,14 +565,26 @@ PORT=3003 npm run backend:dev
 
 ### Database Locked
 
-```bash
-# Stop all servers
-# Delete database file
-rm backend/database.sqlite
+`SQLITE_BUSY` / "database is locked" almost always means another process still
+holds the database — a stray `nodemon`, a second backend, or an open GUI client.
+Find and stop it; **do not delete the database**, and do not run `db:init` or
+`db:reset` to clear the lock. Those DROP every table and are how the production
+database got wiped twice.
 
-# Reinitialize
-npm run db:init
+```bash
+# Find what is holding the file (macOS/Linux)
+lsof backend/db/development.sqlite3
+
+# Stop leftover dev servers
+npm run kill:all
 ```
+
+The database runs in WAL mode, so `-wal` and `-shm` files next to the `.sqlite3`
+are normal and must not be deleted while the app is running.
+
+If the database is genuinely corrupt and you are certain the data is disposable,
+recreating it is `npm run db:init` — read the warning in
+[Initial Setup](#initial-setup) first.
 
 ### Module Not Found
 

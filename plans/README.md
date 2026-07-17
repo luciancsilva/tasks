@@ -115,7 +115,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Médio | `06-docs-update.md` | Atualização integral do `/docs` (validar o que já foi feito) | — |
 
 ### Prioridade BAIXA — estrutural
 
@@ -140,6 +139,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `10b-db-snapshot-service.md` | createSnapshot(): VACUUM INTO + upload R2 + retenção | EXECUTADO (2026-07-17) |
 | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | EXECUTADO (2026-07-17) |
 | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | EXECUTADO (2026-07-17) |
+| `06-docs-update.md` | Atualização integral do `/docs` | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

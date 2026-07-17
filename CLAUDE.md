@@ -197,7 +197,27 @@ npm start  # Frontend on :8080, Backend on :3002
     - Claude Desktop, Cursor, VS Code configuration
     - API token authentication and security
 
-24. **[Claude Memory & Preferences](docs/MEMORY.md)**
+24. **[OIDC / SSO](docs/10-oidc-sso.md)**
+    - Single sign-on via an external OIDC provider
+    - Configuration and callback flow
+
+25. **[CalDAV Sync](docs/11-caldav-sync.md)**
+    - Two-way task synchronization with CalDAV servers
+    - Calendars, sync intervals, and conflict resolution
+
+26. **[Object Storage](docs/15-storage.md)**
+    - Cloudflare R2 for attachments, avatars, covers and branding
+    - Key prefixes and the authenticated `/api/uploads/` proxy
+    - Best-effort deletion contract and orphan reconciliation
+    - `CLOUDFLARE_*` environment variables
+
+27. **[Instance Branding](docs/16-branding.md)**
+    - Custom app name, light/dark logos and favicon
+    - Public vs admin endpoints, settings-table storage
+    - Fallback to stock tududi branding
+    - Known limitation: the PWA manifest stays static
+
+28. **[Claude Memory & Preferences](docs/MEMORY.md)**
     - PR and commit message preferences
     - Testing preferences
     - Common patterns to remember
@@ -296,6 +316,6 @@ Tududi is a self-hosted task management system designed around hierarchical orga
 
 ---
 
-**Document Version:** 1.1.0
-**Last Updated:** 2026-07-17 (R2 storage, instance branding, /plans workflow; D1 data layer removed)
+**Document Version:** 1.2.0
+**Last Updated:** 2026-07-17 (docs index now mirrors /docs: added storage, branding, OIDC, CalDAV; tasks module split into controller/service)
 **Maintainer:** Update when architecture changes or patterns evolve

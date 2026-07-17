@@ -7,15 +7,17 @@
 ## Project Root
 
 ```
-/Users/chris/c0deLab/ProjectLand/tududi/
-├── README.md                # User-facing documentation
+<repo root>/
+├── README.md               # User-facing documentation
 ├── CLAUDE.md               # This developer guide (index)
 ├── LICENSE                 # MIT License
+├── SECURITY.md             # Security policy
+├── CODE_OF_CONDUCT.md      # Code of conduct
 ├── package.json            # Root scripts and dependencies (monorepo)
 ├── package-lock.json       # Dependency lock file
 │
 ├── Configuration Files
-├── webpack.config.js       # Frontend build configuration
+├── webpack.config.js      # Frontend build configuration
 ├── tsconfig.json          # TypeScript config (frontend only)
 ├── jest.config.js         # Jest config for frontend tests
 ├── babel.config.js        # Babel transpilation for Jest + Webpack
@@ -24,6 +26,7 @@
 ├── tailwind.config.js     # Tailwind CSS customization
 ├── .sequelizerc           # Sequelize CLI configuration
 ├── postcss.config.js      # PostCSS config for Tailwind
+├── .env.example           # Canonical env var reference (R2, mail, OIDC, ...)
 │
 ├── Docker & Deployment
 ├── Dockerfile             # Production Docker image (multi-stage)
@@ -34,30 +37,35 @@
 ├── .gitignore
 ├── .github/
 │   ├── CONTRIBUTING.md    # Contribution guidelines
-│   └── workflows/         # GitHub Actions (if any)
+│   └── workflows/         # GitHub Actions
 │
 ├── Source Code
 ├── backend/               # Express backend → See Backend Structure
 ├── frontend/              # React frontend → See Frontend Structure
-├── public/                # Static assets (fonts, locales, images)
-├── dist/                  # Production build output
+├── public/                # Static assets (fonts, locales, images, manifest)
 ├── e2e/                   # Playwright E2E tests
 ├── scripts/               # Build and utility scripts
 ├── docs/                  # Documentation (this directory)
+├── plans/                 # Executable work plans (see plans/README.md)
 │
-└── Other
-    ├── screenshots/       # App screenshots for README
-    ├── uploads/           # User file uploads (not in git)
+└── Generated / not in git
+    ├── db/backups/        # Logical DB backups (persistent volume in Docker)
+    ├── dist/              # Production build output
     ├── test-results/      # Playwright test results
     └── node_modules/      # Dependencies
 ```
+
+**Note:** user uploads are **not** stored on local disk — attachments, avatars,
+project covers and branding assets live in Cloudflare R2. See
+[Object Storage](15-storage.md). A local `uploads/` directory only appears when
+R2 credentials are absent and the app falls back to the filesystem.
 
 ---
 
 ## Backend Structure
 
 ```
-/Users/chris/c0deLab/ProjectLand/tududi/backend/
+<repo root>/backend/
 │
 ├── app.js                 # Main Express application entry point
 │                          # - Middleware setup (Helmet, CORS, compression)
@@ -70,8 +78,12 @@
 ├── modules/               # Feature modules (modular architecture)
 │   │
 │   ├── tasks/            # Task management (MOST COMPLEX MODULE)
-│   │   ├── routes.js            # Express routes
+│   │   ├── routes.js            # Route definitions + middleware only
+│   │   ├── controller.js        # HTTP layer (request/response)
+│   │   ├── service.js           # Business logic (no req/res)
 │   │   ├── repository.js        # Data access layer
+│   │   ├── attachments.js       # Attachment upload/download routes
+│   │   ├── attachmentCleanup.js # Shared R2 + row cleanup
 │   │   ├── recurringTaskService.js
 │   │   ├── taskEventService.js
 │   │   ├── taskScheduler.js     # Cron-based scheduling
@@ -102,24 +114,36 @@
 │   │
 │   ├── projects/         # Project management
 │   │   ├── routes.js
+│   │   ├── controller.js
+│   │   ├── service.js
 │   │   ├── repository.js
-│   │   └── utils/
-│   │       └── validation.js
+│   │   └── validation.js
 │   │
 │   ├── areas/            # Area organization
+│   ├── goals/            # Goals (Areas > Goals > Projects)
 │   ├── notes/            # Notes management
 │   ├── tags/             # Tag system
 │   ├── users/            # User management
+│   ├── people/           # People & task assignment
 │   ├── auth/             # Authentication (login/register)
+│   ├── oauth/            # OAuth flows
+│   ├── oidc/             # OIDC / SSO
 │   ├── shares/           # Project sharing & permissions
 │   ├── telegram/         # Telegram bot integration
+│   ├── caldav/           # CalDAV synchronization
+│   ├── mcp/              # Model Context Protocol server
+│   ├── ai-assistant/     # Daily brief & insights (OpenAI)
+│   ├── branding/         # Instance branding (name, logos, favicon)
+│   │   ├── routes.js     #   publicRoutes + adminRoutes
+│   │   ├── service.js    #   settings-table reads/writes + R2 cleanup
+│   │   └── index.js
 │   ├── inbox/            # Inbox items
 │   ├── habits/           # Habit tracking
 │   ├── notifications/    # Notification system
 │   ├── search/           # Universal search
 │   ├── views/            # Saved views
 │   ├── admin/            # Admin functions
-│   ├── backup/           # Backup/restore (33KB, complex)
+│   ├── backup/           # Backup/restore
 │   ├── feature-flags/    # Feature flag management
 │   ├── quotes/           # Daily quotes
 │   └── url/              # URL handling
@@ -145,13 +169,20 @@
 │   ├── setting.js
 │   └── action.js
 │
-├── migrations/           # Database migrations (64+ files)
+├── db/                   # SQLite database files (WAL mode, not in git)
+│   ├── development.sqlite3
+│   ├── test.sqlite3
+│   └── production.sqlite3   # In Docker this lives at /app/db/, on a volume
+│
+├── migrations/           # Database migrations (95 files)
 │   ├── 20240101120000-initial-schema.js
 │   ├── 20240115140000-add-recurring-tasks.js
 │   └── ... (timestamped migration files)
 │
 ├── seeders/             # Database seed data
-│   └── (seed files if any)
+│   ├── dev-seeder.js
+│   ├── expanded-tasks.js
+│   └── massive-tasks.js
 │
 ├── middleware/          # Global middleware
 │   ├── auth.js         # Authentication (session + Bearer token)
@@ -162,24 +193,25 @@
 │
 ├── services/            # Cross-cutting services
 │   ├── permissionsService.js      # Main permissions service
-│   ├── backupService.js           # Backup/restore operations
+│   ├── r2Service.js               # Cloudflare R2 object storage
+│   ├── backupService.js           # Logical backup/restore operations
+│   ├── dbBackupService.js         # SQLite snapshot to R2 (VACUUM INTO)
+│   ├── dbBackupScheduler.js       # node-cron schedule for the snapshot
 │   ├── emailService.js            # Email notifications
 │   ├── logService.js              # Error logging
+│   ├── execAction.js              # Action execution
+│   ├── rolesService.js            # Role management
 │   ├── applyPerms.js              # Apply permissions
 │   └── permissionsCalculators.js  # Permission calculations
 │
 ├── shared/              # Shared utilities
 │   ├── errors/         # Custom error classes
-│   │   ├── AppError.js
-│   │   ├── NotFoundError.js
-│   │   ├── ValidationError.js
-│   │   ├── ConflictError.js
-│   │   ├── UnauthorizedError.js
-│   │   └── ForbiddenError.js
-│   ├── middleware/
-│   │   └── errorHandler.js       # Global error handler
-│   └── database/
-│       └── BaseRepository.js     # Base repository class
+│   │   ├── AppError.js           # Base class (statusCode, code, toJSON)
+│   │   └── index.js              # NotFoundError, ValidationError,
+│   │                             # ConflictError, UnauthorizedError,
+│   │                             # ForbiddenError
+│   └── middleware/
+│       └── errorHandler.js       # Global error handler
 │
 ├── utils/               # Utility functions
 │   ├── uid.js          # Generate 15-char unique IDs (nanoid)
@@ -240,7 +272,7 @@
 ## Frontend Structure
 
 ```
-/Users/chris/c0deLab/ProjectLand/tududi/frontend/
+<repo root>/frontend/
 │
 ├── index.tsx            # React application entry point
 │                        # - React root initialization
@@ -415,7 +447,7 @@
 ## E2E Tests Structure
 
 ```
-/Users/chris/c0deLab/ProjectLand/tududi/e2e/
+<repo root>/e2e/
 ├── tests/              # Playwright test specs
 │   ├── login.spec.ts
 │   ├── tasks.spec.ts

@@ -65,7 +65,7 @@ npm run format:fix
 
 1. **Create directory structure**
    ```bash
-   mkdir -p /Users/chris/c0deLab/ProjectLand/tududi/backend/modules/labels
+   mkdir -p <repo root>/backend/modules/labels
    ```
 
 2. **Create files**

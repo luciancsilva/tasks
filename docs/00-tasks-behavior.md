@@ -158,7 +158,9 @@ This document explains how tasks work in tududi from a user behavior perspective
 22. **Tasks can have file attachments:**
     - Multiple files can be attached to a single task
     - File size limit: 10MB per file (configurable via `FILE_UPLOAD_LIMIT_MB` environment variable)
-    - Stored in `/uploads/tasks/` directory
+    - Stored in Cloudflare R2 under the `tasks/` key prefix, and served through
+      the authenticated `/api/uploads/tasks/:filename` proxy — see
+      [Object Storage](15-storage.md)
 
 23. **Allowed file types:**
     - Images: jpg, jpeg, png, gif, webp, svg
@@ -332,7 +334,8 @@ This document explains how tasks work in tududi from a user behavior perspective
 44. **Deleting a task:**
     - Removes the task from the database
     - Cascade deletes all subtasks
-    - Removes all attachments (files deleted from disk)
+    - Removes all attachments, of the task and of its subtasks (objects deleted
+      from R2 — see [Object Storage](15-storage.md))
     - Removes task events/history
     - Removes tag associations (tags themselves remain)
 

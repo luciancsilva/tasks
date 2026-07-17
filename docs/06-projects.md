@@ -264,18 +264,22 @@ These properties are computed automatically based on project content:
 **What happens:**
 1. Project record is deleted from database
 2. **Tasks belonging to project are CASCADE DELETED** (including all subtasks)
-3. **Task attachments are deleted** from disk
-4. **Project cover image is deleted** from disk
+3. **Task attachments are deleted** from R2
+4. **Project cover image is deleted** from R2
 5. **Notes belonging to project are orphaned** (project_id set to null)
 6. Project tags associations are removed
 7. Share permissions are deleted
 
 **What IS deleted:**
 - Tasks and all their subtasks
-- Task attachments (files removed from disk)
-- Project cover image (file removed from disk)
+- Task attachments (objects removed from R2)
+- Project cover image (object removed from R2)
 - Task events and recurring completions
 - Task tag associations
+
+Replacing a project's cover image also deletes the previous object from R2, so a
+project never accumulates unreferenced covers. Object deletion is best-effort and
+never blocks the database change — see [Object Storage](15-storage.md).
 
 **What is NOT deleted:**
 - Notes (they become orphaned, as they are reference material)

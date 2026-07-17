@@ -173,12 +173,14 @@ This document explains how user management works in tududi from a user behavior 
 ### Upload & Delete
 
 24. **Users can upload a profile avatar image**
-    - Uploaded files are stored in `/uploads/avatars/`
+    - Stored in Cloudflare R2 under the `avatars/` key prefix — see
+      [Object Storage](15-storage.md)
     - Avatar URL is stored in user profile
-    - Uploading a new avatar replaces the old one (old file is deleted)
+    - Uploading a new avatar replaces the old one (the old object is deleted
+      from R2)
 
 25. **Deleting avatar:**
-    - Removes the avatar file from the server
+    - Removes the avatar object from R2 (best-effort) and clears the profile URL
     - Sets avatar URL to null in the profile
     - User displays with default avatar after deletion
 

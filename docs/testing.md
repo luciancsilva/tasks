@@ -6,49 +6,55 @@
 
 ## Test Organization
 
+The suite currently runs **114 suites / 1644 tests** (backend), split as 55 unit
+files and 59 integration files.
+
 ```
 /backend/tests/
+├── helpers/                   # Shared test utilities (createTestUser, ...)
 ├── unit/                      # Unit tests for isolated logic
-│   ├── models/               # Model tests
-│   │   ├── task.test.js
-│   │   ├── project.test.js
-│   │   ├── user.test.js
-│   │   └── ...
-│   ├── middleware/           # Middleware tests
-│   │   ├── auth.test.js
-│   │   └── authorize.test.js
-│   ├── services/             # Service tests
-│   │   ├── permissionsService.test.js
-│   │   ├── applyPerms.test.js
-│   │   └── ...
-│   └── utils/                # Utility tests
-│       ├── timezone-utils.test.js
-│       ├── slug-utils.test.js
-│       ├── attachment-utils.test.js
-│       └── migration-utils.test.js
+│   ├── models/               # Model tests (task, project, user, ...)
+│   ├── middleware/           # auth.test.js, authorize.test.js
+│   ├── services/             # permissionsService, r2Service, dbBackupService, ...
+│   ├── shared/               # Error classes, error handler
+│   ├── utils/                # timezone-utils, slug-utils, migration-utils, ...
+│   └── modules/              # Per-module unit tests
+│       ├── tasks/           # recurringTaskService, dueTaskService
+│       ├── caldav/
+│       ├── mcp/
+│       ├── oauth/
+│       ├── oidc/
+│       └── telegram/
 │
-└── integration/              # Integration tests for API endpoints
-    ├── tasks/
-    │   ├── tasks.test.js
-    │   ├── subtasks.test.js
-    │   └── recurring.test.js
-    ├── projects/
-    │   └── projects.test.js
-    ├── areas/
-    ├── notes/
-    ├── tags/
-    ├── auth/
-    ├── shares/
-    └── ... (47+ test directories)
+└── integration/               # Integration tests for API endpoints
+    │                          # Flat directory — one file per feature, NOT
+    │                          # per-feature subdirectories.
+    ├── tasks.test.js
+    ├── subtasks.test.js
+    ├── recurring-tasks.test.js
+    ├── task-attachments.test.js
+    ├── projects.test.js
+    ├── branding.test.js
+    ├── permissions-tasks.test.js
+    ├── ... (59 files total)
+    └── mcp/                   # The only integration subdirectory
 
 /e2e/tests/                   # E2E tests (Playwright)
 ├── caldav-client.spec.ts
 ├── inbox.spec.ts
 ├── registration.spec.ts
 └── today-view.spec.ts
+```
 
-/frontend/                    # Frontend tests
-└── (Frontend test coverage is currently limited — see the three existing tests under `frontend/`)
+Frontend suites are **colocated with the components**, not centralized under
+`frontend/__tests__/` (which holds only `setup.ts`). Coverage is currently thin —
+4 suites:
+
+```
+frontend/components/Shared/__tests__/MarkdownRenderer.checkbox.test.tsx
+frontend/components/Task/TaskDetails/__tests__/TaskContentCard.test.tsx
+frontend/components/Task/__tests__/RecurrenceDisplay.test.tsx
+frontend/utils/dateUtils.test.ts
 ```
 
 ---
@@ -58,20 +64,27 @@
 ### Backend Tests
 
 ```bash
-# Run all backend tests
+# Run all backend tests (NODE_ENV=test)
 npm test
 # or
 npm run backend:test
 
-# Run specific test file
-npm test -- backend/tests/unit/models/task.test.js
+# Only unit / only integration
+npm run backend:test:unit
+npm run backend:test:integration
 
-# Run with coverage
-npm run test:coverage
+# Run a specific test file. Paths are relative to backend/, because the script
+# does `cd backend` first.
+npm run backend:test -- tests/unit/models/task.test.js
 
-# Watch mode (re-run on file changes)
-npm run test:watch
+# Watch mode / coverage (backend)
+npm run backend:test:watch
+npm run backend:test:coverage
 ```
+
+**`NODE_ENV=test` is the only safe setting by construction** — it targets
+`backend/db/test.sqlite3`. A command with `NODE_ENV=development` or
+`production` touches the real database of the checkout.
 
 ### Frontend Tests
 
@@ -79,9 +92,13 @@ npm run test:watch
 # Run frontend tests
 npm run frontend:test
 
-# Watch mode
-npm run frontend:test -- --watch
+# Watch mode / coverage
+npm run frontend:test:watch
+npm run frontend:test:coverage
 ```
+
+Note `npm run test:watch` is an alias for the **frontend** watcher, and
+`npm run test:coverage` runs frontend **and** backend coverage.
 
 ### E2E Tests
 
@@ -93,23 +110,29 @@ npm run test:ui
 npm run test:ui:headed
 
 # Specific test file
-npx playwright test e2e/tests/tasks.spec.ts
+npx playwright test e2e/tests/inbox.spec.ts
 
 # Debug mode
 npx playwright test --debug
 ```
 
-### Pre-Push Checks
+### Lint, Format, Type Check
 
 ```bash
-# Run all checks before committing/pushing
-npm run pre-push
+npm run lint          # frontend + backend eslint + i18n key check
+npm run format:fix    # prettier --write, frontend + backend
+npm run typecheck     # tsc --noEmit
+```
 
-# This runs:
-# - ESLint checks
-# - Prettier formatting
-# - Backend tests
-# - Type checking (if applicable)
+`npm run pre-push` runs `lint-staged` (staged files only), not the full suite.
+The everything-check before a release is `npm run pre-release`.
+
+**On Windows checkouts, avoid the global `npm run backend:lint`**: it reports
+thousands of pre-existing `Delete ␍` (CRLF) errors that are unrelated to your
+change. Lint the files you touched individually:
+
+```bash
+cd backend && npx eslint modules/tasks/service.js
 ```
 
 ---
@@ -457,23 +480,71 @@ it('should send notification email', async () => {
 });
 ```
 
-### Mock Frontend API Calls
+### Mock R2 / Object Storage
+
+Any test touching attachments, avatars, project covers or branding **must** mock
+R2 so the suite never hits the network. Use `aws-sdk-client-mock` against the
+shared client instance from `r2Service` — multer-s3 streams uploads through that
+exact instance, so mocking it keeps every command in memory.
+
+Reference: `backend/tests/integration/task-attachments.test.js`.
+
+```javascript
+const { mockClient } = require('aws-sdk-client-mock');
+const {
+    PutObjectCommand,
+    GetObjectCommand,
+    DeleteObjectCommand,
+    HeadObjectCommand,
+} = require('@aws-sdk/client-s3');
+const { Readable } = require('stream');
+const r2Service = require('../../services/r2Service');
+
+// Mocking the shared client instance intercepts all S3/R2 traffic.
+const s3Mock = mockClient(r2Service.getClient());
+
+// The download route only calls .pipe()/.on(), so a plain Readable suffices.
+const makeBodyStream = (content) => Readable.from([Buffer.from(content)]);
+
+beforeEach(() => {
+    s3Mock.reset();
+    s3Mock.on(PutObjectCommand).resolves({});
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    s3Mock.on(GetObjectCommand).resolves({ Body: makeBodyStream('hello') });
+});
+
+it('deletes the R2 object when the task is deleted', async () => {
+    // Act
+    await request(app).delete(`/api/task/${task.uid}`).set('Cookie', authCookie);
+
+    // Assert
+    expect(s3Mock.commandCalls(DeleteObjectCommand).length).toBe(1);
+});
+```
+
+Remember `r2Service.deleteObject` is **best-effort**: it logs and returns `false`
+on failure instead of throwing. A test asserting that a delete failure does not
+break the request should make the mock reject and still expect a 2xx.
+
+### Mock Frontend Dependencies
+
+The frontend suites do not use `msw`. They mock modules directly with
+`jest.mock`, which keeps tests synchronous and dependency-free.
+
+Reference: `frontend/components/Task/__tests__/RecurrenceDisplay.test.tsx`.
 
 ```typescript
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
+// t(key, fallback) -> fallback, so English fallbacks render literally.
+jest.mock('react-i18next', () => ({
+    useTranslation: () => ({
+        t: (_key: string, fallback: string) => fallback,
+    }),
+}));
 
-const server = setupServer(
-  rest.get('/api/v1/tasks', (req, res, ctx) => {
-    return res(ctx.json([
-      { id: 1, name: 'Mocked Task' }
-    ]));
-  })
-);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+// Stub the service call so the component's effect settles.
+jest.mock('../../../utils/profileService', () => ({
+    getFirstDayOfWeek: jest.fn().mockResolvedValue(1),
+}));
 ```
 
 ---
@@ -503,7 +574,7 @@ npm test
 npm run test:ui
 ```
 
-✅ No linting errors:
+✅ No linting errors (see the CRLF caveat above for Windows):
 ```bash
 npm run lint
 ```
@@ -511,11 +582,6 @@ npm run lint
 ✅ Code formatted:
 ```bash
 npm run format:fix
-```
-
-✅ Run pre-push checks:
-```bash
-npm run pre-push
 ```
 
 ---

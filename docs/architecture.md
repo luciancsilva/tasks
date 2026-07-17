@@ -50,7 +50,7 @@ graph TD
     Browser["Browser<br>http://localhost:8080"] --> WebpackDev["Webpack Dev Server<br>Port: 8080<br>- Hot reload<br>- Proxy /api/*<br>- Proxy /locales/*"]
     WebpackDev -->|Proxies requests| Express["Express Server<br>Port: 3002<br>- API endpoints<br>- Session auth<br>- Rate limiting"]
     Express --> Sequelize["Sequelize ORM<br>- Model layer<br>- Relationships<br>- Migrations"]
-    Sequelize --> SQLite["SQLite Database<br>database.sqlite<br>- WAL mode<br>- Optimized I/O"]
+    Sequelize --> SQLite["SQLite Database<br>backend/db/development.sqlite3<br>- WAL mode<br>- Optimized I/O"]
 
     style Browser fill:#1e3a5f,stroke:#4a9eff,color:#fff
     style WebpackDev fill:#5f4a1e,stroke:#ffa94a,color:#fff

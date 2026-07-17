@@ -23,7 +23,7 @@ Objects in the bucket are prefixed by their domain to organize files logically:
 | Tasks / attachments | `tasks/task-<timestamp>-<rand>.<ext>` | Uploaded file attachments linked to tasks. |
 | Users / avatars | `avatars/avatar-<userId>-<timestamp>.<ext>` | Profile avatar image. |
 | Projects / covers | `projects/cover-<projectId>-<timestamp>.<ext>` | Project cover banners. |
-| System / branding | `branding/logo-light.<ext>`, `branding/logo-dark.<ext>`, `branding/favicon.<ext>` | Custom instance branding assets. |
+| System / branding | `branding/<kind>-<timestamp>-<rand>.<ext>` where `<kind>` is `logo_light`, `logo_dark` or `favicon` | Custom instance branding assets. |
 
 ## Delivery (Proxying)
 
@@ -31,7 +31,7 @@ All uploaded assets (except custom branding logos/favicon) are served through th
 
 - Route: `/api/uploads/:prefix/:filename`
 - Logic: Validates if the requesting user has permission to view the parent entity (e.g. task or project) before fetching the stream from R2 and piping it to the response.
-- Branding assets are public and served directly at `/api/branding/logo/light`, `/api/branding/logo/dark`, and `/api/branding/favicon`.
+- Branding assets are public and served at `/api/branding/asset/:filename`, because the Login and Register pages need them before a session exists. See [Branding](16-branding.md).
 
 ## Orphan Cleanup & Lifecycle Rules
 
@@ -41,6 +41,13 @@ To prevent storage bloat, the application performs best-effort cleanup on entity
 - **Task Delete**: Deleting a task automatically triggers R2 object deletion for all task attachments, subtask attachments, and recurring instance attachments.
 - **Project Delete / Cover Update**: Deleting a project or updating its cover banner deletes the previous cover image from R2.
 - **Avatar Update**: Changing user avatars deletes the old avatar from the bucket.
+- **Branding Asset Replace / Clear**: Uploading a new logo or favicon, or clearing one, deletes the previous object.
+
+Deletion is **best-effort**: `deleteObject` failures are logged but never fail the
+request, so a bucket outage cannot block a task deletion. The trade-off is that a
+failed delete leaves an orphan object, which is what the reconciliation below is
+for. Object deletion is deferred until after the database transaction commits, so
+a rolled-back delete does not destroy files that are still referenced.
 
 ### R2 Bucket Lifecycle Rules
 
