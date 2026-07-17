@@ -1,6 +1,6 @@
 # 19c — Limpeza de Anexos Órfãos no R2 em Subtarefas Profundas (`deleteWithOrphaning`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — coleta recursiva de subtarefas descendentes (nível 3+) em deleteWithOrphaning garante limpeza dos anexos no R2 antes do cascade.
 > **Escopo:** Alterar a coleta de subtarefas em `backend/modules/projects/repository.js:315-330` para ser recursiva (nível 3+), garantindo a remoção completa de anexos no Cloudflare R2 antes do `ON DELETE CASCADE`.
 > **Depende de:** -
 

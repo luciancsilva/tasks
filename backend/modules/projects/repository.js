@@ -20,6 +20,27 @@ const r2Service = require('../../services/r2Service');
 const { deleteAttachmentsForTaskIds } = require('../tasks/attachmentCleanup');
 const { logError } = require('../../services/logService');
 
+/**
+ * Recursively collect the ids of all descendant tasks (subtasks, sub-subtasks,
+ * etc.) for the given root task ids. Needed so R2 attachment cleanup covers
+ * deep subtask trees (level 3+), not just direct children, before the
+ * SQLite ON DELETE CASCADE removes the rows.
+ */
+async function collectDescendantTaskIds(taskIds, transaction, acc = []) {
+    if (!taskIds || taskIds.length === 0) {
+        return acc;
+    }
+    acc.push(...taskIds);
+    const children = await Task.findAll({
+        where: { parent_task_id: { [Op.in]: taskIds } },
+        attributes: ['id'],
+        raw: true,
+        transaction,
+    });
+    const childIds = children.map((c) => c.id);
+    return collectDescendantTaskIds(childIds, transaction, acc);
+}
+
 class ProjectsRepository {
     constructor() {
         this.model = Project;
@@ -327,25 +348,16 @@ class ProjectsRepository {
                         parent_task_id: null, // Only get parent tasks
                     },
                     attributes: ['id'],
-                    include: [
-                        {
-                            model: Task,
-                            as: 'Subtasks',
-                            attributes: ['id'],
-                            required: false,
-                        },
-                    ],
                     transaction,
                 });
 
-                // Delete attachments (R2 objects + rows) for tasks and subtasks
-                const taskIds = [];
-                for (const task of tasks) {
-                    taskIds.push(task.id);
-                    for (const subtask of task.Subtasks || []) {
-                        taskIds.push(subtask.id);
-                    }
-                }
+                // Delete attachments (R2 objects + rows) for tasks and all
+                // descendant subtasks, however deep (level 3+ included).
+                const rootTaskIds = tasks.map((task) => task.id);
+                const taskIds = await collectDescendantTaskIds(
+                    rootTaskIds,
+                    transaction
+                );
                 await deleteAttachmentsForTaskIds(taskIds, { transaction });
 
                 if (taskIds.length > 0) {
