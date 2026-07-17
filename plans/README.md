@@ -134,6 +134,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
+| Baixo | `19n-flaky-subtasks-completion.md` | `subtasks-completion.test.js` falhou 1x sob execução paralela (passa isolado/re-run) — flake a estabilizar | - |
 | Baixo | `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` (instalação é do dono) | 14a, 14b (só p/ atualizar) |
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
