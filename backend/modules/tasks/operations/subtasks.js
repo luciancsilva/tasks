@@ -49,13 +49,19 @@ async function getSubtasks(parentTaskId, userId, timezone) {
     return { error: null, subtasks: serializedSubtasks };
 }
 
-async function createSubtasks(parentTaskId, subtasks, userId) {
+async function createSubtasks(parentTaskId, subtasks, userId, options = {}) {
+    const { transaction } = options;
     if (!subtasks || !Array.isArray(subtasks)) return;
 
     // Get the highest order value for existing subtasks
     const existingSubtasks = await taskRepository.findAll(
         { parent_task_id: parentTaskId },
-        { attributes: ['order'], order: [['order', 'DESC']], limit: 1 }
+        {
+            attributes: ['order'],
+            order: [['order', 'DESC']],
+            limit: 1,
+            transaction,
+        }
     );
     const maxOrder = existingSubtasks[0]?.order ?? 0;
 
@@ -78,13 +84,16 @@ async function createSubtasks(parentTaskId, subtasks, userId) {
             order: maxOrder + index + 1, // Assign sequential order values
         }));
 
-    await taskRepository.createMany(subtasksData);
+    await taskRepository.createMany(subtasksData, { transaction });
 }
 
-async function updateSubtasks(taskId, subtasks, userId) {
+async function updateSubtasks(taskId, subtasks, userId, options = {}) {
+    const { transaction } = options;
     if (!subtasks || !Array.isArray(subtasks)) return;
 
-    const existingSubtasks = await taskRepository.findChildren(taskId, userId);
+    const existingSubtasks = await taskRepository.findChildren(taskId, userId, {
+        transaction,
+    });
 
     const subtasksToKeep = subtasks.filter((s) => s.id && !s.isNew);
     const subtasksToDelete = existingSubtasks.filter(
@@ -117,6 +126,7 @@ async function updateSubtasks(taskId, subtasks, userId) {
                 id: subtasksToDelete.map((s) => s.id),
                 user_id: userId,
             },
+            transaction,
         });
     }
 
@@ -161,6 +171,7 @@ async function updateSubtasks(taskId, subtasks, userId) {
 
             return taskRepository.bulkUpdate(updateData, {
                 where: { id: subtask.id, user_id: userId },
+                transaction,
             });
         });
 
@@ -172,7 +183,7 @@ async function updateSubtasks(taskId, subtasks, userId) {
     );
 
     if (newSubtasks.length > 0) {
-        await createSubtasks(taskId, newSubtasks, userId);
+        await createSubtasks(taskId, newSubtasks, userId, { transaction });
     }
 }
 

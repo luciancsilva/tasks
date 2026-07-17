@@ -68,7 +68,7 @@ async function undoneParentTaskIfNeeded(parentTaskId, userId) {
     }
 }
 
-async function completeAllSubtasks(parentTaskId, userId) {
+async function completeAllSubtasks(parentTaskId, userId, options = {}) {
     try {
         const result = await taskRepository.updateChildren(
             parentTaskId,
@@ -76,7 +76,8 @@ async function completeAllSubtasks(parentTaskId, userId) {
             {
                 status: Task.STATUS.DONE,
                 completed_at: new Date(),
-            }
+            },
+            options
         );
         return result[0] > 0;
     } catch (error) {
@@ -85,7 +86,7 @@ async function completeAllSubtasks(parentTaskId, userId) {
     }
 }
 
-async function cancelAllSubtasks(parentTaskId, userId) {
+async function cancelAllSubtasks(parentTaskId, userId, options = {}) {
     try {
         const result = await taskRepository.updateChildrenWithConditions(
             parentTaskId,
@@ -104,7 +105,8 @@ async function cancelAllSubtasks(parentTaskId, userId) {
                         'cancelled',
                     ],
                 },
-            }
+            },
+            options
         );
         return result[0] > 0;
     } catch (error) {
@@ -113,7 +115,7 @@ async function cancelAllSubtasks(parentTaskId, userId) {
     }
 }
 
-async function uncancelAllSubtasks(parentTaskId, userId) {
+async function uncancelAllSubtasks(parentTaskId, userId, options = {}) {
     try {
         const result = await taskRepository.updateChildrenWithConditions(
             parentTaskId,
@@ -125,7 +127,8 @@ async function uncancelAllSubtasks(parentTaskId, userId) {
                 status: {
                     [Op.in]: [Task.STATUS.CANCELLED, 'cancelled'],
                 },
-            }
+            },
+            options
         );
         return result[0] > 0;
     } catch (error) {
@@ -134,7 +137,7 @@ async function uncancelAllSubtasks(parentTaskId, userId) {
     }
 }
 
-async function undoneAllSubtasks(parentTaskId, userId) {
+async function undoneAllSubtasks(parentTaskId, userId, options = {}) {
     try {
         const result = await taskRepository.updateChildrenWithConditions(
             parentTaskId,
@@ -147,7 +150,8 @@ async function undoneAllSubtasks(parentTaskId, userId) {
                 status: {
                     [Op.in]: [Task.STATUS.DONE, 'done'],
                 },
-            }
+            },
+            options
         );
         return result[0] > 0;
     } catch (error) {
@@ -160,14 +164,18 @@ async function handleParentChildOnStatusChange(
     task,
     oldStatus,
     newStatus,
-    userId
+    userId,
+    options = {}
 ) {
     let parentChildLogicExecuted = false;
 
     const directSubtasksQuery = await taskRepository.findChildren(
         task.id,
         userId,
-        { attributes: ['id', 'name', 'status', 'parent_task_id'] }
+        {
+            attributes: ['id', 'name', 'status', 'parent_task_id'],
+            transaction: options.transaction,
+        }
     );
 
     if (
@@ -179,17 +187,29 @@ async function handleParentChildOnStatusChange(
 
     if (task.Subtasks && task.Subtasks.length > 0) {
         if (newStatus === Task.STATUS.DONE) {
-            const subtasksUpdated = await completeAllSubtasks(task.id, userId);
+            const subtasksUpdated = await completeAllSubtasks(
+                task.id,
+                userId,
+                options
+            );
             if (subtasksUpdated) {
                 parentChildLogicExecuted = true;
             }
         } else if (newStatus === Task.STATUS.CANCELLED) {
-            const subtasksUpdated = await cancelAllSubtasks(task.id, userId);
+            const subtasksUpdated = await cancelAllSubtasks(
+                task.id,
+                userId,
+                options
+            );
             if (subtasksUpdated) {
                 parentChildLogicExecuted = true;
             }
         } else if (oldStatus === Task.STATUS.DONE || oldStatus === 'done') {
-            const subtasksUpdated = await undoneAllSubtasks(task.id, userId);
+            const subtasksUpdated = await undoneAllSubtasks(
+                task.id,
+                userId,
+                options
+            );
             if (subtasksUpdated) {
                 parentChildLogicExecuted = true;
             }
@@ -197,7 +217,11 @@ async function handleParentChildOnStatusChange(
             oldStatus === Task.STATUS.CANCELLED ||
             oldStatus === 'cancelled'
         ) {
-            const subtasksUpdated = await uncancelAllSubtasks(task.id, userId);
+            const subtasksUpdated = await uncancelAllSubtasks(
+                task.id,
+                userId,
+                options
+            );
             if (subtasksUpdated) {
                 parentChildLogicExecuted = true;
             }

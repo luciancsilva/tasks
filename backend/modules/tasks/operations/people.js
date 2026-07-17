@@ -6,11 +6,12 @@ const { Person } = require('../../../models');
  * then by name (case-sensitive on the unique [user_id, name] index); missing
  * ones are auto-created, mirroring the #tag auto-create behavior.
  */
-async function updateTaskPeople(task, peopleData, userId) {
+async function updateTaskPeople(task, peopleData, userId, options = {}) {
+    const { transaction } = options;
     if (!peopleData) return;
 
     if (!Array.isArray(peopleData) || peopleData.length === 0) {
-        await task.setInvolvedPeople([]);
+        await task.setInvolvedPeople([], { transaction });
         return;
     }
 
@@ -25,15 +26,22 @@ async function updateTaskPeople(task, peopleData, userId) {
 
         let person = null;
         if (uid) {
-            person = await Person.findOne({ where: { uid, user_id: userId } });
+            person = await Person.findOne({
+                where: { uid, user_id: userId },
+                transaction,
+            });
         }
         if (!person && name) {
             person = await Person.findOne({
                 where: { name, user_id: userId },
+                transaction,
             });
         }
         if (!person && name) {
-            person = await Person.create({ name, user_id: userId });
+            person = await Person.create(
+                { name, user_id: userId },
+                { transaction }
+            );
         }
 
         if (person && !seen.has(person.id)) {
@@ -42,7 +50,7 @@ async function updateTaskPeople(task, peopleData, userId) {
         }
     }
 
-    await task.setInvolvedPeople(resolved);
+    await task.setInvolvedPeople(resolved, { transaction });
 }
 
 module.exports = {

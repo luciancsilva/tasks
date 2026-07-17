@@ -382,10 +382,19 @@ const tasksService = {
             throw new ValidationError(error.message);
         }
 
-        const task = await taskRepository.create(taskAttributes);
-        await updateTaskTags(task, tagsData, userId);
-        await updateTaskPeople(task, peopleData, userId);
-        await createSubtasks(task.id, subtasks, userId);
+        const task = await sequelize.transaction(async (t) => {
+            const created = await taskRepository.create(taskAttributes, {
+                transaction: t,
+            });
+            await updateTaskTags(created, tagsData, userId, { transaction: t });
+            await updateTaskPeople(created, peopleData, userId, {
+                transaction: t,
+            });
+            await createSubtasks(created.id, subtasks, userId, {
+                transaction: t,
+            });
+            return created;
+        });
 
         const taskWithAssociations = await taskRepository.findById(task.id, {
             include: TASK_INCLUDES_WITH_SUBTASKS,
@@ -530,35 +539,55 @@ const tasksService = {
             taskAttributes.due_date = advance.advanceInfo.nextDueDate;
         }
 
-        await task.update(taskAttributes);
+        // Atomically apply the task mutation and every dependent write (parent
+        // child cascade, recurring completion, tags, people, subtasks) so a
+        // failure in any of them rolls the whole update back. Parent-child
+        // cascade stays inside the block and before updateSubtasks to preserve
+        // the original execution order (explicit subtask changes win over the
+        // status cascade). All helpers receive the transaction to avoid
+        // SQLITE_BUSY from a second pool connection.
+        await sequelize.transaction(async (t) => {
+            await task.update(taskAttributes, { transaction: t });
 
-        // Defensive check: ensure completed_at is null if status is not DONE
-        if (
-            taskAttributes.status !== undefined &&
-            taskAttributes.status !== Task.STATUS.DONE &&
-            taskAttributes.status !== 'done' &&
-            task.completed_at !== null
-        ) {
-            await task.update({ completed_at: null });
-        }
+            // Defensive check: ensure completed_at is null if status is not DONE
+            if (
+                taskAttributes.status !== undefined &&
+                taskAttributes.status !== Task.STATUS.DONE &&
+                taskAttributes.status !== 'done' &&
+                task.completed_at !== null
+            ) {
+                await task.update({ completed_at: null }, { transaction: t });
+            }
 
-        if (status !== undefined) {
-            await handleParentChildOnStatusChange(
-                task,
-                oldStatus,
-                taskAttributes.status,
-                userId
-            );
-        }
+            if (status !== undefined) {
+                await handleParentChildOnStatusChange(
+                    task,
+                    oldStatus,
+                    taskAttributes.status,
+                    userId,
+                    { transaction: t }
+                );
+            }
 
+            if (advance) {
+                await RecurringCompletion.create(advance.completionPayload, {
+                    transaction: t,
+                });
+            }
+
+            await updateTaskTags(task, tagsData, userId, { transaction: t });
+            await updateTaskPeople(task, peopleData, userId, {
+                transaction: t,
+            });
+            await updateSubtasks(task.id, subtasks, userId, { transaction: t });
+        });
+
+        // Best-effort event logging runs after commit so it never rolls back a
+        // successful update and never contends for the DB lock. Both helpers
+        // swallow their own errors.
         if (advance) {
-            await RecurringCompletion.create(advance.completionPayload);
             await this.logRecurringCompletion(task.id, userId, advance);
         }
-
-        await updateTaskTags(task, tagsData, userId);
-        await updateTaskPeople(task, peopleData, userId);
-        await updateSubtasks(task.id, subtasks, userId);
         await logTaskChanges(task, oldValues, body, tagsData, userId);
 
         const taskWithAssociations = await taskRepository.findById(task.id, {

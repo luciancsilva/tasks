@@ -1,7 +1,8 @@
 const { Tag } = require('../../../models');
 const { validateTagName } = require('../../tags/tagsService');
 
-async function updateTaskTags(task, tagsData, userId) {
+async function updateTaskTags(task, tagsData, userId, options = {}) {
+    const { transaction } = options;
     if (!tagsData) return;
 
     const validTagNames = [];
@@ -25,12 +26,13 @@ async function updateTaskTags(task, tagsData, userId) {
     }
 
     if (validTagNames.length === 0) {
-        await task.setTags([]);
+        await task.setTags([], { transaction });
         return;
     }
 
     const existingTags = await Tag.findAll({
         where: { user_id: userId, name: validTagNames },
+        transaction,
     });
 
     const existingTagNames = existingTags.map((tag) => tag.name);
@@ -39,11 +41,13 @@ async function updateTaskTags(task, tagsData, userId) {
     );
 
     const createdTags = await Promise.all(
-        newTagNames.map((name) => Tag.create({ name, user_id: userId }))
+        newTagNames.map((name) =>
+            Tag.create({ name, user_id: userId }, { transaction })
+        )
     );
 
     const allTags = [...existingTags, ...createdTags];
-    await task.setTags(allTags);
+    await task.setTags(allTags, { transaction });
 }
 
 module.exports = {

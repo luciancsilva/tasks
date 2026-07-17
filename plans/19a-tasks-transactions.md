@@ -1,8 +1,23 @@
 # 19a — Transações Atômicas nas Operações de Tarefas (`tasksService`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — `create` e `update` de tasks agora rodam dentro de `sequelize.transaction()`, com a transação propagada a `updateTaskTags`, `updateTaskPeople`, `createSubtasks`/`updateSubtasks` e ao cascade `parent-child`. Um erro em qualquer etapa faz rollback completo.
 > **Escopo:** Garantir atomicidade na criação (`create`) e atualização (`update`) de tarefas no `backend/modules/tasks/service.js`, utilizando `sequelize.transaction()`.
 > **Depende de:** -
+
+## Desvios na execução
+
+- **`handleParentChildOnStatusChange` foi incluído no bloco transacional** (e a
+  transação propagada por `operations/parent-child.js` + `repository.updateChildren`/
+  `updateChildrenWithConditions`), além dos auxiliares que o plano listou. Motivo:
+  o cascade de status roda **antes** de `updateSubtasks` na ordem original (edições
+  explícitas de subtarefa devem sobrepor o cascade); tirá-lo do bloco quebraria a
+  ordem ou deixaria uma escrita não-transacionada no meio do bloco, arriscando
+  `SQLITE_BUSY` (pool default, `busy_timeout=5000`).
+- **Logging best-effort movido para pós-commit.** `logRecurringCompletion` e
+  `logTaskChanges` (que engolem os próprios erros) agora rodam depois do commit,
+  para não disputar o lock nem derrubar um update bem-sucedido.
+- Teste: `tests/integration/tasks-transaction-rollback.test.js` (rollback com falha
+  injetada em `createMany` + happy-path).
 
 ## Diagnóstico
 As operações multi-etapa em `backend/modules/tasks/service.js:385-389` (`create`) e `service.js:533-561` (`update`) modificam a tabela `tasks`, atualizam tags (`updateTaskTags`), pessoas (`updateTaskPeople`) e criam/alteram subtarefas (`createSubtasks`/`updateSubtasks`) de forma independente, sem uma transação de banco de dados.

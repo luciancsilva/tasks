@@ -48,8 +48,8 @@ class TaskRepository {
         });
     }
 
-    async create(taskData) {
-        return await this.model.create(taskData);
+    async create(taskData, options = {}) {
+        return await this.model.create(taskData, options);
     }
 
     async update(id, userId, updates) {
@@ -109,15 +109,16 @@ class TaskRepository {
         return await this.model.destroy(conditions);
     }
 
-    async createMany(tasksData) {
+    async createMany(tasksData, options = {}) {
         return await Promise.all(
-            tasksData.map((taskData) => this.model.create(taskData))
+            tasksData.map((taskData) => this.model.create(taskData, options))
         );
     }
 
-    async updateChildren(parentTaskId, userId, updates) {
+    async updateChildren(parentTaskId, userId, updates, options = {}) {
         return await this.model.update(updates, {
             where: { parent_task_id: parentTaskId, user_id: userId },
+            ...options,
         });
     }
 
@@ -125,7 +126,8 @@ class TaskRepository {
         parentTaskId,
         userId,
         updates,
-        extraWhere = {}
+        extraWhere = {},
+        options = {}
     ) {
         return await this.model.update(updates, {
             where: {
@@ -133,6 +135,7 @@ class TaskRepository {
                 user_id: userId,
                 ...extraWhere,
             },
+            ...options,
         });
     }
 }
