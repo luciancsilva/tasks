@@ -12,6 +12,7 @@ describe('inboxProcessingService', () => {
             expect(result).toEqual({
                 parsed_tags: ['tag1', 'tag2'],
                 parsed_projects: [],
+                parsed_people: [],
                 cleaned_content: 'https://example.com/page',
                 suggested_type: null,
                 suggested_reason: 'url_detected',
@@ -25,6 +26,7 @@ describe('inboxProcessingService', () => {
             expect(result).toEqual({
                 parsed_tags: ['tag1'],
                 parsed_projects: ['Project'],
+                parsed_people: [],
                 cleaned_content: 'https://example.com/page',
                 suggested_type: 'note',
                 suggested_reason: 'url_detected',
@@ -38,6 +40,7 @@ describe('inboxProcessingService', () => {
             expect(result).toEqual({
                 parsed_tags: [],
                 parsed_projects: [],
+                parsed_people: [],
                 cleaned_content: 'https://example.com/test-page',
                 suggested_type: null,
                 suggested_reason: 'url_detected',
@@ -51,6 +54,7 @@ describe('inboxProcessingService', () => {
             expect(result).toEqual({
                 parsed_tags: ['tag1'],
                 parsed_projects: [],
+                parsed_people: [],
                 cleaned_content: 'Just some regular text',
                 suggested_type: null,
                 suggested_reason: null,

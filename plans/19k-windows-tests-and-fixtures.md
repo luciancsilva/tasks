@@ -1,6 +1,6 @@
 # 19k — Correção dos Testes da Baseline (`user-create-script` no Windows e mock `inboxProcessingService`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — corrigido mock parsed_people em inboxProcessingService.test.js e path/env do execSync em user-create-script.test.js; baseline backend 100%.
 > **Escopo:** Corrigir as 5 falhas da suíte de testes de baseline (`AB-1` e `AB-2`): a execução do subprocesso em `user-create-script.test.js` no Windows e as expectativas do mock em `inboxProcessingService.test.js`.
 > **Depende de:** -
 

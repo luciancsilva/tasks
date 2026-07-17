@@ -194,11 +194,21 @@ describe('User Create Script', () => {
 
             try {
                 // This simulates running: npm run user:create npmtest@example.com testpassword123
+                // Invoke node directly with an absolute, normalized script path
+                // instead of going through `npm run`: on Windows, running npm
+                // scripts via execSync can inconsistently pass through the
+                // working directory/env, causing the script to open the
+                // default dev database instead of the test one.
                 const output = execSync(
-                    `npm run user:create ${email} ${password}`,
+                    `node "${scriptPath}" "${email}" "${password}"`,
                     {
-                        cwd: path.join(__dirname, '../..'),
-                        env: { ...process.env, NODE_ENV: 'test' },
+                        cwd: path.resolve(__dirname, '../..'),
+                        env: {
+                            ...process.env,
+                            NODE_ENV: 'test',
+                            DB_FILE: process.env.DB_FILE,
+                            TUDUDI_TRUST_PROXY: '1',
+                        },
                         encoding: 'utf8',
                         timeout: 10000,
                     }
