@@ -2,6 +2,20 @@
 # Start script for production and Docker
 set -eu
 
+# Load repo-root .env, if present, before anything below reads env vars
+# (e.g. TUDUDI_USER_EMAIL/PASSWORD). app.js also loads it via dotenv, but
+# only once `exec node app.js` runs at the end of this script — too late
+# for the shell-level checks above it. Docker never has a .env file
+# (excluded via .dockerignore), so this is a no-op there.
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ENV_FILE="$SCRIPT_DIR/../../.env"
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+fi
+
 # Default DB_FILE based on NODE_ENV (matches config/config.js behavior)
 : "${NODE_ENV:=production}"
 : "${DB_FILE:=db/${NODE_ENV}.sqlite3}"
