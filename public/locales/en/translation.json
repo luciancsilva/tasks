@@ -1,5 +1,8 @@
 {
     "common": {
+        "copy": "Copy",
+        "copied": "Copied!",
+        "copyCode": "Copy code",
         "save": "Save",
         "cancel": "Cancel",
         "delete": "Delete",

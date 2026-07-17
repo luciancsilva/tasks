@@ -4,8 +4,10 @@ import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import rehypeHighlight from 'rehype-highlight';
 import hljs from 'highlight.js';
+import { useTranslation } from 'react-i18next';
 
 const CodeBlock: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ children, ...props }) => {
+    const { t } = useTranslation();
     const preRef = useRef<HTMLPreElement>(null);
     const [copied, setCopied] = useState(false);
 
@@ -29,9 +31,9 @@ const CodeBlock: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({ children, .
             <button
                 onClick={handleCopy}
                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 dark:bg-gray-600 text-white text-xs px-2 py-1 rounded"
-                aria-label="Copy code"
+                aria-label={t('common.copyCode', 'Copy code')}
             >
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? t('common.copied', 'Copied!') : t('common.copy', 'Copy')}
             </button>
         </div>
     );
