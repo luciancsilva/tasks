@@ -50,7 +50,8 @@ siga os passos abaixo imediatamente.
 | `05b-medium-effort.md` | 4 itens de esforço médio | Médio | EXECUTADO (2026-07-16) |
 | `05c-high-effort.md` | 3 itens estruturais | Alto | Aberto |
 | `06-docs-update.md` | Atualização integral do `/docs` | Médio | Aberto |
-| `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | EXECUTADO (2026-07-16) |
+| `07-d1-activation.md` | Ativação do D1 em produção (migrations + smoke) | Baixo/Médio | EXECUTADO (2026-07-16), REVERTIDO por `08` |
+| `08-d1-rollback-sqlite.md` | Rollback pra SQLite + travas anti-wipe do banco | Baixo | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
@@ -86,12 +87,13 @@ siga os passos abaixo imediatamente.
 
 ## Avisos permanentes ao executor
 
-- **O D1 REAL ESTÁ LIGADO no `.env` da raiz** (`TUDUDI_DB_DRIVER=d1`, banco de
-  produção `tasks` na Cloudflare). Scripts backend carregam esse `.env` como
-  fallback — comando com `NODE_ENV=development|production` toca o banco REAL.
-  `NODE_ENV=test` é seguro (trava em `config.d1.enabled` força SQLite local);
-  a suíte Jest pode rodar à vontade. Para dev local isolado, rode com
-  `TUDUDI_DB_DRIVER=` vazio no ambiente do comando.
+- **O D1 está DESLIGADO desde 2026-07-17** (`TUDUDI_DB_DRIVER=` vazio no `.env`
+  da raiz) — ver `08-d1-rollback-sqlite.md` para o motivo e para a receita de
+  religar. O banco é o arquivo SQLite local (`/app/db/production.sqlite3` no
+  container, via volume `tududi_db`). Se algum dia religar: `db-init.js` recusa
+  rodar com D1 ativo sem `TUDUDI_ALLOW_D1_INIT=1`, e o `start.sh` nunca
+  bootstrapa banco remoto automaticamente — travas de propósito, não remover.
+  `NODE_ENV=test` continua seguro por construção (`config.d1.enabled` é hard-off).
 - Lint global (`npm run backend:lint`) falha com milhares de `Delete ␍` em
   checkout Windows (CRLF) — ruído pré-existente; lintar os arquivos tocados
   individualmente e ignorar exclusivamente esse erro.

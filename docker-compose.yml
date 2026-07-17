@@ -31,9 +31,12 @@
           TUDUDI_DB_DRIVER: ${TUDUDI_DB_DRIVER:-}
           CLOUDFLARE_D1_DATABASE_ID: ${CLOUDFLARE_D1_DATABASE_ID:-}
 
+        # Caminhos definidos no Dockerfile (VOLUME/DB_FILE/TUDUDI_UPLOAD_PATH).
+        # Montar em /app/backend/db como nas versões < v1.2.0 deixa o banco num
+        # volume anônimo, que o Docker descarta a cada recriação do container.
         volumes:
-          - tududi_db:/app/backend/db
-          - tududi_uploads:/app/backend/uploads
+          - tududi_db:/app/db
+          - tududi_uploads:/app/uploads
 
     volumes:
       tududi_db:

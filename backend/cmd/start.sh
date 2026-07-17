@@ -88,8 +88,16 @@ if [ ! -f "$DB_FILE" ] && [ -f "$OLD_DB_PATH" ]; then
   echo "✅ Database copied. Update your volume mount from :/app/backend/db to :/app/db."
 fi
 
-# Check if database exists and create/authenticate
-if [ ! -f "$DB_FILE" ]; then
+# Check if database exists and create/authenticate.
+# In D1 mode the data lives in Cloudflare and no local file ever exists, so the
+# file check below would bootstrap (and wipe) the remote database on every boot.
+if [ "${TUDUDI_DB_DRIVER:-}" = "d1" ]; then
+  echo "D1 driver active: remote database, skipping local file bootstrap"
+  if ! node scripts/db-status.js; then
+    echo "❌ D1 unreachable or schema missing. Bootstrap it manually; see plans/07-d1-activation.md."
+    exit 1
+  fi
+elif [ ! -f "$DB_FILE" ]; then
   echo "Creating new database..."
   node scripts/db-init.js
 else

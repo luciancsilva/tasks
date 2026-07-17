@@ -4,6 +4,11 @@
 > schema completo via sync + 94 migrations registradas) e smoke funcional
 > completo: login, projeto, tarefa, upload de anexo no R2, download, delete
 > com limpeza do objeto no bucket. Ver "Lições da primeira ativação" no fim.
+>
+> **REVERTIDO em 2026-07-17** por `plans/08-d1-rollback-sqlite.md`: latência
+> inviável (1 round-trip HTTP por statement) e wipe recorrente do banco a cada
+> recriação de container. Plano mantido como registro de decisão e como receita
+> caso o D1 volte — ver lição 7 (post-mortem) no fim.
 
 Pré-requisito de leitura: `plans/README.md` (regras) e header de
 `backend/db/d1RestDriver.js` (semântica: transações no-op, `defer_foreign_keys`,
@@ -136,3 +141,13 @@ via `wrangler d1 export` se precisar).
    silenciosamente contra o SQLite local.
 6. Suíte de testes tem trava: `config.d1.enabled` é sempre `false` com
    `NODE_ENV=test` — teste jamais toca o D1 real.
+7. **Post-mortem (2026-07-17): a lição 1 tinha uma armadilha.** "Bootstrap é
+   sync-first" vale só para D1 **vazio**, num comando manual. O que ficou de
+   fora: `backend/cmd/start.sh` já rodava esse mesmo `db-init.js`
+   automaticamente a cada boot, decidindo pela existência do **arquivo SQLite** —
+   que em modo D1 nunca existe. Resultado: todo container recriado dropava o D1
+   de produção. Custou os dados de dois boots (22:43 e 00:35 de 2026-07-17).
+   Corrigido em `plans/08` com trava no script e no boot. Regra que fica: ao
+   trocar o backend de dados, auditar **todo** caminho que decide "banco existe?"
+   por artefato local — arquivo, volume, path — porque nenhum deles descreve um
+   banco remoto.
