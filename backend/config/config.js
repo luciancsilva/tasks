@@ -111,8 +111,7 @@ const config = {
     // Cloudflare R2 (S3-compatible) object storage for attachments/avatars/project images.
     // When enabled, uploads go to R2 instead of the local filesystem (uploadPath).
     //
-    // Canonical env var names use the unified CLOUDFLARE_ prefix
-    // (CLOUDFLARE_ACCOUNT_ID is shared with the D1 data layer); the legacy
+    // Canonical env var names use the unified CLOUDFLARE_ prefix; the legacy
     // R2_* names keep working as fallbacks.
     //
     // All fields are getters so env vars are read at access time (not at module
@@ -172,50 +171,6 @@ const config = {
                 process.env.R2_REGION ||
                 'auto'
             );
-        },
-    },
-
-    // Cloudflare D1 database accessed directly through the REST API
-    // (no Worker proxy). Activated explicitly with TUDUDI_DB_DRIVER=d1;
-    // otherwise the local SQLite file (dbFile) keeps being used.
-    //
-    // Getters so env vars are read at access time (same rationale as r2).
-    d1: {
-        get enabled() {
-            // Hard-off in the test environment: the suite must always run on
-            // the local SQLite file, never against a real (remote) D1 —
-            // especially now that the repo-root .env is loaded as fallback.
-            return (
-                process.env.TUDUDI_DB_DRIVER === 'd1' && environment !== 'test'
-            );
-        },
-        get accountId() {
-            return process.env.CLOUDFLARE_ACCOUNT_ID;
-        },
-        get databaseId() {
-            return process.env.CLOUDFLARE_D1_DATABASE_ID;
-        },
-        get apiToken() {
-            return process.env.CLOUDFLARE_API_TOKEN;
-        },
-        get baseUrl() {
-            return (
-                process.env.CLOUDFLARE_D1_API_BASE_URL ||
-                process.env.D1_API_BASE_URL ||
-                undefined
-            );
-        },
-        get timeoutMs() {
-            const raw =
-                process.env.CLOUDFLARE_D1_TIMEOUT_MS ||
-                process.env.D1_TIMEOUT_MS;
-            return raw ? parseInt(raw, 10) : undefined;
-        },
-        get maxRequestsPerWindow() {
-            const raw =
-                process.env.CLOUDFLARE_D1_MAX_REQUESTS_PER_WINDOW ||
-                process.env.D1_MAX_REQUESTS_PER_WINDOW;
-            return raw ? parseInt(raw, 10) : undefined;
         },
     },
 

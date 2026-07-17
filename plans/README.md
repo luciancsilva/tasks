@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
 | Baixo | `09b-d1-docs-cleanup.md` | Tirar D1 do `CLAUDE.md` e do `README.md` | `09a` |
-| Médio | `09a-d1-code-removal.md` | Remover driver, wiring e env vars do D1 (~500 linhas) | — |
 | Médio | `06-docs-update.md` | Atualização integral do `/docs` (validar o que já foi feito) | — |
 
 ### Prioridade BAIXA — estrutural
@@ -141,6 +140,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `03-branding-customization.md` | Logo/favicon/nome customizáveis | EXECUTADO (`887e486`) |
 | `05a-quick-wins.md` | 5 itens de esforço baixo | EXECUTADO (2026-07-16) |
 | `05b-medium-effort.md` | 4 itens de esforço médio | EXECUTADO (2026-07-16) |
+| `09a-d1-code-removal.md` | Remoção da camada de dados D1 (código) | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

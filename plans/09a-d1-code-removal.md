@@ -1,6 +1,6 @@
 # 09a — Remoção da camada de dados Cloudflare D1 (código)
 
-> **Status: Aberto.** Prioridade: média. Esforço: médio.
+> **Status: EXECUTADO** em 2026-07-17 — Removido driver D1 (5 arquivos), wiring em config/database/models/start.sh/db-init, env vars do docker-compose e .env.example. Suíte: 110 suites / 1622 tests (queda de 3 suítes D1 + 43 testes).
 > **Exige julgamento**: mexe em `config.js` e `models/index.js`; não é tarefa
 > mecânica. A limpeza da documentação é o `09b`, e depende deste.
 >
