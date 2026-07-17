@@ -107,21 +107,25 @@ só os arquivos que você tocou, individualmente.
 
 Dentro de cada prioridade, do menor para o maior esforço.
 
-### Prioridade ALTA — não há backup offsite; uma perda do host perde tudo
+### Prioridade ALTA — vazia
 
-| Esforço | Arquivo | O quê | Depende de |
-|---|---|---|---|
-### Prioridade MÉDIA — código morto que já mordeu uma vez
+Nada aberto. O risco que ocupava esta faixa era a ausência de backup offsite;
+fechado em 2026-07-17 pelos `10a`–`10d` (snapshot para o R2, agendado, com
+restore executado e documentado em `docs/backups.md`).
 
-| Esforço | Arquivo | O quê | Depende de |
-|---|---|---|---|
+### Prioridade MÉDIA — vazia
+
+Nada aberto. A dívida que ocupava esta faixa era a camada D1 morta; removida em
+2026-07-17 (`09a`, `09b`).
 
 ### Prioridade BAIXA — estrutural
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Alto | `05c-high-effort.md` | HE-2 cobertura de testes frontend (HE-1 executado em 2026-07-17) | — |
 | — | `05-future-improvements.md` | Índice do levantamento (não é trabalho; aponta os `05x`) | — |
+
+**Não há trabalho aberto.** Todo plano proposto foi executado. Novo trabalho
+entra como arquivo novo aqui, com número novo (ver §Numeração).
 
 ### Executados — registro de decisão, não mexer
 
@@ -140,6 +144,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | EXECUTADO (2026-07-17) |
 | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | EXECUTADO (2026-07-17) |
 | `06-docs-update.md` | Atualização integral do `/docs` | EXECUTADO (2026-07-17) |
+| `05c-high-effort.md` | HE-1 controller/service em tasks; HE-2 testes de BrandingTab e do guarda de avatar | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

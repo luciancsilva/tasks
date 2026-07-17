@@ -47,10 +47,12 @@ files and 59 integration files.
 ```
 
 Frontend suites are **colocated with the components**, not centralized under
-`frontend/__tests__/` (which holds only `setup.ts`). Coverage is currently thin —
-4 suites:
+`frontend/__tests__/` (which holds only `setup.ts`). Coverage is still thin —
+6 suites / 96 tests:
 
 ```
+frontend/components/Profile/tabs/__tests__/BrandingTab.test.tsx
+frontend/components/Profile/tabs/__tests__/GeneralTab.avatar.test.tsx
 frontend/components/Shared/__tests__/MarkdownRenderer.checkbox.test.tsx
 frontend/components/Task/TaskDetails/__tests__/TaskContentCard.test.tsx
 frontend/components/Task/__tests__/RecurrenceDisplay.test.tsx
@@ -546,6 +548,25 @@ jest.mock('../../../utils/profileService', () => ({
     getFirstDayOfWeek: jest.fn().mockResolvedValue(1),
 }));
 ```
+
+For a component that talks to the API, mock `fetchWithCsrf` rather than global
+`fetch` — the real one fetches `/api/csrf-token` on first use. Reference:
+`frontend/components/Profile/tabs/__tests__/BrandingTab.test.tsx`.
+
+```typescript
+jest.mock('../../../../utils/csrfService', () => ({
+    fetchWithCsrf: jest.fn(),
+}));
+
+// jest.mock is hoisted above the import, so this binding is already the mock.
+import { fetchWithCsrf } from '../../../../utils/csrfService';
+const mockFetch = fetchWithCsrf as jest.Mock;
+```
+
+Two context providers throw or fetch when used for real, so mocking them is not
+optional: `useToast` (`components/Shared/ToastContext.tsx`) throws outside a
+`ToastProvider`, and `useBranding` (`contexts/BrandingContext.tsx`) fetches on
+mount.
 
 ---
 
