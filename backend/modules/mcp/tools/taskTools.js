@@ -98,7 +98,8 @@ function registerTaskTools(server, context, tools) {
                         'archived',
                         'cancelled',
                     ],
-                    description: 'Filter by status (pending = alias of not_started, completed = alias of done)',
+                    description:
+                        'Filter by status (pending = alias of not_started, completed = alias of done)',
                 },
                 project_id: {
                     type: 'number',
@@ -138,13 +139,17 @@ function registerTaskTools(server, context, tools) {
                 where.status = { [Op.notIn]: [2, 3, 5] };
                 where[Op.or] = [
                     { due_date: { [Op.lte]: endOfToday } },
-                    { status: { [Op.in]: [1, 4, 6] } }
+                    { status: { [Op.in]: [1, 4, 6] } },
                 ];
                 order = [['due_date', 'ASC']];
             } else if (params.type === 'upcoming') {
                 const tz = context.user.timezone || 'UTC';
                 const now = new Date();
-                const endOfWindow = moment.tz(tz).add(7, 'days').endOf('day').toDate();
+                const endOfWindow = moment
+                    .tz(tz)
+                    .add(7, 'days')
+                    .endOf('day')
+                    .toDate();
                 where.status = { [Op.notIn]: [2, 3, 5] };
                 where.due_date = {
                     [Op.between]: [now, endOfWindow],
@@ -352,7 +357,8 @@ function registerTaskTools(server, context, tools) {
                         'archived',
                         'cancelled',
                     ],
-                    description: 'Status of the task (pending = alias of not_started, completed = alias of done)',
+                    description:
+                        'Status of the task (pending = alias of not_started, completed = alias of done)',
                 },
                 due_date: { type: 'string', description: 'New due date' },
                 project_id: {

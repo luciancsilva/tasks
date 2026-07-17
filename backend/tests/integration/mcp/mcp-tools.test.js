@@ -228,11 +228,9 @@ describe('MCP Tools Integration', () => {
                 });
 
                 // Check list_tasks type=today
-                let response = await callMcpTool(
-                    apiTokenValue,
-                    'list_tasks',
-                    { type: 'today' }
-                );
+                let response = await callMcpTool(apiTokenValue, 'list_tasks', {
+                    type: 'today',
+                });
 
                 expect(response.status).toBe(200);
                 let { content } = getToolContent(response);
@@ -246,11 +244,9 @@ describe('MCP Tools Integration', () => {
                 expect(ids).not.toContain(taskArchived.id);
 
                 // Check list_tasks type=upcoming
-                response = await callMcpTool(
-                    apiTokenValue,
-                    'list_tasks',
-                    { type: 'upcoming' }
-                );
+                response = await callMcpTool(apiTokenValue, 'list_tasks', {
+                    type: 'upcoming',
+                });
 
                 expect(response.status).toBe(200);
                 content = getToolContent(response).content;
@@ -262,18 +258,16 @@ describe('MCP Tools Integration', () => {
                 expect(ids).not.toContain(taskYesterday.id);
 
                 // Check list_tasks status=archived
-                response = await callMcpTool(
-                    apiTokenValue,
-                    'list_tasks',
-                    { status: 'archived' }
-                );
+                response = await callMcpTool(apiTokenValue, 'list_tasks', {
+                    status: 'archived',
+                });
 
                 expect(response.status).toBe(200);
                 content = getToolContent(response).content;
                 ids = content.tasks.map((t) => t.id);
                 // should contain taskArchived only
                 expect(ids).toContain(taskArchived.id);
-                expect(content.tasks.every(t => t.status === 3)).toBe(true);
+                expect(content.tasks.every((t) => t.status === 3)).toBe(true);
             });
         });
 
@@ -455,28 +449,20 @@ describe('MCP Tools Integration', () => {
                 });
 
                 // Update to waiting
-                let response = await callMcpTool(
-                    apiTokenValue,
-                    'update_task',
-                    {
-                        id: task.id,
-                        status: 'waiting',
-                    }
-                );
+                let response = await callMcpTool(apiTokenValue, 'update_task', {
+                    id: task.id,
+                    status: 'waiting',
+                });
 
                 expect(response.status).toBe(200);
                 let { content } = getToolContent(response);
                 expect(content.task.status).toBe(4); // waiting = 4
 
                 // Update to archived
-                response = await callMcpTool(
-                    apiTokenValue,
-                    'update_task',
-                    {
-                        id: task.id,
-                        status: 'archived',
-                    }
-                );
+                response = await callMcpTool(apiTokenValue, 'update_task', {
+                    id: task.id,
+                    status: 'archived',
+                });
 
                 expect(response.status).toBe(200);
                 content = getToolContent(response).content;
@@ -574,15 +560,19 @@ describe('MCP Tools Integration', () => {
                 );
 
                 expect(response.status).toBe(200);
-                
+
                 // Verify attachment row is gone
-                const deletedAttachment = await TaskAttachment.findByPk(attachment.id);
+                const deletedAttachment = await TaskAttachment.findByPk(
+                    attachment.id
+                );
                 expect(deletedAttachment).toBeNull();
 
                 // Verify R2 delete command was called
                 const deleteCalls = s3Mock.calls(DeleteObjectCommand);
                 expect(deleteCalls).toHaveLength(1);
-                expect(deleteCalls[0].args[0].input.Key).toBe('uploads/test-uuid.txt');
+                expect(deleteCalls[0].args[0].input.Key).toBe(
+                    'uploads/test-uuid.txt'
+                );
             });
 
             it('should delete future instances and orphan past instances when deleting recurring parent', async () => {
