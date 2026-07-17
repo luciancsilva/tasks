@@ -29,6 +29,11 @@
           # Logical backup directory (must be on a persistent volume)
           TUDUDI_BACKUP_PATH: ${TUDUDI_BACKUP_PATH:-/app/db/backups}
 
+          # Database snapshot to R2 (disaster recovery)
+          TUDUDI_DB_BACKUP_ENABLED: ${TUDUDI_DB_BACKUP_ENABLED:-false}
+          TUDUDI_DB_BACKUP_CRON: ${TUDUDI_DB_BACKUP_CRON:-0 3 * * *}
+          TUDUDI_DB_BACKUP_RETENTION: ${TUDUDI_DB_BACKUP_RETENTION:-7}
+
 
 
         # Caminhos definidos no Dockerfile (VOLUME/DB_FILE/TUDUDI_UPLOAD_PATH).

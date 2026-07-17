@@ -1,8 +1,11 @@
 # 10c — Agendar o snapshot do banco
 
-> **Status: Aberto.** Prioridade: alta. Esforço: baixo.
-> **Tarefa mecânica**: copiar um padrão que já existe no repo.
-> **Depende de**: `10b-db-snapshot-service.md` (chama `createSnapshot()`).
+> **Status: EXECUTADO** em 2026-07-17 — `backend/services/dbBackupScheduler.js`
+> agenda `createSnapshot()` via `node-cron`, desligado por padrão
+> (`TUDUDI_DB_BACKUP_ENABLED`). Smoke real: log confirmou desligado por
+> padrão, e ligado com cron curto (`* * * * *`) rodou duas vezes e subiu
+> objetos reais ao R2 (`db-backups/development-*.sqlite3`). Destrava
+> `10d-backup-restore-docs.md`.
 
 Pré-requisito de leitura: `plans/README.md` e
 `backend/modules/caldav/services/sync-scheduler.js` (é o molde).

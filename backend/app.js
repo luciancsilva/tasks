@@ -454,6 +454,10 @@ async function startServer() {
         const caldavSyncScheduler = require('./modules/caldav/services/sync-scheduler');
         await caldavSyncScheduler.initialize();
 
+        // Initialize database backup scheduler
+        const dbBackupScheduler = require('./services/dbBackupScheduler');
+        dbBackupScheduler.initialize();
+
         // Validate authentication configuration
         const { validateAuthConfiguration } = require('./config/authConfig');
         validateAuthConfiguration();
