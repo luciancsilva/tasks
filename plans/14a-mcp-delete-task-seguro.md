@@ -1,5 +1,7 @@
 # 14a — MCP `delete_task` deve usar a deleção inteligente do serviço
 
+> **Status: EXECUTADO** em 2026-07-17 — Roteado delete_task através de tasksService.delete e adicionado testes de integração de anexos e recorrência.
+
 > **Prioridade: ALTA** (perda de dados: anexos órfãos no R2 + histórico de
 > recorrência destruído) — **Esforço: baixo** — **Julgamento: não exige** —
 > **Depende de: nada** — **Branch: `main` direto** (correção)

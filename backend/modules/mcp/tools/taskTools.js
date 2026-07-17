@@ -9,6 +9,7 @@ const { buildTaskAttributes } = require('../../tasks/core/builders');
 const { Op } = require('sequelize');
 const { Task, Project, Tag } = require('../../../models');
 const { validateProjectAccess } = require('../../tasks/utils/validation');
+const tasksService = require('../../tasks/service');
 
 /**
  * Helper to find task by ID or UID
@@ -488,7 +489,7 @@ function registerTaskTools(server, context, tools) {
                 throw new Error('Access denied');
             }
 
-            await task.destroy();
+            await tasksService.delete(task.uid);
 
             return {
                 content: [

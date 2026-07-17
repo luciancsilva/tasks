@@ -10,11 +10,16 @@ const {
     Tag,
     Note,
     InboxItem,
+    TaskAttachment,
 } = require('../../../models');
 const { createTestUser } = require('../../helpers/testUtils');
 const {
     createApiToken: createApiTokenFromService,
 } = require('../../../modules/users/apiTokenService');
+const { mockClient } = require('aws-sdk-client-mock');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const r2Service = require('../../../services/r2Service');
+const s3Mock = mockClient(r2Service.getClient());
 
 // Parse the SSE response text into a JSON-RPC object.
 // The MCP StreamableHTTP transport returns responses as SSE events:
@@ -413,6 +418,98 @@ describe('MCP Tools Integration', () => {
                 // Verify task is gone
                 const deletedTask = await Task.findByPk(task.id);
                 expect(deletedTask).toBeNull();
+            });
+
+            it('should delete task attachments from R2 and DB', async () => {
+                s3Mock.reset();
+                s3Mock.on(DeleteObjectCommand).resolves({});
+
+                const task = await Task.create({
+                    user_id: user.id,
+                    name: 'Task with Attachment',
+                    status: 0,
+                });
+
+                const attachment = await TaskAttachment.create({
+                    task_id: task.id,
+                    user_id: user.id,
+                    original_filename: 'test.txt',
+                    stored_filename: 'test-uuid.txt',
+                    file_path: 'uploads/test-uuid.txt',
+                    file_size: 100,
+                    mime_type: 'text/plain',
+                });
+
+                const response = await callMcpTool(
+                    apiTokenValue,
+                    'delete_task',
+                    { id: task.id }
+                );
+
+                expect(response.status).toBe(200);
+                
+                // Verify attachment row is gone
+                const deletedAttachment = await TaskAttachment.findByPk(attachment.id);
+                expect(deletedAttachment).toBeNull();
+
+                // Verify R2 delete command was called
+                const deleteCalls = s3Mock.calls(DeleteObjectCommand);
+                expect(deleteCalls).toHaveLength(1);
+                expect(deleteCalls[0].args[0].input.Key).toBe('uploads/test-uuid.txt');
+            });
+
+            it('should delete future instances and orphan past instances when deleting recurring parent', async () => {
+                const parent = await Task.create({
+                    user_id: user.id,
+                    name: 'Recurring Parent Task',
+                    recurrence_type: 'daily',
+                    recurrence_interval: 1,
+                    status: 0,
+                });
+
+                const now = new Date();
+
+                // Past instance (Yesterday)
+                const pastInstance = await Task.create({
+                    name: 'Recurring Past Instance',
+                    recurrence_type: 'none',
+                    recurring_parent_id: parent.id,
+                    user_id: user.id,
+                    status: 2, // Completed
+                    completed_at: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+                    due_date: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+                });
+
+                // Future instance (Tomorrow)
+                const futureInstance = await Task.create({
+                    name: 'Recurring Future Instance',
+                    recurrence_type: 'none',
+                    recurring_parent_id: parent.id,
+                    user_id: user.id,
+                    status: 0,
+                    due_date: new Date(now.getTime() + 24 * 60 * 60 * 1000),
+                });
+
+                const response = await callMcpTool(
+                    apiTokenValue,
+                    'delete_task',
+                    { id: parent.id }
+                );
+
+                expect(response.status).toBe(200);
+
+                // Parent is deleted
+                const deletedParent = await Task.findByPk(parent.id);
+                expect(deletedParent).toBeNull();
+
+                // Future instance is deleted
+                const deletedFuture = await Task.findByPk(futureInstance.id);
+                expect(deletedFuture).toBeNull();
+
+                // Past instance is orphaned (still exists, recurring_parent_id is null)
+                const updatedPast = await Task.findByPk(pastInstance.id);
+                expect(updatedPast).not.toBeNull();
+                expect(updatedPast.recurring_parent_id).toBeNull();
             });
         });
 
