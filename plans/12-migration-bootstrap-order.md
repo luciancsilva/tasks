@@ -1,5 +1,7 @@
 # 12 — Migration fora de ordem quebra o bootstrap por migrations
 
+> **Status: EXECUTADO** em 2026-07-17 — Renomeada migration add-first-day-of-week-to-users para 20250615000002 e adicionado teste unitário de bootstrap por migrations.
+
 > **Branch: `main` direto** (correção)
 
 Regras de execução: `plans/README.md`. Achado durante a revisão de documentação
