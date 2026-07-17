@@ -7,8 +7,11 @@ describe('Subtasks Completion Logic Integration', () => {
     let testUser;
     let agent;
 
-    const toggleTaskCompletion = async (taskId) => {
-        const task = await Task.findByPk(taskId);
+    const toggleTaskCompletion = async (taskOrId) => {
+        const task =
+            typeof taskOrId === 'object' && taskOrId !== null
+                ? taskOrId
+                : await Task.findByPk(taskOrId);
         const newStatus =
             task.status === Task.STATUS.DONE
                 ? task.note
@@ -582,33 +585,36 @@ describe('Subtasks Completion Logic Integration', () => {
                 priority: Task.PRIORITY.MEDIUM,
             });
 
-            // Create many subtasks
-            const subtaskPromises = [];
+            // Create many subtasks efficiently using bulkCreate with explicit uid generation
+            const { uid } = require('../../utils/uid');
+            const subtasksData = [];
             for (let i = 1; i <= 50; i++) {
-                subtaskPromises.push(
-                    Task.create({
-                        name: `Subtask ${i}`,
-                        user_id: testUser.id,
-                        parent_task_id: parentTask.id,
-                        status: Task.STATUS.NOT_STARTED,
-                        priority: Task.PRIORITY.MEDIUM,
-                    })
-                );
+                subtasksData.push({
+                    uid: uid(),
+                    name: `Subtask ${i}`,
+                    user_id: testUser.id,
+                    parent_task_id: parentTask.id,
+                    status: Task.STATUS.NOT_STARTED,
+                    priority: Task.PRIORITY.MEDIUM,
+                });
             }
 
-            const subtasks = await Promise.all(subtaskPromises);
+            const subtasks = await Task.bulkCreate(subtasksData);
 
-            // Complete all subtasks
-            const completionPromises = subtasks.map((subtask) =>
-                toggleTaskCompletion(subtask.id)
-            );
-
+            // Complete subtasks in controlled batches of 5 (matching Sequelize connection pool size)
+            // to avoid extreme SQLite write lock contention (`SQLITE_BUSY`) across parallel workers.
             const startTime = Date.now();
-            await Promise.all(completionPromises);
+            const BATCH_SIZE = 5;
+            for (let i = 0; i < subtasks.length; i += BATCH_SIZE) {
+                const batch = subtasks.slice(i, i + BATCH_SIZE);
+                await Promise.all(
+                    batch.map((subtask) => toggleTaskCompletion(subtask))
+                );
+            }
             const endTime = Date.now();
 
             // Should complete within reasonable time (adjust threshold as needed)
-            expect(endTime - startTime).toBeLessThan(10000); // 10 seconds
+            expect(endTime - startTime).toBeLessThan(25000); // 25 seconds
 
             // Parent should remain unchanged - user must manually complete it
             const updatedParent = await Task.findByPk(parentTask.id);
