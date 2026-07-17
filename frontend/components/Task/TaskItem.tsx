@@ -217,7 +217,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         setLoadingSubtasks(true);
         try {
             const subtasksData = await fetchSubtasks(task.uid);
-            setSubtasks(subtasksData);
+            setSubtasks(Array.isArray(subtasksData) ? subtasksData : []);
         } catch (error) {
             console.error('Failed to load subtasks:', error);
             setSubtasks([]);

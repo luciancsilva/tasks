@@ -1,6 +1,6 @@
 # 19j — Null Safety na Renderização de Subtarefas (`TaskItem.tsx` e `tasksService.ts`)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — fetchSubtasks e loadSubtasks blindados contra respostas nulas/não-array, evitando crash de UI ao renderizar subtarefas.
 > **Escopo:** Blindar `fetchSubtasks` em `frontend/utils/tasksService.ts:227` e `loadSubtasks` em `frontend/components/Task/TaskItem.tsx:80` contra respostas nulas, indefinidas ou não-array.
 > **Depende de:** -
 

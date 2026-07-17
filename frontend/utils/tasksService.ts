@@ -215,16 +215,24 @@ export const fetchTaskByUid = async (uid: string): Promise<Task> => {
 };
 
 export const fetchSubtasks = async (parentTaskUid: string): Promise<Task[]> => {
-    const response = await fetch(getApiPath(`task/${parentTaskUid}/subtasks`), {
-        credentials: 'include',
-        headers: getDefaultHeaders(),
-    });
+    try {
+        const response = await fetch(getApiPath(`task/${parentTaskUid}/subtasks`), {
+            credentials: 'include',
+            headers: getDefaultHeaders(),
+        });
 
-    await handleAuthResponse(
-        response,
-        i18n.t('errors.fetchSubtasksError', 'Failed to fetch subtasks.')
-    );
-    return await response.json();
+        // Run the auth handler first so a 401 still triggers the login
+        // redirect; it throws on any non-ok status, which the catch turns
+        // into an empty array (null-safety without losing auth behavior).
+        await handleAuthResponse(
+            response,
+            i18n.t('errors.fetchSubtasksError', 'Failed to fetch subtasks.')
+        );
+        const data = await response.json();
+        return Array.isArray(data) ? data : Array.isArray(data?.subtasks) ? data.subtasks : [];
+    } catch {
+        return [];
+    }
 };
 
 export interface TaskIteration {
