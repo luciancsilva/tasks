@@ -1,8 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
 import { getApiPath } from '../../config/paths';
 import { getCsrfToken } from '../../utils/csrfService';
+import { fetchPeople } from '../../utils/peopleService';
+import { Person } from '../../entities/Person';
+
+// value -> i18n key suffix (StatusDropdown convention). Order = display order.
+const STATUS_OPTIONS: { value: string; key: string; fallback: string }[] = [
+    { value: 'not_started', key: 'notStarted', fallback: 'Not Started' },
+    { value: 'planned', key: 'planned', fallback: 'Planned' },
+    { value: 'in_progress', key: 'inProgress', fallback: 'In Progress' },
+    { value: 'waiting', key: 'waiting', fallback: 'Waiting' },
+    { value: 'done', key: 'done', fallback: 'Done' },
+    { value: 'cancelled', key: 'cancelled', fallback: 'Cancelled' },
+    { value: 'archived', key: 'archived', fallback: 'Archived' },
+];
 
 interface SaveViewModalProps {
     searchQuery: string;
@@ -25,6 +38,15 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
     const [viewName, setViewName] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [taskStatus, setTaskStatus] = useState('');
+    const [assignedTo, setAssignedTo] = useState('');
+    const [people, setPeople] = useState<Person[]>([]);
+
+    useEffect(() => {
+        fetchPeople()
+            .then(setPeople)
+            .catch(() => setPeople([]));
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -36,6 +58,10 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
 
         setIsLoading(true);
         setError('');
+
+        const extras: { task_status?: string; assigned_to?: string } = {};
+        if (taskStatus) extras.task_status = taskStatus;
+        if (assignedTo) extras.assigned_to = assignedTo;
 
         try {
             const response = await fetch(getApiPath('views'), {
@@ -51,6 +77,7 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
                     filters: filters,
                     priority: priority || null,
                     due: due || null,
+                    extras: Object.keys(extras).length > 0 ? extras : undefined,
                 }),
             });
 
@@ -130,6 +157,55 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
                             {priority && <li>• {t('views.priorityLabel', 'Priority:')} {priority}</li>}
                             {due && <li>• {t('views.dueLabel', 'Due date:')} {due}</li>}
                         </ul>
+                    </div>
+
+                    <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                htmlFor="viewTaskStatus"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                {t('views.taskStatusLabel', 'Task status')}
+                            </label>
+                            <select
+                                id="viewTaskStatus"
+                                value={taskStatus}
+                                onChange={(e) => setTaskStatus(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">
+                                    {t('views.anyStatus', 'Any')}
+                                </option>
+                                {STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {t(`status.${opt.key}`, opt.fallback)}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="viewAssignedTo"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                {t('views.assignedToLabel', 'Assigned to')}
+                            </label>
+                            <select
+                                id="viewAssignedTo"
+                                value={assignedTo}
+                                onChange={(e) => setAssignedTo(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">
+                                    {t('views.anyPerson', 'Anyone')}
+                                </option>
+                                {people.map((person) => (
+                                    <option key={person.uid} value={person.uid}>
+                                        {person.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="flex gap-3 justify-end">
