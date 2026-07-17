@@ -1,5 +1,14 @@
 # 17 — Guia de setup GTD no tududi (documentação, sem código)
 
+> **Status: EXECUTADO** em 2026-07-17 — `docs/17-gtd-setup.md` criado com as 4
+> seções (mapeamento TickTick→tududi, passo a passo, ritmo de revisão, captura)
+> e registrado no índice do `CLAUDE.md`. Desvios: (1) escrito na branch
+> `feat/16-views-gtd`, **não na `main`** — o guia depende das Views de
+> status/pessoa do plano 16, que ainda não foi mergeado; decisão do dono, guia e
+> feature seguem juntos até o merge. (2) Referências de UI conferidas contra as
+> rotas/componentes (`frontend/App.tsx`, `components/{People,Habit,Sidebar}`),
+> não por drive de browser ao vivo.
+
 > **Prioridade: BAIXA** — **Esforço: baixo** — **Julgamento: não exige**
 > (o conteúdo está especificado abaixo) — **Depende de: 16 JÁ MERGEADO na
 > `main` pelo dono** (as views de status/pessoa precisam existir; se o 16 for

@@ -1,7 +1,7 @@
 'use strict';
 
 const viewsRepository = require('./repository');
-const { validateName } = require('./validation');
+const { validateName, validateExtras } = require('./validation');
 const { NotFoundError } = require('../../shared/errors');
 
 class ViewsService {
@@ -35,6 +35,7 @@ class ViewsService {
         } = data;
 
         const validatedName = validateName(name);
+        const validatedExtras = validateExtras(extras);
 
         return viewsRepository.createForUser(userId, {
             name: validatedName,
@@ -44,7 +45,7 @@ class ViewsService {
             due: due || null,
             defer: defer || null,
             tags: tags || [],
-            extras: extras || [],
+            extras: validatedExtras || [],
             recurring: recurring || null,
             is_pinned: false,
         });
@@ -77,7 +78,7 @@ class ViewsService {
         if (due !== undefined) updates.due = due;
         if (defer !== undefined) updates.defer = defer;
         if (tags !== undefined) updates.tags = tags;
-        if (extras !== undefined) updates.extras = extras;
+        if (extras !== undefined) updates.extras = validateExtras(extras);
         if (recurring !== undefined) updates.recurring = recurring;
         if (is_pinned !== undefined) updates.is_pinned = is_pinned;
 

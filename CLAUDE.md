@@ -120,6 +120,7 @@ multer-s3, node-cron, Nodemailer.
 | [09-tags-system.md](docs/09-tags-system.md) | Tags entre entidades, auto-criação, hashtags |
 | [12-goals-system.md](docs/12-goals-system.md) | Intenções entre Areas e Projects; horizontes |
 | [13-ai-assistant.md](docs/13-ai-assistant.md) | Daily Brief e insights (OpenAI, `OPENAI_API_KEY`) |
+| [17-gtd-setup.md](docs/17-gtd-setup.md) | Setup GTD migrando do TickTick: Areas, People, tags, Views "Aguardando"/"Delegadas", hábitos de revisão |
 
 > Os dois docs com prefixo `08` são colisão de numeração herdada do upstream.
 > Renomear quebraria links existentes; ficam como estão.

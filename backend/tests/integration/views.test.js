@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../../app');
-const { View, Task, Tag, User } = require('../../models');
+const { View, Task, Tag, User, Person } = require('../../models');
 const { createTestUser } = require('../helpers/testUtils');
 
 describe('Views Routes', () => {
@@ -123,6 +123,70 @@ describe('Views Routes', () => {
 
             expect(response.status).toBe(201);
             expect(response.body.tags).toEqual([]);
+        });
+
+        it('should persist extras object with task_status (GTD waiting view)', async () => {
+            const response = await agent.post('/api/views').send({
+                name: 'Waiting View',
+                filters: ['Task'],
+                extras: { task_status: 'waiting' },
+            });
+
+            expect(response.status).toBe(201);
+            expect(response.body.extras).toEqual({ task_status: 'waiting' });
+
+            // Round-trip: read back and confirm the object survives
+            const getResponse = await agent.get(
+                `/api/views/${response.body.uid}`
+            );
+            expect(getResponse.status).toBe(200);
+            expect(getResponse.body.extras).toEqual({ task_status: 'waiting' });
+        });
+
+        it('should persist extras object with assigned_to', async () => {
+            const response = await agent.post('/api/views').send({
+                name: 'Delegated View',
+                filters: ['Task'],
+                extras: { assigned_to: 'person-uid-123' },
+            });
+
+            expect(response.status).toBe(201);
+            expect(response.body.extras).toEqual({
+                assigned_to: 'person-uid-123',
+            });
+        });
+
+        it('should reject an invalid task_status in extras', async () => {
+            const response = await agent.post('/api/views').send({
+                name: 'Bad Status View',
+                filters: ['Task'],
+                extras: { task_status: 'bogus' },
+            });
+
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Invalid task_status in extras');
+        });
+
+        it('should reject an empty assigned_to in extras', async () => {
+            const response = await agent.post('/api/views').send({
+                name: 'Bad Person View',
+                filters: ['Task'],
+                extras: { assigned_to: '   ' },
+            });
+
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Invalid assigned_to in extras');
+        });
+
+        it('should still accept the legacy extras array', async () => {
+            const response = await agent.post('/api/views').send({
+                name: 'Legacy Extras View',
+                filters: ['Task'],
+                extras: ['recurring', 'overdue'],
+            });
+
+            expect(response.status).toBe(201);
+            expect(response.body.extras).toEqual(['recurring', 'overdue']);
         });
     });
 
@@ -253,6 +317,24 @@ describe('Views Routes', () => {
             expect(response.status).toBe(200);
             expect(response.body.name).toBe('Updated View');
             expect(response.body.tags).toEqual(['personal']);
+        });
+
+        it('should update extras to a GTD object and back', async () => {
+            const response = await agent.patch(`/api/views/${viewUid}`).send({
+                extras: { task_status: 'waiting' },
+            });
+
+            expect(response.status).toBe(200);
+            expect(response.body.extras).toEqual({ task_status: 'waiting' });
+        });
+
+        it('should reject an invalid extras object on update', async () => {
+            const response = await agent.patch(`/api/views/${viewUid}`).send({
+                extras: { task_status: 'bogus' },
+            });
+
+            expect(response.status).toBe(400);
+            expect(response.body.error).toBe('Invalid task_status in extras');
         });
 
         it('should update all fields including tags', async () => {
@@ -527,6 +609,35 @@ describe('Views Routes', () => {
             // Frontend will filter these out, but backend should provide them all
             const nonActiveTasks = tasks.filter((t) => t.status >= 2);
             expect(nonActiveTasks.length).toBe(2); // done + archived
+        });
+    });
+
+    describe('Search exposes assigned_to for GTD person filtering', () => {
+        it('should include assigned_to on task search results', async () => {
+            const person = await Person.create({
+                user_id: user.id,
+                name: 'Alice',
+            });
+
+            await Task.create({
+                user_id: user.id,
+                name: 'Delegated task',
+                status: 4, // waiting
+                assigned_to: person.uid,
+            });
+
+            const searchResponse = await agent.get('/api/search').query({
+                filters: 'Task',
+                q: 'Delegated',
+            });
+
+            expect(searchResponse.status).toBe(200);
+            const task = searchResponse.body.results.find(
+                (r) => r.type === 'Task' && r.name === 'Delegated task'
+            );
+            expect(task).toBeDefined();
+            // The ViewDetail client filters on this field; it must be present.
+            expect(task.assigned_to).toBe(person.uid);
         });
     });
 

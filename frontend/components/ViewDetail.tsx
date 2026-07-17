@@ -31,6 +31,24 @@ import { SortOption } from './Shared/SortFilterButton';
 import IconSortDropdown from './Shared/IconSortDropdown';
 import { useStore } from '../store/useStore';
 import { getCsrfToken } from '../utils/csrfService';
+import {
+    applyExtrasFilter,
+    getExtrasObject,
+    ViewExtras,
+} from '../utils/viewExtras';
+import { fetchPeople } from '../utils/peopleService';
+import { Person } from '../entities/Person';
+
+// i18n key suffix per status string (StatusDropdown convention).
+const STATUS_I18N_KEY: Record<string, string> = {
+    not_started: 'notStarted',
+    in_progress: 'inProgress',
+    done: 'done',
+    archived: 'archived',
+    waiting: 'waiting',
+    cancelled: 'cancelled',
+    planned: 'planned',
+};
 
 interface View {
     id: number;
@@ -42,7 +60,7 @@ interface View {
     due: string | null;
     defer: string | null;
     tags: string[];
-    extras: string[] | null;
+    extras: string[] | ViewExtras | null;
     is_pinned: boolean;
 }
 
@@ -55,6 +73,7 @@ const ViewDetail: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [notes, setNotes] = useState<Note[]>([]);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [people, setPeople] = useState<Person[]>([]);
     const globalProjects = useStore((state) => state.projectsStore.projects);
     const allTags = useStore((state) => state.tagsStore.tags);
     const getTagColor = (name: string): string | undefined =>
@@ -197,6 +216,9 @@ const ViewDetail: React.FC = () => {
             filteredTasks = tasks;
         }
 
+        // Filter by saved GTD extras (task status / assigned person)
+        filteredTasks = applyExtrasFilter(filteredTasks, view?.extras);
+
         // Filter by search query
         if (taskSearchQuery.trim()) {
             const query = taskSearchQuery.toLowerCase();
@@ -289,6 +311,7 @@ const ViewDetail: React.FC = () => {
         orderBy,
         t,
         projectLookupMap,
+        view,
     ]);
 
     const handleSortChange = useCallback(
@@ -351,6 +374,13 @@ const ViewDetail: React.FC = () => {
     useEffect(() => {
         fetchViewAndResults();
     }, [uid]);
+
+    // Load people once to resolve the assigned_to filter chip into a name.
+    useEffect(() => {
+        fetchPeople()
+            .then(setPeople)
+            .catch(() => setPeople([]));
+    }, []);
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -445,7 +475,8 @@ const ViewDetail: React.FC = () => {
                         ? normalizedView.tags
                         : undefined,
                 extras:
-                    normalizedView.extras && normalizedView.extras.length > 0
+                    Array.isArray(normalizedView.extras) &&
+                    normalizedView.extras.length > 0
                         ? normalizedView.extras
                         : undefined,
                 limit: limit,
@@ -698,6 +729,12 @@ const ViewDetail: React.FC = () => {
         return null;
     }
 
+    const extrasObject = getExtrasObject(view.extras);
+    const assignedPersonName = extrasObject?.assigned_to
+        ? people.find((p) => p.uid === extrasObject.assigned_to)?.name ||
+          extrasObject.assigned_to
+        : null;
+
     return (
         <div className="w-full px-2 sm:px-4 lg:px-6 pt-4 pb-8">
             <div className="w-full">
@@ -742,8 +779,9 @@ const ViewDetail: React.FC = () => {
                                     view.priority ||
                                     view.due ||
                                     view.defer ||
-                                    (view.extras &&
-                                        view.extras.length > 0)) && (
+                                    (Array.isArray(view.extras)
+                                        ? view.extras.length > 0
+                                        : !!extrasObject)) && (
                                     <div className="mt-3 flex flex-wrap gap-1.5">
                                         {view.tags.map((tag) => {
                                             const color = getTagColor(tag);
@@ -796,7 +834,7 @@ const ViewDetail: React.FC = () => {
                                                 {filter}
                                             </span>
                                         ))}
-                                        {view.extras &&
+                                        {Array.isArray(view.extras) &&
                                             view.extras.map((extra, i) => (
                                                 <span
                                                     key={i}
@@ -805,6 +843,28 @@ const ViewDetail: React.FC = () => {
                                                     {extra.replace(/_/g, ' ')}
                                                 </span>
                                             ))}
+                                        {extrasObject?.task_status && (
+                                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded text-xs font-medium">
+                                                {t(
+                                                    `status.${
+                                                        STATUS_I18N_KEY[
+                                                            extrasObject
+                                                                .task_status
+                                                        ] ||
+                                                        extrasObject.task_status
+                                                    }`,
+                                                    extrasObject.task_status.replace(
+                                                        /_/g,
+                                                        ' '
+                                                    )
+                                                )}
+                                            </span>
+                                        )}
+                                        {assignedPersonName && (
+                                            <span className="px-2 py-0.5 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded text-xs font-medium">
+                                                {assignedPersonName}
+                                            </span>
+                                        )}
                                     </div>
                                 )}
 

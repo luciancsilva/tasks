@@ -1,5 +1,16 @@
 # 16 — Views com filtro por status de tarefa e por pessoa ("Aguardando" / "Delegadas")
 
+> **Status: EXECUTADO** em 2026-07-17 — `extras` (TEXT+JSON) passou a aceitar
+> objeto `{ task_status?, assigned_to? }` com validação no service; `ViewDetail`
+> filtra e exibe chips desses filtros (usos array legados blindados com
+> `Array.isArray`); `SaveViewModal` ganhou selects de status e pessoa. Desvios
+> do plano: (1) o serializer **já** expunha `assigned_to` via
+> `...taskWithoutSubtasks` (o search não restringe `attributes`) — mudança
+> desnecessária, coberta por teste em vez de código; (2) o plano não previu que
+> `ViewDetail` já fazia `.map`/`.length` sobre `extras` como array — blindado
+> com `Array.isArray`; a filtragem foi extraída para `frontend/utils/viewExtras.ts`
+> (função pura testada). Branch `feat/16-views-gtd`, sem merge, sem push.
+
 > **Prioridade: BAIXA por risco, ALTA por valor** (é o gap que impede replicar
 > o fluxo GTD do TickTick) — **Esforço: médio** — **Julgamento: pouco** (a
 > semântica está definida; dúvidas de UI seguem o padrão existente) —
