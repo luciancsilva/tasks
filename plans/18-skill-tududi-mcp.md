@@ -1,5 +1,13 @@
 # 18 — Skill `tududi-mcp`: manutenção e instalação
 
+> **Status: EXECUTADO** em 2026-07-17 — skill atualizada após 14a/14b: regra 1
+> (`delete_task` seguro), regra 3 (today/upcoming filtram data de verdade),
+> regra 4 (enum de status correto, `waiting`/`archived` acessíveis) e a receita
+> "O que tenho para hoje?" (`list_tasks {type:'today'}`); bloco de quote das
+> ressalvas 14x removido. Tudo conferido contra `backend/modules/mcp/tools/taskTools.js`.
+> **Ação do dono: re-sincronizar a cópia instalada** (skillshare / `~/.claude`).
+> Branch `main`.
+
 > **Prioridade: BAIXA** — **Esforço: baixo** — **Julgamento: não exige** —
 > **Depende de: 14a/14b apenas para ATUALIZAR a skill** (a v1 já documenta os
 > bugs atuais como armadilha) — **Branch: `main` direto** (doc/skill)

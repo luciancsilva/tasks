@@ -132,8 +132,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` (instalação é do dono) | 14a, 14b (só p/ atualizar) |
-| Baixo | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | 16 |
+| Baixo | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | **16 (aguarda merge do dono na `main`)** |
 | Médio | `16-views-gtd-status-pessoa.md` | Views por status de tarefa (waiting) e por pessoa — "Aguardando"/"Delegadas" (valor ALTO p/ GTD) | — (14b recomendado antes) |
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
@@ -167,6 +166,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `14c-mcp-doc-e-registry.md` | Doc do MCP (16→44 tools) e `listMcpTools` derivado do registry | EXECUTADO (2026-07-17) |
 | `12-migration-bootstrap-order.md` | Migration fora de ordem faz o bootstrap por migrations gerar schema quebrado em silêncio | EXECUTADO (2026-07-17) |
 | `15-backup-prune-por-ambiente.md` | Retenção de snapshot mistura ambientes no prune | EXECUTADO (2026-07-17) |
+| `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` após 14a/14b | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

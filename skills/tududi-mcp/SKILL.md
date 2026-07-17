@@ -11,30 +11,27 @@ isolada ao usuário do token; não há como tocar dados de outro usuário.
 
 ## Regras de ouro (leia antes de qualquer chamada)
 
-1. **NUNCA use `delete_task` em tarefa com anexos ou recorrência** enquanto o
-   plano `plans/14a` não estiver EXECUTADO: o handler chama `destroy()` cru —
-   anexos ficam órfãos no R2 e instâncias recorrentes passadas são apagadas.
-   Na dúvida, peça para o dono deletar pela UI.
+1. **`delete_task` usa o caminho seguro do backend** (`tasksService.delete`):
+   anexos e recorrência são tratados, sem órfãos no R2. Ainda assim, deleção é
+   permanente — **confirme deletes com o dono** antes de chamar.
 2. **`complete_task` é um TOGGLE.** Em tarefa concluída, ele REABRE. Confira o
    status via `get_task` antes; nunca repita a chamada "para garantir".
-3. **`list_tasks` com `type: "today"`/`"upcoming"` NÃO filtra por data**
-   (enquanto `plans/14b` não estiver EXECUTADO) — liste sem `type` e filtre
-   você mesmo por `due_date`.
-4. **Enum de status do MCP está errado até o `plans/14b`**: o modelo real é
-   0=not_started, 1=in_progress, 2=done, **3=archived**, 4=waiting,
-   5=cancelled, **6=planned** — mas o MCP mapeia `archived`→6 (**planned**).
-   Até o fix: NÃO use `status=archived` (nem em filtro nem em update), e
-   saiba que `waiting` não é acessível via MCP.
+3. **`list_tasks {type}` filtra por data de verdade** (timezone do usuário):
+   - `today` = `due_date` ≤ fim de hoje **OU** status ∈
+     {in_progress, waiting, planned}, sempre excluindo done/archived/cancelled;
+     ordenado por `due_date`.
+   - `upcoming` = `due_date` nos próximos 7 dias, mesmas exclusões.
+   - `completed` = status done; `archived` = status archived; `all` = sem filtro.
+4. **Enum de status** (em `list_tasks` e `update_task`):
+   `not_started|pending|in_progress|done|completed|waiting|planned|archived|cancelled`
+   — `pending` é alias de not_started, `completed` de done. Mapa numérico real:
+   0=not_started, 1=in_progress, 2=done, 3=archived, 4=waiting, 5=cancelled,
+   6=planned. `waiting` e `archived` são acessíveis via MCP.
 5. **Deleções são permanentes e sem confirmação.** `delete_project` apaga o
    projeto E todas as tarefas (notas são desanexadas, não apagadas).
    `delete_area` NÃO apaga projetos (só desvincula). `delete_tag` remove a tag
    de tudo. `delete_habit` leva o histórico junto. Peça confirmação humana
    antes de qualquer delete.
-
-> Quando os planos 14a/14b constarem como EXECUTADO no `plans/README.md`,
-> as regras 1, 3 e 4 caducam: delete_task fica seguro, today/upcoming filtram
-> por data e o enum passa a aceitar
-> `not_started|pending|in_progress|done|completed|waiting|planned|archived|cancelled`.
 
 ## Identificadores — qual tool aceita o quê
 
@@ -132,10 +129,10 @@ Sempre que uma listagem devolver `uid`, guarde e use o `uid` — é estável.
 2. Virou task: `create_task {...}`; virou nota: `create_note {...}`.
 3. Só então `process_inbox_item {uid}`.
 
-**"O que tenho para hoje?"** (até o 14b):
-1. `list_tasks {limit: 100}` (sem `type`).
-2. Filtrar localmente: `due_date` ≤ hoje OU flag `today` OU status 1
-   (in_progress). Vencidas = `due_date` < hoje com status 0/1.
+**"O que tenho para hoje?"**:
+`list_tasks {type: 'today'}` — já devolve `due_date` ≤ hoje mais
+in_progress/waiting/planned, excluindo concluídas/arquivadas/canceladas.
+Vencidas isoladas: `list_tasks {type: 'today'}` e filtrar `due_date` < hoje.
 
 **Concluir tarefa com segurança**:
 `get_task {id}` → se status ≠ done/2, `complete_task {id}`.
