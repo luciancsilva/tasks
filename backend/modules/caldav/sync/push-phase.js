@@ -231,7 +231,22 @@ class PushPhase {
         }
     }
 
-    async deleteTaskFromRemote(task, remoteCalendar, calendar, dryRun = false) {
+    async deleteTaskFromRemote(
+        task,
+        remoteCalendar,
+        calendar,
+        dryRunOrOptions = false,
+        options = {}
+    ) {
+        const dryRun =
+            typeof dryRunOrOptions === 'object' && dryRunOrOptions !== null
+                ? dryRunOrOptions.dryRun || false
+                : dryRunOrOptions;
+        const opts =
+            typeof dryRunOrOptions === 'object' && dryRunOrOptions !== null
+                ? dryRunOrOptions
+                : options;
+
         if (dryRun) {
             return {
                 taskId: task.id,
@@ -263,7 +278,7 @@ class PushPhase {
                 ),
             });
 
-            await SyncStateRepository.deleteByTaskId(task.id);
+            await SyncStateRepository.deleteByTaskId(task.id, opts);
 
             logger.logInfo(`Task ${task.uid} successfully deleted from remote`);
 
@@ -277,7 +292,7 @@ class PushPhase {
                 logger.logInfo(
                     `Task ${task.uid} already deleted from remote, clearing sync state`
                 );
-                await SyncStateRepository.deleteByTaskId(task.id);
+                await SyncStateRepository.deleteByTaskId(task.id, opts);
                 return {
                     taskId: task.id,
                     uid: task.uid,

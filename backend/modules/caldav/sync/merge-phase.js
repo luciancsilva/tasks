@@ -98,8 +98,12 @@ class MergePhase {
         }
 
         if (!dryRun) {
-            await existingTask.destroy();
-            await SyncStateRepository.deleteByTaskId(existingTask.id);
+            await sequelize.transaction(async (t) => {
+                await existingTask.destroy({ transaction: t });
+                await SyncStateRepository.deleteByTaskId(existingTask.id, {
+                    transaction: t,
+                });
+            });
         }
 
         results.deleted.push({ uid, taskId: existingTask.id });

@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `19l-caldav-delete-missing-method.md` | `SyncStateRepository.deleteByTaskId` não existe — sync de deleção CalDAV lança `TypeError` em runtime (merge/push-phase) | - |
 | Baixo | `20-caldav-delete-by-calendar-id-broken-method.md` | `SyncStateRepository.deleteByCalendarId` chama `this.delete`, método que não existe (só `destroy`) — `TypeError` ao deletar calendário CalDAV | - |
 
 ### Prioridade MÉDIA
@@ -148,6 +147,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `19l-caldav-delete-missing-method.md` | `SyncStateRepository.deleteByTaskId` não existe — sync de deleção CalDAV lança `TypeError` em runtime (merge/push-phase) | EXECUTADO (2026-07-17) |
 | `22-frontend-jest-esm-transform-remark-breaks.md` | Baseline `frontend:test` vermelha: `remark-breaks` (ESM) quebra o Jest, sem mudança de código | EXECUTADO (2026-07-17) |
 | `01-r2-cover-cleanup.md` | Capa de projeto órfã no R2 | EXECUTADO (`b707dce`) |
 | `02-r2-task-cleanup.md` | Anexos órfãos ao deletar tarefa | EXECUTADO (`fe4e165`) |

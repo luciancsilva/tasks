@@ -198,6 +198,16 @@ class SyncStateRepository {
         return stats;
     }
 
+    async deleteByTaskId(taskId, options = {}) {
+        const syncStates = await this.findByTaskId(taskId, options);
+
+        await Promise.all(
+            syncStates.map((state) => this.destroy(state, options))
+        );
+
+        return syncStates.length;
+    }
+
     async deleteByCalendarId(calendarId, options = {}) {
         const syncStates = await this.findByCalendarId(calendarId, options);
 

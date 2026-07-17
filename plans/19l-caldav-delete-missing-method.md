@@ -1,6 +1,6 @@
 # 19l — `SyncStateRepository.deleteByTaskId` não existe (deleção CalDAV quebra em runtime)
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — Implementado `SyncStateRepository.deleteByTaskId(taskId, options = {})` e envolvidas as deleções em `merge-phase.js:100-102` (com transação explícita e rollback garantido) e `push-phase.js:266,280` (repassando opções).
 > **Escopo:** Implementar `deleteByTaskId(taskId, options = {})` em `backend/modules/caldav/repositories/sync-state-repository.js` e envolver os dois pontos de deleção (`merge-phase.js:100-102` e `push-phase.js:266,280`) em transação, fechando a lacuna deixada explícita pelo `19d`.
 > **Depende de:** -
 > **Origem:** descoberto durante a execução do `19d` (ver §Desvio naquele plano).
