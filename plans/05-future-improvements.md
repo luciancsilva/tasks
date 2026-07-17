@@ -8,7 +8,7 @@ executáveis de forma independente:
 |---|---|---|
 | [05a-quick-wins.md](05a-quick-wins.md) | Baixo — 1 sessão curta por item | Limite de 20 anexos (race), lifecycle rule R2, checagem de drift i18n, warning de segredos no boot, remover `generate-favicon.html` |
 | [05b-medium-effort.md](05b-medium-effort.md) | Médio — 1 sessão focada por item | CASCADEs reais, error handling do tasks, destino do BaseRepository, renomear locales `jp`/`ua` |
-| [05c-high-effort.md](05c-high-effort.md) | Alto — multissessão/estrutural | Extrair service/controller do tasks, cobertura de testes frontend, transações reais no modo D1 |
+| [05c-high-effort.md](05c-high-effort.md) | Alto — multissessão/estrutural | Extrair service/controller do tasks, cobertura de testes frontend |
 
 Itens já resolvidos desde o levantamento: logging em `r2Service.deleteObject`
 (commit `b707dce`), `docker-compose.yml` pendente (commit `44c0ba2`), doc de

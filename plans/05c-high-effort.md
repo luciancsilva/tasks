@@ -38,18 +38,3 @@ etapas com commits intermediários e suíte verde a cada etapa. Regras: `plans/R
   3. Meta inicial: +1 suíte por PR que tocar componente sem teste (regra de
      revisão), não uma força-tarefa.
 - **Esforço**: alto/contínuo.
-
-## HE-3. Consolidação pós-D1: transação de verdade nos fluxos compostos
-
-- **Onde**: fluxos multi-statement (delete de projeto, delete de tarefa, admin
-  cascade) sob `TUDUDI_DB_DRIVER=d1`.
-- **Por quê**: driver D1 REST neutraliza BEGIN/COMMIT (documentado em
-  `04-d1-migration.md` §9, hoje aceito); fluxos compostos podem parar no meio.
-- **Como (opções a avaliar quando o modo D1 virar produção de fato)**:
-  a. Reescrever fluxos compostos como **batch** de statements numa única chamada
-     REST (D1 executa lote atomicamente) — exige API própria no driver
-     (`d1Client.batch(sqlStatements)`) e refatorar os fluxos para SQL explícito.
-  b. Compensação: ordem de operações idempotente + retomada (job de limpeza).
-  c. Aceitar e monitorar (estado atual).
-- **Recomendação**: (a) para os 3 fluxos de delete; mantém o resto no driver comum.
-- **Esforço**: alto. **Dependência**: ME-1 (ordem de deleção explícita) simplifica muito.

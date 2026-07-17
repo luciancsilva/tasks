@@ -17,8 +17,7 @@ sessão de trabalho focada com a suíte de testes como rede. Regras: `plans/READ
   (SQLite: recriar tabela) apenas onde faltar CASCADE e a semântica desejada for
   cascade mesmo (events sim; tags junction sim). Depois remover deletes manuais
   redundantes.
-- **Riscos**: recriação de tabela em SQLite exige cuidado com índices; no modo D1
-  a migration roda por REST (sem transação real) — janela de inconsistência.
+- **Riscos**: recriação de tabela em SQLite exige cuidado com índices.
 - **Esforço**: médio. **Dependência**: ME-1 primeiro.
 
 ## [CONCLUÍDO] ME-4. Padronizar tratamento de erro no módulo tasks
