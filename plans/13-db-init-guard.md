@@ -1,5 +1,7 @@
 # 13 — Guarda genérica contra wipe no `db-init`
 
+> **Status: EXECUTADO** em 2026-07-17 — Guarda contra wipe destrutivo adicionada ao db-init e db-reset, impedindo execução se o arquivo do banco existir e tiver conteúdo, salvo com TUDUDI_ALLOW_DB_INIT=1.
+>
 > **Prioridade: ALTA** (risco de perda de dados) — **Esforço: baixo** —
 > **Julgamento: não exige** (mecânico) — **Depende de: nada** —
 > **Branch: `main` direto** (correção)
@@ -16,7 +18,7 @@ O commit `ef690f67` adicionou uma guarda, mas ela era específica do driver D1
 `backend/scripts/db-init.js:23` roda o sync destrutivo incondicionalmente; as
 únicas proteções restantes são:
 - `backend/cmd/start.sh:92` — só chama `db-init` quando o arquivo do banco não existe;
-- o guard de `require.main` (testado em `backend/tests/unit/db-init-guard.test.js`).
+- o guard de `require.main` (testado in `backend/tests/unit/db-init-guard.test.js`).
 
 Nada protege um humano ou agente que rode `npm run db:init` na mão com banco
 existente. Este plano restaura uma guarda **genérica** (não atrelada a driver).
@@ -94,11 +96,11 @@ cd backend && npx eslint scripts/db-init.js tests/unit/db-init-guard.test.js
 
 ## Critério de pronto
 
-- [ ] Casos unitários de `isInitBlocked` cobrindo: arquivo com conteúdo → bloqueia; flag `'1'` → libera; arquivo inexistente / `:memory:` / `undefined` → libera.
-- [ ] `db-reset.js` não executa mais nada no require (teste no padrão de `db-init-guard.test.js`: `require('../../scripts/db-reset')` retorna sem tocar o banco).
-- [ ] Boot de banco novo preservado (caminho `start.sh`: arquivo não existe → guard libera; provado pelo caso unitário, sem execução real).
-- [ ] Suíte backend verde; lint dos arquivos tocados limpo.
-- [ ] **NÃO rode `npm run db:init` nem `db:reset` de verdade em momento nenhum** — nem para "provar a recusa". A prova é a suíte. Se o guard estiver bugado, a execução real destrói o banco de dev; o teste unitário não.
+- [x] Casos unitários de `isInitBlocked` cobrindo: arquivo com conteúdo → bloqueia; flag `'1'` → libera; arquivo inexistente / `:memory:` / `undefined` → libera.
+- [x] `db-reset.js` não executa mais nada no require (teste no padrão de `db-init-guard.test.js`: `require('../../scripts/db-reset')` retorna sem tocar o banco).
+- [x] Boot de banco novo preservado (caminho `start.sh`: arquivo não existe → guard libera; provado pelo caso unitário, sem execução real).
+- [x] Suíte backend verde; lint dos arquivos tocados limpo.
+- [x] **NÃO rode `npm run db:init` nem `db:reset` de verdade em momento nenhum** — nem para "provar a recusa". A prova é a suíte. Se o guard estiver bugado, a execução real destrói o banco de dev; o teste unitário não.
 
 ## Commit
 

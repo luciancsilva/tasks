@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `13-db-init-guard.md` | Guarda genérica contra `db:init` em banco existente (a guarda do D1 morreu com o D1) | — |
 | Baixo | `14a-mcp-delete-task-seguro.md` | MCP `delete_task` orfana anexos no R2 e apaga histórico de recorrência | — |
 | Médio | `14b-mcp-status-e-datas.md` | MCP: enum de status errado (archived↔planned), `waiting` inacessível, today/upcoming sem filtro de data | — |
 
@@ -167,6 +166,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | EXECUTADO (2026-07-17) |
 | `06-docs-update.md` | Atualização integral do `/docs` | EXECUTADO (2026-07-17) |
 | `05c-high-effort.md` | HE-1 controller/service em tasks; HE-2 testes de BrandingTab e do guarda de avatar | EXECUTADO (2026-07-17) |
+| `13-db-init-guard.md` | Guarda genérica contra `db:init` em banco existente | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
