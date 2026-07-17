@@ -1,5 +1,6 @@
 # 14c — Doc do MCP alinhada às 44 tools e `listMcpTools` derivado do registry
 
+> **Status: EXECUTADO** em 2026-07-17 — Endpoint listMcpTools derivado dinamicamente do registry e documentação em docs/14-mcp-integration.md alinhada às 44 tools e armadilhas.
 > **Prioridade: BAIXA** (doc/consistência; nenhum dado em risco) —
 > **Esforço: médio** — **Julgamento: não exige** — **Depende de: 14a e 14b**
 > (a doc deve descrever o comportamento pós-fix, não o bugado) —

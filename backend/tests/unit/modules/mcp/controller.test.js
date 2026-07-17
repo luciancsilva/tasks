@@ -1,6 +1,7 @@
 'use strict';
 
 const controller = require('../../../../modules/mcp/controller');
+const toolRegistry = require('../../../../modules/mcp/toolRegistry');
 
 // Mock dependencies
 jest.mock('../../../../modules/mcp/httpTransport', () => ({
@@ -136,25 +137,22 @@ describe('MCP Controller', () => {
     });
 
     describe('listMcpTools', () => {
-        it('should return tool categories with expected counts', async () => {
+        it('should return tool categories matching the tool registry dynamically', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
             const result = res.json.mock.calls[0][0];
-            expect(result.tools).toHaveLength(8);
+            const expectedCategories = toolRegistry.listToolsByCategory();
+            expect(result.tools).toEqual(expectedCategories);
 
-            const categories = result.tools.map((t) => t.category);
-            expect(categories).toContain('Tasks');
-            expect(categories).toContain('Projects');
-            expect(categories).toContain('Areas');
-            expect(categories).toContain('Habits');
-            expect(categories).toContain('Inbox');
-            expect(categories).toContain('Notes');
-            expect(categories).toContain('Tags');
-            expect(categories).toContain('Misc');
+            const totalCount = result.tools.reduce(
+                (sum, c) => sum + c.count,
+                0
+            );
+            expect(totalCount).toBe(toolRegistry.listToolNames().length);
         });
 
-        it('should list task tools', async () => {
+        it('should list task tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -164,7 +162,7 @@ describe('MCP Controller', () => {
             );
 
             expect(taskCategory).toBeDefined();
-            expect(taskCategory.count).toBe(8);
+            expect(taskCategory.count).toBe(taskCategory.tools.length);
             expect(taskCategory.tools).toContain('list_tasks');
             expect(taskCategory.tools).toContain('get_task');
             expect(taskCategory.tools).toContain('create_task');
@@ -175,7 +173,7 @@ describe('MCP Controller', () => {
             expect(taskCategory.tools).toContain('get_task_metrics');
         });
 
-        it('should list project tools', async () => {
+        it('should list project tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -185,7 +183,7 @@ describe('MCP Controller', () => {
             );
 
             expect(projectCategory).toBeDefined();
-            expect(projectCategory.count).toBe(5);
+            expect(projectCategory.count).toBe(projectCategory.tools.length);
             expect(projectCategory.tools).toContain('list_projects');
             expect(projectCategory.tools).toContain('get_project');
             expect(projectCategory.tools).toContain('create_project');
@@ -193,7 +191,7 @@ describe('MCP Controller', () => {
             expect(projectCategory.tools).toContain('delete_project');
         });
 
-        it('should list inbox tools', async () => {
+        it('should list inbox tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -203,7 +201,7 @@ describe('MCP Controller', () => {
             );
 
             expect(inboxCategory).toBeDefined();
-            expect(inboxCategory.count).toBe(6);
+            expect(inboxCategory.count).toBe(inboxCategory.tools.length);
             expect(inboxCategory.tools).toContain('list_inbox');
             expect(inboxCategory.tools).toContain('add_to_inbox');
             expect(inboxCategory.tools).toContain('get_inbox_item');
@@ -212,7 +210,7 @@ describe('MCP Controller', () => {
             expect(inboxCategory.tools).toContain('delete_inbox_item');
         });
 
-        it('should list note tools', async () => {
+        it('should list note tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -222,7 +220,7 @@ describe('MCP Controller', () => {
             );
 
             expect(noteCategory).toBeDefined();
-            expect(noteCategory.count).toBe(5);
+            expect(noteCategory.count).toBe(noteCategory.tools.length);
             expect(noteCategory.tools).toContain('list_notes');
             expect(noteCategory.tools).toContain('get_note');
             expect(noteCategory.tools).toContain('create_note');
@@ -230,7 +228,7 @@ describe('MCP Controller', () => {
             expect(noteCategory.tools).toContain('delete_note');
         });
 
-        it('should list tag tools', async () => {
+        it('should list tag tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -238,7 +236,7 @@ describe('MCP Controller', () => {
             const tagCategory = result.tools.find((t) => t.category === 'Tags');
 
             expect(tagCategory).toBeDefined();
-            expect(tagCategory.count).toBe(5);
+            expect(tagCategory.count).toBe(tagCategory.tools.length);
             expect(tagCategory.tools).toContain('list_tags');
             expect(tagCategory.tools).toContain('get_tag');
             expect(tagCategory.tools).toContain('create_tag');
@@ -246,7 +244,7 @@ describe('MCP Controller', () => {
             expect(tagCategory.tools).toContain('delete_tag');
         });
 
-        it('should list misc tools', async () => {
+        it('should list misc tools matching real registry length', async () => {
             const res = { json: jest.fn() };
             await controller.listMcpTools({}, res);
 
@@ -256,7 +254,7 @@ describe('MCP Controller', () => {
             );
 
             expect(miscCategory).toBeDefined();
-            expect(miscCategory.count).toBe(1);
+            expect(miscCategory.count).toBe(miscCategory.tools.length);
             expect(miscCategory.tools).toContain('search');
         });
     });

@@ -1,6 +1,10 @@
 'use strict';
 
-const { registerAllTools } = require('../../../../modules/mcp/toolRegistry');
+const {
+    registerAllTools,
+    listToolNames,
+    listToolsByCategory,
+} = require('../../../../modules/mcp/toolRegistry');
 
 // Mock tool registrars
 jest.mock('../../../../modules/mcp/tools/taskTools', () => ({
@@ -129,6 +133,31 @@ describe('MCP ToolRegistry', () => {
                 expect.anything(),
                 expect.anything()
             );
+        });
+    });
+
+    describe('listToolNames', () => {
+        it('should return name and description for each tool registered', () => {
+            const toolNames = listToolNames();
+            expect(Array.isArray(toolNames)).toBe(true);
+            expect(toolNames.length).toBeGreaterThan(0);
+            toolNames.forEach((item) => {
+                expect(typeof item.name).toBe('string');
+                expect(typeof item.description).toBe('string');
+            });
+        });
+    });
+
+    describe('listToolsByCategory', () => {
+        it('should return tools grouped by exact categories with dynamic count equals length of tools', () => {
+            const categories = listToolsByCategory();
+            expect(categories).toHaveLength(8);
+            categories.forEach((cat) => {
+                expect(typeof cat.category).toBe('string');
+                expect(typeof cat.count).toBe('number');
+                expect(Array.isArray(cat.tools)).toBe(true);
+                expect(cat.count).toBe(cat.tools.length);
+            });
         });
     });
 });

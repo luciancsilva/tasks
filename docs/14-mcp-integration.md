@@ -37,7 +37,7 @@ Tududi's MCP integration allows AI assistants (Claude, Cursor, VS Code extension
 
 **Key Features:**
 
-- **16 Tools:** Complete CRUD operations for tasks, projects, and inbox
+- **44 Tools:** Complete CRUD and management operations across 8 domain categories (tasks, projects, areas, habits, inbox, notes, tags, misc)
 - **Secure Authentication:** API token-based authentication with user isolation
 - **Local or Remote:** Two transport modes for different use cases
 - **Feature Flag:** Opt-in via `FF_ENABLE_MCP` to control availability
@@ -173,279 +173,102 @@ Tududi supports two transport modes for different deployment scenarios:
 
 ## Available Tools
 
-Tududi exposes 16 MCP tools organized into 4 categories. All tools are scoped to the authenticated user — you can never access another user's data.
+Tududi exposes 44 MCP tools organized into 8 domain categories. All tools are scoped to the authenticated user — you can never access another user's data.
+
+> **Note for AI Agents:** For detailed recipes and agent usage instructions, see the [`skills/tududi-mcp`](../skills/tududi-mcp/SKILL.md) skill. This document serves as the human reference.
 
 ### Tasks Tools (8)
 
-#### `list_tasks`
-
-List tasks with optional filtering by type, status, or project.
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `type` | string | No | — | Filter: `today`, `upcoming`, `completed`, `archived`, `all` |
-| `status` | string | No | — | Filter: `pending`, `in_progress`, `completed`, `archived` |
-| `project_id` | number | No | — | Filter by project ID |
-| `limit` | number | No | 50 | Maximum tasks to return |
-
-**Example:**
-
-```json
-{
-    "type": "today",
-    "limit": 20
-}
-```
-
-**Returns:** Task objects with full details including project, tags, subtasks, and priority.
-
----
-
-#### `get_task`
-
-Get a single task by ID (number) or UID (string).
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number/string | Yes | Task ID or UID |
-
-**Example:**
-
-```json
-{
-    "id": "abc123"
-}
-```
-
----
-
-#### `create_task`
-
-Create a new task.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `name` | string | Yes | Task name |
-| `description` | string | No | Task description/note |
-| `priority` | string | No | `low`, `medium`, or `high` (default: `medium`) |
-| `due_date` | string | No | ISO 8601 date |
-| `project_id` | number | No | Assign to a project |
-| `tags` | string[] | No | Array of tag names to apply |
-
-**Example:**
-
-```json
-{
-    "name": "Review pull request #42",
-    "description": "Check the MCP integration changes",
-    "priority": "high",
-    "due_date": "2026-04-27T17:00:00Z",
-    "tags": ["code-review", "urgent"]
-}
-```
-
----
-
-#### `update_task`
-
-Update an existing task.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number/string | Yes | Task ID or UID |
-| `name` | string | No | New task name |
-| `description` | string | No | New description |
-| `priority` | string | No | `low`, `medium`, `high` |
-| `status` | string | No | `pending`, `in_progress`, `completed`, `archived` |
-| `due_date` | string | No | New due date (ISO 8601) |
-| `today` | boolean | No | Add to Today list |
-
-**Example:**
-
-```json
-{
-    "id": "abc123",
-    "priority": "high",
-    "status": "in_progress"
-}
-```
-
----
-
-#### `complete_task`
-
-Toggle a task between completed and pending.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number/string | Yes | Task ID or UID |
-
-**Example:**
-
-```json
-{
-    "id": "abc123"
-}
-```
-
----
-
-#### `delete_task`
-
-Permanently delete a task.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `id` | number/string | Yes | Task ID or UID |
-
----
-
-#### `add_subtask`
-
-Add a subtask to a parent task.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `parent_id` | number/string | Yes | Parent task ID or UID |
-| `name` | string | Yes | Subtask name |
-| `priority` | string | No | `low`, `medium`, `high` |
-| `due_date` | string | No | ISO 8601 date |
-
-**Example:**
-
-```json
-{
-    "parent_id": "xyz789",
-    "name": "Write unit tests",
-    "priority": "medium"
-}
-```
-
----
-
-#### `get_task_metrics`
-
-Get productivity metrics and task statistics.
-
-**Parameters:** None
-
-**Returns:**
-
-```json
-{
-    "open_tasks": 12,
-    "completed_tasks": 48,
-    "overdue_tasks": 3,
-    "in_progress_tasks": 5,
-    "completed_today": 2,
-    "completed_this_week": 11
-}
-```
-
----
-
-### Projects Tools (3)
-
-#### `list_projects`
-
-List projects with optional filtering.
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `status` | string | No | — | Filter: `not_started`, `planned`, `in_progress`, `waiting`, `done`, `cancelled`, `all` |
-| `area_id` | number | No | — | Filter by area ID |
-| `limit` | number | No | 30 | Maximum projects to return |
-
----
-
-#### `create_project`
-
-Create a new project.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `name` | string | Yes | Project name |
-| `description` | string | No | Project description |
-| `priority` | number | No | 0=low, 1=medium, 2=high |
-| `status` | string | No | `not_started`, `planned`, `in_progress`, `waiting`, `done`, `cancelled` |
-| `area_id` | number | No | Parent area ID |
-| `due_date_at` | string | No | Due date (ISO 8601) |
-| `tags` | string[] | No | Array of tag names |
-
----
-
-#### `update_project`
-
-Update an existing project.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `uid` | string | Yes | Project UID |
-| `name` | string | No | New name |
-| `description` | string | No | New description |
-| `priority` | number | No | New priority |
-| `status` | string | No | New status |
-| `area_id` | number | No | New area ID |
-| `pinned` | boolean | No | Pin to sidebar |
-
----
-
-### Inbox Tools (2)
-
-#### `list_inbox`
-
-List inbox items.
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `limit` | number | No | 20 | Maximum items |
-| `offset` | number | No | 0 | Items to skip |
-
----
-
-#### `add_to_inbox`
-
-Add an item to the inbox.
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `content` | string | Yes | — | Inbox content |
-| `source` | string | No | `mcp` | Source identifier |
-
----
-
-### Misc Tools (3)
-
-#### `list_areas`
-
-List all organizational areas. No parameters.
-
-#### `list_tags`
-
-List all tags. No parameters.
-
-#### `search`
-
-Universal search across tasks, projects, and notes.
-
-**Parameters:**
-| Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
-| `query` | string | Yes | — | Search query |
-| `type` | string | No | `all` | `task`, `project`, `note`, `all` |
-| `limit` | number | No | 10 | Max results per type |
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_tasks` | — | List tasks from tududi with optional filtering |
+| `get_task` | `id` | Get a specific task by ID or UID with full details |
+| `create_task` | `name` | Create a new task in tududi |
+| `update_task` | `id` | Update an existing task |
+| `complete_task` | `id` | Mark a task as completed or reopen it |
+| `delete_task` | `id` | Permanently delete a task |
+| `add_subtask` | `parent_id`, `name` | Add a subtask to an existing task |
+| `get_task_metrics` | — | Get task statistics and productivity metrics |
+
+### Projects Tools (5)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_projects` | — | List projects from tududi with optional filtering |
+| `get_project` | `uid` | Get a specific project by its UID |
+| `create_project` | `name` | Create a new project in tududi |
+| `update_project` | `uid` | Update an existing project |
+| `delete_project` | `uid` | Delete a project and all its tasks (notes are orphaned) |
+
+### Areas Tools (5)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_areas` | — | List all organizational areas |
+| `get_area` | `uid` | Get a specific area by its UID |
+| `create_area` | `name` | Create a new organizational area |
+| `update_area` | `uid` | Update an existing area |
+| `delete_area` | `uid` | Delete an area (projects are orphaned, not deleted) |
+
+### Habits Tools (9)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_habits` | — | List all habits for the current user |
+| `get_habit` | `uid` | Get a specific habit by its UID |
+| `create_habit` | `name` | Create a new habit |
+| `update_habit` | `uid` | Update an existing habit |
+| `delete_habit` | `uid` | Permanently delete a habit |
+| `log_habit_completion` | `uid` | Log a completion for a habit, updating streaks and counters |
+| `get_habit_completions` | `uid` | Get completion history for a habit within a date range |
+| `delete_habit_completion` | `uid`, `completion_id` | Delete a specific habit completion |
+| `get_habit_stats` | `uid` | Get habit statistics including streaks and completion rate |
+
+### Inbox Tools (6)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_inbox` | — | List items from inbox with pagination |
+| `add_to_inbox` | `content` | Add a new item to the inbox for quick capture |
+| `get_inbox_item` | `uid` | Get a specific inbox item by its UID |
+| `update_inbox_item` | `uid` | Update an inbox item's content or status |
+| `process_inbox_item` | `uid` | Mark an inbox item as processed |
+| `delete_inbox_item` | `uid` | Delete an inbox item |
+
+### Notes Tools (5)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_notes` | — | List notes with optional tag filtering |
+| `get_note` | `uid` | Get a specific note by its UID |
+| `create_note` | `title` | Create a new note |
+| `update_note` | `uid` | Update an existing note |
+| `delete_note` | `uid` | Delete a note |
+
+### Tags Tools (5)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `list_tags` | — | List all available tags |
+| `get_tag` | `uid` or `name` | Get a specific tag by its UID or name |
+| `create_tag` | `name` | Create a new tag |
+| `update_tag` | `uid`, `name` | Update an existing tag's name |
+| `delete_tag` | `uid` | Delete a tag and remove it from all associated tasks, notes, and projects |
+
+### Misc Tools (1)
+
+| Tool Name | Required Parameters | Description |
+|---|---|---|
+| `search` | `query` | Search across tasks, projects, and notes |
+
+### Armadilhas (Pitfalls)
+
+- **Enum de status real:** Tasks use `pending`, `in_progress`, `completed`, `waiting`, or `archived` (`archived` string status is distinct from the numeric flag `archived !== 6`). Projects use `not_started`, `planned`, `in_progress`, `waiting`, `done`, or `cancelled`. Inbox items use `pending`, `processed`, or `archived`.
+- **`complete_task` é toggle:** Calling `complete_task` on a pending task marks it completed, but calling it on a completed task reopens it back to pending.
+- **Identificadores por entidade:** Tasks accept either numeric `id` or string `uid`. Projects, areas, habits, notes, and inbox items strictly require string `uid`. Tags accept either `uid` or `name`.
+- **Prioridade string vs número:** Task priority is a string (`low`, `medium`, `high`). Project priority is a numeric integer (`0`=low, `1`=medium, `2`=high).
+- **`tags` em `update_note` substitui:** When updating tags on a note (`update_note`), the provided array replaces all existing tags rather than appending to them.
+- **`delete_project` vs `delete_area` cascata:** `delete_project` cascades to delete all tasks inside that project (attached notes are orphaned). Conversely, `delete_area` does NOT delete its child projects — they are simply orphaned (`area_id` set to null).
 
 ---
 
@@ -743,22 +566,26 @@ FF_ENABLE_MCP=true
 
 ### File Structure
 
-| File                                          | Purpose                       |
+| File | Purpose |
 | --------------------------------------------- | ----------------------------- |
-| `backend/modules/mcp/server.js`               | Stdio MCP server entry point  |
-| `backend/modules/mcp/httpTransport.js`        | HTTP transport handler        |
-| `backend/modules/mcp/toolRegistry.js`         | Registers all tool categories |
-| `backend/modules/mcp/tools/taskTools.js`      | Task-related tools (8)        |
-| `backend/modules/mcp/tools/projectTools.js`   | Project tools (3)             |
-| `backend/modules/mcp/tools/inboxTools.js`     | Inbox tools (2)               |
-| `backend/modules/mcp/tools/miscTools.js`      | Area, tag, search tools (3)   |
-| `backend/modules/mcp/middleware.js`           | API token authentication      |
-| `backend/modules/mcp/controller.js`           | REST API endpoints            |
-| `backend/modules/mcp/routes.js`               | Express route definitions     |
-| `frontend/components/Profile/tabs/McpTab.tsx` | Web UI for config             |
+| `backend/modules/mcp/server.js` | Stdio MCP server entry point |
+| `backend/modules/mcp/httpTransport.js` | HTTP transport handler |
+| `backend/modules/mcp/toolRegistry.js` | Registers all tool categories |
+| `backend/modules/mcp/tools/taskTools.js` | Task tools (8) |
+| `backend/modules/mcp/tools/projectTools.js` | Project tools (5) |
+| `backend/modules/mcp/tools/areaTools.js` | Area tools (5) |
+| `backend/modules/mcp/tools/habitTools.js` | Habit tools (9) |
+| `backend/modules/mcp/tools/inboxTools.js` | Inbox tools (6) |
+| `backend/modules/mcp/tools/noteTools.js` | Note tools (5) |
+| `backend/modules/mcp/tools/tagTools.js` | Tag tools (5) |
+| `backend/modules/mcp/tools/miscTools.js` | Search tool (1) |
+| `backend/modules/mcp/middleware.js` | API token authentication |
+| `backend/modules/mcp/controller.js` | REST API endpoints |
+| `backend/modules/mcp/routes.js` | Express route definitions |
+| `frontend/components/Profile/tabs/McpTab.tsx` | Web UI for config |
 
 ---
 
-- **Document Version:** 1.0.0
-- **Last Updated:** 2026-04-26
+- **Document Version:** 2.0.0
+- **Last Updated:** 2026-07-17
 - **Minimum Tududi Version:** v1.0.0 (released 2026-03-27)

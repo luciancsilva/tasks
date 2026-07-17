@@ -135,7 +135,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | Baixo | `18-skill-tududi-mcp.md` | Manutenção da skill `skills/tududi-mcp` (instalação é do dono) | 14a, 14b (só p/ atualizar) |
 | Baixo | `17-guia-setup-gtd.md` | Guia de setup GTD (mapeamento TickTick → tududi) | 16 |
 | Médio | `16-views-gtd-status-pessoa.md` | Views por status de tarefa (waiting) e por pessoa — "Aguardando"/"Delegadas" (valor ALTO p/ GTD) | — (14b recomendado antes) |
-| Médio | `14c-mcp-doc-e-registry.md` | Doc do MCP (16→44 tools) e `listMcpTools` derivado do registry | 14a, 14b |
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
 registro, não trabalho.
@@ -165,6 +164,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `13-db-init-guard.md` | Guarda genérica contra `db:init` em banco existente | EXECUTADO (2026-07-17) |
 | `14a-mcp-delete-task-seguro.md` | MCP `delete_task` orfana anexos no R2 e apaga histórico de recorrência | EXECUTADO (2026-07-17) |
 | `14b-mcp-status-e-datas.md` | MCP: corrigir enum de status (archived≠6), expor `waiting` e filtrar datas de verdade | EXECUTADO (2026-07-17) |
+| `14c-mcp-doc-e-registry.md` | Doc do MCP (16→44 tools) e `listMcpTools` derivado do registry | EXECUTADO (2026-07-17) |
 | `12-migration-bootstrap-order.md` | Migration fora de ordem faz o bootstrap por migrations gerar schema quebrado em silêncio | EXECUTADO (2026-07-17) |
 | `15-backup-prune-por-ambiente.md` | Retenção de snapshot mistura ambientes no prune | EXECUTADO (2026-07-17) |
 
