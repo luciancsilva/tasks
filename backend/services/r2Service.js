@@ -13,11 +13,14 @@
  */
 
 const path = require('path');
+const fs = require('fs');
 const {
     S3Client,
+    PutObjectCommand,
     GetObjectCommand,
     DeleteObjectCommand,
     HeadObjectCommand,
+    ListObjectsV2Command,
 } = require('@aws-sdk/client-s3');
 const multerS3 = require('multer-s3');
 const { getConfig } = require('../config/config');
@@ -111,6 +114,79 @@ function getUploadStorage(prefix, filenameFn) {
 }
 
 /**
+ * Upload a file from local disk to R2.
+ *
+ * Reads ContentLength from fs.stat so the SDK does not have to buffer the
+ * entire stream in memory — important when the file is a database snapshot.
+ *
+ * @param {string} key          Object key (no leading slash), e.g. 'db-backups/production-20260717T030000.sqlite3'.
+ * @param {string} filePath     Absolute path to the local file.
+ * @param {string} [contentType='application/octet-stream']
+ * @returns {Promise<void>}
+ */
+async function putObjectFromFile(
+    key,
+    filePath,
+    contentType = 'application/octet-stream'
+) {
+    try {
+        const { size } = fs.statSync(filePath);
+        await getClient().send(
+            new PutObjectCommand({
+                Bucket: getBucket(),
+                Key: key,
+                Body: fs.createReadStream(filePath),
+                ContentLength: size,
+                ContentType: contentType,
+            })
+        );
+    } catch (err) {
+        logError(`Failed to upload file to R2 object '${key}':`, err);
+        throw err;
+    }
+}
+
+/**
+ * List objects in R2 under a given prefix, handling pagination transparently.
+ *
+ * Iterates over all pages (ListObjectsV2 returns at most 1000 keys per page).
+ * An empty or omitted prefix lists everything in the bucket.
+ *
+ * @param {string} [prefix='']  Key prefix to filter by, e.g. 'db-backups/'.
+ * @returns {Promise<Array<{Key: string, LastModified: Date}>>}
+ */
+async function listObjects(prefix = '') {
+    const objects = [];
+    let continuationToken;
+
+    do {
+        const params = {
+            Bucket: getBucket(),
+            Prefix: prefix,
+        };
+        if (continuationToken) {
+            params.ContinuationToken = continuationToken;
+        }
+
+        const response = await getClient().send(
+            new ListObjectsV2Command(params)
+        );
+
+        if (response.Contents) {
+            for (const obj of response.Contents) {
+                objects.push({ Key: obj.Key, LastModified: obj.LastModified });
+            }
+        }
+
+        continuationToken = response.IsTruncated
+            ? response.NextContinuationToken
+            : undefined;
+    } while (continuationToken);
+
+    return objects;
+}
+
+/**
  * Delete an object from R2 by key. Never throws for a missing object; returns
  * false on any error (parity with the previous best-effort disk unlink).
  *
@@ -176,6 +252,8 @@ module.exports = {
     getClient,
     getBucket,
     getUploadStorage,
+    putObjectFromFile,
+    listObjects,
     deleteObject,
     getObjectStream,
     objectExists,

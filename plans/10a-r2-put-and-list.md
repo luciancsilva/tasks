@@ -1,8 +1,6 @@
 # 10a — `r2Service`: subir arquivo do disco e listar objetos
 
-> **Status: Aberto.** Prioridade: alta. Esforço: baixo.
-> **Tarefa mecânica**: duas funções novas seguindo o padrão do próprio arquivo.
-> Não depende de nada. Destrava o `10b`.
+> **Status: EXECUTADO** em 2026-07-17 — `putObjectFromFile` e `listObjects` adicionados ao `r2Service`, com paginação completa. Testes unitários cobrindo todos os casos do plano incluindo paginação multi-página.
 
 Pré-requisito de leitura: `plans/README.md` e `backend/services/r2Service.js`
 inteiro (é curto).
