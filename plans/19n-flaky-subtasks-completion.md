@@ -1,6 +1,10 @@
 # 19n — Flaky em `subtasks-completion.test.js` sob carga paralela
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — causa raiz: contenção do pool Sequelize
+> (`max: 5`) sob 50 requisições HTTP concorrentes no teste de performance;
+> corrigido com `bulkCreate` no setup e lotes de 5 (`BATCH_SIZE`) nas conclusões,
+> eliminando o `SQLITE_BUSY`/timeout. 5 execuções seguidas de `npm run
+> backend:test` verdes (124/124 suítes). Commit `789a994b`.
 > **Escopo:** Investigar e estabilizar a suíte `backend/tests/integration/subtasks-completion.test.js`, que falhou **uma vez** na execução completa paralela (`npm run backend:test`) e passou isolada e no re-run.
 > **Depende de:** -
 > **Origem:** observado durante a execução do lote `19a`–`19b` (a suíte completa acusou 1 falha nessa suíte numa rodada; re-run da suíte completa e execução isolada ficaram 100% verdes).
