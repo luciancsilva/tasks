@@ -1,5 +1,7 @@
 # 14b — MCP: corrigir enum de status (archived≠6), expor `waiting` e filtrar datas de verdade
 
+> **Status: EXECUTADO** em 2026-07-17 — Corrigido mapeamento de status de tarefas (waiting/archived), aliases e filtros de data (today/upcoming) no MCP.
+
 > **Prioridade: ALTA** (o MCP seta/filtra o status errado hoje) —
 > **Esforço: médio** — **Julgamento: não exige** (a semântica está definida
 > abaixo; não invente) — **Depende de: nada** (independente do 14a; tocam o

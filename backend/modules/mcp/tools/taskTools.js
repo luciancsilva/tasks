@@ -10,6 +10,23 @@ const { Op } = require('sequelize');
 const { Task, Project, Tag } = require('../../../models');
 const { validateProjectAccess } = require('../../tasks/utils/validation');
 const tasksService = require('../../tasks/service');
+const moment = require('moment-timezone');
+
+const STATUS_NAMES = [
+    'not_started',
+    'in_progress',
+    'done',
+    'archived',
+    'waiting',
+    'cancelled',
+    'planned',
+];
+
+function getStatusValueFromMcp(statusName) {
+    if (statusName === 'pending') return Task.getStatusValue('not_started');
+    if (statusName === 'completed') return Task.getStatusValue('done');
+    return Task.getStatusValue(statusName);
+}
 
 /**
  * Helper to find task by ID or UID
@@ -70,8 +87,18 @@ function registerTaskTools(server, context, tools) {
                 },
                 status: {
                     type: 'string',
-                    enum: ['pending', 'in_progress', 'completed', 'archived'],
-                    description: 'Filter by status',
+                    enum: [
+                        'not_started',
+                        'pending',
+                        'in_progress',
+                        'done',
+                        'completed',
+                        'waiting',
+                        'planned',
+                        'archived',
+                        'cancelled',
+                    ],
+                    description: 'Filter by status (pending = alias of not_started, completed = alias of done)',
                 },
                 project_id: {
                     type: 'number',
@@ -90,13 +117,7 @@ function registerTaskTools(server, context, tools) {
 
             // Apply status filter
             if (params.status) {
-                const statusMap = {
-                    pending: 0,
-                    in_progress: 1,
-                    completed: 2,
-                    archived: 6,
-                };
-                where.status = statusMap[params.status];
+                where.status = getStatusValueFromMcp(params.status);
             }
 
             // Apply project filter
@@ -104,13 +125,31 @@ function registerTaskTools(server, context, tools) {
                 where.project_id = params.project_id;
             }
 
+            let order = [['created_at', 'DESC']];
+
             // Apply type filter
             if (params.type === 'completed') {
                 where.status = 2;
             } else if (params.type === 'archived') {
-                where.status = 6;
-            } else if (params.type === 'today' || params.type === 'upcoming') {
-                where.status = { [Op.ne]: 6 }; // Not archived
+                where.status = 3;
+            } else if (params.type === 'today') {
+                const tz = context.user.timezone || 'UTC';
+                const endOfToday = moment.tz(tz).endOf('day').toDate();
+                where.status = { [Op.notIn]: [2, 3, 5] };
+                where[Op.or] = [
+                    { due_date: { [Op.lte]: endOfToday } },
+                    { status: { [Op.in]: [1, 4, 6] } }
+                ];
+                order = [['due_date', 'ASC']];
+            } else if (params.type === 'upcoming') {
+                const tz = context.user.timezone || 'UTC';
+                const now = new Date();
+                const endOfWindow = moment.tz(tz).add(7, 'days').endOf('day').toDate();
+                where.status = { [Op.notIn]: [2, 3, 5] };
+                where.due_date = {
+                    [Op.between]: [now, endOfWindow],
+                };
+                order = [['due_date', 'ASC']];
             }
 
             const tasks = await taskRepository.findAll(where, {
@@ -119,7 +158,7 @@ function registerTaskTools(server, context, tools) {
                     { model: Tag, as: 'Tags' },
                 ],
                 limit: limit,
-                order: [['created_at', 'DESC']],
+                order: order,
             });
 
             const serializedTasks = await serializeTasks(
@@ -302,7 +341,18 @@ function registerTaskTools(server, context, tools) {
                 },
                 status: {
                     type: 'string',
-                    enum: ['pending', 'in_progress', 'completed', 'archived'],
+                    enum: [
+                        'not_started',
+                        'pending',
+                        'in_progress',
+                        'done',
+                        'completed',
+                        'waiting',
+                        'planned',
+                        'archived',
+                        'cancelled',
+                    ],
+                    description: 'Status of the task (pending = alias of not_started, completed = alias of done)',
                 },
                 due_date: { type: 'string', description: 'New due date' },
                 project_id: {
@@ -337,13 +387,7 @@ function registerTaskTools(server, context, tools) {
                 updates.priority = priorityMap[params.priority];
             }
             if (params.status) {
-                const statusMap = {
-                    pending: 0,
-                    in_progress: 1,
-                    completed: 2,
-                    archived: 6,
-                };
-                updates.status = statusMap[params.status];
+                updates.status = getStatusValueFromMcp(params.status);
             }
             if (params.due_date !== undefined)
                 updates.due_date = params.due_date;

@@ -184,6 +184,97 @@ describe('MCP Tools Integration', () => {
                 const { content } = getToolContent(response);
                 expect(content.tasks.every((t) => t.status === 2)).toBe(true);
             });
+
+            it('should filter tasks by type and status correctly for today, upcoming, archived', async () => {
+                const now = new Date();
+
+                // 1. Task overdue/yesterday (status: 0, due_date: yesterday)
+                const taskYesterday = await Task.create({
+                    user_id: user.id,
+                    name: 'Overdue Task',
+                    status: 0,
+                    due_date: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+                });
+
+                // 2. Task due today (status: 0, due_date: now)
+                const taskToday = await Task.create({
+                    user_id: user.id,
+                    name: 'Today Task',
+                    status: 0,
+                    due_date: now,
+                });
+
+                // 3. Task due in 3 days (status: 0, due_date: +3 days)
+                const taskIn3Days = await Task.create({
+                    user_id: user.id,
+                    name: 'Future Task',
+                    status: 0,
+                    due_date: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000),
+                });
+
+                // 4. Task planned due today (status: 6, due_date: now)
+                const taskPlanned = await Task.create({
+                    user_id: user.id,
+                    name: 'Planned Task',
+                    status: 6,
+                    due_date: now,
+                });
+
+                // 5. Task archived (status: 3)
+                const taskArchived = await Task.create({
+                    user_id: user.id,
+                    name: 'Archived Task',
+                    status: 3,
+                });
+
+                // Check list_tasks type=today
+                let response = await callMcpTool(
+                    apiTokenValue,
+                    'list_tasks',
+                    { type: 'today' }
+                );
+
+                expect(response.status).toBe(200);
+                let { content } = getToolContent(response);
+                let ids = content.tasks.map((t) => t.id);
+                // should contain taskYesterday, taskToday, and taskPlanned
+                expect(ids).toContain(taskYesterday.id);
+                expect(ids).toContain(taskToday.id);
+                expect(ids).toContain(taskPlanned.id);
+                // should not contain taskIn3Days and taskArchived
+                expect(ids).not.toContain(taskIn3Days.id);
+                expect(ids).not.toContain(taskArchived.id);
+
+                // Check list_tasks type=upcoming
+                response = await callMcpTool(
+                    apiTokenValue,
+                    'list_tasks',
+                    { type: 'upcoming' }
+                );
+
+                expect(response.status).toBe(200);
+                content = getToolContent(response).content;
+                ids = content.tasks.map((t) => t.id);
+                // should contain taskIn3Days
+                expect(ids).toContain(taskIn3Days.id);
+                // should not contain today's tasks
+                expect(ids).not.toContain(taskToday.id);
+                expect(ids).not.toContain(taskYesterday.id);
+
+                // Check list_tasks status=archived
+                response = await callMcpTool(
+                    apiTokenValue,
+                    'list_tasks',
+                    { status: 'archived' }
+                );
+
+                expect(response.status).toBe(200);
+                content = getToolContent(response).content;
+                ids = content.tasks.map((t) => t.id);
+                // should contain taskArchived only
+                expect(ids).toContain(taskArchived.id);
+                expect(content.tasks.every(t => t.status === 3)).toBe(true);
+            });
         });
 
         describe('create_task', () => {
@@ -354,6 +445,42 @@ describe('MCP Tools Integration', () => {
                 expect(response.status).toBe(200);
                 const { content } = getToolContent(response);
                 expect(content.task.status).toBe(1); // in_progress = 1
+            });
+
+            it('should update task status to waiting and archived', async () => {
+                const task = await Task.create({
+                    user_id: user.id,
+                    name: 'Status Change Task',
+                    status: 0,
+                });
+
+                // Update to waiting
+                let response = await callMcpTool(
+                    apiTokenValue,
+                    'update_task',
+                    {
+                        id: task.id,
+                        status: 'waiting',
+                    }
+                );
+
+                expect(response.status).toBe(200);
+                let { content } = getToolContent(response);
+                expect(content.task.status).toBe(4); // waiting = 4
+
+                // Update to archived
+                response = await callMcpTool(
+                    apiTokenValue,
+                    'update_task',
+                    {
+                        id: task.id,
+                        status: 'archived',
+                    }
+                );
+
+                expect(response.status).toBe(200);
+                content = getToolContent(response).content;
+                expect(content.task.status).toBe(3); // archived = 3
             });
         });
 

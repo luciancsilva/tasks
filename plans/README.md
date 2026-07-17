@@ -122,7 +122,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Médio | `14b-mcp-status-e-datas.md` | MCP: enum de status errado (archived↔planned), `waiting` inacessível, today/upcoming sem filtro de data | — |
 
 ### Prioridade MÉDIA
 
@@ -167,6 +166,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `05c-high-effort.md` | HE-1 controller/service em tasks; HE-2 testes de BrandingTab e do guarda de avatar | EXECUTADO (2026-07-17) |
 | `13-db-init-guard.md` | Guarda genérica contra `db:init` em banco existente | EXECUTADO (2026-07-17) |
 | `14a-mcp-delete-task-seguro.md` | MCP `delete_task` orfana anexos no R2 e apaga histórico de recorrência | EXECUTADO (2026-07-17) |
+| `14b-mcp-status-e-datas.md` | MCP: corrigir enum de status (archived≠6), expor `waiting` e filtrar datas de verdade | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
