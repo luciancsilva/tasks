@@ -1,6 +1,6 @@
 # 19m — Restore de backup colide em `UNIQUE(user_id, name)` de tags entre usuários
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — Resolução de colisão por nome na importação de Tag e Person (backupService.js) reaproveitando entidades existentes.
 > **Escopo:** Tornar a importação de tags em `backend/services/backupService.js` resiliente a colisão de nome: quando o usuário-alvo já tem uma tag com o mesmo `name` (mas `uid` diferente), reaproveitar a tag existente em vez de tentar criar e violar `UNIQUE(user_id, name)`.
 > **Depende de:** -
 > **Origem:** descoberto durante a execução do `19b` (o teste de round-trip precisou limpar as tags de sistema para não colidir).

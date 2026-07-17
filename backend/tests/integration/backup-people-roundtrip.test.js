@@ -50,10 +50,6 @@ describe('backup round-trip preserves people and @mentions (plans/19b)', () => {
         await Project.create({ name: 'filler-a', user_id: target.id });
         await Project.create({ name: 'filler-b', user_id: target.id });
         await Person.create({ name: 'filler-person', user_id: target.id });
-        // Drop the auto-seeded system tags on both users: identical tag names
-        // across users collide on import (separate pre-existing limitation),
-        // and this test is about people/mentions, not tags.
-        await Tag.destroy({ where: {}, truncate: true, cascade: true });
     });
 
     afterEach(async () => {

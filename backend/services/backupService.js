@@ -328,21 +328,28 @@ async function importUserData(userId, backupData, options = { merge: true }) {
             tasks: {},
             tags: {},
             people: {},
+            peopleUids: {},
             notes: {},
         };
 
         // Import tags first (no dependencies)
         if (backupData.data.tags) {
             for (const tagData of backupData.data.tags) {
-                const existingTag = await Tag.findOne({
+                let existingTag = await Tag.findOne({
                     where: { uid: tagData.uid, user_id: userId },
                     transaction,
                 });
+                if (!existingTag && tagData.name) {
+                    existingTag = await Tag.findOne({
+                        where: { name: tagData.name, user_id: userId },
+                        transaction,
+                    });
+                }
 
-                if (existingTag && options.merge) {
+                if (existingTag) {
                     stats.tags.skipped++;
                     uidToIdMap.tags[tagData.uid] = existingTag.id;
-                } else if (!existingTag) {
+                } else {
                     const newTag = await Tag.create(
                         {
                             uid: tagData.uid,
@@ -388,15 +395,22 @@ async function importUserData(userId, backupData, options = { merge: true }) {
         // assigned_to (FK -> people.uid) and @mention links resolve.
         if (backupData.data.people) {
             for (const personData of backupData.data.people) {
-                const existingPerson = await Person.findOne({
+                let existingPerson = await Person.findOne({
                     where: { uid: personData.uid, user_id: userId },
                     transaction,
                 });
+                if (!existingPerson && personData.name) {
+                    existingPerson = await Person.findOne({
+                        where: { name: personData.name, user_id: userId },
+                        transaction,
+                    });
+                }
 
-                if (existingPerson && options.merge) {
+                if (existingPerson) {
                     stats.people.skipped++;
                     uidToIdMap.people[personData.uid] = existingPerson.id;
-                } else if (!existingPerson) {
+                    uidToIdMap.peopleUids[personData.uid] = existingPerson.uid;
+                } else {
                     const newPerson = await Person.create(
                         {
                             uid: personData.uid,
@@ -413,6 +427,7 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                     );
                     stats.people.created++;
                     uidToIdMap.people[personData.uid] = newPerson.id;
+                    uidToIdMap.peopleUids[personData.uid] = newPerson.uid;
                 }
             }
         }
@@ -499,12 +514,12 @@ async function importUserData(userId, backupData, options = { merge: true }) {
                         transaction
                     );
 
-                    // assigned_to is a Person UID (FK -> people.uid); keep it
-                    // only when that person came in with this backup.
+                    // assigned_to is a Person UID (FK -> people.uid); resolve to
+                    // target DB's Person UID if that person came in or merged with this backup.
                     const assignedTo =
                         taskData.assigned_to &&
-                        uidToIdMap.people[taskData.assigned_to]
-                            ? taskData.assigned_to
+                        uidToIdMap.peopleUids[taskData.assigned_to]
+                            ? uidToIdMap.peopleUids[taskData.assigned_to]
                             : null;
 
                     const newTask = await Task.create(

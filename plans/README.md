@@ -129,7 +129,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 | Esforço | Arquivo | O quê | Depende de |
 |---|---|---|---|
-| Baixo | `19m-backup-tag-name-collision.md` | Restore de backup entre usuários colide em `UNIQUE(user_id, name)` de tags e aborta a restauração inteira | - |
 | Baixo | `21-inbox-mention-cleanup-ascii-regex.md` | `@pessoa` acentuada deixa resto no título ao criar tarefa/nota pelo Inbox (fallback de limpeza usa regex ASCII-only) | - |
 
 ### Prioridade BAIXA
@@ -184,6 +183,7 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `19e-projects-transactions-and-tags.md` | AL-5: create/update de projects atômicos + erro de tag deixa de ser engolido | EXECUTADO (2026-07-17) |
 | `19d-caldav-sync-batching-and-tx.md` | AL-4/AL-6: pull-phase em lotes paralelos + merge-phase create/update transacionais | EXECUTADO (2026-07-17) |
 | `19b-backup-restore-mentions.md` | AL-2: backup/restore inclui Person + @mentions e resolve FKs por UID | EXECUTADO (2026-07-17) |
+| `19m-backup-tag-name-collision.md` | Restore de backup com colisão em `UNIQUE(user_id, name)` de Tag/Person reaproveita entidade existente | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 
