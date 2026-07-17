@@ -1,10 +1,9 @@
 # 10b — Serviço de snapshot do banco para o R2
 
-> **Status: Aberto.** Prioridade: alta. Esforço: médio.
-> **Exige julgamento**: consistência de snapshot com WAL, limpeza de temporário
-> no caminho de erro.
-> **Depende de**: `10a-r2-put-and-list.md` (usa `putObjectFromFile` e
-> `listObjects`). **Destrava**: `10c-backup-scheduler.md`.
+> **Status: EXECUTADO** em 2026-07-17 — `backend/services/dbBackupService.js`
+> (`createSnapshot()`): VACUUM INTO + upload R2 + retenção configurável. Smoke
+> real contra bucket de produção confirmado (snapshot íntegro, temporário
+> limpo). Destrava `10c-backup-scheduler.md`.
 
 Pré-requisito de leitura: `plans/README.md`.
 

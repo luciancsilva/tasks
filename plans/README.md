@@ -113,7 +113,6 @@ Dentro de cada prioridade, do menor para o maior esforço.
 |---|---|---|---|
 | Baixo | `10c-backup-scheduler.md` | Agendar o snapshot (node-cron) + env vars | `10b` |
 | Baixo | `10d-backup-restore-docs.md` | Executar um restore de verdade e documentá-lo | `10b`, `10c` |
-| Médio | `10b-db-snapshot-service.md` | `createSnapshot()`: VACUUM INTO + upload + retenção | `10a` |
 
 ### Prioridade MÉDIA — código morto que já mordeu uma vez
 
@@ -141,6 +140,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 | `09b-d1-docs-cleanup.md` | Tirar D1 da documentação | EXECUTADO (2026-07-17) |
 | `11-backup-dir-volume.md` | Backup lógico em diretório persistente | EXECUTADO (2026-07-17) |
 | `10a-r2-put-and-list.md` | Funções putObjectFromFile e listObjects no r2Service | EXECUTADO (2026-07-17) |
+| `10b-db-snapshot-service.md` | createSnapshot(): VACUUM INTO + upload R2 + retenção | EXECUTADO (2026-07-17) |
 
 ## Regras para o agente executor
 

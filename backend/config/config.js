@@ -116,6 +116,16 @@ const config = {
         ? parseInt(process.env.FILE_UPLOAD_LIMIT_MB, 10)
         : 10,
 
+    // Number of SQLite snapshots to keep in R2 (db-backups/ prefix). Oldest
+    // beyond this count are pruned after each successful snapshot. A getter,
+    // like the r2.* fields above, so tests and late-loaded .env values are
+    // read at access time rather than at config module load.
+    get dbBackupRetention() {
+        return process.env.TUDUDI_DB_BACKUP_RETENTION
+            ? parseInt(process.env.TUDUDI_DB_BACKUP_RETENTION, 10)
+            : 7;
+    },
+
     // Cloudflare R2 (S3-compatible) object storage for attachments/avatars/project images.
     // When enabled, uploads go to R2 instead of the local filesystem (uploadPath).
     //
