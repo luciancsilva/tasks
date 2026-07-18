@@ -1,6 +1,6 @@
 # 46 — Resumo Telegram usa fuso do servidor para "hoje"
 
-> **Status: PROPOSTO** — o range de "hoje" do resumo de tarefas é calculado no fuso do processo, não do usuário; quem está em fuso diferente do servidor recebe a janela de tarefas "de hoje"/"concluídas hoje" deslocada.
+> **Status: EXECUTADO** em 2026-07-18 — `createTodayDateRange` agora aceita timezone do usuário e usa `moment-timezone` para calcular o range de hoje local; testes unitários adicionados.
 > **Esforço:** Baixo · **Natureza:** julgamento · **Modelo:** médio (sonnet)
 > **Branch:** main · **Depende de:** -
 

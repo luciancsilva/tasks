@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — Resolução de conflito (auto e manual) envolvida em transações; testes unitários adicionados para validar propagação.
+
 # 42 — Resolução de conflito CalDAV não-atômica
 
 > **Status: PROPOSTO** — na resolução de conflito (auto e manual), o `update` da task e a gravação do sync-state/etag ficam fora de transação; falha entre os dois faz a task reaparecer como conflito/duplicada no próximo sync.

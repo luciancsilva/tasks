@@ -129,9 +129,6 @@ degradação de scheduler.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `40-habits-completion-atomicity.md` | Completar/descompletar hábito faz 2 escritas fora de transação → contadores/streak divergem do real | Baixo | fraco | - |
-| `42-caldav-conflict-resolution-atomicity.md` | Resolução de conflito CalDAV (auto e manual): `update`+sync-state fora de transação → task reaparece como conflito | Baixo | fraco | - |
-| `47-goals-area-ownership-idor.md` | Goal aceita `area_id` de outro usuário (IDOR): `include` do GET vaza nome/cor de Area privada alheia | Baixo | médio | - |
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
 | `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: `findAll` sem teto (todos usuários) + `Notification.findAll` por task no loop; satura scheduler | Médio | médio | - |
 
@@ -142,10 +139,8 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `43-templates-atomicity.md` | Delete/clone/save de template não-atômico → template órfão vazio ou projeto vazio em crash | Baixo | fraco | - |
-| `46-telegram-summary-timezone.md` | Resumo Telegram calcula "hoje" no fuso do servidor, não do usuário → janela deslocada | Baixo | médio | - |
 | `41-habits-streak-timezone.md` | Streak agrupa completions com `setHours` local sobre `completed_at` UTC → dia errado fora de UTC | Médio | médio | - |
-| `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth em drift; migrations não são exercidas pela suíte (test usa sync) | Médio | médio/forte | - |
+| `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth in drift; migrations não são exercidas pela suíte (test usa sync) | Médio | médio/forte | - |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
 executado em 2026-07-18 — ver tabela "Executados".
@@ -168,6 +163,11 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `47-goals-area-ownership-idor.md` | Validação de ownership de Area para Goals; query `getAll` escopada por `user_id` | EXECUTADO (2026-07-18) |
+| `46-telegram-summary-timezone.md` | Range "hoje" no resumo Telegram usa local timezone do User | EXECUTADO (2026-07-18) |
+| `43-templates-atomicity.md` | Transações Sequelize em `saveProjectAsTemplate`, `cloneTemplate` e `delete` de template | EXECUTADO (2026-07-18) |
+| `42-caldav-conflict-resolution-atomicity.md` | Transações Sequelize na resolução CalDAV auto/manual | EXECUTADO (2026-07-18) |
+| `40-habits-completion-atomicity.md` | Transações Sequelize em `logCompletion` e `deleteCompletion` de hábitos | EXECUTADO (2026-07-18) |
 | `48-shares-access-level-whitelist.md` | `createShare`: whitelist `['ro','rw']` para `access_level`; `ValidationError(400)` para valor inválido | EXECUTADO (2026-07-18) |
 | `45-ai-daily-brief-stale-cache.md` | `getCachedBrief` compara `ai_daily_brief_date` com hoje no fuso do usuário; retorna `null` se desatualizado | EXECUTADO (2026-07-18) |
 | `37-fix-ai-migration-shape.md` | Migration do plano 32 não aplicava (`safeAddColumns` com shape errado, sem `definition:`) — quebraria o deploy; corrigida e aplicada | EXECUTADO (2026-07-18) |

@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — Validação de ownership da Area adicionada ao `create`/`update` de Goal e query `getAll` escopada por `user_id`; testes de integração adicionados.
+
 # 47 — Goal aceita `area_id` de qualquer usuário (IDOR → vazamento de metadado de Area)
 
 > **Status: PROPOSTO** — `create`/`update` de goal gravam o `area_id` do body sem validar que a Area pertence ao usuário logado; associando a Area privada de outro usuário, o `include` do GET vaza nome/cor/uid dela.

@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — `logCompletion` e `deleteCompletion` envolvidos em transação e propagados em leituras; testes unitários adicionados.
+
 # 40 — Completar/descompletar hábito não é atômico
 
 > **Status: PROPOSTO** — `logCompletion` e `deleteCompletion` fazem duas escritas fora de transação; falha entre elas deixa contadores/streak do hábito permanentemente divergentes do número real de completions.

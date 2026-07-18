@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — `saveProjectAsTemplate`, `cloneTemplate` e `delete` envolvidos em transações Sequelize; testes de integração adicionados.
+
 # 43 — Delete/clone/save de template não-atômico
 
 > **Status: PROPOSTO** — deletar um template apaga as tasks e depois a linha do template fora de transação (crash entre as duas deixa o template órfão vazio); save-as-template/clone criam o projeto fora da transação da cópia de tasks (falha deixa projeto vazio).
