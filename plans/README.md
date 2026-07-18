@@ -138,7 +138,6 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `41-habits-streak-timezone.md` | Streak agrupa completions com `setHours` local sobre `completed_at` UTC → dia errado fora de UTC | Médio | médio | - |
 | `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth in drift; migrations não são exercidas pela suíte (test usa sync) | Médio | médio/forte | - |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
@@ -162,6 +161,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `41-habits-streak-timezone.md` | Streak de hábito usa `moment-timezone` com o fuso do usuário em vez do fuso do servidor | EXECUTADO (2026-07-18) |
 | `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: paginação no `findAll` e N+1 de Notificação resolvido | EXECUTADO (2026-07-18) |
 | `47-goals-area-ownership-idor.md` | Validação de ownership de Area para Goals; query `getAll` escopada por `user_id` | EXECUTADO (2026-07-18) |
 | `46-telegram-summary-timezone.md` | Range "hoje" no resumo Telegram usa local timezone do User | EXECUTADO (2026-07-18) |

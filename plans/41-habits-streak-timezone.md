@@ -1,6 +1,6 @@
 # 41 — Streak de hábito usa fuso do servidor sobre `completed_at` em UTC
 
-> **Status: PROPOSTO** — o cálculo de streak agrupa completions por dia usando `setHours(0,0,0,0)` no fuso do processo, mas `completed_at` é UTC; fora de UTC, completions perto da meia-noite caem no dia errado e o streak conta/quebra incorretamente.
+> **Status: EXECUTADO** em 2026-07-18 — cálculo de streak atualizado para usar `moment-timezone` com o fuso do usuário.
 > **Esforço:** Médio · **Natureza:** julgamento · **Modelo:** médio (sonnet)
 > **Branch:** main · **Depende de:** -
 

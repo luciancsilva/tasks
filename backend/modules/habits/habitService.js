@@ -1,5 +1,7 @@
-const { RecurringCompletion, sequelize } = require('../../models');
+const { RecurringCompletion, sequelize, User } = require('../../models');
 const { Op } = require('sequelize');
+const moment = require('moment-timezone');
+const { getSafeTimezone } = require('../../utils/timezone-utils');
 
 class HabitService {
     /**
@@ -11,6 +13,17 @@ class HabitService {
             throw new Error('Task is not a habit');
         }
 
+        let timezone = 'UTC';
+        if (task.User && task.User.timezone) {
+            timezone = task.User.timezone;
+        } else {
+            const user = await User.findByPk(task.user_id, { attributes: ['timezone'] });
+            if (user) {
+                timezone = user.timezone;
+            }
+        }
+        timezone = getSafeTimezone(timezone);
+
         return sequelize.transaction(async (t) => {
             const completion = await RecurringCompletion.create({
                 task_id: task.id,
@@ -20,7 +33,7 @@ class HabitService {
             }, { transaction: t });
 
             // Update cached counters and mark as done for today
-            const updates = await this.calculateStreakUpdates(task, completedAt, t);
+            const updates = await this.calculateStreakUpdates(task, completedAt, t, timezone);
             updates.status = 2; // Mark as done
             updates.completed_at = completedAt;
             await task.update(updates, { transaction: t });
@@ -33,14 +46,14 @@ class HabitService {
      * Calculate streak updates based on completion
      * This is the core habit logic
      */
-    async calculateStreakUpdates(task, completedAt, transaction) {
+    async calculateStreakUpdates(task, completedAt, transaction, timezone = 'UTC') {
         const updates = {
             habit_total_completions: task.habit_total_completions + 1,
             habit_last_completion_at: completedAt,
         };
 
         // Calculate new streak
-        const newStreak = await this.calculateCurrentStreak(task, completedAt, transaction);
+        const newStreak = await this.calculateCurrentStreak(task, completedAt, transaction, timezone);
         updates.habit_current_streak = newStreak;
 
         // Update best streak if needed
@@ -55,6 +68,20 @@ class HabitService {
      * Recalculate all streak values after a completion is deleted
      */
     async recalculateStreaks(task, transaction) {
+        let timezone = 'UTC';
+        if (task.User && task.User.timezone) {
+            timezone = task.User.timezone;
+        } else {
+            const user = await User.findByPk(task.user_id, { 
+                attributes: ['timezone'], 
+                ...(transaction ? { transaction } : {}) 
+            });
+            if (user) {
+                timezone = user.timezone;
+            }
+        }
+        timezone = getSafeTimezone(timezone);
+
         const completions = await RecurringCompletion.findAll({
             where: {
                 task_id: task.id,
@@ -73,11 +100,11 @@ class HabitService {
         // Calculate current streak
         updates.habit_current_streak =
             completions.length > 0
-                ? this.calculateCalendarStreak(completions, new Date())
+                ? this.calculateCalendarStreak(completions, new Date(), timezone)
                 : 0;
 
         // Calculate best streak (need to check all possible streaks)
-        updates.habit_best_streak = this.calculateBestStreak(completions);
+        updates.habit_best_streak = this.calculateBestStreak(completions, timezone);
 
         return updates;
     }
@@ -85,12 +112,12 @@ class HabitService {
     /**
      * Calculate the best (longest) streak from completion history
      */
-    calculateBestStreak(completions) {
+    calculateBestStreak(completions, timezone = 'UTC') {
         if (completions.length === 0) return 0;
 
         let bestStreak = 0;
         let currentStreak = 0;
-        let lastDate = null;
+        let lastDateStr = null;
 
         // Sort by date ascending for this calculation
         const sorted = [...completions].sort(
@@ -98,15 +125,12 @@ class HabitService {
         );
 
         for (const completion of sorted) {
-            const completedDate = new Date(completion.completed_at);
-            completedDate.setHours(0, 0, 0, 0);
+            const completedDateStr = moment(completion.completed_at).tz(timezone).format('YYYY-MM-DD');
 
-            if (!lastDate) {
+            if (!lastDateStr) {
                 currentStreak = 1;
             } else {
-                const diffDays = Math.floor(
-                    (completedDate - lastDate) / (1000 * 60 * 60 * 24)
-                );
+                const diffDays = moment(completedDateStr).diff(moment(lastDateStr), 'days');
 
                 if (diffDays === 1) {
                     // Consecutive day
@@ -121,7 +145,7 @@ class HabitService {
                 }
             }
 
-            lastDate = new Date(completedDate);
+            lastDateStr = completedDateStr;
         }
 
         return Math.max(bestStreak, currentStreak);
@@ -130,7 +154,7 @@ class HabitService {
     /**
      * Calculate current streak based on streak mode
      */
-    async calculateCurrentStreak(task, asOfDate = new Date(), transaction) {
+    async calculateCurrentStreak(task, asOfDate = new Date(), transaction, timezone = 'UTC') {
         const completions = await RecurringCompletion.findAll({
             where: {
                 task_id: task.id,
@@ -143,34 +167,30 @@ class HabitService {
         if (completions.length === 0) return 0;
 
         if (task.habit_streak_mode === 'calendar') {
-            return this.calculateCalendarStreak(completions, asOfDate);
+            return this.calculateCalendarStreak(completions, asOfDate, timezone);
         } else {
-            return this.calculateScheduledStreak(task, completions, asOfDate);
+            return this.calculateScheduledStreak(task, completions, asOfDate, timezone);
         }
     }
 
     /**
      * Calendar streak: consecutive days with completions
      */
-    calculateCalendarStreak(completions, asOfDate) {
+    calculateCalendarStreak(completions, asOfDate, timezone = 'UTC') {
         let streak = 0;
-        let currentDate = new Date(asOfDate);
-        currentDate.setHours(0, 0, 0, 0);
+        let currentDateStr = moment(asOfDate).tz(timezone).format('YYYY-MM-DD');
 
-        const completionDates = completions.map((c) => {
-            const d = new Date(c.completed_at);
-            d.setHours(0, 0, 0, 0);
-            return d.getTime();
+        const completionDateStrs = completions.map((c) => {
+            return moment(c.completed_at).tz(timezone).format('YYYY-MM-DD');
         });
 
-        const uniqueDates = [...new Set(completionDates)].sort((a, b) => b - a);
+        const uniqueDates = [...new Set(completionDateStrs)].sort((a, b) => b.localeCompare(a));
 
-        for (const dateTimestamp of uniqueDates) {
-            const expectedDate = currentDate.getTime();
-            if (dateTimestamp === expectedDate) {
+        for (const dateStr of uniqueDates) {
+            if (dateStr === currentDateStr) {
                 streak++;
-                currentDate.setDate(currentDate.getDate() - 1);
-            } else if (dateTimestamp < expectedDate) {
+                currentDateStr = moment(currentDateStr).subtract(1, 'days').format('YYYY-MM-DD');
+            } else if (dateStr < currentDateStr) {
                 break; // Gap in streak
             }
         }
@@ -182,14 +202,14 @@ class HabitService {
      * Scheduled streak: consecutive scheduled occurrences completed
      * Uses recurrence pattern to determine expected dates
      */
-    calculateScheduledStreak(task, completions, asOfDate) {
+    calculateScheduledStreak(task, completions, asOfDate, timezone = 'UTC') {
         // Implementation depends on recurrence pattern
         // For MVP: simplified version - count consecutive scheduled periods with completions
         // Full implementation would use recurringTaskService to calculate expected dates
 
         // Simplified: treat as calendar streak for now
         // TODO: Implement full scheduled streak logic in Phase 2
-        return this.calculateCalendarStreak(completions, asOfDate);
+        return this.calculateCalendarStreak(completions, asOfDate, timezone);
     }
 
     /**
