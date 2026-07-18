@@ -34,6 +34,7 @@ import {
     TaskAttachmentsCard,
     TaskAssignedToCard,
     TaskSomedayCard,
+    TaskWaitingSinceCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1159,6 +1160,26 @@ const TaskDetails: React.FC = () => {
         }
     };
 
+    // Plan 50: Waiting Since adjust. Passes null to clear, Date to set.
+    const handleAdjustWaitingSince = async (date: Date | null) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            await updateTask(task.uid, {
+                waiting_since: date ? date.toISOString() : null,
+            });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error adjusting waiting_since:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
     const getAreaLink = (area: Area) => {
         if (area.uid) {
             const slug = area.name
@@ -1378,6 +1399,10 @@ const TaskDetails: React.FC = () => {
                                 <TaskSomedayCard
                                     task={task}
                                     onToggle={handleToggleSomeday}
+                                />
+                                <TaskWaitingSinceCard
+                                    task={task}
+                                    onAdjust={handleAdjustWaitingSince}
                                 />
 
                                 <TaskTagsCard

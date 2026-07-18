@@ -35,6 +35,9 @@ export interface Task {
     recurring_parent_id?: number;
     recurring_parent_uid?: string;
     completed_at: string | null;
+    // Plan 50: timestamp when status transitioned to waiting. Cleared on
+    // transition out of waiting. Drives follow-up overdue filter.
+    waiting_since?: string | null;
     parent_task_id?: number;
     subtasks?: Task[];
     parent_child_logic_executed?: boolean;

@@ -183,6 +183,12 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         attrs.is_someday = body.is_someday === true;
     }
 
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
+    }
+
     return attrs;
 }
 
@@ -280,6 +286,12 @@ function buildUpdateAttributes(body, task, timezone) {
     // Plan 49: Someday/Maybe flag.
     if (body.is_someday !== undefined) {
         attrs.is_someday = body.is_someday === true;
+    }
+
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
     }
 
     return attrs;
