@@ -129,6 +129,55 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ isActive }) => {
         },
     ];
 
+    const restoreDefaults = async () => {
+        if (
+            !window.confirm(
+                t(
+                    'profile.branding.restoreConfirm',
+                    'Are you sure you want to restore the default branding? This will remove custom logos, favicon, and app name.'
+                )
+            )
+        ) {
+            return;
+        }
+        setBusy(true);
+        try {
+            const nameResponse = await fetchWithCsrf(getApiPath('branding'), {
+                method: 'PUT',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ app_name: '' }),
+            });
+            if (!nameResponse.ok) throw new Error('save name failed');
+
+            for (const { kind } of assetRows) {
+                if (branding[kind]) {
+                    const response = await fetchWithCsrf(
+                        getApiPath(`branding/asset/${kind}`),
+                        {
+                            method: 'DELETE',
+                            credentials: 'include',
+                        }
+                    );
+                    if (!response.ok) throw new Error(`remove ${kind} failed`);
+                }
+            }
+
+            await refreshBranding();
+            showSuccessToast(
+                t('profile.branding.saved', 'Branding updated successfully')
+            );
+        } catch {
+            showErrorToast(
+                t('profile.branding.saveError', 'Failed to update branding')
+            );
+        } finally {
+            setBusy(false);
+        }
+    };
+
+
+
     return (
         <div className="space-y-8">
             <div>
@@ -172,6 +221,14 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ isActive }) => {
                     >
                         {t('profile.branding.save', 'Save')}
                     </button>
+                    <button
+                        type="button"
+                        onClick={restoreDefaults}
+                        disabled={busy || (!branding.app_name && !branding.logo_light && !branding.logo_dark && !branding.favicon)}
+                        className="px-4 py-2 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 text-sm font-medium rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 disabled:opacity-50"
+                    >
+                        {t('profile.branding.restore', 'Restore defaults')}
+                    </button>
                 </div>
             </div>
 
@@ -213,7 +270,34 @@ const BrandingTab: React.FC<BrandingTabProps> = ({ isActive }) => {
                                 onChange={(e) => {
                                     const file = e.target.files?.[0];
                                     if (file) {
-                                        uploadAsset(kind, file);
+                                        const checkDims = async () => {
+                                            if (file.type !== 'image/svg+xml') {
+                                                const img = new window.Image();
+                                                const url = URL.createObjectURL(file);
+                                                img.src = url;
+                                                await new Promise((resolve) => {
+                                                    img.onload = resolve;
+                                                    img.onerror = resolve;
+                                                });
+                                                URL.revokeObjectURL(url);
+
+                                                if (img.width || img.height) {
+                                                    let isOff = false;
+                                                    if (kind === 'favicon' && (img.width > 256 || img.height > 256 || img.width !== img.height)) {
+                                                        isOff = true;
+                                                    } else if (kind.startsWith('logo_') && (img.height > 200 || img.width > 1000)) {
+                                                        isOff = true;
+                                                    }
+                                                    if (isOff) {
+                                                        if (!window.confirm(t('profile.branding.dimensionWarning', 'Image dimensions are different from recommended. Continue anyway?'))) {
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            uploadAsset(kind, file);
+                                        };
+                                        checkDims();
                                     }
                                     e.target.value = '';
                                 }}

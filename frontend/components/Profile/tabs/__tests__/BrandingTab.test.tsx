@@ -55,6 +55,27 @@ beforeEach(() => {
     mockFetch.mockImplementation(() => ok());
 });
 
+beforeAll(() => {
+    window.URL.createObjectURL = jest.fn(() => 'blob:url');
+    window.URL.revokeObjectURL = jest.fn();
+    Object.defineProperty(window, 'Image', {
+        writable: true,
+        value: class {
+            onload: () => void = () => {};
+            onerror: () => void = () => {};
+            _src = '';
+            width = 100;
+            height = 100;
+            set src(val: string) {
+                this._src = val;
+                setTimeout(() => this.onload(), 0);
+            }
+            get src() { return this._src; }
+        },
+    });
+    window.confirm = jest.fn(() => true);
+});
+
 describe('BrandingTab', () => {
     it('renders nothing when the tab is not active', () => {
         const { container } = render(<BrandingTab isActive={false} />);

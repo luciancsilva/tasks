@@ -134,7 +134,6 @@ plano em mãos (o dono aloca planos mecânicos a modelos menos capazes).
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `31-branding-validation-and-reset.md` | Marca: validar dimensão, renomear "Enviar", botão restaurar padrão | Médio | médio (sonnet) | - |
 | `27-inbox-area-token.md` | Inbox: token `$area` no título espelhando `@pessoa` (branch `feat/27`) | Médio | médio (sonnet) | 26 |
 | `32-ai-config-inline.md` | Config de IA inline (provider/chave/modelo/testar) sob o toggle (branch `feat/32`) | Alto | **forte (opus)** | - |
 
@@ -148,6 +147,7 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `31-branding-validation-and-reset.md` | Marca: validar dimensão, renomear "Enviar", botão restaurar padrão | EXECUTADO (2026-07-18) |
 | `26-inbox-person-persist-and-assign.md` | Inbox: `@pessoa` vira chip persistente e seta `assigned_to` ao criar | EXECUTADO (2026-07-18) |
 | `30-templates-robustness-and-diagnosis.md` | Modelos falhando: robustez de erro no front + diagnóstico de ambiente | EXECUTADO (2026-07-18) |
 | `24-notification-i18n.md` | i18n de notificações agendadas (pt/en) + fix de plural "1 hours" | EXECUTADO (2026-07-18) |

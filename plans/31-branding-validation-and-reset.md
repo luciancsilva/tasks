@@ -1,6 +1,6 @@
 # 31 — branding: validar dimensão, renomear botão, restaurar padrão
 
-> **Status: PROPOSTO** — na aba Marca, validar dimensão da imagem no upload, renomear "Enviar" → "Selecionar novo…", e adicionar botão de restaurar configurações originais ao lado de "Salvar alterações".
+> **Status: EXECUTADO** em 2026-07-18 — Validação de dimensão via aviso soft, renomeado botão para "Selecionar novo..." e adicionado botão "Restaurar padrão".
 > **Esforço:** Médio · **Natureza:** julgamento (dimensão soft-vs-block, SVG sem raster, reset agregado) · **Modelo:** médio (sonnet).
 > **Branch:** `main` · **Depende de:** -
 
