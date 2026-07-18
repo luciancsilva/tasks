@@ -1,6 +1,6 @@
 # 24 — i18n de notificações (pt/en)
 
-> **Status: PROPOSTO** — notificações agendadas saem sempre em inglês, ignorando `User.language`; traduzir via dicionário leve no backend e corrigir o plural ("1 hours").
+> **Status: EXECUTADO** em 2026-07-18 — Dicionário de i18n adicionado para pt/en; services atualizados com include do idioma e interpolação.
 > **Esforço:** Médio · **Natureza:** meio-termo (montar dicionário + threading do idioma) · **Modelo:** médio (sonnet).
 > **Branch:** `main` · **Depende de:** -
 

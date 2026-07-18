@@ -28,6 +28,7 @@ async function checkDeferredTasks() {
                         'id',
                         'email',
                         'name',
+                        'language',
                         'notification_preferences',
                     ],
                 },
@@ -94,11 +95,18 @@ async function checkDeferredTasks() {
                     sources.push('telegram');
                 }
 
+                const lang = task.User.language || 'en';
+                const { title, message } = require('../notifications/i18n').t(
+                    'task_now_active',
+                    lang,
+                    { name: task.name }
+                );
+
                 await Notification.createNotification({
                     userId: task.user_id,
                     type: 'task_due_soon',
-                    title: 'Task is now active',
-                    message: `Your task "${task.name}" is now available to work on`,
+                    title,
+                    message,
                     sources,
                     data: {
                         taskUid: task.uid,

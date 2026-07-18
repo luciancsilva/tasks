@@ -38,6 +38,7 @@ async function checkDueTasks() {
                         'id',
                         'email',
                         'name',
+                        'language',
                         'notification_preferences',
                     ],
                 },
@@ -109,11 +110,17 @@ async function checkDueTasks() {
                     }
                 }
 
-                const { title, message } = generateNotificationContent(
-                    task.name,
-                    dueDate,
-                    now,
-                    isOverdue
+                const lang = task.User.language || 'en';
+                const params = { name: task.name };
+                if (isOverdue) {
+                    params.daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+                } else {
+                    params.hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
+                }
+                const { title, message } = require('../notifications/i18n').t(
+                    notificationType,
+                    lang,
+                    params
                 );
 
                 // Build sources array based on user preferences
@@ -161,40 +168,6 @@ async function checkDueTasks() {
     }
 }
 
-/**
- * Generate notification title and message based on task due date
- */
-function generateNotificationContent(taskName, dueDate, now, isOverdue) {
-    if (isOverdue) {
-        const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
-        const title = 'Task is overdue';
-        let message;
-
-        if (daysOverdue === 0) {
-            message = `Your task "${taskName}" was due today`;
-        } else if (daysOverdue === 1) {
-            message = `Your task "${taskName}" was due yesterday`;
-        } else {
-            message = `Your task "${taskName}" was due ${daysOverdue} days ago`;
-        }
-
-        return { title, message };
-    } else {
-        const hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
-        const title = 'Task due soon';
-        let message;
-
-        if (hoursUntilDue < 1) {
-            message = `Your task "${taskName}" is due in less than 1 hour`;
-        } else if (hoursUntilDue < 24) {
-            message = `Your task "${taskName}" is due in ${hoursUntilDue} hours`;
-        } else {
-            message = `Your task "${taskName}" is due tomorrow`;
-        }
-
-        return { title, message };
-    }
-}
 
 module.exports = {
     checkDueTasks,

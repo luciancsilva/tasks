@@ -38,6 +38,7 @@ async function checkDueProjects() {
                         'id',
                         'email',
                         'name',
+                        'language',
                         'notification_preferences',
                     ],
                 },
@@ -111,11 +112,17 @@ async function checkDueProjects() {
                     }
                 }
 
-                const { title, message } = generateNotificationContent(
-                    project.name,
-                    dueDate,
-                    now,
-                    isOverdue
+                const lang = project.User.language || 'en';
+                const params = { name: project.name };
+                if (isOverdue) {
+                    params.daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+                } else {
+                    params.hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
+                }
+                const { title, message } = require('../notifications/i18n').t(
+                    notificationType,
+                    lang,
+                    params
                 );
 
                 // Build sources array based on user preferences
@@ -166,40 +173,6 @@ async function checkDueProjects() {
     }
 }
 
-/**
- * Generate notification title and message based on project due date
- */
-function generateNotificationContent(projectName, dueDate, now, isOverdue) {
-    if (isOverdue) {
-        const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
-        const title = 'Project is overdue';
-        let message;
-
-        if (daysOverdue === 0) {
-            message = `Your project "${projectName}" was due today`;
-        } else if (daysOverdue === 1) {
-            message = `Your project "${projectName}" was due yesterday`;
-        } else {
-            message = `Your project "${projectName}" was due ${daysOverdue} days ago`;
-        }
-
-        return { title, message };
-    } else {
-        const hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
-        const title = 'Project due soon';
-        let message;
-
-        if (hoursUntilDue < 1) {
-            message = `Your project "${projectName}" is due in less than 1 hour`;
-        } else if (hoursUntilDue < 24) {
-            message = `Your project "${projectName}" is due in ${hoursUntilDue} hours`;
-        } else {
-            message = `Your project "${projectName}" is due tomorrow`;
-        }
-
-        return { title, message };
-    }
-}
 
 module.exports = {
     checkDueProjects,
