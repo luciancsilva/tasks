@@ -5,6 +5,7 @@ const {
     shouldSendInAppNotification,
     shouldSendTelegramNotification,
 } = require('../../utils/notificationPreferences');
+const { t } = require('../notifications/i18n');
 
 /**
  * Service to check for due and overdue projects

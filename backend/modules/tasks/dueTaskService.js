@@ -5,6 +5,7 @@ const {
     shouldSendInAppNotification,
     shouldSendTelegramNotification,
 } = require('../../utils/notificationPreferences');
+const { t } = require('../notifications/i18n');
 
 /**
  * Service to check for due and overdue tasks
@@ -117,11 +118,7 @@ async function checkDueTasks() {
                 } else {
                     params.hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
                 }
-                const { title, message } = require('../notifications/i18n').t(
-                    notificationType,
-                    lang,
-                    params
-                );
+                const { title, message } = t(notificationType, lang, params);
 
                 // Build sources array based on user preferences
                 const sources = [];

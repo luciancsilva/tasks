@@ -131,7 +131,7 @@ Achados do code-review do lote 24–32 (2026-07-18). Nenhum arrisca dados.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `35-tasks-cleanup-includes-and-i18n-require.md` | Cleanup: include `InvolvedPeople` redundante no filtro, `require` em loop, tipo de notificação de tarefa reativada | Baixo | fraco (haiku) | - |
+| `35-tasks-cleanup-includes-and-i18n-require.md` | **PARCIAL**: 35-2 (require hoisted) feito, 35-1 fechado sem mudança; sobra 35-3 (tipo de notificação de tarefa reativada — verificar se `task_due_soon` é intencional) | Baixo | médio | - |
 | `36-templates-error-i18n-and-sentinels.md` | Templates: fallback PT hardcoded → EN + sentinelas de erro compartilhadas | Baixo | fraco (haiku) | - |
 | `34-inbox-person-semantics-consistency.md` | `@pessoa` inconsistente: composer usa `people` (InvolvedPeople), detail usa `assigned_to`. **Precisa decisão do dono** antes de mudar comportamento | Médio | médio/forte | - |
 

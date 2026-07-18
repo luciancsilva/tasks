@@ -1,25 +1,20 @@
-# 35 — cleanup: include redundante, require em loop, tipo de notificação
+# 35 — cleanup: tipo de notificação de tarefa reativada
 
-> **Status: PROPOSTO** — três nits de baixa severidade achados no code-review do lote 24–32. Sem risco de dados. Agrupados por serem cleanup mecânico.
-> **Esforço:** Baixo · **Natureza:** mecânico · **Modelo:** fraco (haiku).
+> **Status: PARCIAL** — 35-2 EXECUTADO em 2026-07-18 (require hoisted). 35-1 fechado sem mudança (o include NÃO era redundante). Sobra o 35-3. Achados no code-review do lote 24–32.
+> **Esforço:** Baixo · **Natureza:** julgamento (o tipo pode ser intencional) · **Modelo:** médio.
 > **Branch:** `main` · **Depende de:** -
 
-## Itens
+## Resolvidos
 
-### 35-1 — `InvolvedPeople` redundante no filtro
-`backend/modules/tasks/queries/query-builders.js:~96` passou a incluir
-`InvolvedPeople` (belongsToMany) além de `AssignedTo`, mas o plano 25 só pedia
-`AssignedTo`. Dois belongsToMany na mesma query (junto de Tags) desperdiçam
-trabalho e arriscam multiplicação de linhas (hoje mitigada por `distinct:true`).
-**Ação:** remover o include de `InvolvedPeople` daqui se nenhum render desse
-caminho o usa; manter só `AssignedTo`. Validar contra os renders de card.
+- **35-1 (fechado, sem mudança)** — o include `InvolvedPeople` em
+  `query-builders.js` **não** é redundante: `TaskHeader` renderiza chips de
+  `InvolvedPeople` nos cards de lista, então o include popula esses chips no
+  caminho de filtro (Hoje/Próximos/Todas). Falso-positivo do review.
+- **35-2 (EXECUTADO)** — `const { t } = require('../notifications/i18n')` hoisted
+  para o topo de `dueTaskService.js` e `dueProjectService.js`; chamada no loop
+  passou a usar `t(...)`. Backend 127/1709 verde.
 
-### 35-2 — `require` dentro do loop
-`backend/modules/tasks/dueTaskService.js:~121` e
-`backend/modules/projects/dueProjectService.js:~123` chamam
-`require('../notifications/i18n')` dentro do loop por-item. **Ação:** hoistar o
-`const { t } = require('../notifications/i18n')` para o topo do módulo (require é
-cacheado; é só estilo/hot-path).
+## Aberto
 
 ### 35-3 — tipo de notificação de tarefa reativada
 `backend/modules/tasks/deferredTaskService.js:~99` grava `type: 'task_due_soon'`
