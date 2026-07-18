@@ -1,6 +1,6 @@
 # 26 — inbox persiste pessoa e vincula ao criar
 
-> **Status: PROPOSTO** — na inbox, `@pessoa` não vira chip persistente ao sair da edição (fica cru no título) e não é vinculada quando a tarefa é criada ("Não atribuído"). Corrigir o parser do card de exibição e o payload de criação.
+> **Status: EXECUTADO** em 2026-07-18 — na inbox, `@pessoa` agora vira chip persistente ao sair da edição. No backend e no QuickCaptureInput, o assign já ocorria por `taskPeople` mapeado na criação, mas o detalhe da inbox (InboxItemDetail) precisava passar o `assigned_to` extraindo do person. Adicionado sync de criação/extração no InboxItemDetail.
 > **Esforço:** Médio · **Natureza:** julgamento (contrato de payload, first-wins, auto-create) · **Modelo:** médio/forte.
 > **Branch:** `main` · **Depende de:** 25 (que exibe `assigned_to`).
 

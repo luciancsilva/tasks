@@ -44,6 +44,7 @@ export interface InboxComposerFooterContext {
     cleanedText: string;
     hashtags: string[];
     projectRefs: string[];
+    peopleRefs: string[];
     clearText: () => void;
 }
 
@@ -1654,14 +1655,22 @@ const QuickCaptureInput = React.forwardRef<
         );
 
         const composerFooterContext = useMemo<InboxComposerFooterContext>(
-            () => ({
-                text: inputText,
-                cleanedText: getCleanedContent(inputText.trim()),
-                hashtags: getAllTags(inputText),
-                projectRefs: getAllProjects(inputText),
-                clearText: clearComposerText,
-                updateText: (value: string) => setInputText(value),
-            }),
+            () => {
+                const cleanedText = getCleanedContent(inputText.trim());
+                const hashtags = getAllTags(inputText);
+                const projectRefs = getAllProjects(inputText);
+                const peopleRefs = getAllPeople(inputText);
+
+                return {
+                    text: inputText,
+                    cleanedText,
+                    hashtags,
+                    projectRefs,
+                    peopleRefs,
+                    clearText: clearComposerText,
+                    updateText: (value: string) => setInputText(value),
+                };
+            },
             [inputText, clearComposerText, analysisResult]
         );
 

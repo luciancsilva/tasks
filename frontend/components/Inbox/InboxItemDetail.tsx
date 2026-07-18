@@ -9,6 +9,7 @@ import {
     ClipboardDocumentListIcon,
     TagIcon,
     GlobeAltIcon,
+    UserIcon,
 } from '@heroicons/react/24/outline';
 import { Task } from '../../entities/Task';
 import { Project } from '../../entities/Project';
@@ -21,6 +22,7 @@ import QuickCaptureInput, {
 } from './QuickCaptureInput';
 import InboxCard from './InboxCard';
 import { isUrl } from '../../utils/urlService';
+import { createPerson } from '../../utils/peopleService';
 
 interface InboxItemDetailProps {
     item: InboxItem;
@@ -44,6 +46,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     const { t } = useTranslation();
     const {
         tagsStore: { tags },
+        peopleStore: { people, refreshPeople },
     } = useStore();
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -170,6 +173,48 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         return matches;
     };
 
+    const parsePeopleRefs = (text: string): string[] => {
+        const trimmedText = text.trim();
+        const matches: string[] = [];
+
+        const tokens = tokenizeText(trimmedText);
+
+        let i = 0;
+        while (i < tokens.length) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@')) {
+                let groupEnd = i;
+                while (
+                    groupEnd < tokens.length &&
+                    (tokens[groupEnd].startsWith('#') ||
+                        tokens[groupEnd].startsWith('+') ||
+                        tokens[groupEnd].startsWith('@'))
+                ) {
+                    groupEnd++;
+                }
+
+                for (let j = i; j < groupEnd; j++) {
+                    if (tokens[j].startsWith('@')) {
+                        let personName = tokens[j].substring(1);
+
+                        if (personName.startsWith('"') && personName.endsWith('"')) {
+                            personName = personName.slice(1, -1);
+                        }
+
+                        if (personName && !matches.includes(personName)) {
+                            matches.push(personName);
+                        }
+                    }
+                }
+
+                i = groupEnd;
+            } else {
+                i++;
+            }
+        }
+
+        return matches;
+    };
+
     const tokenizeText = (text: string): string[] => {
         const tokens: string[] = [];
         let currentToken = '';
@@ -210,10 +255,10 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
 
         let i = 0;
         while (i < tokens.length) {
-            if (tokens[i].startsWith('#') || tokens[i].startsWith('+')) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@')) {
                 while (
                     i < tokens.length &&
-                    (tokens[i].startsWith('#') || tokens[i].startsWith('+'))
+                    (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@'))
                 ) {
                     i++;
                 }
@@ -249,6 +294,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         [hashtags]
     );
     const projectRefs = parseProjectRefs(fullContent);
+    const peopleRefs = parsePeopleRefs(fullContent);
     const hasLongContent =
         Boolean(item.title && item.title.trim()) &&
         item.title !== null &&
@@ -323,12 +369,15 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         textOverride?: string,
         hashtagOverride?: string[],
         projectRefsOverride?: string[],
+        peopleRefsOverride?: string[],
         cleanedOverride?: string
     ) => {
         const sourceText = textOverride ?? baseContent;
         const sourceHashtags = hashtagOverride ?? parseHashtags(sourceText);
         const sourceProjectRefs =
             projectRefsOverride ?? parseProjectRefs(sourceText);
+        const sourcePeopleRefs =
+            peopleRefsOverride ?? parsePeopleRefs(sourceText);
         const cleaned =
             cleanedOverride ??
             cleanTextFromTagsAndProjects(sourceText) ??
@@ -360,17 +409,40 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             projectUid,
             projectRefsList: sourceProjectRefs,
             hashtagsList: sourceHashtags,
+            peopleRefsList: sourcePeopleRefs,
         };
     };
 
-    const handleConvertToTask = (context?: InboxComposerFooterContext) => {
+    const handleConvertToTask = async (context?: InboxComposerFooterContext) => {
         try {
             const payload = buildConversionPayload(
                 context?.text,
                 context?.hashtags,
                 context?.projectRefs,
+                context?.peopleRefs,
                 context?.cleanedText
             );
+
+            let assignedToUid: string | undefined = undefined;
+            if (payload.peopleRefsList && payload.peopleRefsList.length > 0) {
+                const personName = payload.peopleRefsList[0];
+                const existingPerson = people.find(
+                    (p) => p.name.toLowerCase() === personName.toLowerCase()
+                );
+                if (existingPerson) {
+                    assignedToUid = existingPerson.uid;
+                } else {
+                    try {
+                        const newPerson = await createPerson({ name: personName });
+                        if (newPerson && newPerson.uid) {
+                            assignedToUid = newPerson.uid;
+                            await refreshPeople();
+                        }
+                    } catch (error) {
+                        console.error('Failed to auto-create person:', error);
+                    }
+                }
+            }
 
             const newTask: Task = {
                 name: payload.cleanedContent || displayText,
@@ -378,6 +450,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 priority: null,
                 tags: payload.tagObjects,
                 project_uid: payload.projectUid,
+                assigned_to: assignedToUid,
                 completed_at: null,
             };
 
@@ -413,6 +486,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 context?.text,
                 context?.hashtags,
                 context?.projectRefs,
+                context?.peopleRefs,
                 context?.cleanedText
             );
 
@@ -479,6 +553,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             context?.text,
             context?.hashtags,
             context?.projectRefs,
+            context?.peopleRefs,
             context?.cleanedText
         );
 
@@ -584,8 +659,49 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     };
 
     const renderMetadata = () =>
-        (hashtags.length > 0 || projectRefs.length > 0) && (
+        (hashtags.length > 0 || projectRefs.length > 0 || peopleRefs.length > 0) && (
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
+                {peopleRefs.length > 0 && (
+                    <div className="flex items-center">
+                        <UserIcon className="h-3 w-3 mr-1" />
+                        <span>
+                            {peopleRefs.map((personRef, index) => {
+                                const matchingPerson = people.find(
+                                    (person) =>
+                                        person.name.toLowerCase() ===
+                                        personRef.toLowerCase()
+                                );
+
+                                if (matchingPerson && matchingPerson.uid) {
+                                    return (
+                                        <React.Fragment key={personRef}>
+                                            <Link
+                                                to={`/people/${matchingPerson.uid}`}
+                                                className="text-gray-500 dark:text-gray-400 hover:underline transition-colors"
+                                            >
+                                                {personRef}
+                                            </Link>
+                                            {index < peopleRefs.length - 1 &&
+                                                ', '}
+                                        </React.Fragment>
+                                    );
+                                }
+
+                                return (
+                                    <React.Fragment key={personRef}>
+                                        <span>{personRef}</span>
+                                        {index < peopleRefs.length - 1 && ', '}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </span>
+                    </div>
+                )}
+
+                {peopleRefs.length > 0 && (projectRefs.length > 0 || hashtags.length > 0) && (
+                    <span className="mx-2">•</span>
+                )}
+
                 {projectRefs.length > 0 && (
                     <div className="flex items-center">
                         <FolderIcon className="h-3 w-3 mr-1" />
