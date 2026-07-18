@@ -8,12 +8,18 @@ import { handleAuthResponse } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
 
+export const TEMPLATE_API_ERROR = {
+    NOT_FOUND: 'API_404_NOT_FOUND',
+    SERVER_ERROR: 'API_500_SERVER_ERROR',
+    HTML: 'API_HTML_RESPONSE',
+} as const;
+
 const checkStatus = (response: Response) => {
-    if (response.status === 404) throw new Error('API_404_NOT_FOUND');
-    if (response.status >= 500) throw new Error('API_500_SERVER_ERROR');
+    if (response.status === 404) throw new Error(TEMPLATE_API_ERROR.NOT_FOUND);
+    if (response.status >= 500) throw new Error(TEMPLATE_API_ERROR.SERVER_ERROR);
     const contentType = response.headers.get('content-type');
     if (!response.ok && contentType && contentType.includes('text/html')) {
-        throw new Error('API_HTML_RESPONSE');
+        throw new Error(TEMPLATE_API_ERROR.HTML);
     }
 };
 

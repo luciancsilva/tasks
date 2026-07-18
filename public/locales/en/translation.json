@@ -2517,6 +2517,8 @@
     "empty": "No templates yet. Create one or save an existing project as a template.",
     "createFirst": "Create Your First Template",
     "fetchError": "Failed to load templates.",
+    "error404": "Resource unavailable. Please restart the backend server.",
+    "error500": "Internal server error. Please try again later.",
     "created": "Template created.",
     "createError": "Failed to create template.",
     "updated": "Template updated.",

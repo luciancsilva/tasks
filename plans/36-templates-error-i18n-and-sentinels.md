@@ -1,6 +1,6 @@
 # 36 — templates: fallback PT hardcoded + roteamento de erro por string sentinela
 
-> **Status: PROPOSTO** — a robustez de erro do Templates (plano 30) usa fallback em português direto no `t()` e roteia por comparação de `error.message` com strings sentinela. Achado no code-review do lote 24–32.
+> **Status: EXECUTADO** em 2026-07-18 — sentinelas extraídas para `TEMPLATE_API_ERROR` (exportada de `templatesService.ts`), `Templates.tsx` usa as constantes e dedupa os 6 catch num helper `showTemplateError`; fallbacks trocados pra inglês + chaves `templates.error404/error500` adicionadas em en+pt (sem regredir PT). Frontend 112 verde. (Fix iniciado por agente fraco que caiu por API error mid-edit; completado no main thread.)
 > **Esforço:** Baixo · **Natureza:** convenção/robustez · **Modelo:** fraco (haiku).
 > **Branch:** `main` · **Depende de:** -
 

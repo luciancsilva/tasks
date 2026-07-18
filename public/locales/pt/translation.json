@@ -2614,6 +2614,8 @@
     "empty": "Nenhum modelo ainda. Crie um ou salve um projeto existente como modelo.",
     "createFirst": "Criar seu primeiro modelo",
     "fetchError": "Falha ao carregar os modelos.",
+    "error404": "Recurso indisponível. Reinicie o servidor backend.",
+    "error500": "Erro interno do servidor. Tente novamente mais tarde.",
     "created": "Modelo criado.",
     "createError": "Falha ao criar o modelo.",
     "updated": "Modelo atualizado.",
