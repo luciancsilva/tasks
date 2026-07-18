@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProfileFormData, Features } from '../types';
+import { getApiPath } from '../../../config/paths';
+import { getCsrfToken } from '../../../utils/csrfService';
 
 interface FeaturesTabProps {
     isActive: boolean;
@@ -82,24 +84,32 @@ const FeaturesTab: React.FC<FeaturesTabProps> = ({
         setTestStatus('testing');
         setTestMessage('');
         try {
-            const api = (await import('../../../utils/api')).default;
             const payload = {
                 ai_provider: formData.ai_provider || 'openai',
                 ai_api_key: formData.ai_api_key || '',
                 ai_model: formData.ai_model || '',
                 ai_base_url: formData.ai_base_url || '',
             };
-            const res = await api.post('/api/ai-assistant/test', payload);
-            if (res.data.success) {
+            const res = await fetch(getApiPath('ai-assistant/test'), {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-csrf-token': await getCsrfToken(),
+                },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            if (data.success) {
                 setTestStatus('success');
                 setTestMessage('Connection successful!');
             } else {
                 setTestStatus('error');
-                setTestMessage(res.data.error || 'Connection failed.');
+                setTestMessage(data.error || 'Connection failed.');
             }
         } catch (error: any) {
             setTestStatus('error');
-            setTestMessage(error?.response?.data?.error || error.message || 'Error connecting to AI API');
+            setTestMessage(error?.message || 'Error connecting to AI API');
         }
     };
 

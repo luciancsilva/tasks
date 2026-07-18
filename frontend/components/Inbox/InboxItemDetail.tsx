@@ -483,8 +483,8 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 } else {
                     try {
                         const newPerson = await createPerson({ name: personName });
-                        if (newPerson && newPerson.uid) {
-                            assignedToUid = newPerson.uid;
+                        if (newPerson && newPerson.person && newPerson.person.uid) {
+                            assignedToUid = newPerson.person.uid;
                             await refreshPeople();
                         }
                     } catch (error) {

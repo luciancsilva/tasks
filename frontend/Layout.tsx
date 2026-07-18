@@ -424,6 +424,7 @@ const Layout: React.FC<LayoutProps> = ({
                     openAreaModal={openAreaModal}
                     openTagModal={openTagModal}
                     openNewHabit={openNewHabit}
+                    openPersonModal={openPersonModal}
                     notes={notes}
                     areas={areas}
                     tags={tags}
