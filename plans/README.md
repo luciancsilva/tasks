@@ -82,9 +82,11 @@ npx eslint caminho/do/arquivo.js                              # lint de um arqui
 npx eslint --fix caminho/do/arquivo.js                        # corrige formatação
 ```
 
-**Não rode `npm run backend:lint` (lint global)**: em checkout Windows ele falha
-com milhares de `Delete ␍` (CRLF) — ruído pré-existente, não é seu bug. Linte
-só os arquivos que você tocou, individualmente.
+**Obrigatório antes de comitar:** O CI no GitHub Actions tem uma verificação rigorosa de Prettier e **vai quebrar** se houver qualquer desvio. Em checkouts de Windows, rodar o `npm run backend:lint` global gera milhares de erros `Delete ␍` pela diferença de quebra de linha. Para evitar poluir o PR e ao mesmo tempo passar no CI:
+1. Após finalizar seu trabalho, identifique quais arquivos do `backend/` você modificou.
+2. Rode `cd backend && npx eslint --fix <arquivo1> <arquivo2> ...`.
+3. Adicione as mudanças corrigidas e faça o commit.
+Se esquecer dessa etapa, seu código quebrará a pipeline de CI.
 
 ## Racional
 
