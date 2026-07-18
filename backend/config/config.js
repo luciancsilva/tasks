@@ -228,6 +228,12 @@ const config = {
         return val;
     })(),
 
+    // Project templates (local only — no remote marketplace in this fork)
+    templatesEnabled: process.env.PROJECT_TEMPLATES_ENABLED !== 'false',
+    maxTemplatesPerUser: process.env.MAX_TEMPLATES_PER_USER
+        ? parseInt(process.env.MAX_TEMPLATES_PER_USER, 10)
+        : 50,
+
     // Encryption key for CalDAV credentials (falls back to SECRET_KEY or session secret)
     encryptionKey: process.env.ENCRYPTION_KEY,
 

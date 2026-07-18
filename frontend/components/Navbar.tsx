@@ -6,7 +6,12 @@ import {
     BoltIcon,
     InboxIcon,
 } from '@heroicons/react/24/solid';
-import { EnvelopeIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import {
+    EnvelopeIcon,
+    MagnifyingGlassIcon,
+    RectangleStackIcon,
+} from '@heroicons/react/24/outline';
+import { useStore } from '../store/useStore';
 import { useTranslation } from 'react-i18next';
 import PomodoroTimer from './Shared/PomodoroTimer';
 import UniversalSearch from './UniversalSearch/UniversalSearch';
@@ -48,6 +53,9 @@ const Navbar: React.FC<NavbarProps> = ({
     });
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+    const templatesEnabled = useStore(
+        (state) => state.userSettingsStore.templatesEnabled
+    );
 
     // Dispatch event when mobile search state changes
     useEffect(() => {
@@ -254,6 +262,16 @@ const Navbar: React.FC<NavbarProps> = ({
                                         <EnvelopeIcon className="h-4 w-4 mr-2" />
                                         {currentUser.email}
                                     </div>
+                                )}
+                                {templatesEnabled && (
+                                    <Link
+                                        to="/templates"
+                                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                        onClick={() => setIsDropdownOpen(false)}
+                                    >
+                                        <RectangleStackIcon className="h-4 w-4 mr-2 shrink-0" />
+                                        {t('navigation.templates', 'Templates')}
+                                    </Link>
                                 )}
                                 <Link
                                     to="/profile"

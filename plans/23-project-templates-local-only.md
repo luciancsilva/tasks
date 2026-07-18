@@ -1,6 +1,15 @@
 # 23 — Trazer "Project Templates" do upstream, sem a parte de Marketplace
 
-> **Status: PROPOSTO** em 2026-07-17
+> **Status: EXECUTADO** em 2026-07-17 — portada a parte local do commit upstream
+> `2df928b9`: migration + campos de template em `projects`, módulo backend
+> `templates/` (CRUD, save-as-template, clone com offset de data e subtasks),
+> página `/templates` + modais no frontend, link "Templates" na Navbar, "Save as
+> Template" no ProjectItem e "From Template" em Projects. Marketplace deixado de
+> fora (sem `MARKETPLACE_URL`, sem componentes `Marketplace*`, sem proxy remoto).
+> Repository reescrito sem `BaseRepository` (inexistente no fork); strings de UI
+> em `t()` com chaves novas em `en`/`pt`. Teste `templates.test.js` (6 casos).
+>
+> **Status anterior: PROPOSTO** em 2026-07-17
 > **Escopo:** Adaptar (não aplicar direto) o commit upstream `2df928b9`
 > (`feat(templates): project templates + marketplace`, issue #979) trazendo
 > **só** a parte local — salvar projeto como template, clonar template em

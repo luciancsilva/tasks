@@ -12,6 +12,7 @@ import {
     XCircleIcon,
     ShareIcon,
     ExclamationTriangleIcon,
+    RectangleStackIcon,
 } from '@heroicons/react/24/outline';
 import { Project, ProjectStatus } from '../../entities/Project';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +34,7 @@ interface ProjectItemProps {
     setIsConfirmDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     onOpenShare: (project: Project) => void;
     onStatusChange: (project: Project, newStatus: ProjectStatus) => Promise<void>;
+    onSaveAsTemplate?: (project: Project) => void;
 }
 
 const getProjectInitials = (name: string, maxLetters?: number) => {
@@ -114,6 +116,7 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
     setIsConfirmDialogOpen,
     onOpenShare,
     onStatusChange,
+    onSaveAsTemplate,
 }) => {
     const { t } = useTranslation();
     const { showErrorToast } = useToast();
@@ -449,6 +452,26 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
                                                         )}
                                                     </button>
                                                 )}
+                                                {isOwner && onSaveAsTemplate && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            onSaveAsTemplate(
+                                                                project
+                                                            );
+                                                            setActiveDropdown(
+                                                                null
+                                                            );
+                                                        }}
+                                                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left"
+                                                    >
+                                                        {t(
+                                                            'projectItem.saveAsTemplate',
+                                                            'Save as Template'
+                                                        )}
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={(e) => {
                                                         e.preventDefault();
@@ -744,6 +767,22 @@ const ProjectItem: React.FC<ProjectItemProps> = ({
                                     data-testid={`project-share-list-${project.id}`}
                                 >
                                     <ShareIcon className="h-5 w-5" />
+                                </button>
+                            )}
+                            {isOwner && onSaveAsTemplate && (
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        onSaveAsTemplate(project);
+                                    }}
+                                    className="text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-200"
+                                    title={t(
+                                        'projectItem.saveAsTemplate',
+                                        'Save as Template'
+                                    )}
+                                >
+                                    <RectangleStackIcon className="h-5 w-5" />
                                 </button>
                             )}
                             <button
