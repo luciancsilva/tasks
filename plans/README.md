@@ -130,7 +130,6 @@ degradação de scheduler.
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
-| `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: `findAll` sem teto (todos usuários) + `Notification.findAll` por task no loop; satura scheduler | Médio | médio | - |
 
 ### Prioridade BAIXA
 
@@ -163,6 +162,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: paginação no `findAll` e N+1 de Notificação resolvido | EXECUTADO (2026-07-18) |
 | `47-goals-area-ownership-idor.md` | Validação de ownership de Area para Goals; query `getAll` escopada por `user_id` | EXECUTADO (2026-07-18) |
 | `46-telegram-summary-timezone.md` | Range "hoje" no resumo Telegram usa local timezone do User | EXECUTADO (2026-07-18) |
 | `43-templates-atomicity.md` | Transações Sequelize em `saveProjectAsTemplate`, `cloneTemplate` e `delete` de template | EXECUTADO (2026-07-18) |

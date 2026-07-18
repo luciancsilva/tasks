@@ -99,32 +99,43 @@ class PushPhase {
         const syncStates =
             await SyncStateRepository.findByCalendarId(calendarId);
 
-        const syncedTaskIds = syncStates.map((state) => state.task_id);
-
-        const allTasks = await Task.findAll({
-            where: { user_id: userId },
-        });
-
         const changedTasks = [];
+        const limit = 100;
+        let offset = 0;
+        let hasMore = true;
 
-        for (const task of allTasks) {
-            const syncState = syncStates.find((s) => s.task_id === task.id);
+        while (hasMore) {
+            const batch = await Task.findAll({
+                where: { user_id: userId },
+                limit,
+                offset,
+                order: [['id', 'ASC']],
+            });
 
-            if (!syncState) {
-                changedTasks.push(task);
-                continue;
+            if (batch.length === 0) break;
+
+            for (const task of batch) {
+                const syncState = syncStates.find((s) => s.task_id === task.id);
+
+                if (!syncState) {
+                    changedTasks.push(task);
+                    continue;
+                }
+
+                if (
+                    syncState.sync_status === 'conflict' ||
+                    syncState.sync_status === 'pending'
+                ) {
+                    continue;
+                }
+
+                if (task.updated_at > syncState.last_synced_at) {
+                    changedTasks.push(task);
+                }
             }
 
-            if (
-                syncState.sync_status === 'conflict' ||
-                syncState.sync_status === 'pending'
-            ) {
-                continue;
-            }
-
-            if (task.updated_at > syncState.last_synced_at) {
-                changedTasks.push(task);
-            }
+            offset += limit;
+            if (batch.length < limit) hasMore = false;
         }
 
         logger.logInfo(

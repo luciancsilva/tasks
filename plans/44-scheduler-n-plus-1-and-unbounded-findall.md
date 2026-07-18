@@ -1,6 +1,6 @@
 # 44 — Jobs de notificação: N+1 e `findAll` sem teto
 
-> **Status: PROPOSTO** — os jobs de tasks devidas/deferidas carregam todas as tasks com data de todos os usuários sem limite e fazem uma query de notificação por task dentro do loop; base grande satura o event loop / lock SQLite a cada ciclo do scheduler.
+> **Status: EXECUTADO** em 2026-07-18 — paginação no findAll e indexação de notificações adicionadas para evitar saturação no scheduler e memory leaks.
 > **Esforço:** Médio · **Natureza:** julgamento · **Modelo:** médio (sonnet)
 > **Branch:** main · **Depende de:** -
 
