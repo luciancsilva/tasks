@@ -22,10 +22,9 @@ jest.mock('../../../../models', () => ({
 
 jest.mock('openai', () => jest.fn().mockImplementation(() => ({})));
 
-jest.mock(
-    '../../../../modules/tasks/queries/metrics-computation',
-    () => ({ computeTaskMetrics: jest.fn() })
-);
+jest.mock('../../../../modules/tasks/queries/metrics-computation', () => ({
+    computeTaskMetrics: jest.fn(),
+}));
 
 const { User } = require('../../../../models');
 const { getCachedBrief } = require('../../../../modules/ai-assistant/service');

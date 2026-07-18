@@ -42,7 +42,9 @@ module.exports = {
         });
 
         await safeAddIndex(queryInterface, 'user_project_areas', ['user_id']);
-        await safeAddIndex(queryInterface, 'user_project_areas', ['project_id']);
+        await safeAddIndex(queryInterface, 'user_project_areas', [
+            'project_id',
+        ]);
         await safeAddIndex(
             queryInterface,
             'user_project_areas',

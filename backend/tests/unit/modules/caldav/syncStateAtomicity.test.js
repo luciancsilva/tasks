@@ -1,7 +1,13 @@
 'use strict';
 
 const SyncStateRepository = require('../../../../modules/caldav/repositories/sync-state-repository');
-const { CalDAVSyncState, CalDAVCalendar, Task, User, sequelize } = require('../../../../models');
+const {
+    CalDAVSyncState,
+    CalDAVCalendar,
+    Task,
+    User,
+    sequelize,
+} = require('../../../../models');
 const bcrypt = require('bcrypt');
 
 describe('SyncStateRepository - createOrUpdate and resolveConflict transaction propagation (plan 42)', () => {
@@ -48,7 +54,9 @@ describe('SyncStateRepository - createOrUpdate and resolveConflict transaction p
             );
         });
 
-        const row = await CalDAVSyncState.findOne({ where: { task_id: task.id, calendar_id: calendar.id } });
+        const row = await CalDAVSyncState.findOne({
+            where: { task_id: task.id, calendar_id: calendar.id },
+        });
         expect(row.etag).toBe('xyz');
     });
 
@@ -63,10 +71,17 @@ describe('SyncStateRepository - createOrUpdate and resolveConflict transaction p
         });
 
         await sequelize.transaction(async (t) => {
-            await SyncStateRepository.resolveConflict(task.id, calendar.id, 'local', { transaction: t });
+            await SyncStateRepository.resolveConflict(
+                task.id,
+                calendar.id,
+                'local',
+                { transaction: t }
+            );
         });
 
-        const row = await CalDAVSyncState.findOne({ where: { task_id: task.id, calendar_id: calendar.id } });
+        const row = await CalDAVSyncState.findOne({
+            where: { task_id: task.id, calendar_id: calendar.id },
+        });
         expect(row.sync_status).toBe('synced');
     });
 });

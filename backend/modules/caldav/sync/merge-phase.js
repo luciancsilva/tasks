@@ -439,7 +439,9 @@ class MergePhase {
 
         if (!dryRun) {
             await sequelize.transaction(async (t) => {
-                await existingTask.update(resolved.taskData, { transaction: t });
+                await existingTask.update(resolved.taskData, {
+                    transaction: t,
+                });
 
                 await SyncStateRepository.createOrUpdate(
                     existingTask.id,
@@ -497,7 +499,9 @@ class MergePhase {
 
         await sequelize.transaction(async (t) => {
             await task.update(taskData, { transaction: t });
-            await SyncStateRepository.resolveConflict(taskId, calendarId, { transaction: t });
+            await SyncStateRepository.resolveConflict(taskId, calendarId, {
+                transaction: t,
+            });
         });
 
         logger.logInfo(

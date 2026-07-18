@@ -60,7 +60,7 @@ async function checkDueTasks() {
                 break;
             }
 
-            const userIds = [...new Set(dueTasks.map(t => t.user_id))];
+            const userIds = [...new Set(dueTasks.map((t) => t.user_id))];
 
             // Fetch recent notifications for these users once per batch
             const recentNotifications = await Notification.findAll({
@@ -96,12 +96,18 @@ async function checkDueTasks() {
                     const level = isOverdue ? 'error' : 'warning';
 
                     // Check if user wants this notification
-                    if (!shouldSendInAppNotification(task.User, notificationType)) {
+                    if (
+                        !shouldSendInAppNotification(
+                            task.User,
+                            notificationType
+                        )
+                    ) {
                         continue;
                     }
 
                     // Check for existing notifications using the index
-                    const existingNotification = notificationsByTask[`${task.uid}:${notificationType}`];
+                    const existingNotification =
+                        notificationsByTask[`${task.uid}:${notificationType}`];
 
                     // Preserve channel_sent_at for rate limiting when recreating notifications
                     let preservedChannelSentAt = null;
@@ -136,12 +142,19 @@ async function checkDueTasks() {
                             (dueDate - now) / (1000 * 60 * 60)
                         );
                     }
-                    const { title, message } = t(notificationType, lang, params);
+                    const { title, message } = t(
+                        notificationType,
+                        lang,
+                        params
+                    );
 
                     // Build sources array based on user preferences
                     const sources = [];
                     if (
-                        shouldSendTelegramNotification(task.User, notificationType)
+                        shouldSendTelegramNotification(
+                            task.User,
+                            notificationType
+                        )
                     ) {
                         sources.push('telegram');
                     }

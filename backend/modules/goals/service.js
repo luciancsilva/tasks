@@ -2,18 +2,27 @@
 
 const goalsRepository = require('./repository');
 const { Area } = require('../../models');
-const { NotFoundError, ValidationError, ForbiddenError } = require('../../shared/errors');
+const {
+    NotFoundError,
+    ValidationError,
+    ForbiddenError,
+} = require('../../shared/errors');
 
 class GoalsService {
     async _resolveAreaOwnedByUser(userId, areaId) {
-        const area = await Area.findOne({ where: { id: areaId, user_id: userId } });
-        if (!area) throw new ForbiddenError('Area not found or not owned by user');
+        const area = await Area.findOne({
+            where: { id: areaId, user_id: userId },
+        });
+        if (!area)
+            throw new ForbiddenError('Area not found or not owned by user');
         return area;
     }
 
     async getAll(userId, areaId, areaUid) {
         if (areaUid) {
-            const area = await Area.findOne({ where: { uid: areaUid, user_id: userId } });
+            const area = await Area.findOne({
+                where: { uid: areaUid, user_id: userId },
+            });
             if (area) {
                 return goalsRepository.findAllByArea(userId, area.id);
             }

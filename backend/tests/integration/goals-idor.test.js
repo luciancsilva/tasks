@@ -9,14 +9,22 @@ describe('Goals area_id IDOR prevention (plan 47)', () => {
     let agentA, agentB, areaA, areaB;
 
     beforeEach(async () => {
-        const userA = await createTestUser({ email: `goals_idor_a_${Date.now()}@test.com` });
-        const userB = await createTestUser({ email: `goals_idor_b_${Date.now()}@test.com` });
+        const userA = await createTestUser({
+            email: `goals_idor_a_${Date.now()}@test.com`,
+        });
+        const userB = await createTestUser({
+            email: `goals_idor_b_${Date.now()}@test.com`,
+        });
 
         agentA = request.agent(app);
         agentB = request.agent(app);
 
-        await agentA.post('/api/login').send({ email: userA.email, password: 'password123' });
-        await agentB.post('/api/login').send({ email: userB.email, password: 'password123' });
+        await agentA
+            .post('/api/login')
+            .send({ email: userA.email, password: 'password123' });
+        await agentB
+            .post('/api/login')
+            .send({ email: userB.email, password: 'password123' });
 
         // Create an area for each user
         areaA = await Area.create({ name: 'Area A', user_id: userA.id });

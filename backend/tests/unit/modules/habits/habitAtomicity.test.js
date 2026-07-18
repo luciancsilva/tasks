@@ -1,6 +1,11 @@
 'use strict';
 
-const { Task, RecurringCompletion, User, sequelize } = require('../../../../models');
+const {
+    Task,
+    RecurringCompletion,
+    User,
+    sequelize,
+} = require('../../../../models');
 const bcrypt = require('bcrypt');
 
 describe('habitService - logCompletion atomicity (plan 40)', () => {
@@ -30,7 +35,9 @@ describe('habitService - logCompletion atomicity (plan 40)', () => {
         const originalUpdate = habitTask.update.bind(habitTask);
         habitTask.update = jest.fn().mockRejectedValue(new Error('DB error'));
 
-        await expect(habitService.logCompletion(habitTask, new Date())).rejects.toThrow('DB error');
+        await expect(
+            habitService.logCompletion(habitTask, new Date())
+        ).rejects.toThrow('DB error');
 
         // The completion must NOT be persisted (transaction rolled back)
         const completions = await RecurringCompletion.findAll({
@@ -86,11 +93,17 @@ describe('habitsService - deleteCompletion atomicity (plan 40)', () => {
     it('rolls back completion destroy when habitsRepository.update fails', async () => {
         const habitsRepository = require('../../../../modules/habits/repository');
         const originalUpdate = habitsRepository.update.bind(habitsRepository);
-        habitsRepository.update = jest.fn().mockRejectedValue(new Error('Update failed'));
+        habitsRepository.update = jest
+            .fn()
+            .mockRejectedValue(new Error('Update failed'));
 
         const habitsService = require('../../../../modules/habits/service');
         await expect(
-            habitsService.deleteCompletion(user.id, habitTask.uid, completion.id)
+            habitsService.deleteCompletion(
+                user.id,
+                habitTask.uid,
+                completion.id
+            )
         ).rejects.toThrow('Update failed');
 
         // completion must still exist (rollback)
@@ -102,7 +115,11 @@ describe('habitsService - deleteCompletion atomicity (plan 40)', () => {
 
     it('deleteCompletion removes completion and updates counters', async () => {
         const habitsService = require('../../../../modules/habits/service');
-        await habitsService.deleteCompletion(user.id, habitTask.uid, completion.id);
+        await habitsService.deleteCompletion(
+            user.id,
+            habitTask.uid,
+            completion.id
+        );
 
         const gone = await RecurringCompletion.findByPk(completion.id);
         expect(gone).toBeNull();

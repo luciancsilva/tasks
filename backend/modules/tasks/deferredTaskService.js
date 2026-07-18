@@ -50,7 +50,7 @@ async function checkDeferredTasks() {
                 break;
             }
 
-            const userIds = [...new Set(deferredTasks.map(t => t.user_id))];
+            const userIds = [...new Set(deferredTasks.map((t) => t.user_id))];
 
             // Fetch recent notifications for these users once per batch
             const recentNotifications = await Notification.findAll({
@@ -68,7 +68,10 @@ async function checkDeferredTasks() {
             // Index notifications by taskUid and reason
             const notificationsByTask = {};
             for (const notif of recentNotifications) {
-                if (notif.data?.taskUid && notif.data?.reason === 'defer_until_reached') {
+                if (
+                    notif.data?.taskUid &&
+                    notif.data?.reason === 'defer_until_reached'
+                ) {
                     const key = `${notif.data.taskUid}:${notif.data.reason}`;
                     notificationsByTask[key] = notif;
                 }
@@ -81,7 +84,8 @@ async function checkDeferredTasks() {
                     }
 
                     // Check for existing notifications using the index
-                    const existingNotification = notificationsByTask[`${task.uid}:defer_until_reached`];
+                    const existingNotification =
+                        notificationsByTask[`${task.uid}:defer_until_reached`];
 
                     // Preserve channel_sent_at for rate limiting when recreating notifications
                     let preservedChannelSentAt = null;
@@ -106,16 +110,19 @@ async function checkDeferredTasks() {
                     }
 
                     const sources = [];
-                    if (shouldSendTelegramNotification(task.User, 'deferUntil')) {
+                    if (
+                        shouldSendTelegramNotification(task.User, 'deferUntil')
+                    ) {
                         sources.push('telegram');
                     }
 
                     const lang = task.User.language || 'en';
-                    const { title, message } = require('../notifications/i18n').t(
-                        'task_now_active',
-                        lang,
-                        { name: task.name }
-                    );
+                    const { title, message } =
+                        require('../notifications/i18n').t(
+                            'task_now_active',
+                            lang,
+                            { name: task.name }
+                        );
 
                     await Notification.createNotification({
                         userId: task.user_id,

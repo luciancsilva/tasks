@@ -116,7 +116,13 @@ const requireAuth = async (req, res, next) => {
                     {
                         model: User,
                         as: 'User',
-                        attributes: ['id', 'uid', 'email', 'timezone', 'language'],
+                        attributes: [
+                            'id',
+                            'uid',
+                            'email',
+                            'timezone',
+                            'language',
+                        ],
                     },
                 ],
             });

@@ -17,7 +17,9 @@ class HabitService {
         if (task.User && task.User.timezone) {
             timezone = task.User.timezone;
         } else {
-            const user = await User.findByPk(task.user_id, { attributes: ['timezone'] });
+            const user = await User.findByPk(task.user_id, {
+                attributes: ['timezone'],
+            });
             if (user) {
                 timezone = user.timezone;
             }
@@ -25,15 +27,23 @@ class HabitService {
         timezone = getSafeTimezone(timezone);
 
         return sequelize.transaction(async (t) => {
-            const completion = await RecurringCompletion.create({
-                task_id: task.id,
-                completed_at: completedAt,
-                original_due_date: completedAt, // For habits, due date = completion date
-                skipped: false,
-            }, { transaction: t });
+            const completion = await RecurringCompletion.create(
+                {
+                    task_id: task.id,
+                    completed_at: completedAt,
+                    original_due_date: completedAt, // For habits, due date = completion date
+                    skipped: false,
+                },
+                { transaction: t }
+            );
 
             // Update cached counters and mark as done for today
-            const updates = await this.calculateStreakUpdates(task, completedAt, t, timezone);
+            const updates = await this.calculateStreakUpdates(
+                task,
+                completedAt,
+                t,
+                timezone
+            );
             updates.status = 2; // Mark as done
             updates.completed_at = completedAt;
             await task.update(updates, { transaction: t });
@@ -46,14 +56,24 @@ class HabitService {
      * Calculate streak updates based on completion
      * This is the core habit logic
      */
-    async calculateStreakUpdates(task, completedAt, transaction, timezone = 'UTC') {
+    async calculateStreakUpdates(
+        task,
+        completedAt,
+        transaction,
+        timezone = 'UTC'
+    ) {
         const updates = {
             habit_total_completions: task.habit_total_completions + 1,
             habit_last_completion_at: completedAt,
         };
 
         // Calculate new streak
-        const newStreak = await this.calculateCurrentStreak(task, completedAt, transaction, timezone);
+        const newStreak = await this.calculateCurrentStreak(
+            task,
+            completedAt,
+            transaction,
+            timezone
+        );
         updates.habit_current_streak = newStreak;
 
         // Update best streak if needed
@@ -72,9 +92,9 @@ class HabitService {
         if (task.User && task.User.timezone) {
             timezone = task.User.timezone;
         } else {
-            const user = await User.findByPk(task.user_id, { 
-                attributes: ['timezone'], 
-                ...(transaction ? { transaction } : {}) 
+            const user = await User.findByPk(task.user_id, {
+                attributes: ['timezone'],
+                ...(transaction ? { transaction } : {}),
             });
             if (user) {
                 timezone = user.timezone;
@@ -100,11 +120,18 @@ class HabitService {
         // Calculate current streak
         updates.habit_current_streak =
             completions.length > 0
-                ? this.calculateCalendarStreak(completions, new Date(), timezone)
+                ? this.calculateCalendarStreak(
+                      completions,
+                      new Date(),
+                      timezone
+                  )
                 : 0;
 
         // Calculate best streak (need to check all possible streaks)
-        updates.habit_best_streak = this.calculateBestStreak(completions, timezone);
+        updates.habit_best_streak = this.calculateBestStreak(
+            completions,
+            timezone
+        );
 
         return updates;
     }
@@ -125,12 +152,17 @@ class HabitService {
         );
 
         for (const completion of sorted) {
-            const completedDateStr = moment(completion.completed_at).tz(timezone).format('YYYY-MM-DD');
+            const completedDateStr = moment(completion.completed_at)
+                .tz(timezone)
+                .format('YYYY-MM-DD');
 
             if (!lastDateStr) {
                 currentStreak = 1;
             } else {
-                const diffDays = moment(completedDateStr).diff(moment(lastDateStr), 'days');
+                const diffDays = moment(completedDateStr).diff(
+                    moment(lastDateStr),
+                    'days'
+                );
 
                 if (diffDays === 1) {
                     // Consecutive day
@@ -154,7 +186,12 @@ class HabitService {
     /**
      * Calculate current streak based on streak mode
      */
-    async calculateCurrentStreak(task, asOfDate = new Date(), transaction, timezone = 'UTC') {
+    async calculateCurrentStreak(
+        task,
+        asOfDate = new Date(),
+        transaction,
+        timezone = 'UTC'
+    ) {
         const completions = await RecurringCompletion.findAll({
             where: {
                 task_id: task.id,
@@ -167,9 +204,18 @@ class HabitService {
         if (completions.length === 0) return 0;
 
         if (task.habit_streak_mode === 'calendar') {
-            return this.calculateCalendarStreak(completions, asOfDate, timezone);
+            return this.calculateCalendarStreak(
+                completions,
+                asOfDate,
+                timezone
+            );
         } else {
-            return this.calculateScheduledStreak(task, completions, asOfDate, timezone);
+            return this.calculateScheduledStreak(
+                task,
+                completions,
+                asOfDate,
+                timezone
+            );
         }
     }
 
@@ -184,12 +230,16 @@ class HabitService {
             return moment(c.completed_at).tz(timezone).format('YYYY-MM-DD');
         });
 
-        const uniqueDates = [...new Set(completionDateStrs)].sort((a, b) => b.localeCompare(a));
+        const uniqueDates = [...new Set(completionDateStrs)].sort((a, b) =>
+            b.localeCompare(a)
+        );
 
         for (const dateStr of uniqueDates) {
             if (dateStr === currentDateStr) {
                 streak++;
-                currentDateStr = moment(currentDateStr).subtract(1, 'days').format('YYYY-MM-DD');
+                currentDateStr = moment(currentDateStr)
+                    .subtract(1, 'days')
+                    .format('YYYY-MM-DD');
             } else if (dateStr < currentDateStr) {
                 break; // Gap in streak
             }

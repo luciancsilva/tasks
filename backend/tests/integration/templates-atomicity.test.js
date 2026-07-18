@@ -9,10 +9,14 @@ describe('Templates atomicity (plan 43)', () => {
     let agent, userId, sourceProject;
 
     beforeEach(async () => {
-        const user = await createTestUser({ email: `templates_atom_${Date.now()}@test.com` });
+        const user = await createTestUser({
+            email: `templates_atom_${Date.now()}@test.com`,
+        });
         userId = user.id;
         agent = request.agent(app);
-        await agent.post('/api/login').send({ email: user.email, password: 'password123' });
+        await agent
+            .post('/api/login')
+            .send({ email: user.email, password: 'password123' });
 
         sourceProject = await Project.create({
             name: 'Source Project',
@@ -32,7 +36,12 @@ describe('Templates atomicity (plan 43)', () => {
 
         // Add a task to the template so Task.destroy is needed
         const template = await Project.findOne({ where: { uid: templateUid } });
-        await Task.create({ name: 'T1', user_id: userId, project_id: template.id, status: 0 });
+        await Task.create({
+            name: 'T1',
+            user_id: userId,
+            project_id: template.id,
+            status: 0,
+        });
 
         // Delete the template
         const delRes = await agent.delete(`/api/template/${templateUid}`);
@@ -41,7 +50,9 @@ describe('Templates atomicity (plan 43)', () => {
         // Template and its tasks must be gone
         const gone = await Project.findOne({ where: { uid: templateUid } });
         expect(gone).toBeNull();
-        const tasks = await Task.findAll({ where: { project_id: template.id } });
+        const tasks = await Task.findAll({
+            where: { project_id: template.id },
+        });
         expect(tasks).toHaveLength(0);
     });
 

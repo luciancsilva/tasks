@@ -166,20 +166,29 @@ class TemplatesService {
 
         let result;
         await sequelize.transaction(async (t) => {
-            const template = await templatesRepository.create({
-                uid: templateUid,
-                name: templateName,
-                description: source.description || '',
-                status: 'not_started',
-                is_template: true,
-                template_category: options.category || null,
-                clone_count: 0,
-                user_id: userId,
-            }, { transaction: t });
+            const template = await templatesRepository.create(
+                {
+                    uid: templateUid,
+                    name: templateName,
+                    description: source.description || '',
+                    status: 'not_started',
+                    is_template: true,
+                    template_category: options.category || null,
+                    clone_count: 0,
+                    user_id: userId,
+                },
+                { transaction: t }
+            );
 
-            await this._copyTasksToProject(source, template, userId, {
-                resetStatus: true,
-            }, t);
+            await this._copyTasksToProject(
+                source,
+                template,
+                userId,
+                {
+                    resetStatus: true,
+                },
+                t
+            );
 
             if (sourceJson.Tags && sourceJson.Tags.length > 0) {
                 try {
@@ -220,31 +229,46 @@ class TemplatesService {
 
         let result;
         await sequelize.transaction(async (t) => {
-            const newProject = await projectsRepository.create({
-                uid: projectUid,
-                name: newName,
-                description: template.description || '',
-                status: 'not_started',
-                is_template: false,
-                source_template_id: template.id,
-                area_id: areaId,
-                user_id: userId,
-            }, { transaction: t });
+            const newProject = await projectsRepository.create(
+                {
+                    uid: projectUid,
+                    name: newName,
+                    description: template.description || '',
+                    status: 'not_started',
+                    is_template: false,
+                    source_template_id: template.id,
+                    area_id: areaId,
+                    user_id: userId,
+                },
+                { transaction: t }
+            );
 
-            await this._copyTasksToProject(template, newProject, userId, {
-                resetStatus: options.resetStatus !== false,
-                startDate: options.startDate,
-            }, t);
+            await this._copyTasksToProject(
+                template,
+                newProject,
+                userId,
+                {
+                    resetStatus: options.resetStatus !== false,
+                    startDate: options.startDate,
+                },
+                t
+            );
 
             if (templateJson.Tags && templateJson.Tags.length > 0) {
                 try {
-                    await updateTemplateTags(newProject, templateJson.Tags, userId);
+                    await updateTemplateTags(
+                        newProject,
+                        templateJson.Tags,
+                        userId
+                    );
                 } catch (err) {
                     logError('Tag copy failed during clone:', err.message);
                 }
             }
 
-            await templatesRepository.incrementCloneCount(template.id, { transaction: t });
+            await templatesRepository.incrementCloneCount(template.id, {
+                transaction: t,
+            });
             result = { ...newProject.toJSON(), uid: projectUid, tags: [] };
         });
 
