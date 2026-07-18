@@ -1,6 +1,6 @@
 # 30 — templates ("Modelos"): robustez de erro + diagnóstico
 
-> **Status: PROPOSTO** — a página Modelos mostra "Falha ao carregar/criar os modelos". O código está completo e correto no repo; a falha bate com backend velho não reiniciado após o commit dos templates. Melhorar a superfície de erro e diagnosticar o ambiente.
+> **Status: EXECUTADO** em 2026-07-18 — Adicionado check de status/HTML no service propagando erros específicos; modal mostra 404/500/etc (diagnóstico aponta 404 por fallback do express ou api router).
 > **Esforço:** Baixo (código) · **Natureza:** misto — robustez mecânica + **diagnóstico de ambiente exige humano** · **Modelo:** médio p/ código; **passo de diagnóstico é humano**.
 > **Branch:** `main` · **Depende de:** -
 

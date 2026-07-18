@@ -8,11 +8,21 @@ import { handleAuthResponse } from './authUtils';
 import { getApiPath } from '../config/paths';
 import { getCsrfToken } from './csrfService';
 
+const checkStatus = (response: Response) => {
+    if (response.status === 404) throw new Error('API_404_NOT_FOUND');
+    if (response.status >= 500) throw new Error('API_500_SERVER_ERROR');
+    const contentType = response.headers.get('content-type');
+    if (!response.ok && contentType && contentType.includes('text/html')) {
+        throw new Error('API_HTML_RESPONSE');
+    }
+};
+
 export const fetchTemplates = async (): Promise<Template[]> => {
     const response = await fetch(getApiPath('templates'), {
         credentials: 'include',
         headers: { Accept: 'application/json' },
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to fetch templates.');
     const data = await response.json();
     return data.templates || [];
@@ -23,6 +33,7 @@ export const fetchTemplate = async (uid: string): Promise<Template> => {
         credentials: 'include',
         headers: { Accept: 'application/json' },
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to fetch template.');
     return await response.json();
 };
@@ -41,6 +52,7 @@ export const createTemplate = async (
         },
         body: JSON.stringify(data),
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to create template.');
     return await response.json();
 };
@@ -60,6 +72,7 @@ export const updateTemplate = async (
         },
         body: JSON.stringify(data),
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to update template.');
     return await response.json();
 };
@@ -71,6 +84,7 @@ export const deleteTemplate = async (uid: string): Promise<void> => {
         credentials: 'include',
         headers: { Accept: 'application/json', 'x-csrf-token': token },
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to delete template.');
 };
 
@@ -92,6 +106,7 @@ export const saveProjectAsTemplate = async (
             body: JSON.stringify(options),
         }
     );
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to save project as template.');
     return await response.json();
 };
@@ -111,6 +126,7 @@ export const cloneTemplate = async (
         },
         body: JSON.stringify(options),
     });
+    checkStatus(response);
     await handleAuthResponse(response, 'Failed to clone template.');
     return await response.json();
 };

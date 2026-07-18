@@ -134,7 +134,6 @@ plano em mãos (o dono aloca planos mecânicos a modelos menos capazes).
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `30-templates-robustness-and-diagnosis.md` | Modelos falhando: robustez de erro no front + diagnóstico de ambiente | Baixo (código) | médio + humano p/ diagnóstico | - |
 | `26-inbox-person-persist-and-assign.md` | Inbox: `@pessoa` vira chip persistente e seta `assigned_to` ao criar | Médio | médio/forte | 25 |
 | `31-branding-validation-and-reset.md` | Marca: validar dimensão, renomear "Enviar", botão restaurar padrão | Médio | médio (sonnet) | - |
 | `27-inbox-area-token.md` | Inbox: token `$area` no título espelhando `@pessoa` (branch `feat/27`) | Médio | médio (sonnet) | 26 |
@@ -150,6 +149,7 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `30-templates-robustness-and-diagnosis.md` | Modelos falhando: robustez de erro no front + diagnóstico de ambiente | EXECUTADO (2026-07-18) |
 | `24-notification-i18n.md` | i18n de notificações agendadas (pt/en) + fix de plural "1 hours" | EXECUTADO (2026-07-18) |
 | `25-task-assignee-display.md` | Exibir pessoa atribuída (`assigned_to`) em cards e topo do detalhe (+ include backend) | EXECUTADO (2026-07-18) |
 | `29-sidebar-people-add-button.md` | Botão `+` em PESSOAS na sidebar reusando `PersonModal` | EXECUTADO (2026-07-18) |

@@ -142,10 +142,14 @@ const Templates: React.FC = () => {
         try {
             const results = await fetchTemplates();
             setTemplates(results);
-        } catch {
-            showErrorToast(
-                t('templates.fetchError', 'Failed to load templates.')
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.fetchError', 'Failed to load templates.'));
+            }
         } finally {
             setLoading(false);
         }
@@ -157,10 +161,14 @@ const Templates: React.FC = () => {
             showSuccessToast(t('templates.created', 'Template created.'));
             setEditingTemplate(null);
             loadTemplates();
-        } catch {
-            showErrorToast(
-                t('templates.createError', 'Failed to create template.')
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.createError', 'Failed to create template.'));
+            }
         }
     };
 
@@ -171,10 +179,14 @@ const Templates: React.FC = () => {
             showSuccessToast(t('templates.updated', 'Template updated.'));
             setEditingTemplate(null);
             loadTemplates();
-        } catch {
-            showErrorToast(
-                t('templates.updateError', 'Failed to update template.')
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.updateError', 'Failed to update template.'));
+            }
         }
     };
 
@@ -185,10 +197,14 @@ const Templates: React.FC = () => {
             showSuccessToast(t('templates.deleted', 'Template deleted.'));
             setDeleteTarget(null);
             loadTemplates();
-        } catch {
-            showErrorToast(
-                t('templates.deleteError', 'Failed to delete template.')
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.deleteError', 'Failed to delete template.'));
+            }
         }
     };
 
@@ -213,13 +229,14 @@ const Templates: React.FC = () => {
                         .replace(/^-|-$/g, '')}`
                 );
             }
-        } catch {
-            showErrorToast(
-                t(
-                    'templates.cloneError',
-                    'Failed to create project from template.'
-                )
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.cloneError', 'Failed to create project from template.'));
+            }
         }
     };
 
@@ -229,10 +246,14 @@ const Templates: React.FC = () => {
         try {
             const full = await fetchTemplate(template.uid);
             setPreviewTarget(full);
-        } catch {
-            showErrorToast(
-                t('templates.previewError', 'Failed to load template preview.')
-            );
+        } catch (error: any) {
+            if (error.message === 'API_404_NOT_FOUND' || error.message === 'API_HTML_RESPONSE') {
+                showErrorToast(t('templates.error404', 'Recurso indisponível. Reinicie o servidor backend.'));
+            } else if (error.message === 'API_500_SERVER_ERROR') {
+                showErrorToast(t('templates.error500', 'Erro interno do servidor. Tente novamente mais tarde.'));
+            } else {
+                showErrorToast(t('templates.previewError', 'Failed to load template preview.'));
+            }
         } finally {
             setLoadingPreview(false);
         }
