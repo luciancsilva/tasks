@@ -178,6 +178,11 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
     }
 
+    // Plan 49: Someday/Maybe flag (list membership, not lifecycle).
+    if (body.is_someday !== undefined) {
+        attrs.is_someday = body.is_someday === true;
+    }
+
     return attrs;
 }
 
@@ -270,6 +275,11 @@ function buildUpdateAttributes(body, task, timezone) {
 
     if (body.involves !== undefined) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
+    }
+
+    // Plan 49: Someday/Maybe flag.
+    if (body.is_someday !== undefined) {
+        attrs.is_someday = body.is_someday === true;
     }
 
     return attrs;

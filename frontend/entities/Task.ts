@@ -50,6 +50,8 @@ export interface Task {
     habit_last_completion_at?: string;
     assigned_to?: string | null;
     involves?: string[];
+    // Plan 49: native Someday/Maybe flag (list membership, not lifecycle).
+    is_someday?: boolean;
     // @mention link (many-to-many, parity with tags)
     InvolvedPeople?: Person[];
     AssignedTo?: Person;

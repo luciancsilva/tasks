@@ -33,6 +33,7 @@ import {
     TaskDeferUntilCard,
     TaskAttachmentsCard,
     TaskAssignedToCard,
+    TaskSomedayCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1140,6 +1141,24 @@ const TaskDetails: React.FC = () => {
         }
     };
 
+    // Plan 49: Someday/Maybe toggle.
+    const handleToggleSomeday = async (value: boolean) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            await updateTask(task.uid, { is_someday: value });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error toggling someday flag:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
     const getAreaLink = (area: Area) => {
         if (area.uid) {
             const slug = area.name
@@ -1354,6 +1373,11 @@ const TaskDetails: React.FC = () => {
                                 <TaskAssignedToCard
                                     task={task}
                                     onAssign={handleAssignPerson}
+                                />
+
+                                <TaskSomedayCard
+                                    task={task}
+                                    onToggle={handleToggleSomeday}
                                 />
 
                                 <TaskTagsCard

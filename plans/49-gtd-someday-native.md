@@ -1,6 +1,6 @@
 # 49 — Someday/Maybe nativo (flag `is_someday`)
 
-> **Status: PROPOSTO** — Someday/Maybe hoje é fake via tag sistema `someday` (`backend/modules/tags/systemTags.js:3`) + toggle na página Projects (`frontend/components/Projects.tsx:86,358`) + hide no Kanban (`KanbanBoard.tsx:186`). O `case 'someday'` em `query-builders.js:297-301` filtra `due_date=null` + não-done — **não** filtra por tag someday, ou seja, a "lista Someday" da API é só "tarefas sem data", semanticamente errada. Sem sidebar entry, sem toggle no TaskDetails, sem exclusão de Today/Upcoming.
+> **Status: EXECUTADO** em 2026-07-18 — `is_someday` column + model + service + query-builder (someday list + exclusion em today/upcoming/next/inbox/active) + sidebar NavLink + Tasks.tsx title via `getTitleAndIcon` já existente + TaskSomedayCard. 10 testes integração backend + 4 frontend. Suítes verdes (1747 backend / 116 frontend), typecheck limpo. Migration usa shape `safeAddColumns({name, definition})` (utils/migration-utils) — divergiu do snippet do plano que usava coluna em top-level.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/49-gtd-someday` a partir da `main` · **Depende de:** -
 

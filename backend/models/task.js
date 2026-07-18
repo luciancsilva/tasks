@@ -230,6 +230,14 @@ module.exports = (sequelize) => {
                     );
                 },
             },
+            // Plan 49: flag ortogonal ao lifecycle (status enum 0-6). List
+            // membership, não estado. Tarefas `is_someday=true` ficam fora das
+            // listas de ação (today/upcoming/next/inbox).
+            is_someday: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
         },
         {
             tableName: 'tasks',
