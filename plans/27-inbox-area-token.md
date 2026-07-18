@@ -1,8 +1,6 @@
 # 27 — inbox: token `$area` no título
 
-> **Status: PROPOSTO** — permitir vincular Área na inbox via `$area` no título, espelhando `@pessoa`, já nascendo sem os bugs de persistência/vínculo (planos 25/26).
-> **Esforço:** Médio · **Natureza:** mecânico-repetitivo cross-file (espelha `@pessoa`) · **Modelo:** médio (sonnet).
-> **Branch:** `feat/27-inbox-area-token` (feature — sem merge; o dono valida) · **Depende de:** 26.
+> **Status: EXECUTADO** em 2026-07-18 — Adicionado parsing de token `$area` no frontend e backend.
 
 ## Objetivo
 
