@@ -7,27 +7,35 @@ module.exports = {
         await safeAddColumns(queryInterface, 'users', [
             {
                 name: 'ai_provider',
-                type: Sequelize.STRING,
-                allowNull: true,
-                defaultValue: null,
+                definition: {
+                    type: Sequelize.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
             {
                 name: 'ai_api_key',
-                type: Sequelize.STRING,
-                allowNull: true,
-                defaultValue: null,
+                definition: {
+                    type: Sequelize.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
             {
                 name: 'ai_model',
-                type: Sequelize.STRING,
-                allowNull: true,
-                defaultValue: null,
+                definition: {
+                    type: Sequelize.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
             {
                 name: 'ai_base_url',
-                type: Sequelize.STRING,
-                allowNull: true,
-                defaultValue: null,
+                definition: {
+                    type: Sequelize.STRING,
+                    allowNull: true,
+                    defaultValue: null,
+                },
             },
         ]);
     },
