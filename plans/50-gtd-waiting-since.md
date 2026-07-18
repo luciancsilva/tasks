@@ -1,6 +1,6 @@
 # 50 — Waiting-For nativo + `waiting_since`
 
-> **Status: PROPOSTO** — `Task.status=waiting` (4) já existe (`backend/models/task.js:323,384`) e o `case 'waiting'` em `query-builders.js:302-304` filtra por ele. View `extras.task_status='waiting'` suportado (plano 16). **Falta:** timestamp `waiting_since` (quando entrou em waiting) → sem ele, follow-up overdue é impossível; sem sidebar entry nativa; sem badge de follow-up.
+> **Status: EXECUTADO** em 2026-07-18 — `waiting_since` DATE column + auto-set/limpeza em transição de status no `tasks/service.js` + filtro opcional `?waiting_overdue_days=N` no query-builder + sidebar entry "Waiting" + `TaskWaitingSinceCard` (visível só em `status=waiting`). 8 testes integração backend + 4 frontend. Suítes backend verdes (1745), typecheck limpo. Migration usa shape `safeAddColumns({name, definition})` (utils/migration-utils).
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/50-gtd-waiting-since` a partir da `main` · **Depende de:** -
 

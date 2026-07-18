@@ -56,6 +56,13 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
             icon: <ClockIcon className="h-5 w-5" />,
         },
         {
+            // Plan 50: native Waiting-For list.
+            path: '/tasks?type=waiting',
+            title: t('sidebar.waiting', 'Waiting'),
+            icon: <ClockIcon className="h-5 w-5" />,
+            query: 'type=waiting',
+        },
+        {
             path: '/calendar',
             title: t('sidebar.calendar', 'Calendar'),
             icon: <CalendarIcon className="h-5 w-5" />,

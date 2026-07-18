@@ -159,6 +159,14 @@ module.exports = (sequelize) => {
                 type: DataTypes.DATE,
                 allowNull: true,
             },
+            // Plan 50: timestamp set on transition TO status=waiting; cleared
+            // when leaving waiting. Drives follow-up overdue filter
+            // (?type=waiting&waiting_overdue_days=N).
+            waiting_since: {
+                type: DataTypes.DATE,
+                allowNull: true,
+                defaultValue: null,
+            },
             habit_mode: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,

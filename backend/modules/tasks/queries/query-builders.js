@@ -301,6 +301,17 @@ async function filterTasksByParams(
             break;
         case 'waiting':
             whereClause.status = Task.STATUS.WAITING;
+            // Plan 50: optional follow-up overdue filter. Tasks waiting longer
+            // than N days. Throws on bad input rather than silently
+            // returning nothing — front-end already validates.
+            if (params.waiting_overdue_days !== undefined) {
+                const days = parseInt(params.waiting_overdue_days, 10);
+                if (!Number.isFinite(days) || days < 0) {
+                    throw new Error('Invalid waiting_overdue_days');
+                }
+                const cutoff = new Date(Date.now() - days * 86400000);
+                whereClause.waiting_since = { [Op.lt]: cutoff };
+            }
             break;
         case 'all':
             if (params.status === 'done' || params.status === 'completed') {

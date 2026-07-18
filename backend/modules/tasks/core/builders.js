@@ -178,6 +178,12 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
     }
 
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
+    }
+
     return attrs;
 }
 
@@ -270,6 +276,12 @@ function buildUpdateAttributes(body, task, timezone) {
 
     if (body.involves !== undefined) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
+    }
+
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
     }
 
     return attrs;
