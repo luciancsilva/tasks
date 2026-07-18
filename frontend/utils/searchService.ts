@@ -6,6 +6,7 @@ interface SearchParams {
     filters?: string[];
     priority?: string;
     energy?: string;
+    time_max?: string;
     due?: string;
     defer?: string;
     tags?: string[];
@@ -58,6 +59,10 @@ export const searchUniversal = async (
 
         if (params.energy) {
             queryParams.append('energy', params.energy);
+        }
+
+        if (params.time_max) {
+            queryParams.append('time_max', params.time_max);
         }
 
         if (params.due) {

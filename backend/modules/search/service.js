@@ -59,6 +59,8 @@ class SearchService {
             searchQuery,
             priority,
             energy,
+            time_max,
+            time_min,
             recurring,
             extras,
             excludeSubtasks,
@@ -103,6 +105,30 @@ class SearchService {
             const energyInt = Task.getEnergyValue(energy);
             if (energyInt !== null) {
                 conditions.energy = energyInt;
+            }
+        }
+
+        // Plan 52: time-available filter. `time_max` = fits in N minutes or
+        // less (never-estimated tasks excluded, not treated as 0); `time_min`
+        // = takes at least N minutes. Bad values are a no-op, consistent with
+        // priority/energy handling above.
+        if (time_max !== undefined) {
+            const max = Number(time_max);
+            if (Number.isFinite(max) && max >= 1) {
+                conditions.time_estimate = {
+                    ...(conditions.time_estimate || {}),
+                    [Op.ne]: null,
+                    [Op.lte]: max,
+                };
+            }
+        }
+        if (time_min !== undefined) {
+            const min = Number(time_min);
+            if (Number.isFinite(min) && min >= 0) {
+                conditions.time_estimate = {
+                    ...(conditions.time_estimate || {}),
+                    [Op.gte]: min,
+                };
             }
         }
 

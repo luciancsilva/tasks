@@ -412,6 +412,33 @@ async function filterTasksByParams(
         }
     }
 
+    // Plan 52: time-available filter. `time_max` = tasks that fit in N
+    // minutes or less (never-estimated tasks are excluded, not treated as
+    // 0); `time_min` = tasks that take at least N minutes. Combinable for a
+    // range. Bad input throws ValidationError -> 400 (front-end validates
+    // before sending, so a bad value here means a malformed request).
+    if (params.time_max !== undefined) {
+        const max = Number(params.time_max);
+        if (!Number.isFinite(max) || max < 1) {
+            throw new ValidationError('Invalid time_max');
+        }
+        whereClause.time_estimate = {
+            ...(whereClause.time_estimate || {}),
+            [Op.ne]: null,
+            [Op.lte]: max,
+        };
+    }
+    if (params.time_min !== undefined) {
+        const min = Number(params.time_min);
+        if (!Number.isFinite(min) || min < 0) {
+            throw new ValidationError('Invalid time_min');
+        }
+        whereClause.time_estimate = {
+            ...(whereClause.time_estimate || {}),
+            [Op.gte]: min,
+        };
+    }
+
     let orderClause = [['created_at', 'DESC']];
 
     if (params.type === 'inbox') {
@@ -427,6 +454,7 @@ async function filterTasksByParams(
             'name',
             'priority',
             'energy',
+            'time_estimate',
             'status',
             'due_date',
             'completed_at',

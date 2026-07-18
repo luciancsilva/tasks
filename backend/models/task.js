@@ -51,6 +51,17 @@ module.exports = (sequelize) => {
                     isIn: [[0, 1, 2]],
                 },
             },
+            // Plan 52: estimated time to complete, in minutes. Distinct axis
+            // from energy/priority. Powers /tasks?time_max=/time_min= filter.
+            time_estimate: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                defaultValue: null,
+                validate: {
+                    min: 1,
+                    max: 1440,
+                },
+            },
             status: {
                 type: DataTypes.INTEGER,
                 allowNull: false,

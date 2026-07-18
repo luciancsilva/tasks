@@ -5,6 +5,7 @@ const {
     validateName,
     validateExtras,
     validateEnergy,
+    validateTimeMax,
 } = require('./validation');
 const { NotFoundError } = require('../../shared/errors');
 
@@ -32,6 +33,7 @@ class ViewsService {
             filters,
             priority,
             energy,
+            time_max,
             due,
             defer,
             tags,
@@ -42,6 +44,7 @@ class ViewsService {
         const validatedName = validateName(name);
         const validatedExtras = validateExtras(extras);
         const validatedEnergy = validateEnergy(energy);
+        const validatedTimeMax = validateTimeMax(time_max);
 
         return viewsRepository.createForUser(userId, {
             name: validatedName,
@@ -49,6 +52,7 @@ class ViewsService {
             filters: filters || [],
             priority: priority || null,
             energy: validatedEnergy,
+            time_max: validatedTimeMax,
             due: due || null,
             defer: defer || null,
             tags: tags || [],
@@ -70,6 +74,7 @@ class ViewsService {
             filters,
             priority,
             energy,
+            time_max,
             due,
             defer,
             tags,
@@ -84,6 +89,8 @@ class ViewsService {
         if (filters !== undefined) updates.filters = filters;
         if (priority !== undefined) updates.priority = priority;
         if (energy !== undefined) updates.energy = validateEnergy(energy);
+        if (time_max !== undefined)
+            updates.time_max = validateTimeMax(time_max);
         if (due !== undefined) updates.due = due;
         if (defer !== undefined) updates.defer = defer;
         if (tags !== undefined) updates.tags = tags;
