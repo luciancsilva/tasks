@@ -83,7 +83,10 @@ const tokenizeText = (text) => {
 
         if (
             char === '"' &&
-            (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+            (i === 0 ||
+                text[i - 1] === '+' ||
+                text[i - 1] === '@' ||
+                text[i - 1] === '$')
         ) {
             // Start of a quoted string after + or @
             inQuotes = true;
@@ -133,7 +136,8 @@ const parseHashtags = (text) => {
         if (
             words[i].startsWith('#') ||
             words[i].startsWith('+') ||
-            words[i].startsWith('@')
+            words[i].startsWith('@') ||
+            words[i].startsWith('$')
         ) {
             // Found start of a group, collect all consecutive tags/projects/people
             let groupEnd = i;
@@ -141,7 +145,8 @@ const parseHashtags = (text) => {
                 groupEnd < words.length &&
                 (words[groupEnd].startsWith('#') ||
                     words[groupEnd].startsWith('+') ||
-                    words[groupEnd].startsWith('@'))
+                    words[groupEnd].startsWith('@') ||
+                    words[groupEnd].startsWith('$'))
             ) {
                 groupEnd++;
             }
@@ -189,7 +194,8 @@ const parseProjectRefs = (text) => {
         if (
             tokens[i].startsWith('#') ||
             tokens[i].startsWith('+') ||
-            tokens[i].startsWith('@')
+            tokens[i].startsWith('@') ||
+            tokens[i].startsWith('$')
         ) {
             // Found start of a group, collect all consecutive tags/projects
             let groupEnd = i;
@@ -197,7 +203,8 @@ const parseProjectRefs = (text) => {
                 groupEnd < tokens.length &&
                 (tokens[groupEnd].startsWith('#') ||
                     tokens[groupEnd].startsWith('+') ||
-                    tokens[groupEnd].startsWith('@'))
+                    tokens[groupEnd].startsWith('@') ||
+                    tokens[groupEnd].startsWith('$'))
             ) {
                 groupEnd++;
             }
@@ -247,14 +254,16 @@ const parsePeopleRefs = (text) => {
         if (
             tokens[i].startsWith('#') ||
             tokens[i].startsWith('+') ||
-            tokens[i].startsWith('@')
+            tokens[i].startsWith('@') ||
+            tokens[i].startsWith('$')
         ) {
             let groupEnd = i;
             while (
                 groupEnd < tokens.length &&
                 (tokens[groupEnd].startsWith('#') ||
                     tokens[groupEnd].startsWith('+') ||
-                    tokens[groupEnd].startsWith('@'))
+                    tokens[groupEnd].startsWith('@') ||
+                    tokens[groupEnd].startsWith('$'))
             ) {
                 groupEnd++;
             }
@@ -287,6 +296,60 @@ const parsePeopleRefs = (text) => {
 };
 
 /**
+ * Parse area references ($name) from text (consecutive groups anywhere)
+ * @param {string} text - Text to parse
+ * @returns {string[]} Array of area names
+ */
+const parseAreaRefs = (text) => {
+    const trimmedText = text.trim();
+    const matches = [];
+
+    const tokens = tokenizeText(trimmedText);
+
+    let i = 0;
+    while (i < tokens.length) {
+        if (
+            tokens[i].startsWith('#') ||
+            tokens[i].startsWith('+') ||
+            tokens[i].startsWith('@') ||
+            tokens[i].startsWith('$')
+        ) {
+            let groupEnd = i;
+            while (
+                groupEnd < tokens.length &&
+                (tokens[groupEnd].startsWith('#') ||
+                    tokens[groupEnd].startsWith('+') ||
+                    tokens[groupEnd].startsWith('@') ||
+                    tokens[groupEnd].startsWith('$'))
+            ) {
+                groupEnd++;
+            }
+
+            for (let j = i; j < groupEnd; j++) {
+                if (tokens[j].startsWith('$')) {
+                    let areaName = tokens[j].substring(1);
+
+                    // Handle quoted names ($"Area Name")
+                    if (areaName.startsWith('"') && areaName.endsWith('"')) {
+                        areaName = areaName.slice(1, -1);
+                    }
+
+                    if (areaName && !matches.includes(areaName)) {
+                        matches.push(areaName);
+                    }
+                }
+            }
+
+            i = groupEnd;
+        } else {
+            i++;
+        }
+    }
+
+    return matches;
+};
+
+/**
  * Clean text by removing tags and project references (consecutive groups anywhere)
  * @param {string} text - Text to clean
  * @returns {string} Cleaned text
@@ -302,14 +365,16 @@ const cleanTextFromTagsAndProjects = (text) => {
         if (
             tokens[i].startsWith('#') ||
             tokens[i].startsWith('+') ||
-            tokens[i].startsWith('@')
+            tokens[i].startsWith('@') ||
+            tokens[i].startsWith('$')
         ) {
             // Skip this entire consecutive group
             while (
                 i < tokens.length &&
                 (tokens[i].startsWith('#') ||
                     tokens[i].startsWith('+') ||
-                    tokens[i].startsWith('@'))
+                    tokens[i].startsWith('@') ||
+                    tokens[i].startsWith('$'))
             ) {
                 i++;
             }
@@ -412,6 +477,7 @@ const processInboxItem = (content) => {
     const tags = parseHashtags(content);
     const projects = parseProjectRefs(content);
     const people = parsePeopleRefs(content);
+    const areas = parseAreaRefs(content);
     const cleanedContent = cleanTextFromTagsAndProjects(content);
 
     // Generate suggestion
@@ -426,6 +492,7 @@ const processInboxItem = (content) => {
         parsed_tags: tags,
         parsed_projects: projects,
         parsed_people: people,
+        parsed_areas: areas,
         cleaned_content: cleanedContent,
         suggested_type: suggestion.type,
         suggested_reason: suggestion.reason,
@@ -445,6 +512,7 @@ module.exports = {
     parseHashtags,
     parseProjectRefs,
     parsePeopleRefs,
+    parseAreaRefs,
     cleanTextFromTagsAndProjects,
     tokenizeText,
 

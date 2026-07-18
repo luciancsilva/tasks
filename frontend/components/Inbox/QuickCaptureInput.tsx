@@ -9,6 +9,7 @@ import React, {
 import { Task } from '../../entities/Task';
 import { Tag } from '../../entities/Tag';
 import { Project } from '../../entities/Project';
+import { Area } from '../../entities/Area';
 import { Note } from '../../entities/Note';
 import { Person } from '../../entities/Person';
 import { useToast } from '../Shared/ToastContext';
@@ -45,6 +46,7 @@ export interface InboxComposerFooterContext {
     hashtags: string[];
     projectRefs: string[];
     peopleRefs: string[];
+    areaRefs: string[];
     clearText: () => void;
 }
 
@@ -53,6 +55,7 @@ interface QuickCaptureInputProps {
     onNoteCreate?: (note: Note) => Promise<void>;
     projects?: Project[];
     people?: Person[];
+    areas?: Area[];
     autoFocus?: boolean;
     mode?: 'create' | 'edit';
     initialValue?: string;
@@ -126,7 +129,7 @@ export const tokenizeQuickCaptureText = (text: string): string[] => {
 
         if (
             char === '"' &&
-            (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+            (i === 0 || text[i - 1] === '+' || text[i - 1] === '@' || text[i - 1] === '$')
         ) {
             inQuotes = true;
             currentToken += char;
@@ -161,13 +164,15 @@ export const cleanQuickCaptureText = (text: string): string => {
         if (
             tokens[i].startsWith('#') ||
             tokens[i].startsWith('+') ||
-            tokens[i].startsWith('@')
+            tokens[i].startsWith('@') ||
+            tokens[i].startsWith('$')
         ) {
             while (
                 i < tokens.length &&
                 (tokens[i].startsWith('#') ||
                     tokens[i].startsWith('+') ||
-                    tokens[i].startsWith('@'))
+                    tokens[i].startsWith('@') ||
+                    tokens[i].startsWith('$'))
             ) {
                 i++;
             }
@@ -190,6 +195,7 @@ const QuickCaptureInput = React.forwardRef<
             onNoteCreate,
             projects: propProjects = [],
             people: propPeople = [],
+            areas: propAreas = [],
             autoFocus = false,
             mode = 'create',
             initialValue = '',
@@ -223,6 +229,7 @@ const QuickCaptureInput = React.forwardRef<
         const [filteredPeople, setFilteredPeople] = useState<Person[]>([]);
         const projects = propProjects;
         const people = propPeople;
+        const areas = propAreas;
         const [cursorPosition, setCursorPosition] = useState(0);
         const [, setCurrentHashtagQuery] = useState('');
         const [, setCurrentProjectQuery] = useState('');
@@ -238,6 +245,7 @@ const QuickCaptureInput = React.forwardRef<
             parsed_tags: string[];
             parsed_projects: string[];
             parsed_people: string[];
+            parsed_areas: string[];
             cleaned_content: string;
             suggested_type: 'task' | 'note' | null;
             suggested_reason: string | null;
@@ -289,14 +297,16 @@ const QuickCaptureInput = React.forwardRef<
                 if (
                     words[i].startsWith('#') ||
                     words[i].startsWith('+') ||
-                    words[i].startsWith('@')
+                    words[i].startsWith('@') ||
+                    words[i].startsWith('$')
                 ) {
                     let groupEnd = i;
                     while (
                         groupEnd < words.length &&
                         (words[groupEnd].startsWith('#') ||
                             words[groupEnd].startsWith('+') ||
-                            words[groupEnd].startsWith('@'))
+                            words[groupEnd].startsWith('@') ||
+                            words[groupEnd].startsWith('$'))
                     ) {
                         groupEnd++;
                     }
@@ -334,14 +344,16 @@ const QuickCaptureInput = React.forwardRef<
                 if (
                     tokens[i].startsWith('#') ||
                     tokens[i].startsWith('+') ||
-                    tokens[i].startsWith('@')
+                    tokens[i].startsWith('@') ||
+                    tokens[i].startsWith('$')
                 ) {
                     let groupEnd = i;
                     while (
                         groupEnd < tokens.length &&
                         (tokens[groupEnd].startsWith('#') ||
                             tokens[groupEnd].startsWith('+') ||
-                            tokens[groupEnd].startsWith('@'))
+                            tokens[groupEnd].startsWith('@') ||
+                            tokens[groupEnd].startsWith('$'))
                     ) {
                         groupEnd++;
                     }
@@ -384,14 +396,16 @@ const QuickCaptureInput = React.forwardRef<
                 if (
                     tokens[i].startsWith('#') ||
                     tokens[i].startsWith('+') ||
-                    tokens[i].startsWith('@')
+                    tokens[i].startsWith('@') ||
+                    tokens[i].startsWith('$')
                 ) {
                     let groupEnd = i;
                     while (
                         groupEnd < tokens.length &&
                         (tokens[groupEnd].startsWith('#') ||
                             tokens[groupEnd].startsWith('+') ||
-                            tokens[groupEnd].startsWith('@'))
+                            tokens[groupEnd].startsWith('@') ||
+                            tokens[groupEnd].startsWith('$'))
                     ) {
                         groupEnd++;
                     }
@@ -409,6 +423,57 @@ const QuickCaptureInput = React.forwardRef<
 
                             if (personName && !matches.includes(personName)) {
                                 matches.push(personName);
+                            }
+                        }
+                    }
+
+                    i = groupEnd;
+                } else {
+                    i++;
+                }
+            }
+
+            return matches;
+        };
+
+        const parseAreaRefs = (text: string): string[] => {
+            const trimmedText = text.trim();
+            const matches: string[] = [];
+
+            const tokens = tokenizeText(trimmedText);
+
+            let i = 0;
+            while (i < tokens.length) {
+                if (
+                    tokens[i].startsWith('#') ||
+                    tokens[i].startsWith('+') ||
+                    tokens[i].startsWith('@') ||
+                    tokens[i].startsWith('$')
+                ) {
+                    let groupEnd = i;
+                    while (
+                        groupEnd < tokens.length &&
+                        (tokens[groupEnd].startsWith('#') ||
+                            tokens[groupEnd].startsWith('+') ||
+                            tokens[groupEnd].startsWith('@') ||
+                            tokens[groupEnd].startsWith('$'))
+                    ) {
+                        groupEnd++;
+                    }
+
+                    for (let j = i; j < groupEnd; j++) {
+                        if (tokens[j].startsWith('$')) {
+                            let areaName = tokens[j].substring(1);
+
+                            if (
+                                areaName.startsWith('"') &&
+                                areaName.endsWith('"')
+                            ) {
+                                areaName = areaName.slice(1, -1);
+                            }
+
+                            if (areaName && !matches.includes(areaName)) {
+                                matches.push(areaName);
                             }
                         }
                     }
@@ -508,7 +573,7 @@ const QuickCaptureInput = React.forwardRef<
 
                 if (
                     char === '"' &&
-                    (i === 0 || text[i - 1] === '+' || text[i - 1] === '@')
+                    (i === 0 || text[i - 1] === '+' || text[i - 1] === '@' || text[i - 1] === '$')
                 ) {
                     inQuotes = true;
                     currentToken += char;
@@ -1088,6 +1153,18 @@ const QuickCaptureInput = React.forwardRef<
             return parsePeopleRefs(text);
         };
 
+        const getAllAreas = (text: string): string[] => {
+            if (
+                analysisResult &&
+                lastAnalyzedTextRef.current === text.trim() &&
+                analysisResult.parsed_areas
+            ) {
+                return analysisResult.parsed_areas.slice(0, 1);
+            }
+
+            return parseAreaRefs(text).slice(0, 1);
+        };
+
         const buildPersonObjects = (personNames: string[]) => {
             return personNames.map((personName) => {
                 const existingPerson = people.find(
@@ -1492,6 +1569,19 @@ const QuickCaptureInput = React.forwardRef<
                             }
                         }
 
+                        let areaUid: string | undefined = undefined;
+                        if (analysisResult.parsed_areas && analysisResult.parsed_areas.length > 0) {
+                            const areaName = analysisResult.parsed_areas[0];
+                            const matchingArea = areas.find(
+                                (area) =>
+                                    area.name.toLowerCase() ===
+                                    areaName.toLowerCase()
+                            );
+                            if (matchingArea) {
+                                areaUid = matchingArea.uid;
+                            }
+                        }
+
                         const newTask: Task = {
                             name: cleanedText,
                             status: 'not_started',
@@ -1499,6 +1589,7 @@ const QuickCaptureInput = React.forwardRef<
                             tags: taskTags,
                             people: taskPeople,
                             project_uid: projectUid,
+                            area_uid: areaUid,
                             completed_at: null,
                         };
 
@@ -1660,6 +1751,7 @@ const QuickCaptureInput = React.forwardRef<
                 const hashtags = getAllTags(inputText);
                 const projectRefs = getAllProjects(inputText);
                 const peopleRefs = getAllPeople(inputText);
+                const areaRefs = getAllAreas(inputText);
 
                 return {
                     text: inputText,
@@ -1667,6 +1759,7 @@ const QuickCaptureInput = React.forwardRef<
                     hashtags,
                     projectRefs,
                     peopleRefs,
+                    areaRefs,
                     clearText: clearComposerText,
                     updateText: (value: string) => setInputText(value),
                 };
@@ -1696,6 +1789,18 @@ const QuickCaptureInput = React.forwardRef<
                                         if (!cleaned) {
                                             return;
                                         }
+                                        const areaUid = (() => {
+                                            if (composerFooterContext.areaRefs && composerFooterContext.areaRefs.length > 0) {
+                                                const areaName = composerFooterContext.areaRefs[0];
+                                                const matchingArea = areas.find(
+                                                    (area) =>
+                                                        area.name.toLowerCase() ===
+                                                        areaName.toLowerCase()
+                                                );
+                                                return matchingArea?.uid;
+                                            }
+                                            return undefined;
+                                        })();
                                         const newTask: Task = {
                                             name: cleaned,
                                             status: 'not_started',
@@ -1706,6 +1811,7 @@ const QuickCaptureInput = React.forwardRef<
                                                       uid: projectUid,
                                                   } as Project)
                                                 : undefined,
+                                            area_uid: areaUid,
                                             completed_at: null,
                                         };
                                         void openTaskModal(newTask);

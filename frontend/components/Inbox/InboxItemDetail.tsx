@@ -10,6 +10,7 @@ import {
     TagIcon,
     GlobeAltIcon,
     UserIcon,
+    Squares2X2Icon,
 } from '@heroicons/react/24/outline';
 import { Task } from '../../entities/Task';
 import { Project } from '../../entities/Project';
@@ -47,6 +48,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     const {
         tagsStore: { tags },
         peopleStore: { people, refreshPeople },
+        areasStore: { areas },
     } = useStore();
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -181,13 +183,14 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
 
         let i = 0;
         while (i < tokens.length) {
-            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@')) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$')) {
                 let groupEnd = i;
                 while (
                     groupEnd < tokens.length &&
                     (tokens[groupEnd].startsWith('#') ||
                         tokens[groupEnd].startsWith('+') ||
-                        tokens[groupEnd].startsWith('@'))
+                        tokens[groupEnd].startsWith('@') ||
+                        tokens[groupEnd].startsWith('$'))
                 ) {
                     groupEnd++;
                 }
@@ -215,6 +218,49 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         return matches;
     };
 
+    const parseAreaRefs = (text: string): string[] => {
+        const trimmedText = text.trim();
+        const matches: string[] = [];
+
+        const tokens = tokenizeText(trimmedText);
+
+        let i = 0;
+        while (i < tokens.length) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$')) {
+                let groupEnd = i;
+                while (
+                    groupEnd < tokens.length &&
+                    (tokens[groupEnd].startsWith('#') ||
+                        tokens[groupEnd].startsWith('+') ||
+                        tokens[groupEnd].startsWith('@') ||
+                        tokens[groupEnd].startsWith('$'))
+                ) {
+                    groupEnd++;
+                }
+
+                for (let j = i; j < groupEnd; j++) {
+                    if (tokens[j].startsWith('$')) {
+                        let areaName = tokens[j].substring(1);
+
+                        if (areaName.startsWith('"') && areaName.endsWith('"')) {
+                            areaName = areaName.slice(1, -1);
+                        }
+
+                        if (areaName && !matches.includes(areaName)) {
+                            matches.push(areaName);
+                        }
+                    }
+                }
+
+                i = groupEnd;
+            } else {
+                i++;
+            }
+        }
+
+        return matches;
+    };
+
     const tokenizeText = (text: string): string[] => {
         const tokens: string[] = [];
         let currentToken = '';
@@ -224,7 +270,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         while (i < text.length) {
             const char = text[i];
 
-            if (char === '"' && (i === 0 || text[i - 1] === '+')) {
+            if (char === '"' && (i === 0 || text[i - 1] === '+' || text[i - 1] === '@' || text[i - 1] === '$')) {
                 inQuotes = true;
                 currentToken += char;
             } else if (char === '"' && inQuotes) {
@@ -255,10 +301,10 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
 
         let i = 0;
         while (i < tokens.length) {
-            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@')) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$')) {
                 while (
                     i < tokens.length &&
-                    (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@'))
+                    (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$'))
                 ) {
                     i++;
                 }
@@ -295,6 +341,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     );
     const projectRefs = parseProjectRefs(fullContent);
     const peopleRefs = parsePeopleRefs(fullContent);
+    const areaRefs = parseAreaRefs(fullContent);
     const hasLongContent =
         Boolean(item.title && item.title.trim()) &&
         item.title !== null &&
@@ -659,7 +706,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     };
 
     const renderMetadata = () =>
-        (hashtags.length > 0 || projectRefs.length > 0 || peopleRefs.length > 0) && (
+        (hashtags.length > 0 || projectRefs.length > 0 || peopleRefs.length > 0 || areaRefs.length > 0) && (
             <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1 ml-8">
                 {peopleRefs.length > 0 && (
                     <div className="flex items-center">
@@ -698,7 +745,47 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                     </div>
                 )}
 
-                {peopleRefs.length > 0 && (projectRefs.length > 0 || hashtags.length > 0) && (
+                {peopleRefs.length > 0 && (areaRefs.length > 0 || projectRefs.length > 0 || hashtags.length > 0) && (
+                    <span className="mx-2">•</span>
+                )}
+
+                {areaRefs.length > 0 && (
+                    <div className="flex items-center">
+                        <Squares2X2Icon className="h-3 w-3 mr-1" />
+                        <span>
+                            {areaRefs.map((areaRef, index) => {
+                                const matchingArea = Array.isArray(areas) ? areas.find(
+                                    (area) =>
+                                        area.name.toLowerCase() ===
+                                        areaRef.toLowerCase()
+                                ) : null;
+
+                                if (matchingArea && matchingArea.uid) {
+                                    return (
+                                        <React.Fragment key={areaRef}>
+                                            <Link
+                                                to={`/areas/${matchingArea.uid}`}
+                                                className="text-gray-500 dark:text-gray-400 hover:underline transition-colors"
+                                            >
+                                                {areaRef}
+                                            </Link>
+                                            {index < areaRefs.length - 1 && ', '}
+                                        </React.Fragment>
+                                    );
+                                }
+
+                                return (
+                                    <React.Fragment key={areaRef}>
+                                        <span>{areaRef}</span>
+                                        {index < areaRefs.length - 1 && ', '}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </span>
+                    </div>
+                )}
+
+                {areaRefs.length > 0 && (projectRefs.length > 0 || hashtags.length > 0) && (
                     <span className="mx-2">•</span>
                 )}
 

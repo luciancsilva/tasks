@@ -511,6 +511,7 @@ const InboxItems: React.FC = () => {
                     onNoteCreate={handleSaveNote}
                     projects={projects}
                     people={people}
+                    areas={Array.isArray(areas) ? areas : []}
                     autoFocus={true}
                     openTaskModal={handleOpenTaskModal}
                     openProjectModal={handleOpenProjectModal}
