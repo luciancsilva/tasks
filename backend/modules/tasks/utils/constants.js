@@ -23,6 +23,12 @@ const TASK_INCLUDES = [
         through: { attributes: [] },
         required: false,
     },
+    {
+        model: Person,
+        as: 'AssignedTo',
+        attributes: ['id', 'name', 'uid', 'color'],
+        required: false,
+    },
 ];
 
 const TASK_INCLUDES_WITH_SUBTASKS = [

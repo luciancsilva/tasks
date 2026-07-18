@@ -11,6 +11,7 @@ import {
     ArrowUpIcon,
     ArrowDownIcon,
     SparklesIcon,
+    UserIcon,
 } from '@heroicons/react/24/outline';
 import { Link } from 'react-router-dom';
 import { Task, PriorityType } from '../../../entities/Task';
@@ -511,10 +512,25 @@ const TaskDetailsHeader: React.FC<TaskDetailsHeaderProps> = ({
                                         )}
                                     </div>
                                 </div>
-                                {/* Project and tags display below title */}
+                                {/* Project, tags, and assignee display below title */}
                                 {(task.Project ||
-                                    (task.tags && task.tags.length > 0)) && (
+                                    (task.tags && task.tags.length > 0) ||
+                                    task.AssignedTo) && (
                                     <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-2 px-2 -mx-2 gap-2 flex-wrap">
+                                        {task.AssignedTo && (
+                                            <div className="flex items-center gap-1">
+                                                <UserIcon className="h-4 w-4 text-blue-500" />
+                                                <Link
+                                                    to={`/person/${task.AssignedTo.uid}`}
+                                                    className="hover:text-gray-900 dark:hover:text-gray-200 hover:underline transition-colors font-medium text-blue-600 dark:text-blue-400"
+                                                    onClick={(e) =>
+                                                        e.stopPropagation()
+                                                    }
+                                                >
+                                                    {task.AssignedTo.name}
+                                                </Link>
+                                            </div>
+                                        )}
                                         {task.Project && (
                                             <Link
                                                 to={

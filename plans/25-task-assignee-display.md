@@ -1,6 +1,6 @@
 # 25 — exibir pessoa atribuída em cards e detalhe
 
-> **Status: PROPOSTO** — a pessoa atribuída (`assigned_to` / "ATRIBUÍDO A") não aparece nos cards (Hoje/Próximos/Todas) nem no topo do detalhe; a API sequer carrega a associação. Adicionar include + render.
+> **Status: EXECUTADO** em 2026-07-18 — adicionada associação `AssignedTo` nas queries/includes de tarefas no backend, e renderizados chips/links de assignee nos cards (upcoming/Hoje/mobile) e no topo do detalhe no frontend.
 > **Esforço:** Baixo · **Natureza:** mecânico (include + render por padrão existente) · **Modelo:** fraco/médio.
 > **Branch:** `main` · **Depende de:** -
 

@@ -52,6 +52,7 @@ export interface Task {
     involves?: string[];
     // @mention link (many-to-many, parity with tags)
     InvolvedPeople?: Person[];
+    AssignedTo?: Person;
     people?: Array<{ uid?: string; name: string }>;
     // Transient UI field set by suggestion scoring - never persisted or sent to server
     _suggestionMeta?: {
