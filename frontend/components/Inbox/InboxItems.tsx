@@ -485,7 +485,7 @@ const InboxItems: React.FC = () => {
                                 </span>
                                 <span>
                                     <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded font-mono">
-                                        +Project
+                                        {t('inbox.shortcutProjectToken', '+Project')}
                                     </code>{' '}
                                     {t(
                                         'inbox.shortcutProject',

@@ -1,6 +1,6 @@
 # 28 — inbox: chip de tag neutro + hint `+Projeto`
 
-> **Status: PROPOSTO** — chips de tag na inbox aparecem em cores diferentes (azul=existe, laranja=nova), o que confunde; unificar em cor neutra. E traduzir o hint de ajuda `+Project` → `+Projeto`.
+> **Status: EXECUTADO** em 2026-07-18 — unificados chips de tag na inbox em cor azul e traduzido o hint de ajuda `+Project` para `+Projeto`.
 > **Esforço:** Trivial · **Natureza:** mecânico puro (1 classe CSS + 1 string i18n) · **Modelo:** fraco (haiku).
 > **Branch:** `main` · **Depende de:** -
 

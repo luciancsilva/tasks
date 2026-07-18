@@ -1237,6 +1237,7 @@
       "text": "Texto capturado"
     },
     "shortcutTag": "para marcar com uma etiqueta",
+    "shortcutProjectToken": "+Projeto",
     "shortcutProject": "para atribuir a um projeto",
     "shortcutPerson": "para vincular uma pessoa",
     "removePerson": "Remover pessoa",

@@ -1183,6 +1183,7 @@
       "text": "Captured text"
     },
     "shortcutTag": "to label with a tag",
+    "shortcutProjectToken": "+Project",
     "shortcutProject": "to assign to a project",
     "shortcutPerson": "to link a person",
     "removePerson": "Remove person",
