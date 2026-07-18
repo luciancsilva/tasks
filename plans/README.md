@@ -132,6 +132,7 @@ degradação de scheduler.
 | `45-ai-daily-brief-stale-cache.md` | `getCachedBrief` serve o brief de ontem como o de hoje (não compara `ai_daily_brief_date`) | Trivial | fraco | - |
 | `40-habits-completion-atomicity.md` | Completar/descompletar hábito faz 2 escritas fora de transação → contadores/streak divergem do real | Baixo | fraco | - |
 | `42-caldav-conflict-resolution-atomicity.md` | Resolução de conflito CalDAV (auto e manual): `update`+sync-state fora de transação → task reaparece como conflito | Baixo | fraco | - |
+| `47-goals-area-ownership-idor.md` | Goal aceita `area_id` de outro usuário (IDOR): `include` do GET vaza nome/cor de Area privada alheia | Baixo | médio | - |
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
 | `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: `findAll` sem teto (todos usuários) + `Notification.findAll` por task no loop; satura scheduler | Médio | médio | - |
 
@@ -142,6 +143,7 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
+| `48-shares-access-level-whitelist.md` | `createShare` não valida `access_level` contra whitelist (defensivo; sem escalação cross-user) | Trivial | fraco | - |
 | `43-templates-atomicity.md` | Delete/clone/save de template não-atômico → template órfão vazio ou projeto vazio em crash | Baixo | fraco | - |
 | `46-telegram-summary-timezone.md` | Resumo Telegram calcula "hoje" no fuso do servidor, não do usuário → janela deslocada | Baixo | médio | - |
 | `41-habits-streak-timezone.md` | Streak agrupa completions com `setHours` local sobre `completed_at` UTC → dia errado fora de UTC | Médio | médio | - |
@@ -156,12 +158,13 @@ registro, não trabalho.
 Os riscos que ocupavam a faixa ALTA foram fechados em 2026-07-17: a ausência de
 backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado).
 
-**Pendência de auditoria (2026-07-18):** a varredura de authz/isolamento por usuário
-da rodada de descoberta cobriu url (SSRF → plano 39), admin e users (updateProfile —
-allowlist explícita, limpo), mas foi **cortada por limite de sessão** antes de varrer
-em profundidade `notes`, `tags`, `people`, `views`, `shares` e `goals` quanto a
-leitura/escrita cruzada por UID adivinhado. Não há plano para isso (nada validado =
-nada inventado); é uma varredura a **completar** numa próxima rodada.
+**Auditoria de authz concluída (2026-07-18):** a varredura de isolamento por usuário
+cobriu url (SSRF → plano 39), admin e users (updateProfile — allowlist, limpo) e, na
+segunda rodada, `notes`/`tags`/`people`/`views`/`shares`/`goals`. Resultado: `notes`,
+`tags`, `people`, `views` **limpos** (toda query escopada por `user_id`); `shares`
+limpo quanto a cross-user (só o dono compartilha), com um gap defensivo em
+`access_level` → plano 48; `goals` com um IDOR de `area_id` → plano 47. Todos os 6
+módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 ### Executados — registro de decisão, não mexer
 
