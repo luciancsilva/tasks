@@ -47,7 +47,9 @@ const requireAuth = async (req, res, next) => {
         }
 
         if (req.session && req.session.userId) {
-            const user = await User.findByPk(req.session.userId);
+            const user = await User.findByPk(req.session.userId, {
+                attributes: ['id', 'uid', 'email', 'timezone', 'language'],
+            });
             if (!user) {
                 req.session.destroy();
                 return unauthorized(res, 'User not found', req);
@@ -68,7 +70,9 @@ const requireAuth = async (req, res, next) => {
                 return unauthorized(res, 'Invalid or expired API token', req);
             }
 
-            const user = await User.findByPk(apiToken.user_id);
+            const user = await User.findByPk(apiToken.user_id, {
+                attributes: ['id', 'uid', 'email', 'timezone', 'language'],
+            });
             if (!user) {
                 return unauthorized(res, 'User not found', req);
             }
@@ -108,7 +112,13 @@ const requireAuth = async (req, res, next) => {
 
             const identity = await OIDCIdentity.findOne({
                 where: { subject: payload.sub },
-                include: [{ model: User, as: 'User' }],
+                include: [
+                    {
+                        model: User,
+                        as: 'User',
+                        attributes: ['id', 'uid', 'email', 'timezone', 'language'],
+                    },
+                ],
             });
 
             if (!identity?.User) {

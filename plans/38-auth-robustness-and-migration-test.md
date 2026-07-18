@@ -1,6 +1,6 @@
 # 38 — robustez: auth full-column select + migrations não testadas
 
-> **Status: PROPOSTO** — dois pontos de fragilidade expostos pelo bug do plano 37. Sem risco imediato de dados, mas ambos amplificam qualquer drift de schema em outage total. Achados no run de seed/MCP de 2026-07-18.
+> **Status: EXECUTADO** — dois pontos de fragilidade expostos pelo bug do plano 37. Sem risco imediato de dados, mas ambos amplificam qualquer drift de schema em outage total. Achados no run de seed/MCP de 2026-07-18.
 > **Esforço:** Médio · **Natureza:** julgamento (mexe em auth + infra de teste) · **Modelo:** médio/forte.
 > **Branch:** `main` · **Depende de:** -
 
