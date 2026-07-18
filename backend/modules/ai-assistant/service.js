@@ -16,17 +16,28 @@ const STATUS_LABELS = {
     6: 'planned',
 };
 
-function getOpenAIClient() {
-    const apiKey = process.env.OPENAI_API_KEY;
+function getOpenAIClient(user) {
+    const provider = user?.ai_provider || 'openai';
+    const apiKey = user?.ai_api_key || process.env.OPENAI_API_KEY;
     if (!apiKey) {
-        throw new Error('OPENAI_API_KEY environment variable is not set');
+        throw new Error('OPENAI_API_KEY environment variable is not set and no user key is configured');
     }
-    return new OpenAI({ apiKey });
+    const config = { apiKey };
+    if (provider === 'openrouter') {
+        config.baseURL = 'https://openrouter.ai/api/v1';
+    } else if (provider === 'custom' && user?.ai_base_url) {
+        config.baseURL = user.ai_base_url;
+    }
+    return new OpenAI(config);
+}
+
+function getAiModel(user) {
+    return user?.ai_model || 'gpt-4o-mini';
 }
 
 async function fetchUserContext(userId) {
     const user = await User.findByPk(userId, {
-        attributes: ['id', 'timezone', 'email'],
+        attributes: ['id', 'timezone', 'email', 'ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
     });
     if (!user) throw new Error('User not found');
 
@@ -211,7 +222,7 @@ async function generateDailyBrief(userId) {
     const context = await fetchUserContext(userId);
     const contextSummary = buildContextSummary(context);
 
-    const client = getOpenAIClient();
+    const client = getOpenAIClient(context.user);
 
     const systemPrompt = `You are a productivity assistant in Tududi. Return a daily brief as JSON. Keep every field very short — no full sentences, no filler words.
 
@@ -237,7 +248,7 @@ Rules:
 - Return only the JSON object, no other text`;
 
     const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: getAiModel(context.user),
         messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: contextSummary },
@@ -335,7 +346,10 @@ async function updateTaskInsightsDismissed(taskUid, userId, dismissed) {
 }
 
 async function generateTaskInsights(taskContext, userId) {
-    const client = getOpenAIClient();
+    const user = await User.findByPk(userId, {
+        attributes: ['ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
+    });
+    const client = getOpenAIClient(user);
 
     const {
         taskUid,
@@ -436,7 +450,7 @@ Rules:
 - Return only the JSON object, no other text`;
 
     const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: getAiModel(user),
         messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: lines.join('\n') },
@@ -511,7 +525,10 @@ async function updateProjectInsightsDismissed(projectUid, userId, dismissed) {
 }
 
 async function generateProjectInsights(projectContext, userId) {
-    const client = getOpenAIClient();
+    const user = await User.findByPk(userId, {
+        attributes: ['ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
+    });
+    const client = getOpenAIClient(user);
 
     const {
         projectUid,
@@ -565,7 +582,7 @@ Rules:
 - Return only the JSON object, no other text`;
 
     const response = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: getAiModel(user),
         messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: lines.join('\n') },
@@ -601,6 +618,35 @@ Rules:
     return result;
 }
 
+async function testAiConfig(userId, configData) {
+    const { ai_provider, ai_api_key, ai_model, ai_base_url } = configData;
+    
+    let userMock = {
+        ai_provider,
+        ai_api_key,
+        ai_model,
+        ai_base_url
+    };
+    
+    try {
+        const client = getOpenAIClient(userMock);
+        const modelToTest = getAiModel(userMock);
+        
+        // Simples completion call para testar a config
+        await client.chat.completions.create({
+            model: modelToTest,
+            messages: [
+                { role: 'user', content: 'Say hello in one word.' },
+            ],
+            max_tokens: 5,
+        });
+        
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
 module.exports = {
     generateDailyBrief,
     getCachedBrief,
@@ -610,4 +656,5 @@ module.exports = {
     generateProjectInsights,
     getCachedProjectInsights,
     updateProjectInsightsDismissed,
+    testAiConfig,
 };

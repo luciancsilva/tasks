@@ -6,6 +6,7 @@ export interface UserFeatures {
     pomodoro_enabled?: boolean;
     eisenhower_enabled?: boolean;
     kanban_enabled?: boolean;
+    ai_assistant_enabled?: boolean;
 }
 
 export interface User {
@@ -19,4 +20,9 @@ export interface User {
     avatarUrl?: string;
     is_admin?: boolean;
     features?: UserFeatures;
+    ai_provider?: string;
+    ai_api_key?: string;
+    ai_model?: string;
+    ai_base_url?: string;
+    has_ai_api_key?: boolean;
 }

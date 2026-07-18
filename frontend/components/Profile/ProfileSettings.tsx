@@ -1474,6 +1474,12 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                                             },
                                         }))
                                     }
+                                    onChangeField={(field, value) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            [field]: value,
+                                        }))
+                                    }
                                 />
 
                                 {currentUser?.is_admin && (

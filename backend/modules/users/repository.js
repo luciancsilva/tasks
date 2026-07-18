@@ -23,6 +23,10 @@ const PROFILE_ATTRIBUTES = [
     'sidebar_settings',
     'notification_preferences',
     'keyboard_shortcuts',
+    'ai_provider',
+    'ai_model',
+    'ai_base_url',
+    'ai_api_key',
 ];
 
 const PROFILE_UPDATE_ATTRIBUTES = [
@@ -42,6 +46,10 @@ const PROFILE_UPDATE_ATTRIBUTES = [
     'features',
     'notification_preferences',
     'keyboard_shortcuts',
+    'ai_provider',
+    'ai_model',
+    'ai_base_url',
+    'ai_api_key',
 ];
 
 class UsersRepository {

@@ -127,14 +127,10 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade BAIXA
 
-Lote de correções/melhorias reportadas pelo dono em 2026-07-17 (revisão do app
-rodando). Nenhum arrisca dados; ordenados por esforço crescente. A coluna
-**Modelo** é a capacidade mínima recomendada pra um agente executar sozinho com o
-plano em mãos (o dono aloca planos mecânicos a modelos menos capazes).
+*(nenhum plano aberto)*
 
-| Arquivo | O quê | Esforço | Modelo | Depende de |
-|---|---|---|---|---|
-| `32-ai-config-inline.md` | Config de IA inline (provider/chave/modelo/testar) sob o toggle (branch `feat/32`) | Alto | **forte (opus)** | - |
+O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
+executado em 2026-07-18 — ver tabela "Executados".
 
 `05-future-improvements.md` é o índice do levantamento que gerou os `05x` — é
 registro, não trabalho.
@@ -146,6 +142,7 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `32-ai-config-inline.md` | Config de IA inline: provider (OpenAI/OpenRouter/custom), chave por-usuário (mascarada no GET), modelo e botão testar sob o toggle | EXECUTADO (2026-07-18) |
 | `27-inbox-area-token.md` | Inbox: token `$area` no título espelhando `@pessoa` | EXECUTADO (2026-07-18) |
 | `31-branding-validation-and-reset.md` | Marca: validar dimensão, renomear "Enviar", botão restaurar padrão | EXECUTADO (2026-07-18) |
 | `26-inbox-person-persist-and-assign.md` | Inbox: `@pessoa` vira chip persistente e seta `assigned_to` ao criar | EXECUTADO (2026-07-18) |

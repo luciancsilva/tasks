@@ -125,6 +125,22 @@ module.exports = (sequelize) => {
                 comment:
                     'Comma-separated list of allowed Telegram usernames or user IDs',
             },
+            ai_provider: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            ai_api_key: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            ai_model: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            ai_base_url: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
             features: {
                 type: DataTypes.JSON,
                 allowNull: true,

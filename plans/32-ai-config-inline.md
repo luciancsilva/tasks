@@ -1,8 +1,8 @@
 # 32 — configuração de IA inline (provider/chave/modelo/testar)
 
-> **Status: PROPOSTO** — hoje a IA só funciona com `OPENAI_API_KEY` no servidor e modelo hardcoded. Adicionar UI de configuração por-usuário (provider OpenAI/OpenRouter/custom, chave, modelo, botão testar) expandindo sob o toggle "Assistente de IA".
+> **Status: EXECUTADO** em 2026-07-18 — config de IA por-usuário (provider OpenAI/OpenRouter/custom, chave, modelo, `ai_base_url`) via migration `20260718000000-add-ai-config-to-users`; `getOpenAIClient(user)` resolve baseURL/modelo com fallback pro env; endpoint `POST /ai-assistant/test`; chave mascarada no GET de profile (`has_ai_api_key`, `ai_api_key` deletado). Código trazido pra `main` sem o README fabricado que o commit original `6998716e` carregava.
 > **Esforço:** Alto · **Natureza:** julgamento pesado + **segurança** (chave por-usuário, provider, endpoint de teste) · **Modelo:** **forte (opus) — NÃO delegar a modelo fraco**.
-> **Branch:** `feat/32-ai-config` (feature — sem merge; o dono valida) · **Depende de:** -
+> **Branch original:** `feat/32-ai-config` · **Depende de:** -
 
 ## Decisão de produto
 

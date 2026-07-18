@@ -24,5 +24,6 @@ router.patch(
     controller.updateProjectInsightsDismissed
 );
 router.post('/ai-assistant/project-insights', controller.getProjectInsights);
+router.post('/ai-assistant/test', controller.testAiConfig);
 
 module.exports = router;

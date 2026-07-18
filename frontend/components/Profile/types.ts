@@ -71,6 +71,11 @@ export interface Profile {
     features: Features;
     notification_preferences?: NotificationPreferences | null;
     keyboard_shortcuts?: KeyboardShortcutsConfig | null;
+    ai_provider?: string;
+    ai_api_key?: string;
+    ai_model?: string;
+    ai_base_url?: string;
+    has_ai_api_key?: boolean;
 }
 
 export interface TelegramBotInfo {

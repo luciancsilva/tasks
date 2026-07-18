@@ -151,6 +151,20 @@ const controller = {
             next(error);
         }
     },
+
+    async testAiConfig(req, res, next) {
+        try {
+            const userId = getAuthenticatedUserId(req);
+            if (!userId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+            
+            const result = await aiAssistantService.testAiConfig(userId, req.body);
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    },
 };
 
 module.exports = controller;
