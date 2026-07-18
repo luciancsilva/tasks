@@ -35,6 +35,7 @@ import {
     TaskAssignedToCard,
     TaskSomedayCard,
     TaskWaitingSinceCard,
+    TaskEnergyCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1180,6 +1181,30 @@ const TaskDetails: React.FC = () => {
         }
     };
 
+    // Plan 51: energy level (low/medium/high or null to clear).
+    const handleChangeEnergy = async (
+        energy: 'low' | 'medium' | 'high' | null
+    ) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            const energyValue =
+                energy === null
+                    ? null
+                    : ({ low: 0, medium: 1, high: 2 } as const)[energy];
+            await updateTask(task.uid, { energy: energyValue });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error updating energy:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
     const getAreaLink = (area: Area) => {
         if (area.uid) {
             const slug = area.name
@@ -1403,6 +1428,10 @@ const TaskDetails: React.FC = () => {
                                 <TaskWaitingSinceCard
                                     task={task}
                                     onAdjust={handleAdjustWaitingSince}
+                                />
+                                <TaskEnergyCard
+                                    task={task}
+                                    onChange={handleChangeEnergy}
                                 />
 
                                 <TaskTagsCard

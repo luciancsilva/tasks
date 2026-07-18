@@ -55,8 +55,14 @@ class SearchService {
         deferDateCondition,
         nowDate
     ) {
-        const { searchQuery, priority, recurring, extras, excludeSubtasks } =
-            params;
+        const {
+            searchQuery,
+            priority,
+            energy,
+            recurring,
+            extras,
+            excludeSubtasks,
+        } = params;
 
         const conditions = { user_id: userId };
         const extraConditions = [];
@@ -88,6 +94,15 @@ class SearchService {
             const priorityInt = priorityToInt(priority);
             if (priorityInt !== null) {
                 conditions.priority = priorityInt;
+            }
+        }
+
+        // Plan 51: energy filter ('low'/'medium'/'high' → 0/1/2). Bad strings
+        // are a no-op (consistent with priority handling above).
+        if (energy) {
+            const energyInt = Task.getEnergyValue(energy);
+            if (energyInt !== null) {
+                conditions.energy = energyInt;
             }
         }
 

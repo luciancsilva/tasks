@@ -403,6 +403,15 @@ async function filterTasksByParams(
         whereClause.priority = Task.getPriorityValue(params.priority);
     }
 
+    // Plan 51: mental-energy filter. 'low'/'medium'/'high' (or numeric
+    // 0/1/2). Bad strings yield no-op (consistent with priority).
+    if (params.energy !== undefined && params.energy !== null) {
+        const ev = Task.getEnergyValue(params.energy);
+        if (ev !== null) {
+            whereClause.energy = ev;
+        }
+    }
+
     let orderClause = [['created_at', 'DESC']];
 
     if (params.type === 'inbox') {
@@ -417,6 +426,7 @@ async function filterTasksByParams(
             'updated_at',
             'name',
             'priority',
+            'energy',
             'status',
             'due_date',
             'completed_at',

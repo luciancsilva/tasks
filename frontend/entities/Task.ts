@@ -55,6 +55,9 @@ export interface Task {
     involves?: string[];
     // Plan 49: native Someday/Maybe flag (list membership, not lifecycle).
     is_someday?: boolean;
+    // Plan 51: mental-energy level (0=low, 1=medium, 2=high). Distinct axis
+    // from priority. null = unset.
+    energy?: 0 | 1 | 2 | null;
     // @mention link (many-to-many, parity with tags)
     InvolvedPeople?: Person[];
     AssignedTo?: Person;

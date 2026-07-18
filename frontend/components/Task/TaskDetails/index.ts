@@ -12,3 +12,4 @@ export { default as TaskAreaCard } from './TaskAreaCard';
 export { default as TaskAssignedToCard } from './TaskAssignedToCard';
 export { default as TaskSomedayCard } from './TaskSomedayCard';
 export { default as TaskWaitingSinceCard } from './TaskWaitingSinceCard';
+export { default as TaskEnergyCard } from './TaskEnergyCard';

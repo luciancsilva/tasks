@@ -12,6 +12,20 @@ const VALID_TASK_STATUSES = [
     'planned',
 ];
 
+const VALID_ENERGY = ['low', 'medium', 'high'];
+
+// Plan 51: saved-view energy filter ('low'|'medium'|'high'). null/undefined
+// pass through (no filter); anything else rejects with 400.
+function validateEnergy(energy) {
+    if (energy === undefined || energy === null) {
+        return null;
+    }
+    if (!VALID_ENERGY.includes(energy)) {
+        throw new ValidationError('Invalid energy');
+    }
+    return energy;
+}
+
 function validateName(name) {
     if (!name || name.trim() === '') {
         throw new ValidationError('View name is required');
@@ -48,4 +62,4 @@ function validateExtras(extras) {
     return extras;
 }
 
-module.exports = { validateName, validateExtras };
+module.exports = { validateName, validateExtras, validateEnergy };
