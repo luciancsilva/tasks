@@ -123,14 +123,28 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-*(nenhum plano aberto)*
-
-### Prioridade BAIXA
-
-Achados do code-review do lote 24–32 (2026-07-18). Nenhum arrisca dados.
+Achados da auditoria de descoberta de 2026-07-18 (rodada map-only). Nenhum arrisca
+perda de dados em massa, mas há SSRF autenticado, divergência de contadores e
+degradação de scheduler.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
+| `45-ai-daily-brief-stale-cache.md` | `getCachedBrief` serve o brief de ontem como o de hoje (não compara `ai_daily_brief_date`) | Trivial | fraco | - |
+| `40-habits-completion-atomicity.md` | Completar/descompletar hábito faz 2 escritas fora de transação → contadores/streak divergem do real | Baixo | fraco | - |
+| `42-caldav-conflict-resolution-atomicity.md` | Resolução de conflito CalDAV (auto e manual): `update`+sync-state fora de transação → task reaparece como conflito | Baixo | fraco | - |
+| `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
+| `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: `findAll` sem teto (todos usuários) + `Notification.findAll` por task no loop; satura scheduler | Médio | médio | - |
+
+### Prioridade BAIXA
+
+Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta de
+2026-07-18. Nenhum arrisca dados.
+
+| Arquivo | O quê | Esforço | Modelo | Depende de |
+|---|---|---|---|---|
+| `43-templates-atomicity.md` | Delete/clone/save de template não-atômico → template órfão vazio ou projeto vazio em crash | Baixo | fraco | - |
+| `46-telegram-summary-timezone.md` | Resumo Telegram calcula "hoje" no fuso do servidor, não do usuário → janela deslocada | Baixo | médio | - |
+| `41-habits-streak-timezone.md` | Streak agrupa completions com `setHours` local sobre `completed_at` UTC → dia errado fora de UTC | Médio | médio | - |
 | `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth em drift; migrations não são exercidas pela suíte (test usa sync) | Médio | médio/forte | - |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
@@ -141,6 +155,13 @@ registro, não trabalho.
 
 Os riscos que ocupavam a faixa ALTA foram fechados em 2026-07-17: a ausência de
 backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado).
+
+**Pendência de auditoria (2026-07-18):** a varredura de authz/isolamento por usuário
+da rodada de descoberta cobriu url (SSRF → plano 39), admin e users (updateProfile —
+allowlist explícita, limpo), mas foi **cortada por limite de sessão** antes de varrer
+em profundidade `notes`, `tags`, `people`, `views`, `shares` e `goals` quanto a
+leitura/escrita cruzada por UID adivinhado. Não há plano para isso (nada validado =
+nada inventado); é uma varredura a **completar** numa próxima rodada.
 
 ### Executados — registro de decisão, não mexer
 
