@@ -29,7 +29,6 @@ function getStatusValueFromMcp(statusName) {
     return Task.getStatusValue(statusName);
 }
 
-
 async function findTaskByIdentifier(identifier) {
     const isNumeric = !isNaN(identifier);
 

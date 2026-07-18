@@ -157,11 +157,15 @@ class UsersService {
             allowedUpdates.telegram_bot_token = telegram_bot_token;
         if (telegram_allowed_users !== undefined)
             allowedUpdates.telegram_allowed_users = telegram_allowed_users;
-        
-        if (data.ai_provider !== undefined) allowedUpdates.ai_provider = data.ai_provider;
-        if (data.ai_api_key !== undefined) allowedUpdates.ai_api_key = data.ai_api_key;
-        if (data.ai_model !== undefined) allowedUpdates.ai_model = data.ai_model;
-        if (data.ai_base_url !== undefined) allowedUpdates.ai_base_url = data.ai_base_url;
+
+        if (data.ai_provider !== undefined)
+            allowedUpdates.ai_provider = data.ai_provider;
+        if (data.ai_api_key !== undefined)
+            allowedUpdates.ai_api_key = data.ai_api_key;
+        if (data.ai_model !== undefined)
+            allowedUpdates.ai_model = data.ai_model;
+        if (data.ai_base_url !== undefined)
+            allowedUpdates.ai_base_url = data.ai_base_url;
 
         if (features !== undefined) {
             let currentFeatures = user.features;

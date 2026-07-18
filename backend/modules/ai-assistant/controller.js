@@ -158,8 +158,11 @@ const controller = {
             if (!userId) {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
-            
-            const result = await aiAssistantService.testAiConfig(userId, req.body);
+
+            const result = await aiAssistantService.testAiConfig(
+                userId,
+                req.body
+            );
             res.json(result);
         } catch (error) {
             next(error);

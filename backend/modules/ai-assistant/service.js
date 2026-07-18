@@ -20,7 +20,9 @@ function getOpenAIClient(user) {
     const provider = user?.ai_provider || 'openai';
     const apiKey = user?.ai_api_key || process.env.OPENAI_API_KEY;
     if (!apiKey) {
-        throw new Error('OPENAI_API_KEY environment variable is not set and no user key is configured');
+        throw new Error(
+            'OPENAI_API_KEY environment variable is not set and no user key is configured'
+        );
     }
     const config = { apiKey };
     if (provider === 'openrouter') {
@@ -37,7 +39,15 @@ function getAiModel(user) {
 
 async function fetchUserContext(userId) {
     const user = await User.findByPk(userId, {
-        attributes: ['id', 'timezone', 'email', 'ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
+        attributes: [
+            'id',
+            'timezone',
+            'email',
+            'ai_provider',
+            'ai_api_key',
+            'ai_model',
+            'ai_base_url',
+        ],
     });
     if (!user) throw new Error('User not found');
 
@@ -620,27 +630,25 @@ Rules:
 
 async function testAiConfig(userId, configData) {
     const { ai_provider, ai_api_key, ai_model, ai_base_url } = configData;
-    
+
     let userMock = {
         ai_provider,
         ai_api_key,
         ai_model,
-        ai_base_url
+        ai_base_url,
     };
-    
+
     try {
         const client = getOpenAIClient(userMock);
         const modelToTest = getAiModel(userMock);
-        
+
         // Simples completion call para testar a config
         await client.chat.completions.create({
             model: modelToTest,
-            messages: [
-                { role: 'user', content: 'Say hello in one word.' },
-            ],
+            messages: [{ role: 'user', content: 'Say hello in one word.' }],
             max_tokens: 5,
         });
-        
+
         return { success: true };
     } catch (error) {
         return { success: false, error: error.message };

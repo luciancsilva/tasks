@@ -116,15 +116,15 @@ async function checkDueProjects() {
                 const lang = project.User.language || 'en';
                 const params = { name: project.name };
                 if (isOverdue) {
-                    params.daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+                    params.daysOverdue = Math.floor(
+                        (now - dueDate) / (1000 * 60 * 60 * 24)
+                    );
                 } else {
-                    params.hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
+                    params.hoursUntilDue = Math.floor(
+                        (dueDate - now) / (1000 * 60 * 60)
+                    );
                 }
-                const { title, message } = require('../notifications/i18n').t(
-                    notificationType,
-                    lang,
-                    params
-                );
+                const { title, message } = t(notificationType, lang, params);
 
                 // Build sources array based on user preferences
                 const sources = [];
@@ -173,7 +173,6 @@ async function checkDueProjects() {
         throw error;
     }
 }
-
 
 module.exports = {
     checkDueProjects,

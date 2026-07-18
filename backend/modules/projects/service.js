@@ -433,7 +433,6 @@ class ProjectsService {
             await projectsRepository.deleteProjectImageFromR2(previousImageUrl);
         }
 
-
         const projectWithAssociations =
             await projectsRepository.findByUidWithTagsAndArea(validatedUid);
         const projectJson = projectWithAssociations.toJSON();

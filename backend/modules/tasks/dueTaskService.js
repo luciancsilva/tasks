@@ -114,9 +114,13 @@ async function checkDueTasks() {
                 const lang = task.User.language || 'en';
                 const params = { name: task.name };
                 if (isOverdue) {
-                    params.daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+                    params.daysOverdue = Math.floor(
+                        (now - dueDate) / (1000 * 60 * 60 * 24)
+                    );
                 } else {
-                    params.hoursUntilDue = Math.floor((dueDate - now) / (1000 * 60 * 60));
+                    params.hoursUntilDue = Math.floor(
+                        (dueDate - now) / (1000 * 60 * 60)
+                    );
                 }
                 const { title, message } = t(notificationType, lang, params);
 
@@ -164,7 +168,6 @@ async function checkDueTasks() {
         throw error;
     }
 }
-
 
 module.exports = {
     checkDueTasks,

@@ -1,4 +1,11 @@
-const { Task, Tag, Project, Area, Person, sequelize } = require('../../../models');
+const {
+    Task,
+    Tag,
+    Project,
+    Area,
+    Person,
+    sequelize,
+} = require('../../../models');
 const { Op, QueryTypes } = require('sequelize');
 const permissionsService = require('../../../services/permissionsService');
 const {
