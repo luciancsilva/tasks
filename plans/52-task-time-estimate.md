@@ -1,6 +1,7 @@
 # 52 — Campo `time_estimate` em Task (minutos)
 
-> **Status: PROPOSTO** — GTD "Engajar" filtra por tempo disponível ("tenho 15 min"). Hoje 100% tag-convention (`d-rapido`/`d-medio`/`d-demorado`, `docs/17-gtd-setup.md:31`). Sem campo nativo, sem filtro "≤N min", sem UI. Pomodoro timer existe (`Shared/PomodoroTimer.tsx`) mas não binda task nem usa estimate.
+> **Status: EXECUTADO** em 2026-07-18 — campo `time_estimate` (INTEGER 1-1440) em tasks + `time_max` em views; filtros `time_max`/`time_min` no query-builder (throw `ValidationError`→400) + `order_by=time_estimate`; search + views service/validation; MCP create/update/list; TaskTimeEstimateCard (input+presets); slots "Time available" em SearchMenu/SaveViewModal. Teste `tasks-time-estimate.test.js` (13). Desvio: plano citava `View.ts` entity (não existe — shape inline) e helper `SAFE_ADD_COLUMNS` (real é `safeAddColumns` de `utils/migration-utils`).
+> **Status original: PROPOSTO** — GTD "Engajar" filtra por tempo disponível ("tenho 15 min"). Hoje 100% tag-convention (`d-rapido`/`d-medio`/`d-demorado`, `docs/17-gtd-setup.md:31`). Sem campo nativo, sem filtro "≤N min", sem UI. Pomodoro timer existe (`Shared/PomodoroTimer.tsx`) mas não binda task nem usa estimate.
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/52-task-time-estimate` a partir da `main` · **Depende de:** -
 

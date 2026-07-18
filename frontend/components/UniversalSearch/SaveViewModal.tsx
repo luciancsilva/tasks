@@ -22,16 +22,25 @@ interface SaveViewModalProps {
     filters: string[];
     priority: string | null;
     energy: string | null;
+    time_max: string | null;
     due: string | null;
     onClose: () => void;
     onSave: () => void;
 }
+
+const TIME_MAX_OPTIONS: { value: string; key: string; fallback: string }[] = [
+    { value: '15', key: 'time15', fallback: '≤ 15 min' },
+    { value: '30', key: 'time30', fallback: '≤ 30 min' },
+    { value: '60', key: 'time60', fallback: '≤ 1h' },
+    { value: '120', key: 'time120', fallback: '≤ 2h' },
+];
 
 const SaveViewModal: React.FC<SaveViewModalProps> = ({
     searchQuery,
     filters,
     priority,
     energy,
+    time_max,
     due,
     onClose,
     onSave,
@@ -43,6 +52,7 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
     const [taskStatus, setTaskStatus] = useState('');
     const [assignedTo, setAssignedTo] = useState('');
     const [energyLevel, setEnergyLevel] = useState('');
+    const [timeMaxLevel, setTimeMaxLevel] = useState(time_max || '');
     const [people, setPeople] = useState<Person[]>([]);
 
     useEffect(() => {
@@ -80,6 +90,7 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
                     filters: filters,
                     priority: priority || null,
                     energy: energyLevel || null,
+                    time_max: timeMaxLevel ? Number(timeMaxLevel) : null,
                     due: due || null,
                     extras: Object.keys(extras).length > 0 ? extras : undefined,
                 }),
@@ -160,6 +171,7 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
                             )}
                             {priority && <li>• {t('views.priorityLabel', 'Priority:')} {priority}</li>}
                             {energy && <li>• {t('views.energyLabel', 'Energy:')} {energy}</li>}
+                            {timeMaxLevel && <li>• {t('views.timeMaxLabel', 'Time ≤:')} {timeMaxLevel} min</li>}
                             {due && <li>• {t('views.dueLabel', 'Due date:')} {due}</li>}
                         </ul>
                     </div>
@@ -213,6 +225,29 @@ const SaveViewModal: React.FC<SaveViewModalProps> = ({
                                 <option value="high">
                                     {t('task.energyHigh', 'High')}
                                 </option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="viewTimeMax"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                {t('views.timeMaxLabel', 'Time ≤')}
+                            </label>
+                            <select
+                                id="viewTimeMax"
+                                value={timeMaxLevel}
+                                onChange={(e) => setTimeMaxLevel(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">
+                                    {t('views.anyTime', 'Any')}
+                                </option>
+                                {TIME_MAX_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {t(`search.${opt.key}`, opt.fallback)}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                         <div>

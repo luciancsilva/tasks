@@ -53,6 +53,13 @@ module.exports = (sequelize) => {
                 allowNull: true,
                 defaultValue: null,
             },
+            // Plan 52: saved-view time-available filter, in minutes. Mirrors
+            // tasks.time_estimate (only an upper bound is exposed via views).
+            time_max: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                defaultValue: null,
+            },
             due: {
                 type: DataTypes.STRING,
                 allowNull: true,

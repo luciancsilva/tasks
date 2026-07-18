@@ -206,6 +206,18 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         }
     }
 
+    // Plan 52: estimated time to complete, in minutes. null clears. Range
+    // (1-1440) is enforced by the model's validator (-> SequelizeValidationError
+    // -> 400 via the global error handler), not here.
+    if (body.time_estimate !== undefined) {
+        if (body.time_estimate === null) {
+            attrs.time_estimate = null;
+        } else {
+            const parsed = Number(body.time_estimate);
+            attrs.time_estimate = Number.isFinite(parsed) ? parsed : null;
+        }
+    }
+
     return attrs;
 }
 
@@ -325,6 +337,17 @@ function buildUpdateAttributes(body, task, timezone) {
                 const parsed = Number(body.energy);
                 attrs.energy = Number.isFinite(parsed) ? parsed : null;
             }
+        }
+    }
+
+    // Plan 52: estimated time to complete, in minutes. null clears. Range
+    // (1-1440) is enforced by the model's validator, not here.
+    if (body.time_estimate !== undefined) {
+        if (body.time_estimate === null) {
+            attrs.time_estimate = null;
+        } else {
+            const parsed = Number(body.time_estimate);
+            attrs.time_estimate = Number.isFinite(parsed) ? parsed : null;
         }
     }
 

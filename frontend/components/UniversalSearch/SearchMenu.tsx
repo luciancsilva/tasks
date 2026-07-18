@@ -66,6 +66,14 @@ const energyOptions = [
     { value: 'low', labelKey: 'search.energyLow', fallback: 'Low energy' },
 ];
 
+// Plan 52: time-available filter slots (upper bound, in minutes).
+const timeOptions = [
+    { value: '15', labelKey: 'search.time15', fallback: '≤ 15 min' },
+    { value: '30', labelKey: 'search.time30', fallback: '≤ 30 min' },
+    { value: '60', labelKey: 'search.time60', fallback: '≤ 1h' },
+    { value: '120', labelKey: 'search.time120', fallback: '≤ 2h' },
+];
+
 const dueOptions = [
     { value: 'today', labelKey: 'dateIndicators.today', fallback: 'Today' },
     { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow', fallback: 'Tomorrow' },
@@ -105,6 +113,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         null
     );
     const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null);
+    const [selectedTimeMax, setSelectedTimeMax] = useState<string | null>(null);
     const [selectedDue, setSelectedDue] = useState<string | null>(null);
     const [selectedDefer, setSelectedDefer] = useState<string | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -143,6 +152,11 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
     // Plan 51: energy filter toggle.
     const handleEnergyToggle = (energy: string) => {
         setSelectedEnergy(selectedEnergy === energy ? null : energy);
+    };
+
+    // Plan 52: time-available filter toggle.
+    const handleTimeMaxToggle = (timeMax: string) => {
+        setSelectedTimeMax(selectedTimeMax === timeMax ? null : timeMax);
     };
 
     const handleDueToggle = (due: string) => {
@@ -192,6 +206,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     filters: selectedFilters,
                     priority: selectedPriority || null,
                     energy: selectedEnergy || null,
+                    time_max: selectedTimeMax ? Number(selectedTimeMax) : null,
                     due: selectedDue || null,
                     defer: selectedDefer || null,
                     tags: selectedTags.length > 0 ? selectedTags : null,
@@ -332,6 +347,26 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             );
         }
 
+        // Plan 52: time-available filter.
+        if (selectedTimeMax) {
+            parts.push(
+                <span key="time-label">
+                    {t('search.withTimeMax', ', ≤') + ' '}
+                </span>
+            );
+            parts.push(
+                <span
+                    key="time"
+                    style={{ fontWeight: 800, fontStyle: 'normal' }}
+                >
+                    {selectedTimeMax}
+                </span>
+            );
+            parts.push(
+                <span key="time-suffix">{' ' + t('search.minutes', 'min')}</span>
+            );
+        }
+
         // Add due date filter
         if (selectedDue) {
             const dueOption = dueOptions.find(
@@ -461,6 +496,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         searchQuery.trim() ||
         selectedPriority ||
         selectedEnergy ||
+        selectedTimeMax ||
         selectedDue ||
         selectedDefer ||
         selectedTags.length > 0 ||
@@ -585,6 +621,27 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                             }
                                             onToggle={() =>
                                                 handleEnergyToggle(option.value)
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Plan 52: Time-available Filters */}
+                            <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                                    {t('search.timeFilter', 'Time available')}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {timeOptions.map((option) => (
+                                        <FilterBadge
+                                            key={option.value}
+                                            name={t(option.labelKey, option.fallback)}
+                                            isSelected={
+                                                selectedTimeMax === option.value
+                                            }
+                                            onToggle={() =>
+                                                handleTimeMaxToggle(option.value)
                                             }
                                         />
                                     ))}
@@ -774,6 +831,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 selectedFilters={selectedFilters}
                 selectedPriority={selectedPriority}
                 selectedEnergy={selectedEnergy}
+                selectedTimeMax={selectedTimeMax}
                 selectedDue={selectedDue}
                 selectedDefer={selectedDefer}
                 selectedTags={selectedTags}

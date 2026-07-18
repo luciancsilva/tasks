@@ -36,6 +36,7 @@ import {
     TaskSomedayCard,
     TaskWaitingSinceCard,
     TaskEnergyCard,
+    TaskTimeEstimateCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1205,6 +1206,24 @@ const TaskDetails: React.FC = () => {
         }
     };
 
+    // Plan 52: estimated time to complete, in minutes (or null to clear).
+    const handleChangeTimeEstimate = async (minutes: number | null) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            await updateTask(task.uid, { time_estimate: minutes });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error updating time estimate:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
     const getAreaLink = (area: Area) => {
         if (area.uid) {
             const slug = area.name
@@ -1432,6 +1451,10 @@ const TaskDetails: React.FC = () => {
                                 <TaskEnergyCard
                                     task={task}
                                     onChange={handleChangeEnergy}
+                                />
+                                <TaskTimeEstimateCard
+                                    task={task}
+                                    onChange={handleChangeTimeEstimate}
                                 />
 
                                 <TaskTagsCard

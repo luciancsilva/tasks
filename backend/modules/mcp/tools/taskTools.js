@@ -108,6 +108,11 @@ function registerTaskTools(server, context, tools) {
                     enum: ['low', 'medium', 'high'],
                     description: 'Filter by mental energy level',
                 },
+                time_max: {
+                    type: 'number',
+                    description:
+                        'Filter to tasks that fit in N minutes or less (never-estimated tasks excluded)',
+                },
             },
         },
         handler: async (params) => {
@@ -129,6 +134,16 @@ function registerTaskTools(server, context, tools) {
             if (params.energy) {
                 const energyMap = { low: 0, medium: 1, high: 2 };
                 whereClause.energy = energyMap[params.energy];
+            }
+
+            if (params.time_max !== undefined) {
+                const max = Number(params.time_max);
+                if (Number.isFinite(max) && max >= 1) {
+                    whereClause.time_estimate = {
+                        [Op.ne]: null,
+                        [Op.lte]: max,
+                    };
+                }
             }
 
             let order = [['created_at', 'DESC']];
@@ -263,6 +278,11 @@ function registerTaskTools(server, context, tools) {
                     description:
                         'Mental energy level (low=0, medium=1, high=2). Distinct axis from priority.',
                 },
+                time_estimate: {
+                    type: 'number',
+                    description:
+                        'Estimated time to complete, in minutes (1-1440)',
+                },
                 due_date: {
                     type: 'string',
                     description: 'Due date (ISO 8601 format)',
@@ -294,6 +314,9 @@ function registerTaskTools(server, context, tools) {
                 note: params.description || '',
                 priority: params.priority ? priorityMap[params.priority] : 1,
                 energy: params.energy ? energyMap[params.energy] : null,
+                time_estimate: Number.isFinite(Number(params.time_estimate))
+                    ? Number(params.time_estimate)
+                    : null,
                 status: 0, // pending
                 due_date: params.due_date || null,
                 project_id: resolvedProjectId,
@@ -370,6 +393,11 @@ function registerTaskTools(server, context, tools) {
                     description:
                         'Mental energy level (low=0, medium=1, high=2)',
                 },
+                time_estimate: {
+                    type: 'number',
+                    description:
+                        'Estimated time to complete, in minutes (1-1440; null clears)',
+                },
                 status: {
                     type: 'string',
                     enum: [
@@ -430,6 +458,14 @@ function registerTaskTools(server, context, tools) {
             if (params.energy) {
                 const energyMap = { low: 0, medium: 1, high: 2 };
                 updates.energy = energyMap[params.energy];
+            }
+            if (params.time_estimate !== undefined) {
+                if (params.time_estimate === null) {
+                    updates.time_estimate = null;
+                } else {
+                    const n = Number(params.time_estimate);
+                    updates.time_estimate = Number.isFinite(n) ? n : null;
+                }
             }
             if (params.status) {
                 updates.status = getStatusValueFromMcp(params.status);
