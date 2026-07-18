@@ -13,6 +13,7 @@ const {
     getUpcomingRangeInUTC,
     getTodayBoundsInUTC,
 } = require('../../../utils/timezone-utils');
+const { ValidationError } = require('../../../shared/errors');
 
 async function filterTasksByParams(
     params,
@@ -200,6 +201,8 @@ async function filterTasksByParams(
                     ],
                 },
             ];
+            // Plan 49: someday tasks are excluded from action lists.
+            whereClause.is_someday = { [Op.ne]: true };
             break;
         }
         case 'upcoming': {
@@ -208,6 +211,8 @@ async function filterTasksByParams(
 
             whereClause = {
                 parent_task_id: null,
+                // Plan 49: someday tasks are excluded from action lists.
+                is_someday: { [Op.ne]: true },
                 [Op.or]: [
                     {
                         // Non-recurring tasks with due dates in the next 7 days
@@ -289,18 +294,45 @@ async function filterTasksByParams(
             whereClause.due_date = null;
             whereClause.project_id = null;
             whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
+            // Plan 49: exclude someday from action lists.
+            whereClause.is_someday = { [Op.ne]: true };
             break;
         case 'inbox':
             whereClause[Op.or] = [{ due_date: null }, { project_id: null }];
             whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
+            // Plan 49: exclude someday from action lists.
+            whereClause.is_someday = { [Op.ne]: true };
             break;
-        case 'someday':
-            whereClause.recurring_parent_id = null;
-            whereClause.due_date = null;
-            whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
+        case 'someday': {
+            // Plan 49: someday nativo = is_someday=true OR tag 'someday'
+            // (retrocompat com tag sistema). Substitui o filtro antigo (que era
+            // erradamente "sem due_date"), retornando a semântica GTD correta.
+            const somedayTaggedRows = await sequelize.query(
+                `SELECT DISTINCT tt.task_id FROM tasks_tags tt
+                 INNER JOIN tags ON tags.id = tt.tag_id
+                 WHERE tags.name = 'someday'`,
+                { type: QueryTypes.SELECT, raw: true }
+            );
+            const somedayTaggedIds = somedayTaggedRows.map((r) => r.task_id);
+            whereClause[Op.or] = [
+                { is_someday: true },
+                { id: { [Op.in]: somedayTaggedIds } },
+            ];
             break;
+        }
         case 'waiting':
             whereClause.status = Task.STATUS.WAITING;
+            // Plan 50: optional follow-up overdue filter. Tasks waiting longer
+            // than N days. Throws on bad input rather than silently
+            // returning nothing — front-end already validates.
+            if (params.waiting_overdue_days !== undefined) {
+                const days = parseInt(params.waiting_overdue_days, 10);
+                if (!Number.isFinite(days) || days < 0) {
+                    throw new ValidationError('Invalid waiting_overdue_days');
+                }
+                const cutoff = new Date(Date.now() - days * 86400000);
+                whereClause.waiting_since = { [Op.lt]: cutoff };
+            }
             break;
         case 'all':
             if (params.status === 'done' || params.status === 'completed') {
@@ -328,6 +360,7 @@ async function filterTasksByParams(
             } else if (!params.client_side_filtering) {
                 whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
             }
+            // Plan 49: `all` lista tudo, inclusive someday.
             break;
         default:
             if (!params.include_instances) {
@@ -353,10 +386,14 @@ async function filterTasksByParams(
                         'cancelled',
                     ],
                 };
+                // Plan 49: active lists exclude someday.
+                whereClause.is_someday = { [Op.ne]: true };
             } else if (params.status === 'all') {
-                // No status filter - return tasks of all statuses
+                // No status filter - return tasks of all statuses (includes someday).
             } else if (!params.client_side_filtering) {
                 whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
+                // Plan 49: default action list excludes someday.
+                whereClause.is_someday = { [Op.ne]: true };
             }
     }
 
@@ -364,6 +401,15 @@ async function filterTasksByParams(
 
     if (params.priority) {
         whereClause.priority = Task.getPriorityValue(params.priority);
+    }
+
+    // Plan 51: mental-energy filter. 'low'/'medium'/'high' (or numeric
+    // 0/1/2). Bad strings yield no-op (consistent with priority).
+    if (params.energy !== undefined && params.energy !== null) {
+        const ev = Task.getEnergyValue(params.energy);
+        if (ev !== null) {
+            whereClause.energy = ev;
+        }
     }
 
     let orderClause = [['created_at', 'DESC']];
@@ -380,6 +426,7 @@ async function filterTasksByParams(
             'updated_at',
             'name',
             'priority',
+            'energy',
             'status',
             'due_date',
             'completed_at',

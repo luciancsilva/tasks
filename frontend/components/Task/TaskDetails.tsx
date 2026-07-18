@@ -33,6 +33,9 @@ import {
     TaskDeferUntilCard,
     TaskAttachmentsCard,
     TaskAssignedToCard,
+    TaskSomedayCard,
+    TaskWaitingSinceCard,
+    TaskEnergyCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1140,6 +1143,68 @@ const TaskDetails: React.FC = () => {
         }
     };
 
+    // Plan 49: Someday/Maybe toggle.
+    const handleToggleSomeday = async (value: boolean) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            await updateTask(task.uid, { is_someday: value });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error toggling someday flag:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
+    // Plan 50: Waiting Since adjust. Passes null to clear, Date to set.
+    const handleAdjustWaitingSince = async (date: Date | null) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            await updateTask(task.uid, {
+                waiting_since: date ? date.toISOString() : null,
+            });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error adjusting waiting_since:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
+    // Plan 51: energy level (low/medium/high or null to clear).
+    const handleChangeEnergy = async (
+        energy: 'low' | 'medium' | 'high' | null
+    ) => {
+        if (!task?.uid) return;
+        try {
+            taskModifiedRef.current = true;
+            const energyValue =
+                energy === null
+                    ? null
+                    : ({ low: 0, medium: 1, high: 2 } as const)[energy];
+            await updateTask(task.uid, { energy: energyValue });
+            if (uid) {
+                const updatedTask = await fetchTaskByUid(uid);
+                tasksStore.updateTaskInStore(updatedTask);
+            }
+        } catch (error) {
+            console.error('Error updating energy:', error);
+            showErrorToast(
+                t('errors.taskSaveFailed', 'Failed to update task.')
+            );
+        }
+    };
+
     const getAreaLink = (area: Area) => {
         if (area.uid) {
             const slug = area.name
@@ -1354,6 +1419,19 @@ const TaskDetails: React.FC = () => {
                                 <TaskAssignedToCard
                                     task={task}
                                     onAssign={handleAssignPerson}
+                                />
+
+                                <TaskSomedayCard
+                                    task={task}
+                                    onToggle={handleToggleSomeday}
+                                />
+                                <TaskWaitingSinceCard
+                                    task={task}
+                                    onAdjust={handleAdjustWaitingSince}
+                                />
+                                <TaskEnergyCard
+                                    task={task}
+                                    onChange={handleChangeEnergy}
                                 />
 
                                 <TaskTagsCard

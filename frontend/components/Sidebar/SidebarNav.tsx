@@ -9,6 +9,7 @@ import {
     CalendarIcon,
     Squares2X2Icon,
     ViewColumnsIcon,
+    SparklesIcon,
 } from '@heroicons/react/24/solid';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useStore } from '../../store/useStore';
@@ -54,6 +55,20 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
             path: '/upcoming?status=active',
             title: t('sidebar.upcoming', 'Upcoming'),
             icon: <ClockIcon className="h-5 w-5" />,
+        },
+        {
+            // Plan 49: native Someday/Maybe list.
+            path: '/tasks?type=someday',
+            title: t('sidebar.someday', 'Someday'),
+            icon: <SparklesIcon className="h-5 w-5" />,
+            query: 'type=someday',
+        },
+        {
+            // Plan 50: native Waiting-For list.
+            path: '/tasks?type=waiting',
+            title: t('sidebar.waiting', 'Waiting'),
+            icon: <ClockIcon className="h-5 w-5" />,
+            query: 'type=waiting',
         },
         {
             path: '/calendar',

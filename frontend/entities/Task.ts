@@ -35,6 +35,9 @@ export interface Task {
     recurring_parent_id?: number;
     recurring_parent_uid?: string;
     completed_at: string | null;
+    // Plan 50: timestamp when status transitioned to waiting. Cleared on
+    // transition out of waiting. Drives follow-up overdue filter.
+    waiting_since?: string | null;
     parent_task_id?: number;
     subtasks?: Task[];
     parent_child_logic_executed?: boolean;
@@ -50,6 +53,11 @@ export interface Task {
     habit_last_completion_at?: string;
     assigned_to?: string | null;
     involves?: string[];
+    // Plan 49: native Someday/Maybe flag (list membership, not lifecycle).
+    is_someday?: boolean;
+    // Plan 51: mental-energy level (0=low, 1=medium, 2=high). Distinct axis
+    // from priority. null = unset.
+    energy?: 0 | 1 | 2 | null;
     // @mention link (many-to-many, parity with tags)
     InvolvedPeople?: Person[];
     AssignedTo?: Person;

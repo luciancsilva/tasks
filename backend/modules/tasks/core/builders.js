@@ -178,6 +178,34 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
     }
 
+    // Plan 49: Someday/Maybe flag (list membership, not lifecycle).
+    if (body.is_someday !== undefined) {
+        attrs.is_someday = body.is_someday === true;
+    }
+
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
+    }
+
+    // Plan 51: energy level (0/1/2). null clears. Accept numeric (0/1/2) or
+    // named ('low'/'medium'/'high') via Task.getEnergyValue. Bad strings fall
+    // back to null rather than 500 on the model's isIn validator.
+    if (body.energy !== undefined) {
+        if (body.energy === null) {
+            attrs.energy = null;
+        } else {
+            const numeric = Task.getEnergyValue(body.energy);
+            if (numeric !== null) {
+                attrs.energy = numeric;
+            } else {
+                const parsed = Number(body.energy);
+                attrs.energy = Number.isFinite(parsed) ? parsed : null;
+            }
+        }
+    }
+
     return attrs;
 }
 
@@ -270,6 +298,34 @@ function buildUpdateAttributes(body, task, timezone) {
 
     if (body.involves !== undefined) {
         attrs.involves = Array.isArray(body.involves) ? body.involves : [];
+    }
+
+    // Plan 49: Someday/Maybe flag.
+    if (body.is_someday !== undefined) {
+        attrs.is_someday = body.is_someday === true;
+    }
+
+    // Plan 50: explicit waiting_since override (auto-set on transition is
+    // handled in tasks/service.js so this forwards only what's supplied).
+    if (body.waiting_since !== undefined) {
+        attrs.waiting_since = body.waiting_since;
+    }
+
+    // Plan 51: energy level (0/1/2). null clears. Accept numeric (0/1/2) or
+    // named ('low'/'medium'/'high') via Task.getEnergyValue. Bad strings fall
+    // back to null rather than 500 on the model's isIn validator.
+    if (body.energy !== undefined) {
+        if (body.energy === null) {
+            attrs.energy = null;
+        } else {
+            const numeric = Task.getEnergyValue(body.energy);
+            if (numeric !== null) {
+                attrs.energy = numeric;
+            } else {
+                const parsed = Number(body.energy);
+                attrs.energy = Number.isFinite(parsed) ? parsed : null;
+            }
+        }
     }
 
     return attrs;

@@ -41,6 +41,16 @@ module.exports = (sequelize) => {
                     max: 2,
                 },
             },
+            // Plan 51: mental-energy level. Distinct axis from priority:
+            // importance vs resource needed. Powers /tasks?energy filter.
+            energy: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                defaultValue: null,
+                validate: {
+                    isIn: [[0, 1, 2]],
+                },
+            },
             status: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
@@ -159,6 +169,14 @@ module.exports = (sequelize) => {
                 type: DataTypes.DATE,
                 allowNull: true,
             },
+            // Plan 50: timestamp set on transition TO status=waiting; cleared
+            // when leaving waiting. Drives follow-up overdue filter
+            // (?type=waiting&waiting_overdue_days=N).
+            waiting_since: {
+                type: DataTypes.DATE,
+                allowNull: true,
+                defaultValue: null,
+            },
             habit_mode: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
@@ -229,6 +247,14 @@ module.exports = (sequelize) => {
                         value && value.length > 0 ? JSON.stringify(value) : null
                     );
                 },
+            },
+            // Plan 49: flag ortogonal ao lifecycle (status enum 0-6). List
+            // membership, não estado. Tarefas `is_someday=true` ficam fora das
+            // listas de ação (today/upcoming/next/inbox).
+            is_someday: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
             },
         },
         {
@@ -313,6 +339,24 @@ module.exports = (sequelize) => {
         LOW: 0,
         MEDIUM: 1,
         HIGH: 2,
+    };
+
+    Task.ENERGY = {
+        LOW: 0,
+        MEDIUM: 1,
+        HIGH: 2,
+    };
+
+    Task.getEnergyName = (energyValue) => {
+        const levels = ['low', 'medium', 'high'];
+        return energyValue === null || energyValue === undefined
+            ? null
+            : (levels[energyValue] ?? null);
+    };
+
+    Task.getEnergyValue = (energyName) => {
+        const map = { low: 0, medium: 1, high: 2 };
+        return map[energyName] !== undefined ? map[energyName] : null;
     };
 
     Task.STATUS = {

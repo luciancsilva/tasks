@@ -47,6 +47,12 @@ module.exports = (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            // Plan 51: saved-view energy filter ('low'|'medium'|'high').
+            energy: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                defaultValue: null,
+            },
             due: {
                 type: DataTypes.STRING,
                 allowNull: true,

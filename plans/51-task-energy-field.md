@@ -1,6 +1,6 @@
 # 51 — Campo `energy` em Task (high/med/low)
 
-> **Status: PROPOSTO** — GTD "Engajar" filtra por energia mental disponível. Hoje 100% tag-convention (`e-alta`/`e-baixa`, `docs/17-gtd-setup.md:31`). Sem campo nativo, sem filtro, sem UI. Sobrecarga com `priority` é evitada (priority = importância, energy = capacidade mental — eixos distintos).
+> **Status: EXECUTADO** em 2026-07-18 — Campo `energy` (INTEGER 0-2) em tasks + STRING em views; `Task.ENERGY`/`getEnergyValue`/`getEnergyName`; filtro `/tasks?energy=` (nome ou numérico) + `order_by=energy`; View `energy` com `validateEnergy` (400 em inválido); SearchMenu/SearchResults/SearchService/SaveViewModal slot de energy; `TaskEnergyCard` no TaskDetails; MCP `create_task`/`update_task`/`list_tasks` expõem energy; builders aceitam nome OU numérico (low→0, fallback null em string inválida).
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/51-task-energy-field` a partir da `main` · **Depende de:** -
 

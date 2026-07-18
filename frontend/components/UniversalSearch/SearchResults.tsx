@@ -15,6 +15,7 @@ interface SearchResultsProps {
     searchQuery: string;
     selectedFilters: string[];
     selectedPriority: string | null;
+    selectedEnergy: string | null;
     selectedDue: string | null;
     selectedDefer: string | null;
     selectedTags: string[];
@@ -37,6 +38,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     searchQuery,
     selectedFilters,
     selectedPriority,
+    selectedEnergy,
     selectedDue,
     selectedDefer,
     selectedTags,
@@ -55,6 +57,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 !searchQuery.trim() &&
                 selectedFilters.length === 0 &&
                 !selectedPriority &&
+                !selectedEnergy &&
                 !selectedDue &&
                 !selectedDefer &&
                 selectedTags.length === 0 &&
@@ -70,6 +73,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     query: searchQuery,
                     filters: selectedFilters,
                     priority: selectedPriority || undefined,
+                    energy: selectedEnergy || undefined,
                     due: selectedDue || undefined,
                     defer: selectedDefer || undefined,
                     tags: selectedTags.length > 0 ? selectedTags : undefined,
@@ -91,6 +95,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         searchQuery,
         selectedFilters,
         selectedPriority,
+        selectedEnergy,
         selectedDue,
         selectedDefer,
         selectedTags,
@@ -199,6 +204,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         !searchQuery.trim() &&
         selectedFilters.length === 0 &&
         !selectedPriority &&
+        !selectedEnergy &&
         !selectedDue &&
         selectedTags.length === 0
     ) {

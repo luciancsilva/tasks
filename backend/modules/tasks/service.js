@@ -340,6 +340,20 @@ const tasksService = {
         const timezone = getSafeTimezone(userTimezone);
         const taskAttributes = buildTaskAttributes(body, userId, timezone);
 
+        // Plan 50: when creating directly in status=waiting, auto-set
+        // waiting_since to "now" unless caller supplied an explicit value.
+        if (
+            taskAttributes.status === Task.STATUS.WAITING &&
+            body.waiting_since === undefined
+        ) {
+            taskAttributes.waiting_since = new Date();
+        } else if (
+            taskAttributes.status === Task.STATUS.WAITING &&
+            body.waiting_since !== undefined
+        ) {
+            taskAttributes.waiting_since = body.waiting_since;
+        }
+
         try {
             // Fetch parent end date if this is a recurring instance
             const recurringParentEndDate = await getRecurringParentEndDate(
@@ -453,6 +467,40 @@ const tasksService = {
 
         const timezone = getSafeTimezone(userTimezone);
         const taskAttributes = buildUpdateAttributes(body, task, timezone);
+
+        // Plan 50: auto-set/clear waiting_since on status transition.
+        // Logic runs before validateDeferUntilAndDueDate so the new value
+        // is reflected in any cascading checks.
+        {
+            const prevStatus = oldStatus;
+            const nextStatus =
+                body.status !== undefined
+                    ? Task.getStatusValue(body.status)
+                    : prevStatus;
+            if (
+                nextStatus === Task.STATUS.WAITING &&
+                prevStatus !== Task.STATUS.WAITING
+            ) {
+                if (body.waiting_since === undefined) {
+                    taskAttributes.waiting_since = new Date();
+                } else if (body.waiting_since !== undefined) {
+                    taskAttributes.waiting_since = body.waiting_since;
+                }
+            } else if (
+                nextStatus !== Task.STATUS.WAITING &&
+                prevStatus === Task.STATUS.WAITING
+            ) {
+                taskAttributes.waiting_since = null;
+            }
+            // Explicit body.waiting_since override always wins when
+            // staying in waiting.
+            if (
+                body.waiting_since !== undefined &&
+                nextStatus === Task.STATUS.WAITING
+            ) {
+                taskAttributes.waiting_since = body.waiting_since;
+            }
+        }
 
         try {
             const finalDeferUntil =
