@@ -134,7 +134,6 @@ plano em mãos (o dono aloca planos mecânicos a modelos menos capazes).
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `29-sidebar-people-add-button.md` | Botão `+` em PESSOAS na sidebar reusando `PersonModal` | Baixo | fraco (haiku) | - |
 | `25-task-assignee-display.md` | Exibir pessoa atribuída (`assigned_to`) em cards e topo do detalhe (+ include backend) | Baixo | fraco/médio | - |
 | `24-notification-i18n.md` | i18n de notificações agendadas (pt/en) + fix de plural "1 hours" | Médio | médio (sonnet) | - |
 | `30-templates-robustness-and-diagnosis.md` | Modelos falhando: robustez de erro no front + diagnóstico de ambiente | Baixo (código) | médio + humano p/ diagnóstico | - |
@@ -153,6 +152,7 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `29-sidebar-people-add-button.md` | Botão `+` em PESSOAS na sidebar reusando `PersonModal` | EXECUTADO (2026-07-18) |
 | `28-inbox-chip-color-and-hint.md` | Chip de tag da inbox em cor única neutra + hint `+Projeto` traduzido | EXECUTADO (2026-07-18) |
 | `23-project-templates-local-only.md` | Port da parte local do upstream `2df928b9`: templates de projeto (save-as-template, clone com offset de data + subtasks), sem marketplace | EXECUTADO (2026-07-17) |
 | `20-caldav-delete-by-calendar-id-broken-method.md` | `SyncStateRepository.deleteByCalendarId` chama `this.delete`, método que não existe (só `destroy`) — `TypeError` ao deletar calendário CalDAV | EXECUTADO (2026-07-17) |

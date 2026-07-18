@@ -1,6 +1,6 @@
 # 29 — sidebar: botão `+` em PESSOAS
 
-> **Status: PROPOSTO** — a seção PESSOAS da sidebar não tem botão `+` de criação rápida, diferente de PROJETOS/NOTAS/HÁBITOS/ÁREAS/ETIQUETAS. Adicionar reutilizando o modal existente.
+> **Status: EXECUTADO** em 2026-07-18 — adicionado botão `+` de criação rápida ao lado de PESSOAS na sidebar, abrindo o `PersonModal`.
 > **Esforço:** Baixo · **Natureza:** mecânico (copia padrão SidebarProjects/Tags) · **Modelo:** fraco (haiku).
 > **Branch:** `main` · **Depende de:** -
 

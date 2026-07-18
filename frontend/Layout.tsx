@@ -9,11 +9,13 @@ import ProjectModal from './components/Project/ProjectModal';
 import NoteModal from './components/Note/NoteModal';
 import AreaModal from './components/Area/AreaModal';
 import TagModal from './components/Tag/TagModal';
+import PersonModal from './components/People/PersonModal';
 import { Note } from './entities/Note';
 import { Area } from './entities/Area';
 import { Tag } from './entities/Tag';
 import { Project } from './entities/Project';
 import { User } from './entities/User';
+import { Person } from './entities/Person';
 import { useStore } from './store/useStore';
 import { createNote, updateNote } from './utils/notesService';
 import { createArea, updateArea } from './utils/areasService';
@@ -60,6 +62,8 @@ const Layout: React.FC<LayoutProps> = ({
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const [selectedArea, setSelectedArea] = useState<Area | null>(null);
     const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+    const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
+    const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
     const [keyboardShortcuts, setKeyboardShortcuts] = useState<KeyboardShortcutsConfig | null>(null);
 
     // Fetch keyboard shortcuts from profile
@@ -213,6 +217,42 @@ const Layout: React.FC<LayoutProps> = ({
     const closeTagModal = () => {
         setIsTagModalOpen(false);
         setSelectedTag(null);
+    };
+
+    const openPersonModal = (person: Person | null = null) => {
+        setSelectedPerson(person);
+        setIsPersonModalOpen(true);
+    };
+
+    const closePersonModal = () => {
+        setIsPersonModalOpen(false);
+        setSelectedPerson(null);
+    };
+
+    const handleSavePerson = async (personData: Partial<Person>) => {
+        try {
+            const { createPerson, updatePerson } = await import(
+                './utils/peopleService'
+            );
+            let result: { person: Person };
+            if (selectedPerson?.uid) {
+                result = await updatePerson(selectedPerson.uid, personData);
+                showSuccessToast(t('people.personUpdated', 'Person updated'));
+            } else {
+                result = await createPerson(personData as any);
+                showSuccessToast(t('people.personCreated', 'Person created'));
+            }
+            closePersonModal();
+            if (result.person.uid) {
+                navigate(`/person/${result.person.uid}`);
+            }
+        } catch (error: any) {
+            console.error('Error saving person:', error);
+            if (isAuthError(error)) {
+                return;
+            }
+            showErrorToast(t('people.saveError', 'Failed to save person'));
+        }
     };
 
     const handleSaveNote = async (noteData: Note) => {
@@ -423,6 +463,7 @@ const Layout: React.FC<LayoutProps> = ({
                     openAreaModal={openAreaModal}
                     openTagModal={openTagModal}
                     openNewHabit={openNewHabit}
+                    openPersonModal={openPersonModal}
                     notes={notes}
                     areas={areas}
                     tags={tags}
@@ -462,6 +503,7 @@ const Layout: React.FC<LayoutProps> = ({
                     openAreaModal={openAreaModal}
                     openTagModal={openTagModal}
                     openNewHabit={openNewHabit}
+                    openPersonModal={openPersonModal}
                     notes={notes}
                     areas={areas}
                     tags={tags}
@@ -556,6 +598,14 @@ const Layout: React.FC<LayoutProps> = ({
                         onClose={closeTagModal}
                         onSave={handleSaveTag}
                         tag={selectedTag}
+                    />
+                )}
+
+                {isPersonModalOpen && (
+                    <PersonModal
+                        person={selectedPerson}
+                        onSave={handleSavePerson}
+                        onClose={closePersonModal}
                     />
                 )}
             </div>
