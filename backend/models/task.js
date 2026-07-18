@@ -41,6 +41,16 @@ module.exports = (sequelize) => {
                     max: 2,
                 },
             },
+            // Plan 51: mental-energy level. Distinct axis from priority:
+            // importance vs resource needed. Powers /tasks?energy filter.
+            energy: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                defaultValue: null,
+                validate: {
+                    isIn: [[0, 1, 2]],
+                },
+            },
             status: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
@@ -313,6 +323,24 @@ module.exports = (sequelize) => {
         LOW: 0,
         MEDIUM: 1,
         HIGH: 2,
+    };
+
+    Task.ENERGY = {
+        LOW: 0,
+        MEDIUM: 1,
+        HIGH: 2,
+    };
+
+    Task.getEnergyName = (energyValue) => {
+        const levels = ['low', 'medium', 'high'];
+        return energyValue === null || energyValue === undefined
+            ? null
+            : (levels[energyValue] ?? null);
+    };
+
+    Task.getEnergyValue = (energyName) => {
+        const map = { low: 0, medium: 1, high: 2 };
+        return map[energyName] !== undefined ? map[energyName] : null;
     };
 
     Task.STATUS = {

@@ -103,6 +103,11 @@ function registerTaskTools(server, context, tools) {
                     description: 'Maximum number of tasks to return',
                     default: 50,
                 },
+                energy: {
+                    type: 'string',
+                    enum: ['low', 'medium', 'high'],
+                    description: 'Filter by mental energy level',
+                },
             },
         },
         handler: async (params) => {
@@ -119,6 +124,11 @@ function registerTaskTools(server, context, tools) {
 
             if (params.project_id) {
                 whereClause.project_id = params.project_id;
+            }
+
+            if (params.energy) {
+                const energyMap = { low: 0, medium: 1, high: 2 };
+                whereClause.energy = energyMap[params.energy];
             }
 
             let order = [['created_at', 'DESC']];
@@ -247,6 +257,12 @@ function registerTaskTools(server, context, tools) {
                     enum: ['low', 'medium', 'high'],
                     description: 'Task priority',
                 },
+                energy: {
+                    type: 'string',
+                    enum: ['low', 'medium', 'high'],
+                    description:
+                        'Mental energy level (low=0, medium=1, high=2). Distinct axis from priority.',
+                },
                 due_date: {
                     type: 'string',
                     description: 'Due date (ISO 8601 format)',
@@ -265,6 +281,7 @@ function registerTaskTools(server, context, tools) {
         },
         handler: async (params) => {
             const priorityMap = { low: 0, medium: 1, high: 2 };
+            const energyMap = { low: 0, medium: 1, high: 2 };
 
             // Validate project access before creating task
             const resolvedProjectId = params.project_id
@@ -276,6 +293,7 @@ function registerTaskTools(server, context, tools) {
                 name: params.name,
                 note: params.description || '',
                 priority: params.priority ? priorityMap[params.priority] : 1,
+                energy: params.energy ? energyMap[params.energy] : null,
                 status: 0, // pending
                 due_date: params.due_date || null,
                 project_id: resolvedProjectId,
@@ -346,6 +364,12 @@ function registerTaskTools(server, context, tools) {
                     type: 'string',
                     enum: ['low', 'medium', 'high'],
                 },
+                energy: {
+                    type: 'string',
+                    enum: ['low', 'medium', 'high'],
+                    description:
+                        'Mental energy level (low=0, medium=1, high=2)',
+                },
                 status: {
                     type: 'string',
                     enum: [
@@ -402,6 +426,10 @@ function registerTaskTools(server, context, tools) {
             if (params.priority) {
                 const priorityMap = { low: 0, medium: 1, high: 2 };
                 updates.priority = priorityMap[params.priority];
+            }
+            if (params.energy) {
+                const energyMap = { low: 0, medium: 1, high: 2 };
+                updates.energy = energyMap[params.energy];
             }
             if (params.status) {
                 updates.status = getStatusValueFromMcp(params.status);

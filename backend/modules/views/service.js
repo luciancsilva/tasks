@@ -1,7 +1,11 @@
 'use strict';
 
 const viewsRepository = require('./repository');
-const { validateName, validateExtras } = require('./validation');
+const {
+    validateName,
+    validateExtras,
+    validateEnergy,
+} = require('./validation');
 const { NotFoundError } = require('../../shared/errors');
 
 class ViewsService {
@@ -27,6 +31,7 @@ class ViewsService {
             search_query,
             filters,
             priority,
+            energy,
             due,
             defer,
             tags,
@@ -36,12 +41,14 @@ class ViewsService {
 
         const validatedName = validateName(name);
         const validatedExtras = validateExtras(extras);
+        const validatedEnergy = validateEnergy(energy);
 
         return viewsRepository.createForUser(userId, {
             name: validatedName,
             search_query: search_query || null,
             filters: filters || [],
             priority: priority || null,
+            energy: validatedEnergy,
             due: due || null,
             defer: defer || null,
             tags: tags || [],
@@ -62,6 +69,7 @@ class ViewsService {
             search_query,
             filters,
             priority,
+            energy,
             due,
             defer,
             tags,
@@ -75,6 +83,7 @@ class ViewsService {
         if (search_query !== undefined) updates.search_query = search_query;
         if (filters !== undefined) updates.filters = filters;
         if (priority !== undefined) updates.priority = priority;
+        if (energy !== undefined) updates.energy = validateEnergy(energy);
         if (due !== undefined) updates.due = due;
         if (defer !== undefined) updates.defer = defer;
         if (tags !== undefined) updates.tags = tags;

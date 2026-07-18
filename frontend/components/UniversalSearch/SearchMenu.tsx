@@ -59,6 +59,13 @@ const priorityOptions = [
     { value: 'low', labelKey: 'priority.low', fallback: 'Low' },
 ];
 
+// Plan 51: mental-energy filter slots in the universal search menu.
+const energyOptions = [
+    { value: 'high', labelKey: 'search.energyHigh', fallback: 'High energy' },
+    { value: 'medium', labelKey: 'search.energyMedium', fallback: 'Medium' },
+    { value: 'low', labelKey: 'search.energyLow', fallback: 'Low energy' },
+];
+
 const dueOptions = [
     { value: 'today', labelKey: 'dateIndicators.today', fallback: 'Today' },
     { value: 'tomorrow', labelKey: 'dateIndicators.tomorrow', fallback: 'Tomorrow' },
@@ -97,6 +104,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
     const [selectedPriority, setSelectedPriority] = useState<string | null>(
         null
     );
+    const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null);
     const [selectedDue, setSelectedDue] = useState<string | null>(null);
     const [selectedDefer, setSelectedDefer] = useState<string | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -130,6 +138,11 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
 
     const handlePriorityToggle = (priority: string) => {
         setSelectedPriority(selectedPriority === priority ? null : priority);
+    };
+
+    // Plan 51: energy filter toggle.
+    const handleEnergyToggle = (energy: string) => {
+        setSelectedEnergy(selectedEnergy === energy ? null : energy);
     };
 
     const handleDueToggle = (due: string) => {
@@ -178,6 +191,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     search_query: searchQuery || null,
                     filters: selectedFilters,
                     priority: selectedPriority || null,
+                    energy: selectedEnergy || null,
                     due: selectedDue || null,
                     defer: selectedDefer || null,
                     tags: selectedTags.length > 0 ? selectedTags : null,
@@ -295,6 +309,26 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
             );
             parts.push(
                 <span key="priority-suffix">{' ' + t('search.priority', 'priority')}</span>
+            );
+        }
+
+        // Plan 51: energy filter.
+        if (selectedEnergy) {
+            parts.push(
+                <span key="energy-label">
+                    {t('search.withEnergy', ', with') + ' '}
+                </span>
+            );
+            parts.push(
+                <span
+                    key="energy"
+                    style={{ fontWeight: 800, fontStyle: 'normal' }}
+                >
+                    {selectedEnergy}
+                </span>
+            );
+            parts.push(
+                <span key="energy-suffix">{' ' + t('search.energy', 'energy')}</span>
             );
         }
 
@@ -426,6 +460,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         selectedFilters.length > 0 ||
         searchQuery.trim() ||
         selectedPriority ||
+        selectedEnergy ||
         selectedDue ||
         selectedDefer ||
         selectedTags.length > 0 ||
@@ -529,6 +564,27 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 handlePriorityToggle(
                                                     option.value
                                                 )
+                                            }
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Plan 51: Energy Filters */}
+                            <div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                                    {t('search.energyFilter', 'Energy')}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {energyOptions.map((option) => (
+                                        <FilterBadge
+                                            key={option.value}
+                                            name={t(option.labelKey, option.fallback)}
+                                            isSelected={
+                                                selectedEnergy === option.value
+                                            }
+                                            onToggle={() =>
+                                                handleEnergyToggle(option.value)
                                             }
                                         />
                                     ))}
@@ -717,6 +773,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 searchQuery={searchQuery}
                 selectedFilters={selectedFilters}
                 selectedPriority={selectedPriority}
+                selectedEnergy={selectedEnergy}
                 selectedDue={selectedDue}
                 selectedDefer={selectedDefer}
                 selectedTags={selectedTags}

@@ -162,7 +162,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 |---|---|---|---|---|
 | `49-gtd-someday-native.md` | Flag `is_someday` (bool) + migration + `case 'someday'` por flag + sidebar + TaskDetails toggle + backfill tag `someday` | Médio | médio | - |
 | `50-gtd-waiting-since.md` | `waiting_since` DATE auto-set em transição→waiting + follow-up filter `waiting_overdue_days` + sidebar + TaskDetails | Médio | médio | - |
-| `51-task-energy-field.md` | Campo `energy` (0-2) + filtro `/tasks?energy` + `order_by=energy` + View `energy` + TaskDetails card + Search slot | Baixo | baixo | - |
 | `52-task-time-estimate.md` | Campo `time_estimate` (min) + filtros `time_max`/`time_min` + View `time_max` + TaskDetails card + Search slot | Baixo | baixo | - |
 | `53a-projects-sequential-backend.md` | `Project.execution_mode` enum + migration + service + query-builder oculta non-next em Today/Next/Upcoming | Médio | médio | - |
 | `53b-projects-sequential-frontend.md` | ProjectModal toggle + ProjectDetails badge "Next action" + entity TS + i18n | Médio | médio | 53a |
@@ -206,6 +205,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `51-task-energy-field.md` | Campo `energy` (0-2) em tasks + STRING em views; `Task.ENERGY`/`getEnergyValue`; filtro `/tasks?energy=` + `order_by=energy`; View `energy` com `validateEnergy`; SearchMenu/Results/SaveViewModal slot; `TaskEnergyCard`; MCP `create/update/list_tasks` | EXECUTADO (2026-07-18) |
 | `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth in drift; migrations não testadas | EXECUTADO (2026-07-18) |
 | `41-habits-streak-timezone.md` | Streak de hábito usa `moment-timezone` com o fuso do usuário em vez do fuso do servidor | EXECUTADO (2026-07-18) |
 | `44-scheduler-n-plus-1-and-unbounded-findall.md` | Jobs due/deferred: paginação no `findAll` e N+1 de Notificação resolvido | EXECUTADO (2026-07-18) |
