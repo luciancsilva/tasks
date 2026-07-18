@@ -127,7 +127,13 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade BAIXA
 
-*(nenhum plano aberto)*
+Achados do code-review do lote 24–32 (2026-07-18). Nenhum arrisca dados.
+
+| Arquivo | O quê | Esforço | Modelo | Depende de |
+|---|---|---|---|---|
+| `35-tasks-cleanup-includes-and-i18n-require.md` | Cleanup: include `InvolvedPeople` redundante no filtro, `require` em loop, tipo de notificação de tarefa reativada | Baixo | fraco (haiku) | - |
+| `36-templates-error-i18n-and-sentinels.md` | Templates: fallback PT hardcoded → EN + sentinelas de erro compartilhadas | Baixo | fraco (haiku) | - |
+| `34-inbox-person-semantics-consistency.md` | `@pessoa` inconsistente: composer usa `people` (InvolvedPeople), detail usa `assigned_to`. **Precisa decisão do dono** antes de mudar comportamento | Médio | médio/forte | - |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
 executado em 2026-07-18 — ver tabela "Executados".
@@ -142,6 +148,7 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `33-inbox-detail-area-link.md` | Inbox: converter item salvo perdia o `$area` (payload sem `area_uid`) — resolve por match existente, sem auto-criar | EXECUTADO (2026-07-18) |
 | `32-ai-config-inline.md` | Config de IA inline: provider (OpenAI/OpenRouter/custom), chave por-usuário (mascarada no GET), modelo e botão testar sob o toggle | EXECUTADO (2026-07-18) |
 | `27-inbox-area-token.md` | Inbox: token `$area` no título espelhando `@pessoa` | EXECUTADO (2026-07-18) |
 | `31-branding-validation-and-reset.md` | Marca: validar dimensão, renomear "Enviar", botão restaurar padrão | EXECUTADO (2026-07-18) |

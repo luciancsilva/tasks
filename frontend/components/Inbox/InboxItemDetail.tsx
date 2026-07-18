@@ -425,6 +425,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             projectRefsOverride ?? parseProjectRefs(sourceText);
         const sourcePeopleRefs =
             peopleRefsOverride ?? parsePeopleRefs(sourceText);
+        const sourceAreaRefs = parseAreaRefs(sourceText);
         const cleaned =
             cleanedOverride ??
             cleanTextFromTagsAndProjects(sourceText) ??
@@ -457,6 +458,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             projectRefsList: sourceProjectRefs,
             hashtagsList: sourceHashtags,
             peopleRefsList: sourcePeopleRefs,
+            areaRefsList: sourceAreaRefs,
         };
     };
 
@@ -491,6 +493,20 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 }
             }
 
+            let areaUid: string | undefined = undefined;
+            if (payload.areaRefsList && payload.areaRefsList.length > 0) {
+                const areaName = payload.areaRefsList[0];
+                const matchingArea = Array.isArray(areas)
+                    ? areas.find(
+                          (area) =>
+                              area.name.toLowerCase() === areaName.toLowerCase()
+                      )
+                    : undefined;
+                if (matchingArea) {
+                    areaUid = matchingArea.uid;
+                }
+            }
+
             const newTask: Task = {
                 name: payload.cleanedContent || displayText,
                 status: 'not_started',
@@ -498,6 +514,7 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 tags: payload.tagObjects,
                 project_uid: payload.projectUid,
                 assigned_to: assignedToUid,
+                area_uid: areaUid,
                 completed_at: null,
             };
 
