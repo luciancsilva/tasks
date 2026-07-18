@@ -141,6 +141,50 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
 
+#### Roadmap GTD — Lotes 1-3 (2026-07-18)
+
+Features aprovadas na auditoria GTD (Fases 1-4). Risco baixo (nenhum toca dado
+existente sem migration `safeAddColumns`); valor alto. Ordem de execução sugerida
+pela coluna "Depende de", não pelo número. 24 planos (`49`-`69`, com `53`/`54`/`67`
+quebrados em a/b). Reescritos com detalhe máximo (trechos de código, assinaturas,
+shapes de request/response) para execução por modelos menos capazes.
+
+**Lote 1 — GTD core (49-56):** Someday/Waiting nativos, energy/time, sequential
+projects, Weekly Review (rota+seções+notif+stale).
+
+**Lote 2 — Engajar (57-62):** multi-tag OR, custom date range, focus mode,
+calendar drag, today reorder, quick-add overlay.
+
+**Lote 3 — UX/Inbox (63-69):** bulk ops, subtask drag, inbox stale alert, triage
+wizard, task comments, composer `!priority`, inbox bulk.
+
+| Arquivo | O quê | Esforço | Modelo | Depende de |
+|---|---|---|---|---|
+| `49-gtd-someday-native.md` | Flag `is_someday` (bool) + migration + `case 'someday'` por flag + sidebar + TaskDetails toggle + backfill tag `someday` | Médio | médio | - |
+| `50-gtd-waiting-since.md` | `waiting_since` DATE auto-set em transição→waiting + follow-up filter `waiting_overdue_days` + sidebar + TaskDetails | Médio | médio | - |
+| `51-task-energy-field.md` | Campo `energy` (0-2) + filtro `/tasks?energy` + `order_by=energy` + View `energy` + TaskDetails card + Search slot | Baixo | baixo | - |
+| `52-task-time-estimate.md` | Campo `time_estimate` (min) + filtros `time_max`/`time_min` + View `time_max` + TaskDetails card + Search slot | Baixo | baixo | - |
+| `53a-projects-sequential-backend.md` | `Project.execution_mode` enum + migration + service + query-builder oculta non-next em Today/Next/Upcoming | Médio | médio | - |
+| `53b-projects-sequential-frontend.md` | ProjectModal toggle + ProjectDetails badge "Next action" + entity TS + i18n | Médio | médio | 53a |
+| `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | Alto | médio | - |
+| `54b-weekly-review-sections.md` | 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) com agregação reusando services + UI ReviewSection | Alto | médio | 54a, 56 |
+| `55-weekly-review-notification.md` | Notification type `weekly_review` + pref `weeklyReview` + cron diário 16h filtra por `weekly_review_day` + suggested | Baixo | baixo | 54a |
+| `56-stale-task-detection.md` | `case 'stale'` query-builder (`updated_at < cutoff`, não-done, não-recurring/someday/habit) + `stale_days` param + User.stale_task_days | Baixo | baixo | - |
+| `57-multi-tag-and-or.md` | `tags_any` (OR) + `tags` (AND) combináveis + View `tags_any` JSON + SearchMenu dois campos "Todas"/"Qualquer" | Médio | médio | - |
+| `58-custom-date-range.md` | `due_from`/`due_to` em `/tasks` + `/search` + View colunas + SearchMenu date pickers (presets mantidos) | Médio | médio | - |
+| `59-task-focus-mode.md` | `TaskFocusMode` full-screen + Pomodoro bind (`current_task_uid`) + Next + TaskEvent `focus_session` + endpoint log | Alto | médio | - |
+| `60-calendar-drag-reschedule.md` | dnd-kit em CalendarMonthView: drag muda `due_date` + double-click-to-create; defer não-draggable | Alto | médio | - |
+| `61-today-plan-reorder.md` | Coluna `today_order` + dnd-kit em TodayPlan; fallback sort se null; drag handle separado | Médio | médio | - |
+| `62-quick-add-overlay.md` | Ctrl+Space → overlay mini-input (portal) → Inbox; intercept capture phase (funciona em inputs); token parsing | Médio | médio | - |
+| `63-bulk-ops-tasks.md` | `POST /tasks/bulk` atômico (status/priority/due/energy/time/assigned) + `/tasks/bulk-delete` + TaskList checkbox + toolbar | Médio | médio | 51, 52 |
+| `64-subtask-drag-reorder.md` | `PATCH /task/:uid/subtasks/reorder` atômico + dnd-kit em TaskSubtasksSection + drag handle `⠿` | Médio | médio | - |
+| `65-inbox-stale-alert.md` | `GET /inbox/stale-count` (>48h) + sidebar ponto vermelho + Inbox banner + items destacados | Baixo | baixo | - |
+| `66-inbox-triage-wizard.md` | InboxItemDetail footer 6 botões GTD (Ação/2-min/Projeto/Ref/Someday/Lixo) + `analyzeText` parse + `is_someday`/done | Médio | médio | 49 |
+| `67a-task-comments-backend.md` | Migration `comments` + model + módulo `comments` (CRUD) + access rw/ro + notif `comment_added` para owner | Médio | médio | - |
+| `67b-task-comments-frontend.md` | `TaskCommentsCard` (SWR) + post/edit/delete (autor) + mount TaskDetails + `commentsService.ts` | Médio | médio | 67a |
+| `68-composer-priority-token.md` | `parsePriority` (`!high`/`!medium`/`!low`) em `inboxProcessingService` + strip clean + `parsed_priority` em analyzeText | Baixo | baixo | - |
+| `69-inbox-bulk-process.md` | `POST /inbox/bulk` (process-to-tasks com shared tags/project) + `/inbox/bulk-delete` + `/inbox/bulk-mark-processed` + selection UI | Médio | médio | 68 |
+
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
 executado em 2026-07-18 — ver tabela "Executados".
 
