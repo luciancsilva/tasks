@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — `getCachedBrief` agora compara `ai_daily_brief_date` com a data de hoje no fuso do usuário (moment-timezone) e retorna `null` quando desatualizado; 5 testes unitários adicionados.
+
 # 45 — Daily brief serve cache de dia anterior
 
 > **Status: PROPOSTO** — `getCachedBrief` retorna o brief salvo sem comparar `ai_daily_brief_date`; o brief de ontem é servido como o de hoje até um POST regenerar.

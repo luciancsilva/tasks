@@ -129,7 +129,6 @@ degradação de scheduler.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `45-ai-daily-brief-stale-cache.md` | `getCachedBrief` serve o brief de ontem como o de hoje (não compara `ai_daily_brief_date`) | Trivial | fraco | - |
 | `40-habits-completion-atomicity.md` | Completar/descompletar hábito faz 2 escritas fora de transação → contadores/streak divergem do real | Baixo | fraco | - |
 | `42-caldav-conflict-resolution-atomicity.md` | Resolução de conflito CalDAV (auto e manual): `update`+sync-state fora de transação → task reaparece como conflito | Baixo | fraco | - |
 | `47-goals-area-ownership-idor.md` | Goal aceita `area_id` de outro usuário (IDOR): `include` do GET vaza nome/cor de Area privada alheia | Baixo | médio | - |
@@ -143,7 +142,6 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `48-shares-access-level-whitelist.md` | `createShare` não valida `access_level` contra whitelist (defensivo; sem escalação cross-user) | Trivial | fraco | - |
 | `43-templates-atomicity.md` | Delete/clone/save de template não-atômico → template órfão vazio ou projeto vazio em crash | Baixo | fraco | - |
 | `46-telegram-summary-timezone.md` | Resumo Telegram calcula "hoje" no fuso do servidor, não do usuário → janela deslocada | Baixo | médio | - |
 | `41-habits-streak-timezone.md` | Streak agrupa completions com `setHours` local sobre `completed_at` UTC → dia errado fora de UTC | Médio | médio | - |
@@ -170,6 +168,8 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `48-shares-access-level-whitelist.md` | `createShare`: whitelist `['ro','rw']` para `access_level`; `ValidationError(400)` para valor inválido | EXECUTADO (2026-07-18) |
+| `45-ai-daily-brief-stale-cache.md` | `getCachedBrief` compara `ai_daily_brief_date` com hoje no fuso do usuário; retorna `null` se desatualizado | EXECUTADO (2026-07-18) |
 | `37-fix-ai-migration-shape.md` | Migration do plano 32 não aplicava (`safeAddColumns` com shape errado, sem `definition:`) — quebraria o deploy; corrigida e aplicada | EXECUTADO (2026-07-18) |
 | `36-templates-error-i18n-and-sentinels.md` | Templates: sentinelas de erro em `TEMPLATE_API_ERROR`, helper `showTemplateError`, fallback EN + chaves `error404/error500` em en+pt | EXECUTADO (2026-07-18) |
 | `34-inbox-person-semantics-consistency.md` | Composer da inbox: primeira `@pessoa` vira `assigned_to` (resto InvolvedPeople), consistente com o detail e a decisão do dono | EXECUTADO (2026-07-18) |

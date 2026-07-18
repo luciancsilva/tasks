@@ -1,3 +1,5 @@
+> **Status: EXECUTADO** em 2026-07-18 — `createShare` valida `access_level` contra whitelist `['ro','rw']` e lança `ValidationError(400)` para qualquer outro valor; 4 testes de integração adicionados.
+
 # 48 — `createShare` não valida `access_level` contra whitelist
 
 > **Status: PROPOSTO** — `access_level` do body só é checado quanto à presença, nunca contra `ro`/`rw`/`admin`; valor arbitrário é persistido. Sem escalação cross-user (só o dono seta), é robustez defensiva.
