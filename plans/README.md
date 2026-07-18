@@ -124,7 +124,9 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-*(nenhum plano aberto)*
+| Esforço | Arquivo | O quê | Depende de |
+|---|---|---|---|
+| Alto | `23-project-templates-local-only.md` | Trazer "Project Templates" do upstream (issue #979) sem a parte de Marketplace remoto | - |
 
 ### Prioridade BAIXA
 
