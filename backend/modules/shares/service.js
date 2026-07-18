@@ -31,6 +31,13 @@ class SharesService {
             throw new ValidationError('Missing parameters');
         }
 
+        const VALID_ACCESS_LEVELS = ['ro', 'rw'];
+        if (!VALID_ACCESS_LEVELS.includes(access_level)) {
+            throw new ValidationError(
+                `Invalid access_level. Must be one of: ${VALID_ACCESS_LEVELS.join(', ')}`
+            );
+        }
+
         // Only owner (or admin) can grant shares
         const userIsAdmin = await isAdmin(userId);
         const userIsOwner = await this.isResourceOwner(

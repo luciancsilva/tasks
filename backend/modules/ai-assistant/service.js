@@ -222,9 +222,12 @@ function buildContextSummary({ user, timezone, goals, projects, metrics }) {
 
 async function getCachedBrief(userId) {
     const user = await User.findByPk(userId, {
-        attributes: ['ai_daily_brief', 'ai_daily_brief_date'],
+        attributes: ['ai_daily_brief', 'ai_daily_brief_date', 'timezone'],
     });
     if (!user || !user.ai_daily_brief) return null;
+    const timezone = user.timezone || 'UTC';
+    const today = moment().tz(timezone).format('YYYY-MM-DD');
+    if (user.ai_daily_brief_date !== today) return null;
     return user.ai_daily_brief;
 }
 
