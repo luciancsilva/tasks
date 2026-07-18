@@ -9,9 +9,8 @@ Pré-requisito de leitura: `plans/README.md`.
 
 ## Contexto
 
-O banco de produção foi zerado duas vezes em 2026-07-16/17 por um bug de boot
-(ver `plans/09a-d1-code-removal.md` §Registro). O incidente expôs o problema de
-fundo: **não existe backup offsite**.
+O banco de produção foi zerado duas vezes em 2026-07-16/17 por um bug de boot.
+O incidente expôs o problema de fundo: **não existe backup offsite**.
 
 O que existe hoje e **não** resolve:
 
@@ -26,23 +25,6 @@ O que existe hoje e **não** resolve:
 
 **Objetivo declarado pelo dono (2026-07-17)**: não perder dados se o container
 morrer. Disaster recovery, não réplica consultável nem point-in-time fino.
-
-### Alternativa descartada: replicar cada escrita para o Cloudflare D1
-
-Foi a proposta original, rejeitada na discussão de 2026-07-17. Registrado aqui
-para não ser reproposta:
-
-- **Devolve a latência** que motivou a remoção do D1: replicação síncrona põe um
-  round-trip de ~200ms em cada escrita. Assíncrona não paga latência, mas não
-  garante entrega.
-- **Sem transação**: o driver REST neutralizava `BEGIN/COMMIT`. Fluxos
-  multi-statement (delete de tarefa com subtasks/tags/eventos) replicariam
-  estados parciais que nunca existiram no original.
-- **Rate limit**: 1100 req/5min. Delete de projeto grande dispara centenas de
-  requests; o limiter dorme e o app trava.
-- **Dual-write diverge em silêncio**: sem outbox/log não há reconciliação. Backup
-  que diverge sem avisar é pior que backup nenhum — a descoberta acontece no
-  restore.
 
 Um banco é o destino errado para backup: paga-se semântica de banco (round-trip
 por statement, rate limit) para uma necessidade de object storage (um blob

@@ -10,11 +10,9 @@
 
 `npm run db:init` executa `backend/scripts/db-init.js`, que roda
 `sequelize.sync({ force: true })` — DROP de todas as tabelas. Esse comando já
-zerou o banco de produção duas vezes (2026-07-16/17, ver
-`plans/09a-d1-code-removal.md` §Registro).
+zerou o banco de produção duas vezes (2026-07-16/17).
 
-O commit `ef690f67` adicionou uma guarda, mas ela era específica do driver D1
-(`isD1InitBlocked()`), e **foi removida junto com o D1** no `7782d689`. Hoje
+O commit `ef690f67` adicionou uma guarda que **foi removida** no `7782d689`. Hoje
 `backend/scripts/db-init.js:23` roda o sync destrutivo incondicionalmente; as
 únicas proteções restantes são:
 - `backend/cmd/start.sh:92` — só chama `db-init` quando o arquivo do banco não existe;

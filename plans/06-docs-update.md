@@ -10,10 +10,9 @@ real do código após as mudanças de 2026-07 (storage R2, limpeza de anexos,
 branding, limpeza do fork). Plano executável por agente em uma sessão; regras
 gerais em `plans/README.md`.
 
-> **Atenção ao executar**: este plano foi escrito em 2026-07-16, antes da remoção
-> do Cloudflare D1 (`plans/09a-d1-code-removal.md`). Os itens de D1 já foram retirados
-> daqui. Validar o status real dos demais antes de mexer — o passo 1
-> (`docs/15-storage.md`) aparenta já estar executado.
+> **Atenção ao executar**: este plano foi escrito em 2026-07-16. Validar o status
+> real dos itens antes de mexer — o passo 1 (`docs/15-storage.md`) aparenta já
+> estar executado.
 
 ## Registro da execução (2026-07-17)
 

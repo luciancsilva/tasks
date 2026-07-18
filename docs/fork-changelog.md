@@ -116,13 +116,6 @@ não textual: o upstream mexe em arquivos que aqui não existem mais.
 | `61c36075` | Testes de caracterização do `RecurrenceDisplay` |
 | `d3b6b58c` | `BrandingTab` e o guarda de avatar (`getSafeAvatarUrl`) |
 
-## Cloudflare D1 — tentado e **revertido**
-
-Não existe mais no código. Fica registrado porque os commits estão na história e
-a lição custou caro: o D1 faz **1 round-trip HTTP por statement** (telas de 5-30s,
-sem transação real, sem pool) e a operação zerou o banco de produção duas vezes.
-Registro completo em [`plans/09a-d1-code-removal.md`](../plans/09a-d1-code-removal.md).
-
 | Commit | O quê |
 |---|---|
 | `5e705e8b` | Driver sqlite3-compatível via `dialectModule` + client HTTP com retry e rate limiter |
@@ -140,10 +133,10 @@ Sobreviveu à remoção: o `.env.example` e os nomes `CLOUDFLARE_*` (a parte R2)
 | Commit | O quê |
 |---|---|
 | `e6de6648`, `e1624ee2`, `3fdb7911`, `b137dc93`, `b13d387b` | Workflow do `/plans`: subplans por esforço, regras de execução, `read the @plans/README.md` como gatilho |
-| `3bb1e213`, `55c462cd` | Planos do D1 descartados; remoção e backup R2 planejados |
+| `3bb1e213`, `55c462cd` | Planos descartados; backup R2 planejado |
 | `8a620172`, `bf7e99f0` | `05a` implementado; status EXECUTADO |
 | `feebf50b`, `656bf687`, `5565d758` | `/docs` e `CLAUDE.md` alinhados ao código |
-| `1e9d9e7c` | README realinhado (D1 saiu, backup entrou) |
+| `1e9d9e7c` | README realinhado (backup entrou) |
 
 ### Ruído (registrado como lição, não como feito)
 

@@ -35,7 +35,7 @@ real ou daria falso positivo. Esta seção é a **fonte única** — `CLAUDE.md`
 1. **`npm run db:init` e `npm run db:reset` DESTROEM o banco.** São
    `sequelize.sync({ force: true })` = DROP de todas as tabelas. Foi exatamente
    esse comando, disparado automaticamente no boot, que zerou o banco de
-   produção duas vezes em 2026-07-16/17 (`09a-d1-code-removal.md` §Registro).
+   produção duas vezes em 2026-07-16/17.
    **Como agente executor, você nunca precisa rodar nenhum dos dois**: o banco
    de dev já existe neste checkout, e a suíte usa `NODE_ENV=test`. Para
    inspecionar, `npm run db:status` (só lê).
@@ -98,9 +98,8 @@ só os arquivos que você tocou, individualmente.
 - **Ciclo de vida**: proposto → executado → **marcado como EXECUTADO** (banner
   no topo) e mantido como registro de decisão. Saem do diretório: planos
   descartados, consumidos sem valor de registro (ex.: prompts de planejamento) e
-  **planos de tecnologia removida do código** — nesse caso a história e a decisão
-  ficam registradas no plano de remoção (exceção aplicada em 2026-07-17 ao
-  remover o Cloudflare D1, ver `09a`).
+  **planos de tecnologia removida do código** — quando a tecnologia sai do
+  código, o plano dela sai junto.
 - **Numeração**: o prefixo `NN-` é **identidade, não posição** — mensagens de
   commit citam o plano pelo número ("Implements plans/05b ME-1"), então um número
   aponta para sempre ao mesmo trabalho. **Números não são reciclados**: buracos
@@ -124,9 +123,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-| Esforço | Arquivo | O quê | Depende de |
-|---|---|---|---|
-| Alto | `23-project-templates-local-only.md` | Trazer "Project Templates" do upstream (issue #979) sem a parte de Marketplace remoto | - |
+*(nenhum plano aberto)*
 
 ### Prioridade BAIXA
 
@@ -136,13 +133,13 @@ Dentro de cada prioridade, do menor para o maior esforço.
 registro, não trabalho.
 
 Os riscos que ocupavam a faixa ALTA foram fechados em 2026-07-17: a ausência de
-backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado),
-e a camada D1 morta pelos `09a`/`09b`.
+backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado).
 
 ### Executados — registro de decisão, não mexer
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `23-project-templates-local-only.md` | Port da parte local do upstream `2df928b9`: templates de projeto (save-as-template, clone com offset de data + subtasks), sem marketplace | EXECUTADO (2026-07-17) |
 | `20-caldav-delete-by-calendar-id-broken-method.md` | `SyncStateRepository.deleteByCalendarId` chama `this.delete`, método que não existe (só `destroy`) — `TypeError` ao deletar calendário CalDAV | EXECUTADO (2026-07-17) |
 | `19n-flaky-subtasks-completion.md` | `subtasks-completion.test.js` falhava sob execução paralela (contenção do pool Sequelize) — estabilizado com batching | EXECUTADO (2026-07-17) |
 | `21-inbox-mention-cleanup-ascii-regex.md` | `@pessoa` acentuada deixa resto no título ao criar tarefa/nota pelo Inbox (limpeza por token inteiro) | EXECUTADO (2026-07-17) |
@@ -153,8 +150,6 @@ e a camada D1 morta pelos `09a`/`09b`.
 | `03-branding-customization.md` | Logo/favicon/nome customizáveis | EXECUTADO (`887e486`) |
 | `05a-quick-wins.md` | 5 itens de esforço baixo | EXECUTADO (2026-07-16) |
 | `05b-medium-effort.md` | 4 itens de esforço médio | EXECUTADO (2026-07-16) |
-| `09a-d1-code-removal.md` | Remoção da camada de dados D1 (código) | EXECUTADO (2026-07-17) |
-| `09b-d1-docs-cleanup.md` | Tirar D1 da documentação | EXECUTADO (2026-07-17) |
 | `11-backup-dir-volume.md` | Backup lógico em diretório persistente | EXECUTADO (2026-07-17) |
 | `10a-r2-put-and-list.md` | Funções putObjectFromFile e listObjects no r2Service | EXECUTADO (2026-07-17) |
 | `10b-db-snapshot-service.md` | createSnapshot(): VACUUM INTO + upload R2 + retenção | EXECUTADO (2026-07-17) |
@@ -230,9 +225,6 @@ e a camada D1 morta pelos `09a`/`09b`.
 - **Cloudflare R2** guarda anexos, avatares, capas e branding
   (`backend/services/r2Service.js`). **`CLOUDFLARE_ACCOUNT_ID` é usada pelo R2**
   para montar o endpoint.
-- **O Cloudflare D1 foi tentado e removido** em 2026-07-17 (`09a`): latência
-  inviável (1 round-trip HTTP por statement) e wipe recorrente do banco. Código
-  do driver apagado; o §Registro no `09a` preserva a história e a lição.
 - **Lição que custou caro**: nunca decidir *"o banco existe?"* por artefato local
   (arquivo, volume, path) se o banco for remoto — nenhum deles descreve um banco
   remoto. Foi essa confusão que zerou a produção duas vezes.

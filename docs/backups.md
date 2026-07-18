@@ -275,8 +275,8 @@ The automatic backup script is located at `/backend/cmd/start.sh` (lines 9-78).
 
 The SQLite file backups above stay on the same host/volume as the database —
 they don't protect against losing that host or volume, which is what actually
-happened twice on 2026-07-16/17 (see `plans/09a-d1-code-removal.md`
-§Registro). The R2 snapshot is the offsite copy that covers that scenario.
+happened twice on 2026-07-16/17. The R2 snapshot is the offsite copy that
+covers that scenario.
 
 **What it is:** a periodic, consistent snapshot of the whole SQLite database
 (`VACUUM INTO`, so it's safe to run against a live WAL-mode database) uploaded
@@ -367,13 +367,6 @@ been separately re-verified against a running container).
    ```bash
    docker-compose up -d   # or: npm start
    ```
-
-### Alternative rejected: replicating writes to Cloudflare D1
-
-See `plans/10b-db-snapshot-service.md` for the full rationale (latency,
-lack of transactions over the D1 REST driver, rate limits, silent
-divergence). Kept out of this doc on purpose so it isn't reproposed without
-that context.
 
 ## Related Documentation
 

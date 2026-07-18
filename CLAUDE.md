@@ -62,10 +62,6 @@ multer-s3, node-cron, Nodemailer.
 
 **Testes:** Jest (backend + frontend), Playwright (E2E), Supertest (integração).
 
-> O Cloudflare D1 foi tentado e **removido** em 2026-07-17: 1 round-trip HTTP por
-> statement, sem transação real. Referência a D1 em qualquer lugar é resíduo —
-> ver [`plans/09a-d1-code-removal.md`](plans/09a-d1-code-removal.md).
-
 ---
 
 ## Caminhos críticos
