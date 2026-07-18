@@ -1582,12 +1582,20 @@ const QuickCaptureInput = React.forwardRef<
                             }
                         }
 
+                        // @pessoa = assigned_to (single, first-wins); remaining
+                        // mentions stay as InvolvedPeople. New (uid-less) people
+                        // can't be assigned client-side, so keep them all as
+                        // involved (backend auto-creates them).
+                        const [firstPerson, ...restPeople] = taskPeople;
+                        const assignedToUid = firstPerson?.uid;
+
                         const newTask: Task = {
                             name: cleanedText,
                             status: 'not_started',
                             priority: 'low',
                             tags: taskTags,
-                            people: taskPeople,
+                            people: assignedToUid ? restPeople : taskPeople,
+                            assigned_to: assignedToUid,
                             project_uid: projectUid,
                             area_uid: areaUid,
                             completed_at: null,

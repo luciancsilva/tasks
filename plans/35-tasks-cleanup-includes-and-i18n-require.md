@@ -1,8 +1,10 @@
 # 35 — cleanup: tipo de notificação de tarefa reativada
 
-> **Status: PARCIAL** — 35-2 EXECUTADO em 2026-07-18 (require hoisted). 35-1 fechado sem mudança (o include NÃO era redundante). Sobra o 35-3. Achados no code-review do lote 24–32.
-> **Esforço:** Baixo · **Natureza:** julgamento (o tipo pode ser intencional) · **Modelo:** médio.
+> **Status: EXECUTADO** em 2026-07-18 — 35-2 feito (require hoisted); 35-1 e 35-3 fechados sem mudança (ver abaixo). Achados no code-review do lote 24–32.
+> **Esforço:** Baixo · **Natureza:** julgamento · **Modelo:** médio.
 > **Branch:** `main` · **Depende de:** -
+>
+> **35-3 (fechado, sem mudança):** `deferredTaskService` grava `type: 'task_due_soon'` na notificação de tarefa reativada de propósito — esse tipo mapeia à preferência `dueTasks` (`notificationPreferences.js:22`), então a notificação de "tarefa ativa" pega carona na preferência existente. Criar `task_now_active` exigiria uma nova categoria de preferência (feature, não bug). Fica assim; reabrir só se o dono quiser uma preferência separada.
 
 ## Resolvidos
 

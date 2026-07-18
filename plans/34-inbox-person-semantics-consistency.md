@@ -1,7 +1,7 @@
 # 34 — inbox: semântica de `@pessoa` inconsistente entre composer e detail
 
-> **Status: PROPOSTO** — o mesmo `@pessoa` produz resultado diferente conforme o caminho de criação: o composer envia `people` (InvolvedPeople m2m), o InboxItemDetail envia `assigned_to` (single). Decisão de produto é `@pessoa` = `assigned_to`. Achado no code-review do lote 24–32.
-> **Esforço:** Médio · **Natureza:** julgamento (muda comportamento; possível colisão com testes de InvolvedPeople) · **Modelo:** médio/forte.
+> **Status: EXECUTADO** em 2026-07-18 — no caminho de criação direta do composer (`QuickCaptureInput` handleSubmit), a primeira `@pessoa` vira `assigned_to` (first-wins, coerente com o InboxItemDetail e a decisão do dono); as demais menções ficam como `InvolvedPeople`. Pessoa nova (sem uid) não é atribuível client-side, então segue toda como InvolvedPeople (backend auto-cria) — sem perda. O botão do footer abre o modal (usuário finaliza), então não foi alterado. Frontend 112 verde.
+> **Esforço:** Médio · **Natureza:** julgamento (muda comportamento) · **Modelo:** médio/forte.
 > **Branch:** `main` · **Depende de:** -
 
 ## Diagnóstico

@@ -131,8 +131,6 @@ Achados do code-review do lote 24–32 (2026-07-18). Nenhum arrisca dados.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `35-tasks-cleanup-includes-and-i18n-require.md` | **PARCIAL**: 35-2 (require hoisted) feito, 35-1 fechado sem mudança; sobra 35-3 (tipo de notificação de tarefa reativada — verificar se `task_due_soon` é intencional) | Baixo | médio | - |
-| `34-inbox-person-semantics-consistency.md` | `@pessoa` inconsistente: composer usa `people` (InvolvedPeople), detail usa `assigned_to`. **Precisa decisão do dono** antes de mudar comportamento | Médio | médio/forte | - |
 | `38-auth-robustness-and-migration-test.md` | Robustez: `requireAuth` full-column select derruba toda auth em drift; migrations não são exercidas pela suíte (test usa sync) | Médio | médio/forte | - |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
@@ -150,6 +148,8 @@ backup offsite pelos `10a`–`10d` (snapshot pro R2, agendado, restore executado
 |---|---|---|
 | `37-fix-ai-migration-shape.md` | Migration do plano 32 não aplicava (`safeAddColumns` com shape errado, sem `definition:`) — quebraria o deploy; corrigida e aplicada | EXECUTADO (2026-07-18) |
 | `36-templates-error-i18n-and-sentinels.md` | Templates: sentinelas de erro em `TEMPLATE_API_ERROR`, helper `showTemplateError`, fallback EN + chaves `error404/error500` em en+pt | EXECUTADO (2026-07-18) |
+| `34-inbox-person-semantics-consistency.md` | Composer da inbox: primeira `@pessoa` vira `assigned_to` (resto InvolvedPeople), consistente com o detail e a decisão do dono | EXECUTADO (2026-07-18) |
+| `35-tasks-cleanup-includes-and-i18n-require.md` | 35-2 require i18n hoisted; 35-1/35-3 fechados sem mudança (include usado; tipo de notif intencional) | EXECUTADO (2026-07-18) |
 | `33-inbox-detail-area-link.md` | Inbox: converter item salvo perdia o `$area` (payload sem `area_uid`) — resolve por match existente, sem auto-criar | EXECUTADO (2026-07-18) |
 | `32-ai-config-inline.md` | Config de IA inline: provider (OpenAI/OpenRouter/custom), chave por-usuário (mascarada no GET), modelo e botão testar sob o toggle | EXECUTADO (2026-07-18) |
 | `27-inbox-area-token.md` | Inbox: token `$area` no título espelhando `@pessoa` | EXECUTADO (2026-07-18) |
