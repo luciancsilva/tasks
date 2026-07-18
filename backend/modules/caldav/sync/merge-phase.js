@@ -438,18 +438,21 @@ class MergePhase {
         }
 
         if (!dryRun) {
-            await existingTask.update(resolved.taskData);
+            await sequelize.transaction(async (t) => {
+                await existingTask.update(resolved.taskData, { transaction: t });
 
-            await SyncStateRepository.createOrUpdate(
-                existingTask.id,
-                calendar.id,
-                {
-                    etag,
-                    last_modified: new Date(),
-                    last_synced_at: new Date(),
-                    sync_status: 'synced',
-                }
-            );
+                await SyncStateRepository.createOrUpdate(
+                    existingTask.id,
+                    calendar.id,
+                    {
+                        etag,
+                        last_modified: new Date(),
+                        last_synced_at: new Date(),
+                        sync_status: 'synced',
+                    },
+                    { transaction: t }
+                );
+            });
         }
 
         results.merged.push({
@@ -492,9 +495,10 @@ class MergePhase {
             throw new AppError('Invalid resolution strategy', 400);
         }
 
-        await task.update(taskData);
-
-        await SyncStateRepository.resolveConflict(taskId, calendarId);
+        await sequelize.transaction(async (t) => {
+            await task.update(taskData, { transaction: t });
+            await SyncStateRepository.resolveConflict(taskId, calendarId, { transaction: t });
+        });
 
         logger.logInfo(
             `Conflict resolved for task ${taskId} using ${resolution} version`

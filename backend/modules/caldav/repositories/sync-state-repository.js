@@ -66,7 +66,7 @@ class SyncStateRepository {
     }
 
     async createOrUpdate(taskId, calendarId, data, options = {}) {
-        const existing = await this.findByTaskAndCalendar(taskId, calendarId);
+        const existing = await this.findByTaskAndCalendar(taskId, calendarId, options);
 
         if (existing) {
             return this.update(existing, data, options);
@@ -148,7 +148,7 @@ class SyncStateRepository {
     }
 
     async resolveConflict(taskId, calendarId, resolution, options = {}) {
-        const syncState = await this.findByTaskAndCalendar(taskId, calendarId);
+        const syncState = await this.findByTaskAndCalendar(taskId, calendarId, options);
         if (!syncState) {
             throw new Error(
                 `Sync state not found for task ${taskId} and calendar ${calendarId}`

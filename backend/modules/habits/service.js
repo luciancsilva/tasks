@@ -3,6 +3,7 @@
 const habitsRepository = require('./repository');
 const habitService = require('./habitService');
 const { NotFoundError } = require('../../shared/errors');
+const { sequelize } = require('../../models');
 
 class HabitsService {
     async getAll(userId) {
@@ -56,9 +57,11 @@ class HabitsService {
         if (!completion) {
             throw new NotFoundError('Completion not found');
         }
-        await completion.destroy();
-        const updates = await habitService.recalculateStreaks(habit);
-        await habitsRepository.update(habit, updates);
+        await sequelize.transaction(async (t) => {
+            await completion.destroy({ transaction: t });
+            const updates = await habitService.recalculateStreaks(habit, t);
+            await habitsRepository.update(habit, updates, { transaction: t });
+        });
         return { message: 'Completion deleted', task: habit };
     }
 

@@ -2,12 +2,18 @@
 
 const goalsRepository = require('./repository');
 const { Area } = require('../../models');
-const { NotFoundError, ValidationError } = require('../../shared/errors');
+const { NotFoundError, ValidationError, ForbiddenError } = require('../../shared/errors');
 
 class GoalsService {
+    async _resolveAreaOwnedByUser(userId, areaId) {
+        const area = await Area.findOne({ where: { id: areaId, user_id: userId } });
+        if (!area) throw new ForbiddenError('Area not found or not owned by user');
+        return area;
+    }
+
     async getAll(userId, areaId, areaUid) {
         if (areaUid) {
-            const area = await Area.findOne({ where: { uid: areaUid } });
+            const area = await Area.findOne({ where: { uid: areaUid, user_id: userId } });
             if (area) {
                 return goalsRepository.findAllByArea(userId, area.id);
             }
@@ -33,6 +39,7 @@ class GoalsService {
         if (!area_id) {
             throw new ValidationError('Goal must belong to an area');
         }
+        await this._resolveAreaOwnedByUser(userId, area_id);
         return goalsRepository.create({
             user_id: userId,
             area_id,
@@ -51,7 +58,10 @@ class GoalsService {
         const { title, area_id, why, horizon, target_date, status } = data;
         const updates = {};
         if (title !== undefined) updates.title = title.trim();
-        if (area_id !== undefined) updates.area_id = area_id;
+        if (area_id !== undefined) {
+            await this._resolveAreaOwnedByUser(userId, area_id);
+            updates.area_id = area_id;
+        }
         if (why !== undefined) updates.why = why;
         if (horizon !== undefined) updates.horizon = horizon;
         if (target_date !== undefined)

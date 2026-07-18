@@ -1,4 +1,4 @@
-const { RecurringCompletion } = require('../../models');
+const { RecurringCompletion, sequelize } = require('../../models');
 const { Op } = require('sequelize');
 
 class HabitService {
@@ -11,34 +11,36 @@ class HabitService {
             throw new Error('Task is not a habit');
         }
 
-        const completion = await RecurringCompletion.create({
-            task_id: task.id,
-            completed_at: completedAt,
-            original_due_date: completedAt, // For habits, due date = completion date
-            skipped: false,
+        return sequelize.transaction(async (t) => {
+            const completion = await RecurringCompletion.create({
+                task_id: task.id,
+                completed_at: completedAt,
+                original_due_date: completedAt, // For habits, due date = completion date
+                skipped: false,
+            }, { transaction: t });
+
+            // Update cached counters and mark as done for today
+            const updates = await this.calculateStreakUpdates(task, completedAt, t);
+            updates.status = 2; // Mark as done
+            updates.completed_at = completedAt;
+            await task.update(updates, { transaction: t });
+
+            return { completion, task };
         });
-
-        // Update cached counters and mark as done for today
-        const updates = await this.calculateStreakUpdates(task, completedAt);
-        updates.status = 2; // Mark as done
-        updates.completed_at = completedAt;
-        await task.update(updates);
-
-        return { completion, task };
     }
 
     /**
      * Calculate streak updates based on completion
      * This is the core habit logic
      */
-    async calculateStreakUpdates(task, completedAt) {
+    async calculateStreakUpdates(task, completedAt, transaction) {
         const updates = {
             habit_total_completions: task.habit_total_completions + 1,
             habit_last_completion_at: completedAt,
         };
 
         // Calculate new streak
-        const newStreak = await this.calculateCurrentStreak(task, completedAt);
+        const newStreak = await this.calculateCurrentStreak(task, completedAt, transaction);
         updates.habit_current_streak = newStreak;
 
         // Update best streak if needed
@@ -52,13 +54,14 @@ class HabitService {
     /**
      * Recalculate all streak values after a completion is deleted
      */
-    async recalculateStreaks(task) {
+    async recalculateStreaks(task, transaction) {
         const completions = await RecurringCompletion.findAll({
             where: {
                 task_id: task.id,
                 skipped: false,
             },
             order: [['completed_at', 'DESC']],
+            ...(transaction ? { transaction } : {}),
         });
 
         const updates = {
@@ -127,13 +130,14 @@ class HabitService {
     /**
      * Calculate current streak based on streak mode
      */
-    async calculateCurrentStreak(task, asOfDate = new Date()) {
+    async calculateCurrentStreak(task, asOfDate = new Date(), transaction) {
         const completions = await RecurringCompletion.findAll({
             where: {
                 task_id: task.id,
                 skipped: false,
             },
             order: [['completed_at', 'DESC']],
+            ...(transaction ? { transaction } : {}),
         });
 
         if (completions.length === 0) return 0;

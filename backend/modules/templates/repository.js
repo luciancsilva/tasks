@@ -109,9 +109,10 @@ class TemplatesRepository {
         return Tag.create({ name, user_id: userId });
     }
 
-    async incrementCloneCount(templateId) {
+    async incrementCloneCount(templateId, options = {}) {
         return this.model.increment('clone_count', {
             where: { id: templateId },
+            ...options,
         });
     }
 

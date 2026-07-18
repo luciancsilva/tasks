@@ -164,33 +164,38 @@ class TemplatesService {
         const templateName = options.name || source.name;
         const sourceJson = source.toJSON();
 
-        const template = await templatesRepository.create({
-            uid: templateUid,
-            name: templateName,
-            description: source.description || '',
-            status: 'not_started',
-            is_template: true,
-            template_category: options.category || null,
-            clone_count: 0,
-            user_id: userId,
-        });
+        let result;
+        await sequelize.transaction(async (t) => {
+            const template = await templatesRepository.create({
+                uid: templateUid,
+                name: templateName,
+                description: source.description || '',
+                status: 'not_started',
+                is_template: true,
+                template_category: options.category || null,
+                clone_count: 0,
+                user_id: userId,
+            }, { transaction: t });
 
-        await this._copyTasksToProject(source, template, userId, {
-            resetStatus: true,
-        });
+            await this._copyTasksToProject(source, template, userId, {
+                resetStatus: true,
+            }, t);
 
-        if (sourceJson.Tags && sourceJson.Tags.length > 0) {
-            try {
-                await updateTemplateTags(template, sourceJson.Tags, userId);
-            } catch (err) {
-                logError(
-                    'Tag copy failed during save-as-template:',
-                    err.message
-                );
+            if (sourceJson.Tags && sourceJson.Tags.length > 0) {
+                try {
+                    await updateTemplateTags(template, sourceJson.Tags, userId);
+                } catch (err) {
+                    logError(
+                        'Tag copy failed during save-as-template:',
+                        err.message
+                    );
+                }
             }
-        }
 
-        return { ...template.toJSON(), uid: templateUid, tags: [] };
+            result = { ...template.toJSON(), uid: templateUid, tags: [] };
+        });
+
+        return result;
     }
 
     async cloneTemplate(templateUid, userId, options = {}) {
@@ -213,40 +218,45 @@ class TemplatesService {
             areaId = area ? area.id : null;
         }
 
-        const newProject = await projectsRepository.create({
-            uid: projectUid,
-            name: newName,
-            description: template.description || '',
-            status: 'not_started',
-            is_template: false,
-            source_template_id: template.id,
-            area_id: areaId,
-            user_id: userId,
-        });
+        let result;
+        await sequelize.transaction(async (t) => {
+            const newProject = await projectsRepository.create({
+                uid: projectUid,
+                name: newName,
+                description: template.description || '',
+                status: 'not_started',
+                is_template: false,
+                source_template_id: template.id,
+                area_id: areaId,
+                user_id: userId,
+            }, { transaction: t });
 
-        await this._copyTasksToProject(template, newProject, userId, {
-            resetStatus: options.resetStatus !== false,
-            startDate: options.startDate,
-        });
+            await this._copyTasksToProject(template, newProject, userId, {
+                resetStatus: options.resetStatus !== false,
+                startDate: options.startDate,
+            }, t);
 
-        if (templateJson.Tags && templateJson.Tags.length > 0) {
-            try {
-                await updateTemplateTags(newProject, templateJson.Tags, userId);
-            } catch (err) {
-                logError('Tag copy failed during clone:', err.message);
+            if (templateJson.Tags && templateJson.Tags.length > 0) {
+                try {
+                    await updateTemplateTags(newProject, templateJson.Tags, userId);
+                } catch (err) {
+                    logError('Tag copy failed during clone:', err.message);
+                }
             }
-        }
 
-        await templatesRepository.incrementCloneCount(template.id);
+            await templatesRepository.incrementCloneCount(template.id, { transaction: t });
+            result = { ...newProject.toJSON(), uid: projectUid, tags: [] };
+        });
 
-        return { ...newProject.toJSON(), uid: projectUid, tags: [] };
+        return result;
     }
 
     async _copyTasksToProject(
         sourceProject,
         targetProject,
         userId,
-        options = {}
+        options = {},
+        outerTransaction = null
     ) {
         const sourceJson = sourceProject.toJSON
             ? sourceProject.toJSON()
@@ -267,7 +277,7 @@ class TemplatesService {
 
         const idMap = {};
 
-        await sequelize.transaction(async (transaction) => {
+        const runInTransaction = async (transaction) => {
             for (const task of parentTasks) {
                 const newTaskUid = generateUid();
                 const newTask = await Task.create(
@@ -377,7 +387,13 @@ class TemplatesService {
                     );
                 }
             }
-        });
+        };
+
+        if (outerTransaction) {
+            await runInTransaction(outerTransaction);
+        } else {
+            await sequelize.transaction(runInTransaction);
+        }
     }
 
     async update(uid, userId, data) {
@@ -429,10 +445,13 @@ class TemplatesService {
             throw new NotFoundError('Template not found');
         }
 
-        await Task.destroy({
-            where: { project_id: template.id, user_id: userId },
+        await sequelize.transaction(async (t) => {
+            await Task.destroy({
+                where: { project_id: template.id, user_id: userId },
+                transaction: t,
+            });
+            await template.destroy({ transaction: t });
         });
-        await template.destroy();
 
         return { message: 'Template deleted' };
     }
