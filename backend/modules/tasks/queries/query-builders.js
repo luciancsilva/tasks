@@ -13,6 +13,7 @@ const {
     getUpcomingRangeInUTC,
     getTodayBoundsInUTC,
 } = require('../../../utils/timezone-utils');
+const { ValidationError } = require('../../../shared/errors');
 
 async function filterTasksByParams(
     params,
@@ -307,7 +308,7 @@ async function filterTasksByParams(
             if (params.waiting_overdue_days !== undefined) {
                 const days = parseInt(params.waiting_overdue_days, 10);
                 if (!Number.isFinite(days) || days < 0) {
-                    throw new Error('Invalid waiting_overdue_days');
+                    throw new ValidationError('Invalid waiting_overdue_days');
                 }
                 const cutoff = new Date(Date.now() - days * 86400000);
                 whereClause.waiting_since = { [Op.lt]: cutoff };

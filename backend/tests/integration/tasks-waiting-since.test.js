@@ -143,9 +143,7 @@ describe('Tasks — Waiting-For (plan 50)', () => {
             const response = await agent.get(
                 '/api/tasks?type=waiting&waiting_overdue_days=-1'
             );
-            // Validation propagated to controller 500 wrapper normally; here
-            // both 400 (caught early) and 500 (uncaught throw) are acceptable.
-            expect([400, 500]).toContain(response.status);
+            expect(response.status).toBe(400);
         });
     });
 });
