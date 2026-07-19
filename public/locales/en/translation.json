@@ -1195,7 +1195,13 @@
     "linkPreviewError": "Could not fetch link details",
     "aboutInbox": "About Inbox",
     "staleWarning": "{{count}} items in inbox for over 48h — process them",
-    "staleDot": "Inbox has items over 48h old"
+    "staleDot": "Inbox has items over 48h old",
+    "triageAction": "Action",
+    "triageTwoMin": "2-min action",
+    "triageProject": "Project",
+    "triageReference": "Reference",
+    "triageSomeday": "Someday",
+    "triageTrash": "Trash"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",

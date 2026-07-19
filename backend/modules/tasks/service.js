@@ -340,6 +340,16 @@ const tasksService = {
         const timezone = getSafeTimezone(userTimezone);
         const taskAttributes = buildTaskAttributes(body, userId, timezone);
 
+        // Plan 66: stamp completed_at when a task is created directly as done
+        // (e.g. the inbox "2-min action" triage button). The update path does
+        // this via handleCompletionStatus, but the create path never did, so a
+        // done-at-create task would keep completed_at=null and vanish from
+        // "Completed today"/streak queries. buildTaskAttributes has already
+        // parsed status to its numeric form.
+        if (taskAttributes.status === Task.STATUS.DONE) {
+            taskAttributes.completed_at = new Date();
+        }
+
         // Plan 50: when creating directly in status=waiting, auto-set
         // waiting_since to "now" unless caller supplied an explicit value.
         if (

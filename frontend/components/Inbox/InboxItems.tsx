@@ -556,6 +556,7 @@ const InboxItems: React.FC = () => {
                                     openProjectModal={handleOpenProjectModal}
                                     openNoteModal={handleOpenNoteModal}
                                     projects={projects}
+                                    people={people}
                                 />
                             ))}
                         </div>

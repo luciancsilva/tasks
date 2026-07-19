@@ -11,10 +11,13 @@ import {
     GlobeAltIcon,
     UserIcon,
     Squares2X2Icon,
+    BoltIcon,
+    ArchiveBoxIcon,
 } from '@heroicons/react/24/outline';
 import { Task } from '../../entities/Task';
 import { Project } from '../../entities/Project';
 import { Note } from '../../entities/Note';
+import { Person } from '../../entities/Person';
 import ConfirmDialog from '../Shared/ConfirmDialog';
 import { useStore } from '../../store/useStore';
 import QuickCaptureInput, {
@@ -33,6 +36,7 @@ interface InboxItemDetailProps {
     openProjectModal: (project: Project | null, inboxItemUid?: string) => void;
     openNoteModal: (note: Note | null, inboxItemUid?: string) => void;
     projects: Project[];
+    people: Person[];
 }
 
 const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
@@ -43,11 +47,11 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     openProjectModal,
     openNoteModal,
     projects,
+    people,
 }) => {
     const { t } = useTranslation();
     const {
         tagsStore: { tags },
-        peopleStore: { people, refreshPeople },
         areasStore: { areas },
     } = useStore();
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -477,74 +481,113 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         };
     };
 
+    // Plan 66: shared builder for the GTD triage buttons (Action / 2-min /
+    // Someday). Resolves people (auto-creating when needed), area and the
+    // !priority token, then applies per-button overrides (status, is_someday).
+    const buildTaskForConversion = async (
+        context: InboxComposerFooterContext | undefined,
+        overrides: Partial<Task> = {}
+    ): Promise<Task> => {
+        const payload = buildConversionPayload(
+            context?.text,
+            context?.hashtags,
+            context?.projectRefs,
+            context?.peopleRefs,
+            context?.cleanedText
+        );
+
+        let assignedToUid: string | undefined = undefined;
+        if (payload.peopleRefsList && payload.peopleRefsList.length > 0) {
+            const personName = payload.peopleRefsList[0];
+            const existingPerson = people.find(
+                (p) => p.name.toLowerCase() === personName.toLowerCase()
+            );
+            if (existingPerson) {
+                assignedToUid = existingPerson.uid;
+            } else {
+                try {
+                    const newPerson = await createPerson({ name: personName });
+                    if (newPerson && newPerson.person && newPerson.person.uid) {
+                        assignedToUid = newPerson.person.uid;
+                    }
+                } catch (error) {
+                    console.error('Failed to auto-create person:', error);
+                }
+            }
+        }
+
+        let areaUid: string | undefined = undefined;
+        if (payload.areaRefsList && payload.areaRefsList.length > 0) {
+            const areaName = payload.areaRefsList[0];
+            const matchingArea = Array.isArray(areas)
+                ? areas.find(
+                      (area) =>
+                          area.name.toLowerCase() === areaName.toLowerCase()
+                  )
+                : undefined;
+            if (matchingArea) {
+                areaUid = matchingArea.uid;
+            }
+        }
+
+        return {
+            name: payload.cleanedContent || displayText,
+            status: 'not_started',
+            // Plan 68: !priority token parsed from composer text.
+            priority: parsePriority(payload.sourceText) as
+                | 'high'
+                | 'medium'
+                | 'low'
+                | null,
+            tags: payload.tagObjects,
+            project_uid: payload.projectUid,
+            assigned_to: assignedToUid,
+            area_uid: areaUid,
+            completed_at: null,
+            ...overrides,
+        };
+    };
+
+    const openTaskFromContext = (newTask: Task) => {
+        if (item.uid !== undefined) {
+            void openTaskModal(newTask, item.uid);
+        } else {
+            void openTaskModal(newTask);
+        }
+    };
+
     const handleConvertToTask = async (context?: InboxComposerFooterContext) => {
         try {
-            const payload = buildConversionPayload(
-                context?.text,
-                context?.hashtags,
-                context?.projectRefs,
-                context?.peopleRefs,
-                context?.cleanedText
-            );
-
-            let assignedToUid: string | undefined = undefined;
-            if (payload.peopleRefsList && payload.peopleRefsList.length > 0) {
-                const personName = payload.peopleRefsList[0];
-                const existingPerson = people.find(
-                    (p) => p.name.toLowerCase() === personName.toLowerCase()
-                );
-                if (existingPerson) {
-                    assignedToUid = existingPerson.uid;
-                } else {
-                    try {
-                        const newPerson = await createPerson({ name: personName });
-                        if (newPerson && newPerson.person && newPerson.person.uid) {
-                            assignedToUid = newPerson.person.uid;
-                            await refreshPeople();
-                        }
-                    } catch (error) {
-                        console.error('Failed to auto-create person:', error);
-                    }
-                }
-            }
-
-            let areaUid: string | undefined = undefined;
-            if (payload.areaRefsList && payload.areaRefsList.length > 0) {
-                const areaName = payload.areaRefsList[0];
-                const matchingArea = Array.isArray(areas)
-                    ? areas.find(
-                          (area) =>
-                              area.name.toLowerCase() === areaName.toLowerCase()
-                      )
-                    : undefined;
-                if (matchingArea) {
-                    areaUid = matchingArea.uid;
-                }
-            }
-
-            const newTask: Task = {
-                name: payload.cleanedContent || displayText,
-                status: 'not_started',
-                // Plan 68: !priority token parsed from composer text.
-                priority: parsePriority(payload.sourceText) as
-                    | 'high'
-                    | 'medium'
-                    | 'low'
-                    | null,
-                tags: payload.tagObjects,
-                project_uid: payload.projectUid,
-                assigned_to: assignedToUid,
-                area_uid: areaUid,
-                completed_at: null,
-            };
-
-            if (item.uid !== undefined) {
-                void openTaskModal(newTask, item.uid);
-            } else {
-                void openTaskModal(newTask);
-            }
+            openTaskFromContext(await buildTaskForConversion(context));
         } catch (error) {
             console.error('Error converting to task:', error);
+        }
+    };
+
+    // Plan 66: GTD "2-min action" — create the task already done in one click.
+    // The backend stamps completed_at for a done-at-create task.
+    const handleConvertToTaskTwoMin = async (
+        context?: InboxComposerFooterContext
+    ) => {
+        try {
+            openTaskFromContext(
+                await buildTaskForConversion(context, { status: 'done' })
+            );
+        } catch (error) {
+            console.error('Error converting to 2-min task:', error);
+        }
+    };
+
+    // Plan 66: GTD "Someday" — create the task flagged is_someday (plan 49).
+    const handleConvertToSomeday = async (
+        context?: InboxComposerFooterContext
+    ) => {
+        try {
+            openTaskFromContext(
+                await buildTaskForConversion(context, { is_someday: true })
+            );
+        } catch (error) {
+            console.error('Error converting to someday task:', error);
         }
     };
 
@@ -667,57 +710,82 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-2">
                     {loading && <div className="spinner h-4 w-4" />}
+                    {/* Plan 66: GTD triage — Action */}
                     <button
                         onClick={() => handleConvertToTask(context)}
+                        data-testid="triage-action"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-200 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-200 dark:focus:ring-offset-gray-900"
                     >
                         <span className="flex items-center gap-1">
-                            <span className="sm:hidden text-sm font-semibold leading-none">
-                                +
-                            </span>
                             <ClipboardDocumentListIcon className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                                {t('inbox.createTask', 'Task')}
+                                {t('inbox.triageAction', 'Action')}
                             </span>
                         </span>
                     </button>
+                    {/* Plan 66: GTD triage — 2-min action (create done in 1 click) */}
                     <button
-                        onClick={() => handleConvertToNote(context)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-md hover:bg-purple-100 dark:hover:bg-purple-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-200 dark:focus:ring-offset-gray-900"
-                    >
-                        <span className="flex items-center gap-1">
-                            <span className="sm:hidden text-sm font-semibold leading-none">
-                                +
-                            </span>
-                            <DocumentTextIcon className="h-4 w-4" />
-                            <span className="hidden sm:inline">
-                                {t('inbox.createNote', 'Note')}
-                            </span>
-                        </span>
-                    </button>
-                    <button
-                        onClick={() => handleConvertToProject(context)}
+                        onClick={() => handleConvertToTaskTwoMin(context)}
+                        data-testid="triage-2min"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-200 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-md hover:bg-green-100 dark:hover:bg-green-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-200 dark:focus:ring-offset-gray-900"
                     >
                         <span className="flex items-center gap-1">
-                            <span className="sm:hidden text-sm font-semibold leading-none">
-                                +
+                            <BoltIcon className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                                {t('inbox.triageTwoMin', '2-min action')}
                             </span>
+                        </span>
+                    </button>
+                    {/* Plan 66: GTD triage — Project */}
+                    <button
+                        onClick={() => handleConvertToProject(context)}
+                        data-testid="triage-project"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-700 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-md hover:bg-indigo-100 dark:hover:bg-indigo-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-200 dark:focus:ring-offset-gray-900"
+                    >
+                        <span className="flex items-center gap-1">
                             <FolderIcon className="h-4 w-4" />
                             <span className="hidden sm:inline">
-                                {t('inbox.createProject', 'Project')}
+                                {t('inbox.triageProject', 'Project')}
+                            </span>
+                        </span>
+                    </button>
+                    {/* Plan 66: GTD triage — Reference (note) */}
+                    <button
+                        onClick={() => handleConvertToNote(context)}
+                        data-testid="triage-reference"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-200 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-md hover:bg-purple-100 dark:hover:bg-purple-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-200 dark:focus:ring-offset-gray-900"
+                    >
+                        <span className="flex items-center gap-1">
+                            <DocumentTextIcon className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                                {t('inbox.triageReference', 'Reference')}
+                            </span>
+                        </span>
+                    </button>
+                    {/* Plan 66: GTD triage — Someday (is_someday flag) */}
+                    <button
+                        onClick={() => handleConvertToSomeday(context)}
+                        data-testid="triage-someday"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 dark:focus:ring-offset-gray-900"
+                    >
+                        <span className="flex items-center gap-1">
+                            <ArchiveBoxIcon className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                                {t('inbox.triageSomeday', 'Someday')}
                             </span>
                         </span>
                     </button>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
+                    {/* Plan 66: GTD triage — Trash */}
                     <button
                         onClick={handleDelete}
+                        data-testid="triage-trash"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-200 dark:focus:ring-offset-gray-900"
                     >
                         <TrashIcon className="h-4 w-4" />
                         <span className="hidden sm:inline">
-                            {t('common.delete', 'Delete')}
+                            {t('inbox.triageTrash', 'Trash')}
                         </span>
                     </button>
                 </div>
