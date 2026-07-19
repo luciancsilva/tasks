@@ -160,7 +160,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `53a-projects-sequential-backend.md` | `Project.execution_mode` enum + migration + service + query-builder oculta non-next em Today/Next/Upcoming | Médio | médio | - |
 | `53b-projects-sequential-frontend.md` | ProjectModal toggle + ProjectDetails badge "Next action" + entity TS + i18n | Médio | médio | 53a |
 | `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | Alto | médio | - |
 | `54b-weekly-review-sections.md` | 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) com agregação reusando services + UI ReviewSection | Alto | médio | 54a, 56 |
@@ -202,6 +201,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `53a-projects-sequential-backend.md` | `Project.execution_mode` (parallel/sequential) + migration + service + query-builder oculta non-next em Today/Upcoming (bypass project_uid) + MCP | EXECUTADO (2026-07-19) |
 | `52-task-time-estimate.md` | Campo `time_estimate` (INTEGER 1-1440) + `time_max` em views; filtros `time_max`/`time_min` (ValidationError→400) + `order_by`; search/views/MCP; TaskTimeEstimateCard + slots SearchMenu/SaveViewModal | EXECUTADO (2026-07-18) |
 | `49-gtd-someday-native.md` | `is_someday` flag em tasks + query-builder (someday nativo via flag OR tag `someday` retrocompat) + exclusão em today/upcoming/next/inbox/active + sidebar NavLink + TaskDetails toggle card | EXECUTADO (2026-07-18) |
 | `51-task-energy-field.md` | Campo `energy` (0-2) em tasks + STRING em views; `Task.ENERGY`/`getEnergyValue`; filtro `/tasks?energy=` + `order_by=energy`; View `energy` com `validateEnergy`; SearchMenu/Results/SaveViewModal slot; `TaskEnergyCard`; MCP `create/update/list_tasks` | EXECUTADO (2026-07-18) |

@@ -97,6 +97,14 @@ module.exports = (sequelize) => {
                 allowNull: false,
                 defaultValue: false,
             },
+            execution_mode: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: 'parallel',
+                validate: {
+                    isIn: [['parallel', 'sequential']],
+                },
+            },
             ai_insights: {
                 type: DataTypes.JSON,
                 allowNull: true,

@@ -750,6 +750,26 @@ describe('MCP Tools Integration', () => {
                 expect(content.project.status).toBe('in_progress');
                 expect(content.project.priority).toBe(2);
             });
+
+            it('should default execution_mode to parallel and accept sequential', async () => {
+                const defaultRes = await callMcpTool(
+                    apiTokenValue,
+                    'create_project',
+                    { name: 'Default mode project' }
+                );
+                expect(
+                    getToolContent(defaultRes).content.project.execution_mode
+                ).toBe('parallel');
+
+                const seqRes = await callMcpTool(
+                    apiTokenValue,
+                    'create_project',
+                    { name: 'Sequential project', execution_mode: 'sequential' }
+                );
+                expect(
+                    getToolContent(seqRes).content.project.execution_mode
+                ).toBe('sequential');
+            });
         });
 
         describe('update_project', () => {
@@ -790,6 +810,24 @@ describe('MCP Tools Integration', () => {
                 expect(response.status).toBe(200);
                 const jsonRpc = parseSseResponse(response.text);
                 expect(jsonRpc.result.isError).toBe(true);
+            });
+
+            it('should update execution_mode', async () => {
+                const project = await Project.create({
+                    user_id: user.id,
+                    name: 'Mode toggle project',
+                    status: 'not_started',
+                });
+
+                const response = await callMcpTool(
+                    apiTokenValue,
+                    'update_project',
+                    { uid: project.uid, execution_mode: 'sequential' }
+                );
+
+                expect(response.status).toBe(200);
+                const { content } = getToolContent(response);
+                expect(content.project.execution_mode).toBe('sequential');
             });
         });
 

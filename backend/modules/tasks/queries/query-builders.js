@@ -15,6 +15,33 @@ const {
 } = require('../../../utils/timezone-utils');
 const { ValidationError } = require('../../../shared/errors');
 
+// Plan 53a: GTD sequential projects hide all but the first not-done task
+// (by `order`) from action lists. Sequelize's default query alias for Task
+// is the model name `Task` (not the `tasks` table name) — confirmed via
+// query logging — so the correlated subquery below must reference `Task`,
+// not `tasks`, to actually join against the outer row.
+function sequentialNextActionWhereClause() {
+    return {
+        [Op.or]: [
+            { project_id: null },
+            sequelize.literal(
+                `EXISTS (SELECT 1 FROM projects p WHERE p.id = \`Task\`.\`project_id\` AND p.execution_mode = 'parallel')`
+            ),
+            sequelize.literal(
+                `\`Task\`.\`id\` = (
+                    SELECT t2.id FROM tasks t2
+                    INNER JOIN projects p2 ON p2.id = t2.project_id
+                    WHERE t2.project_id = \`Task\`.\`project_id\`
+                      AND p2.execution_mode = 'sequential'
+                      AND t2.status NOT IN (2, 3, 5)
+                    ORDER BY (t2.\`order\` IS NULL), t2.\`order\` ASC
+                    LIMIT 1
+                )`
+            ),
+        ],
+    };
+}
+
 async function filterTasksByParams(
     params,
     userId,
@@ -203,6 +230,11 @@ async function filterTasksByParams(
             ];
             // Plan 49: someday tasks are excluded from action lists.
             whereClause.is_someday = { [Op.ne]: true };
+            // Plan 53a: hide non-next tasks of sequential projects, unless
+            // browsing a single project directly (all tasks visible there).
+            if (!params.project_uid && !params.project_id) {
+                whereClause[Op.and] = [sequentialNextActionWhereClause()];
+            }
             break;
         }
         case 'upcoming': {
@@ -287,6 +319,11 @@ async function filterTasksByParams(
                 };
             } else if (!params.client_side_filtering) {
                 whereClause.status = { [Op.notIn]: [Task.STATUS.DONE, 'done'] };
+            }
+            // Plan 53a: hide non-next tasks of sequential projects, unless
+            // browsing a single project directly (all tasks visible there).
+            if (!params.project_uid && !params.project_id) {
+                whereClause[Op.and] = [sequentialNextActionWhereClause()];
             }
             break;
         }

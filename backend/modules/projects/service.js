@@ -295,6 +295,7 @@ class ProjectsService {
             color,
             status,
             state,
+            execution_mode,
             tags,
             Tags,
         } = data;
@@ -316,6 +317,7 @@ class ProjectsService {
             image_url: image_url || null,
             color: color || null,
             status: status || state || 'not_started',
+            execution_mode: execution_mode || 'parallel',
             user_id: userId,
         };
 
@@ -366,6 +368,7 @@ class ProjectsService {
             color,
             status,
             state,
+            execution_mode,
             tags,
             Tags,
         } = data;
@@ -399,6 +402,8 @@ class ProjectsService {
         if (color !== undefined) updateData.color = color === '' ? null : color;
         if (status !== undefined) updateData.status = status;
         else if (state !== undefined) updateData.status = state;
+        if (execution_mode !== undefined)
+            updateData.execution_mode = execution_mode;
 
         if (area_id !== undefined) {
             const resolvedAreaId = area_id === '' ? null : area_id;
