@@ -1,6 +1,7 @@
 # 66 — Inbox triage wizard (inline 5 botões: Ação/Projeto/Ref/Someday/Lixo)
 
-> **Status: PROPOSTO** — InboxCard tem 3 botões convert (Task/Note/Project) sem prompt GTD (`InboxItemDetail.tsx:645-706`). Decisão aprovada: inline 5 botões + subtipo "2-min" em Ação.
+> **Status: EXECUTADO** em 2026-07-19 — footer com 6 botões GTD (Ação/2-min/Projeto/Referência/Someday/Lixo); `buildTaskForConversion(context, overrides)` extraído; 2-min cria task `status:'done'` (1 clique), Someday cria `is_someday:true`; ambos via `openTaskModal` (que já é create-direto no parent, não modal). **Desvios:** (1) backend não setava `completed_at` no create com status done (`buildTaskAttributes`/create nunca chamavam `handleCompletionStatus`) — corrigido em `tasks/service.js` create, senão o 2-min ficaria done sem timestamp e sumiria de "Completed today"; (2) **bug de crash pré-existente** — `InboxItemDetail` destruturava `peopleStore` de `useStore()`, slice que nunca existiu no store (desde plano 26), crashando o componente no mount; corrigido passando `people` como prop do `InboxItems`. Afeta planos executados 26/27/33/34/65/68 (não reabrir). Plano assumia `analyzeText`/`createTask` diretos — realidade é parsing client-side + `openTaskModal`.
+> **Status original: PROPOSTO** — InboxCard tem 3 botões convert (Task/Note/Project) sem prompt GTD (`InboxItemDetail.tsx:645-706`). Decisão aprovada: inline 5 botões + subtipo "2-min" em Ação.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/66-inbox-triage` a partir da `main` · **Depende de:** 49 (is_someday)
 
