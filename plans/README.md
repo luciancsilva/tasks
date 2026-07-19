@@ -160,7 +160,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `61-today-plan-reorder.md` | Coluna `today_order` + dnd-kit em TodayPlan; fallback sort se null; drag handle separado | Médio | médio | - |
 | `62-quick-add-overlay.md` | Ctrl+Space → overlay mini-input (portal) → Inbox; intercept capture phase (funciona em inputs); token parsing | Médio | médio | - |
 | `63-bulk-ops-tasks.md` | `POST /tasks/bulk` atômico (status/priority/due/energy/time/assigned) + `/tasks/bulk-delete` + TaskList checkbox + toolbar | Médio | médio | 51, 52 |
 | `64-subtask-drag-reorder.md` | `PATCH /task/:uid/subtasks/reorder` atômico + dnd-kit em TaskSubtasksSection + drag handle `⠿` | Médio | médio | - |
@@ -192,6 +191,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `61-today-plan-reorder.md` | Coluna `today_order` (migration) + builders PATCH + `order_by=today_order:asc` nulls-last + TaskList dnd-kit (`SortableTaskRow` drag handle `⠿`) + TodayPlan sort por today_order ou fallback + handleReorder persiste índices + entity TS | EXECUTADO (2026-07-19) |
 | `60-calendar-drag-reschedule.md` | dnd-kit em CalendarMonthView: drag muda `due_date` + double-click-to-create; defer não-draggable | EXECUTADO (2026-07-19) |
 | `59-task-focus-mode.md` | `TaskFocusMode` full-screen + Pomodoro bind (`current_task_uid`) + Next + TaskEvent `focus_session` + endpoint log | EXECUTADO (2026-07-19) |
 | `58-custom-date-range.md` | `due_from`/`due_to` em `/tasks` + `/search` + View colunas + SearchMenu date pickers (presets mantidos) | EXECUTADO (2026-07-19) |

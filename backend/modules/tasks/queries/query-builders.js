@@ -529,6 +529,7 @@ async function filterTasksByParams(
             'status',
             'due_date',
             'completed_at',
+            'today_order',
         ];
 
         if (!allowedColumns.includes(orderColumn)) {
@@ -544,6 +545,17 @@ async function filterTasksByParams(
                     'ASC',
                 ],
                 ['due_date', orderDirection.toUpperCase()],
+            ];
+        } else if (orderColumn === 'today_order') {
+            // Plan 61: nulls last so unset tasks don't jump to the top.
+            orderClause = [
+                [
+                    sequelize.literal(
+                        'CASE WHEN Task.today_order IS NULL THEN 1 ELSE 0 END'
+                    ),
+                    'ASC',
+                ],
+                ['today_order', orderDirection.toUpperCase()],
             ];
         } else {
             orderClause = [[orderColumn, orderDirection.toUpperCase()]];
