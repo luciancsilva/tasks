@@ -1,6 +1,6 @@
 # 56 — Stale task detection (`type=stale`)
 
-> **Status: PROPOSTO** — Sem noção de "task stale" (não-done, não atualizada há >N dias). Weekly Review (54b) precisa disso. Hoje só há Overdue (due_date passado) e Suggested (scoring), nenhum captura "task parada há 30 dias sem update".
+> **Status: EXECUTADO** em 2026-07-19 — `case 'stale'` no query-builder, `User.stale_task_days` (migration `20260718000007`), título/subtítulo `?type=stale` no frontend (sem sidebar entry, uso via bookmark/54b), 9 testes de integração.
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/56-stale-task-detection` a partir da `main` · **Depende de:** -
 
@@ -100,6 +100,14 @@ cd frontend && npx eslint --fix components/Task/Tasks.tsx
 
 ## Commit
 `feat(tasks): stale task detection (type=stale with stale_days)` — "Implements plans/56". Branch `feat/56-stale-task-detection`, sem merge/push.
+
+## Desvios da execução
+
+- Migration usa o helper real `safeAddColumns` de `backend/utils/migration-utils.js` (shape `{name, definition}`), não `SAFE_ADD_COLUMNS`/`shared/migration-helpers` citado no plano — esse último não existe no código.
+- Erro de `stale_days` inválido lança `ValidationError` (padrão do arquivo, vira 400 via error handler), não `Error` genérico.
+- Line numbers do plano (`case 'waiting'` em `:302-304`) estavam desatualizados; bloco real fica em `:323-336`.
+- Frontend: sem alteração em `Tasks.tsx` (branch de type já é genérico, passa `type`/`stale_days` direto pra API). Título/subtítulo adicionados em `getTitleAndIcon.ts`/`getDescription.ts` (mesmo padrão de `today`/`inbox`/`someday`), com fallback inline via `t(key, default)` — sem tocar nos 24 arquivos de locale, seguindo o precedente dos planos 49/50/51 (nenhum tocou `public/locales`).
+- Threshold `User.stale_task_days` sem UI de Profile (item "opcional v1" no plano) — fora de escopo v1.
 
 ## Fora de escopo
 - Auto-arquivar stale (decisão humana na review).

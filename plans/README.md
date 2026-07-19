@@ -165,7 +165,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 | `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | Alto | médio | - |
 | `54b-weekly-review-sections.md` | 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) com agregação reusando services + UI ReviewSection | Alto | médio | 54a, 56 |
 | `55-weekly-review-notification.md` | Notification type `weekly_review` + pref `weeklyReview` + cron diário 16h filtra por `weekly_review_day` + suggested | Baixo | baixo | 54a |
-| `56-stale-task-detection.md` | `case 'stale'` query-builder (`updated_at < cutoff`, não-done, não-recurring/someday/habit) + `stale_days` param + User.stale_task_days | Baixo | baixo | - |
 | `57-multi-tag-and-or.md` | `tags_any` (OR) + `tags` (AND) combináveis + View `tags_any` JSON + SearchMenu dois campos "Todas"/"Qualquer" | Médio | médio | - |
 | `58-custom-date-range.md` | `due_from`/`due_to` em `/tasks` + `/search` + View colunas + SearchMenu date pickers (presets mantidos) | Médio | médio | - |
 | `59-task-focus-mode.md` | `TaskFocusMode` full-screen + Pomodoro bind (`current_task_uid`) + Next + TaskEvent `focus_session` + endpoint log | Alto | médio | - |
@@ -202,6 +201,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `56-stale-task-detection.md` | `case 'stale'` query-builder (`updated_at < cutoff`, não-done, não-recurring/someday/habit) + `stale_days` param + User.stale_task_days | EXECUTADO (2026-07-19) |
 | `52-task-time-estimate.md` | Campo `time_estimate` (INTEGER 1-1440) + `time_max` em views; filtros `time_max`/`time_min` (ValidationError→400) + `order_by`; search/views/MCP; TaskTimeEstimateCard + slots SearchMenu/SaveViewModal | EXECUTADO (2026-07-18) |
 | `49-gtd-someday-native.md` | `is_someday` flag em tasks + query-builder (someday nativo via flag OR tag `someday` retrocompat) + exclusão em today/upcoming/next/inbox/active + sidebar NavLink + TaskDetails toggle card | EXECUTADO (2026-07-18) |
 | `51-task-energy-field.md` | Campo `energy` (0-2) em tasks + STRING em views; `Task.ENERGY`/`getEnergyValue`; filtro `/tasks?energy=` + `order_by=energy`; View `energy` com `validateEnergy`; SearchMenu/Results/SaveViewModal slot; `TaskEnergyCard`; MCP `create/update/list_tasks` | EXECUTADO (2026-07-18) |

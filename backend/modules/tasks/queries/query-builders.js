@@ -334,6 +334,28 @@ async function filterTasksByParams(
                 whereClause.waiting_since = { [Op.lt]: cutoff };
             }
             break;
+        case 'stale': {
+            const days = parseInt(params.stale_days ?? '30', 10);
+            if (!Number.isFinite(days) || days < 1) {
+                throw new ValidationError('Invalid stale_days');
+            }
+            const cutoff = new Date(Date.now() - days * 86400000);
+            whereClause.updated_at = { [Op.lt]: cutoff };
+            whereClause.status = {
+                [Op.notIn]: [
+                    Task.STATUS.DONE,
+                    Task.STATUS.ARCHIVED,
+                    Task.STATUS.CANCELLED,
+                    'done',
+                    'archived',
+                    'cancelled',
+                ],
+            };
+            whereClause.recurring_parent_id = null;
+            whereClause.is_someday = { [Op.ne]: true };
+            whereClause.habit_mode = { [Op.ne]: true };
+            break;
+        }
         case 'all':
             if (params.status === 'done' || params.status === 'completed') {
                 whereClause.status = {

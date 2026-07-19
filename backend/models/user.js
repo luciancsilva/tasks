@@ -255,6 +255,15 @@ module.exports = (sequelize) => {
                 type: DataTypes.DATE,
                 allowNull: true,
             },
+            stale_task_days: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 30,
+                validate: {
+                    min: 1,
+                    max: 365,
+                },
+            },
         },
         {
             tableName: 'users',
