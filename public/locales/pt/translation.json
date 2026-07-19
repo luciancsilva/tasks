@@ -163,6 +163,7 @@
     "newTaskShort": "Nova Tarefa (C)",
     "commandPaletteShort": "Paleta de Comandos (Ctrl+K)",
     "review": "Revisão",
+    "weeklyReview": "Revisão Semanal",
     "next7Days": "Próximos 7 dias",
     "somedayMaybe": "Algum dia/Talvez",
     "analytics": "Análises",
@@ -2644,5 +2645,23 @@
     "startDateHint": "Deixe vazio para manter as datas de vencimento originais.",
     "resetStatus": "Redefinir todas as tarefas para Não iniciada",
     "createProject": "Criar Projeto"
+  },
+  "review": {
+    "title": "Revisão Semanal",
+    "completed": "Revisão semanal marcada como concluída",
+    "failed": "Falha ao marcar a revisão como concluída",
+    "lastCompleted": "Última:",
+    "due": "Pendente",
+    "markComplete": "Marcar concluída",
+    "sectionPlaceholder": "Em breve",
+    "section": {
+      "inbox": "Inbox",
+      "stale": "Tarefas paradas",
+      "stalled": "Projetos parados",
+      "waiting": "Aguardando",
+      "someday": "Algum dia/Talvez",
+      "goals": "Metas",
+      "upcoming": "Próximas"
+    }
   }
 }

@@ -1,6 +1,6 @@
 # 54a — Weekly Review: rota + checklist + `last_reviewed_at`
 
-> **Status: PROPOSTO** — Zero Weekly Review no tududi. Sem rota, sem component, sem checklist, sem `last_reviewed_at`. GTD passo "Refletir" depende 100% de disciplina manual + 3 hábitos (`docs/17-gtd-setup.md:73-91`). Este plano cria a infraestrutura: rota `/review`, módulo backend `reviews`, checklist shell, timestamp em User. Seções em 54b.
+> **Status: EXECUTADO** em 2026-07-19 — Módulo `reviews` montado (rotas `/reviews/status`, `/reviews/complete`, `/reviews/sections`), migration `last_reviewed_at` em User, rota `/review` com shell + checklist, sidebar entry. Seções (dados) ficam para 54b. Sem rota, sem component, sem checklist, sem `last_reviewed_at`. GTD passo "Refletir" depende 100% de disciplina manual + 3 hábitos (`docs/17-gtd-setup.md:73-91`). Este plano cria a infraestrutura: rota `/review`, módulo backend `reviews`, checklist shell, timestamp em User. Seções em 54b.
 > **Esforço:** Alto · **Natureza:** julgamento médio · **Modelo:** médio
 > **Branch:** `feat/54-weekly-review` a partir da `main` · **Depende de:** -
 

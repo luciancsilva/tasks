@@ -162,6 +162,7 @@
     "newTaskShort": "New Task (C)",
     "commandPaletteShort": "Command Palette (Ctrl+K)",
     "review": "Review",
+    "weeklyReview": "Weekly Review",
     "next7Days": "Next 7 Days",
     "somedayMaybe": "Someday/Maybe",
     "analytics": "Analytics",
@@ -2547,5 +2548,23 @@
     "startDateHint": "Leave empty to keep original due dates.",
     "resetStatus": "Reset all tasks to Not Started",
     "createProject": "Create Project"
+  },
+  "review": {
+    "title": "Weekly Review",
+    "completed": "Weekly review marked complete",
+    "failed": "Failed to mark review complete",
+    "lastCompleted": "Last:",
+    "due": "Due",
+    "markComplete": "Mark complete",
+    "sectionPlaceholder": "Coming soon",
+    "section": {
+      "inbox": "Inbox",
+      "stale": "Stale tasks",
+      "stalled": "Stalled projects",
+      "waiting": "Waiting for",
+      "someday": "Someday/Maybe",
+      "goals": "Goals",
+      "upcoming": "Upcoming"
+    }
   }
 }

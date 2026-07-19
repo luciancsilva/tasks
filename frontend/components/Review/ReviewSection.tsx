@@ -1,0 +1,72 @@
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
+import type { ReviewSectionData } from '../../utils/reviewsService';
+
+interface ReviewSectionProps {
+    section: ReviewSectionData;
+    checked: boolean;
+    onToggle: () => void;
+}
+
+const ALERT_SECTIONS = new Set(['inbox', 'stale', 'stalled', 'waiting']);
+
+const ReviewSection: React.FC<ReviewSectionProps> = ({
+    section,
+    checked,
+    onToggle,
+}) => {
+    const { t } = useTranslation();
+    const [open, setOpen] = useState(true);
+
+    const isAlert = ALERT_SECTIONS.has(section.id);
+    const hasCount = section.count != null && section.count > 0;
+    const badgeClass = isAlert
+        ? hasCount
+            ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200'
+            : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300'
+        : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-300';
+
+    return (
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="flex items-center px-4 py-3 bg-white dark:bg-gray-800">
+                <button
+                    onClick={() => setOpen((v) => !v)}
+                    className="mr-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    aria-label={open ? 'collapse' : 'expand'}
+                >
+                    {open ? (
+                        <ChevronDownIcon className="h-4 w-4" />
+                    ) : (
+                        <ChevronRightIcon className="h-4 w-4" />
+                    )}
+                </button>
+                <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={onToggle}
+                    className="mr-3 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span className="flex-1 font-medium text-gray-900 dark:text-white">
+                    {t(section.title_key, section.id)}
+                </span>
+                <span
+                    className={`ml-2 px-2 py-0.5 text-xs rounded-full ${badgeClass}`}
+                >
+                    {section.count == null ? '—' : section.count}
+                </span>
+            </div>
+            {open && (
+                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700">
+                    {section.ready ? null : (
+                        <span className="italic">
+                            {t('review.sectionPlaceholder', 'Coming soon')}
+                        </span>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ReviewSection;

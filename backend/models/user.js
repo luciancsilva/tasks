@@ -264,6 +264,11 @@ module.exports = (sequelize) => {
                     max: 365,
                 },
             },
+            last_reviewed_at: {
+                type: DataTypes.DATE,
+                allowNull: true,
+                defaultValue: null,
+            },
         },
         {
             tableName: 'users',

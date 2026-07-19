@@ -160,7 +160,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | Alto | médio | - |
 | `54b-weekly-review-sections.md` | 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) com agregação reusando services + UI ReviewSection | Alto | médio | 54a, 56 |
 | `55-weekly-review-notification.md` | Notification type `weekly_review` + pref `weeklyReview` + cron diário 16h filtra por `weekly_review_day` + suggested | Baixo | baixo | 54a |
 | `57-multi-tag-and-or.md` | `tags_any` (OR) + `tags` (AND) combináveis + View `tags_any` JSON + SearchMenu dois campos "Todas"/"Qualquer" | Médio | médio | - |
@@ -199,6 +198,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | EXECUTADO (2026-07-19) |
 | `56-stale-task-detection.md` | `case 'stale'` query-builder (`updated_at < cutoff`, não-done, não-recurring/someday/habit) + `stale_days` param + User.stale_task_days | EXECUTADO (2026-07-19) |
 | `53b-projects-sequential-frontend.md` | ProjectModal toggle + ProjectBanner badge "Sequential" + ProjectTasksSection callout "Next action" + entity TS | EXECUTADO (2026-07-19) |
 | `53a-projects-sequential-backend.md` | `Project.execution_mode` (parallel/sequential) + migration + service + query-builder oculta non-next em Today/Upcoming (bypass project_uid) + MCP | EXECUTADO (2026-07-19) |
