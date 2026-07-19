@@ -1,6 +1,6 @@
 # 53b — Projects sequential vs parallel (frontend)
 
-> **Status: PROPOSTO** — UI do `execution_mode` (plano 53a faz backend). Toggle no ProjectModal + indicador visual no ProjectDetails + destaque de "next action" na lista de tasks do projeto.
+> **Status: EXECUTADO** em 2026-07-19 — toggle Parallel/Sequential no ProjectModal (seção expansível, padrão das demais), badge "Sequential" no ProjectBanner (ao lado do status), callout "Next action: <task>" no ProjectTasksSection (sem tocar TaskList/TaskItem — ver Desvios), entities tipadas, 6 testes de frontend.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/53-projects-sequential` · **Depende de:** 53a
 
@@ -125,6 +125,16 @@ cd frontend && npx eslint --fix components/Project/ProjectModal.tsx components/P
 
 ## Commit
 `feat(projects): sequential mode UI in ProjectModal and ProjectDetails` — "Implements plans/53b". Branch `feat/53-projects-sequential`.
+
+## Desvios da execução
+
+- **i18n**: chaves em `frontend/i18n/locales/*/projects.json` citadas no plano não existem — o real é `public/locales/<lang>/translation.json` na raiz do repo (24 idiomas), namespace `projects.*` dentro de um único JSON por idioma. Segui o padrão já usado no próprio `ProjectModal.tsx` (`t('projects.status', 'Project Status')`): chave + fallback inline via segundo argumento de `t()`, sem tocar nos 24 arquivos de locale — mesmo precedente dos planos 49/50/51/56 (nenhum tocou `public/locales`).
+- **Badge "Sequential" foi para `ProjectBanner.tsx`, não `ProjectDetails.tsx`**: o header/status badge de verdade (`project.status` + `BannerBadge`) vive em `ProjectBanner.tsx:105-113`, componente separado renderizado por `ProjectDetails`. O plano dizia "Próximo ao status badge" — segui a localização real.
+- **"Next action" NÃO virou badge inline por task na `TaskList`/`TaskItem`**: esses componentes são compartilhados por Today/Upcoming/Inbox/etc. Injetar lógica de destaque por-task ali teria risco de regressão fora do escopo deste plano. Implementei como callout único no topo de `ProjectTasksSection` ("Next action: <nome da task>"), que cobre o objetivo GTD (usuário vê qual é a próxima ação) sem tocar componente compartilhado.
+- **Sem diff de payload no submit**: o plano pedia "incluir execution_mode no payload se mudou". Na prática `handleSubmit` já faz `{ ...formData, tags: ... }` incondicionalmente (`ProjectModal.tsx:319-322`) — todo campo de `formData` sempre vai no payload, `execution_mode` incluso automaticamente por já estar no estado. Nenhuma lógica de diff necessária ou existente para nenhum outro campo do form.
+- **Seção 4c (reorder via order, setas up/down) ficou fora de escopo**: sem UI de reorder nesta entrega — `order` é setado apenas na criação (via lógica já existente do backend/serviço, não alterada aqui). Usuário sequential hoje não tem como reordenar tasks pela UI; fica para quando o plano 64 (drag reorder) for executado. Registrado como gap conhecido, não bloqueia o critério de pronto do plano (badge + toggle + next action, que são os itens centrais).
+- **`Task.ts` ganhou campo `order`**: não existia na entity do frontend (apesar de a coluna existir no backend desde sempre). Adicionado para permitir a ordenação client-side em `ProjectTasksSection`.
+- Testes cobrem `ProjectModal` (toggle renderiza; payload leva `execution_mode`) e `ProjectTasksSection` (callout aparece/avança/não aparece); nenhum teste dedicado a `ProjectBanner` (badge é trivial — `execution_mode === 'sequential' && <BannerBadge>`, mesmo padrão de `is_shared` logo abaixo, sem lógica a testar).
 
 ## Fora de escopo
 - Drag reorder de tasks dentro do projeto (plano 64).

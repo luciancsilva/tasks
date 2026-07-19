@@ -39,6 +39,9 @@ export interface Task {
     // transition out of waiting. Drives follow-up overdue filter.
     waiting_since?: string | null;
     parent_task_id?: number;
+    // Display/sequencing order within a project. Drives GTD sequential
+    // projects (plan 53a): lowest order, not-done task is the next action.
+    order?: number | null;
     subtasks?: Task[];
     parent_child_logic_executed?: boolean;
     attachments?: Attachment[];
