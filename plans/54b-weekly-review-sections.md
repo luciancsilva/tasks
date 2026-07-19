@@ -1,6 +1,6 @@
 # 54b — Weekly Review: seções (inbox zero, stale, stalled, waiting, someday, goals, upcoming)
 
-> **Status: PROPOSTO** — 54a cria shell. Este plano implementa agregação de dados das 7 seções do checklist GTD.
+> **Status: EXECUTADO** em 2026-07-19 — `getSections` agora agrega dados reais das 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) reusando inboxRepository, projectsService, goalsService e queries Task. ReviewSection renderiza items + navegação. Bug corrigido: instâncias Sequelize não populavam campos de data no accessor — usado `raw: true` nos findAll.
 > **Esforço:** Alto · **Natureza:** julgamento médio · **Modelo:** médio
 > **Branch:** `feat/54-weekly-review` · **Depende de:** 54a, 56
 

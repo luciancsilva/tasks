@@ -13,6 +13,8 @@ export interface ReviewSectionData {
     count: number | null;
     items: unknown[];
     ready: boolean;
+    href?: string;
+    follow_up_overdue_count?: number;
 }
 
 export interface ReviewsSections {

@@ -2557,6 +2557,8 @@
     "due": "Due",
     "markComplete": "Mark complete",
     "sectionPlaceholder": "Coming soon",
+    "empty": "All clear",
+    "openFull": "Open full list",
     "section": {
       "inbox": "Inbox",
       "stale": "Stale tasks",
