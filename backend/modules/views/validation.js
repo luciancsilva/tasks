@@ -59,6 +59,23 @@ function validateTagsAny(tagsAny) {
     return tagsAny.filter((t) => typeof t === 'string' && t.trim().length > 0);
 }
 
+// Plan 58: custom due-date range (YYYY-MM-DD). null passes through; invalid
+// date or from>to rejects with 400.
+function validateDateRange(dueFrom, dueTo) {
+    const from = dueFrom ? new Date(dueFrom) : null;
+    const to = dueTo ? new Date(dueTo) : null;
+    if (from && isNaN(from.getTime())) {
+        throw new ValidationError('Invalid due_from');
+    }
+    if (to && isNaN(to.getTime())) {
+        throw new ValidationError('Invalid due_to');
+    }
+    if (from && to && from > to) {
+        throw new ValidationError('due_from after due_to');
+    }
+    return { due_from: dueFrom || null, due_to: dueTo || null };
+}
+
 // `extras` carries two unrelated shapes in the same TEXT+JSON column:
 //   - the legacy array of string flags (recurring, overdue, has_content, ...),
 //     consumed by the search service;
@@ -94,4 +111,5 @@ module.exports = {
     validateEnergy,
     validateTimeMax,
     validateTagsAny,
+    validateDateRange,
 };

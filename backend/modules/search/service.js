@@ -46,6 +46,22 @@ class SearchService {
     }
 
     /**
+     * Plan 58: build an absolute date-range condition (day granularity).
+     * `dueFrom`/`dueTo` are YYYY-MM-DD strings. Overrides bucket `due`.
+     */
+    buildDateRangeCondition(dueFrom, dueTo, fieldName) {
+        if (!dueFrom && !dueTo) return null;
+        const range = {};
+        if (dueFrom) range[Op.gte] = new Date(dueFrom);
+        if (dueTo) {
+            const end = new Date(dueTo);
+            end.setHours(23, 59, 59, 999);
+            range[Op.lte] = end;
+        }
+        return { [fieldName]: range };
+    }
+
+    /**
      * Build task search conditions.
      */
     buildTaskConditions(
@@ -593,6 +609,8 @@ class SearchService {
             tagNames,
             tagAnyNames,
             due,
+            due_from,
+            due_to,
             defer,
             hasPagination,
             limit,
@@ -622,11 +640,11 @@ class SearchService {
         const startOfToday = nowMoment.clone().startOf('day');
         const nowDate = nowMoment.toDate();
 
-        const dueDateCondition = this.buildDateCondition(
-            due,
-            startOfToday,
-            'due_date'
-        );
+        // Plan 58: absolute date range overrides the `due` bucket when set.
+        const dueDateCondition =
+            due_from || due_to
+                ? this.buildDateRangeCondition(due_from, due_to, 'due_date')
+                : this.buildDateCondition(due, startOfToday, 'due_date');
         const deferDateCondition = this.buildDateCondition(
             defer,
             startOfToday,

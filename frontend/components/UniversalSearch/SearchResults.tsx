@@ -18,6 +18,8 @@ interface SearchResultsProps {
     selectedEnergy: string | null;
     selectedTimeMax: string | null;
     selectedDue: string | null;
+    dueFrom: string | null;
+    dueTo: string | null;
     selectedDefer: string | null;
     selectedTags: string[];
     selectedTagsAny: string[];
@@ -43,6 +45,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     selectedEnergy,
     selectedTimeMax,
     selectedDue,
+    dueFrom,
+    dueTo,
     selectedDefer,
     selectedTags,
     selectedTagsAny,
@@ -64,6 +68,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 !selectedEnergy &&
                 !selectedTimeMax &&
                 !selectedDue &&
+                !dueFrom &&
+                !dueTo &&
                 !selectedDefer &&
                 selectedTags.length === 0 &&
                 selectedTagsAny.length === 0 &&
@@ -82,6 +88,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     energy: selectedEnergy || undefined,
                     time_max: selectedTimeMax || undefined,
                     due: selectedDue || undefined,
+                    due_from: dueFrom || undefined,
+                    due_to: dueTo || undefined,
                     defer: selectedDefer || undefined,
                     tags: selectedTags.length > 0 ? selectedTags : undefined,
                     tags_any:
@@ -109,6 +117,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         selectedEnergy,
         selectedTimeMax,
         selectedDue,
+        dueFrom,
+        dueTo,
         selectedDefer,
         selectedTags,
         selectedTagsAny,
@@ -220,6 +230,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         !selectedEnergy &&
         !selectedTimeMax &&
         !selectedDue &&
+        !dueFrom &&
+        !dueTo &&
         selectedTags.length === 0 &&
         selectedTagsAny.length === 0
     ) {

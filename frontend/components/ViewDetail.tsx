@@ -58,6 +58,8 @@ interface View {
     filters: string[];
     priority: string | null;
     due: string | null;
+    due_from?: string | null;
+    due_to?: string | null;
     defer: string | null;
     tags: string[];
     tags_any?: string[];
@@ -478,6 +480,8 @@ const ViewDetail: React.FC = () => {
                 filters: normalizedView.filters,
                 priority: normalizedView.priority || undefined,
                 due: normalizedView.due || undefined,
+                due_from: normalizedView.due_from || undefined,
+                due_to: normalizedView.due_to || undefined,
                 defer: normalizedView.defer || undefined,
                 tags:
                     normalizedView.tags && normalizedView.tags.length > 0
@@ -798,6 +802,8 @@ const ViewDetail: React.FC = () => {
                                     view.search_query ||
                                     view.priority ||
                                     view.due ||
+                                    view.due_from ||
+                                    view.due_to ||
                                     view.defer ||
                                     (Array.isArray(view.extras)
                                         ? view.extras.length > 0
@@ -864,6 +870,12 @@ const ViewDetail: React.FC = () => {
                                         {view.due && (
                                             <span className="px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded text-xs font-medium capitalize">
                                                 {view.due.replace(/_/g, ' ')}
+                                            </span>
+                                        )}
+                                        {(view.due_from || view.due_to) && (
+                                            <span className="px-2 py-0.5 bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200 rounded text-xs font-medium">
+                                                {view.due_from || '…'} →{' '}
+                                                {view.due_to || '…'}
                                             </span>
                                         )}
                                         {view.defer && (

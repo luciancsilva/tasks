@@ -2142,6 +2142,7 @@
     "extras": "Extras",
     "priorityFilter": "Priority",
     "dueFilter": "Due",
+    "customRange": "Custom range",
     "deferUntilFilter": "Defer Until",
     "deferUntil": ", defer until",
     "tagsFilter": "Tags",

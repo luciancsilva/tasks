@@ -115,6 +115,9 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
     const [selectedEnergy, setSelectedEnergy] = useState<string | null>(null);
     const [selectedTimeMax, setSelectedTimeMax] = useState<string | null>(null);
     const [selectedDue, setSelectedDue] = useState<string | null>(null);
+    // Plan 58: custom due-date range (absolute, YYYY-MM-DD).
+    const [dueFrom, setDueFrom] = useState<string | null>(null);
+    const [dueTo, setDueTo] = useState<string | null>(null);
     const [selectedDefer, setSelectedDefer] = useState<string | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     // Plan 57: tags_any — OR semantics (task has ANY of these tags).
@@ -218,6 +221,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     energy: selectedEnergy || null,
                     time_max: selectedTimeMax ? Number(selectedTimeMax) : null,
                     due: selectedDue || null,
+                    due_from: dueFrom || null,
+                    due_to: dueTo || null,
                     defer: selectedDefer || null,
                     tags: selectedTags.length > 0 ? selectedTags : null,
                     tags_any:
@@ -510,6 +515,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         selectedEnergy ||
         selectedTimeMax ||
         selectedDue ||
+        dueFrom ||
+        dueTo ||
         selectedDefer ||
         selectedTags.length > 0 ||
         selectedTagsAny.length > 0 ||
@@ -679,6 +686,41 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                             }
                                         />
                                     ))}
+                                </div>
+                                {/* Plan 58: custom due-date range */}
+                                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                        {t('search.customRange', 'Custom range')}:
+                                    </span>
+                                    <input
+                                        type="date"
+                                        value={dueFrom || ''}
+                                        onChange={(e) =>
+                                            setDueFrom(e.target.value || null)
+                                        }
+                                        className="text-xs border border-gray-300 dark:border-gray-600 rounded px-1 py-0.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    />
+                                    <span className="text-xs text-gray-400">→</span>
+                                    <input
+                                        type="date"
+                                        value={dueTo || ''}
+                                        onChange={(e) =>
+                                            setDueTo(e.target.value || null)
+                                        }
+                                        className="text-xs border border-gray-300 dark:border-gray-600 rounded px-1 py-0.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    />
+                                    {(dueFrom || dueTo) && (
+                                        <button
+                                            onClick={() => {
+                                                setDueFrom(null);
+                                                setDueTo(null);
+                                            }}
+                                            className="text-xs text-red-500 hover:text-red-700"
+                                            aria-label={t('common.clear', 'Clear')}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -886,6 +928,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 selectedEnergy={selectedEnergy}
                 selectedTimeMax={selectedTimeMax}
                 selectedDue={selectedDue}
+                dueFrom={dueFrom}
+                dueTo={dueTo}
                 selectedDefer={selectedDefer}
                 selectedTags={selectedTags}
                 selectedTagsAny={selectedTagsAny}
