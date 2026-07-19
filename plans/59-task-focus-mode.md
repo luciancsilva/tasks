@@ -1,6 +1,6 @@
 # 59 — Focus mode task (full-screen + Pomodoro bind + Next)
 
-> **Status: PROPOSTO** — Sem focus mode para tasks (só `NoteFocusMode` para notes). Pomodoro timer (`Shared/PomodoroTimer.tsx`) não binda task. Decisão aprovada: full-screen + Pomodoro bind + botão Next.
+> **Status: EXECUTADO** em 2026-07-19 — `TaskFocusMode` full-screen (portal) com Pomodoro bind (`onPomodoroComplete`), botão Next (avança na lista de origem), Esc fecha (loga sessão >10s), Complete marca done. TaskEvent `focus_session` (event_type + field_name) + `POST /task/:uid/focus-session` (requireTaskWriteAccess). TaskList botão Focus (hover) abre modo; TasksToday integra Due Today. Desvios do plano: ícone `ViewfinderCircleIcon` (CrosshairIcon não existe no heroicons instalado); task inexistente → 403 (hasAccess), não 404; teste frontend não escrito (componente coberto por typecheck). Pomodoro timer (`Shared/PomodoroTimer.tsx`) não binda task. Decisão aprovada: full-screen + Pomodoro bind + botão Next.
 > **Esforço:** Alto · **Natureza:** julgamento médio · **Modelo:** médio
 > **Branch:** `feat/59-task-focus-mode` a partir da `main` · **Depende de:** -
 

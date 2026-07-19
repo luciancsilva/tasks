@@ -1252,6 +1252,7 @@
     "createError": "Failed to create note"
   },
   "task": {
+    "complete": "Complete",
     "labels": {
       "tags": "Tags",
       "project": "Project",
@@ -1868,6 +1869,11 @@
     "complete": "Pomodoro Complete!",
     "completeMessage": "Great work! Time for a break.",
     "done": "Done"
+  },
+  "focus": {
+    "next": "Next",
+    "noNotes": "No notes for this task.",
+    "logError": "Failed to log focus session"
   },
   "calendar": {
     "month": "Month",

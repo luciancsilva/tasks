@@ -9,6 +9,9 @@ import { useTranslation } from 'react-i18next';
 
 interface PomodoroTimerProps {
     className?: string;
+    // Plan 59: bind timer to a task for focus mode logging.
+    currentTaskUid?: string;
+    onPomodoroComplete?: (durationSec: number) => void;
 }
 
 const POMODORO_STORAGE_KEY = 'tududi_pomodoro_timer';
@@ -21,7 +24,10 @@ interface PomodoroState {
     startTime?: number;
 }
 
-const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ className = '' }) => {
+const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
+    className = '',
+    onPomodoroComplete,
+}) => {
     const { t } = useTranslation();
     const [isActive, setIsActive] = useState(false);
     const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
@@ -84,6 +90,9 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({ className = '' }) => {
                     if (prev <= 1) {
                         setIsRunning(false);
                         setShowCompletionMessage(true);
+                        if (onPomodoroComplete) {
+                            onPomodoroComplete(DEFAULT_TIME);
+                        }
                         return 0;
                     }
                     return prev - 1;

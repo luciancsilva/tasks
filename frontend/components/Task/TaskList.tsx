@@ -1,4 +1,5 @@
 import React from 'react';
+import { ViewfinderCircleIcon } from '@heroicons/react/24/outline';
 import TaskItem from './TaskItem';
 import { Project } from '../../entities/Project';
 import { Task } from '../../entities/Task';
@@ -16,6 +17,8 @@ interface TaskListProps {
     isInCompletedSection?: boolean;
     isUpcomingView?: boolean;
     showSuggestionChips?: boolean;
+    // Plan 59: open this task in full-screen focus mode.
+    onFocusTask?: (task: Task) => void;
 }
 
 const TaskList: React.FC<TaskListProps> = ({
@@ -30,6 +33,7 @@ const TaskList: React.FC<TaskListProps> = ({
     isInCompletedSection = false,
     isUpcomingView = false,
     showSuggestionChips = false,
+    onFocusTask,
 }) => {
     // Conditionally filter tasks based on showCompletedTasks prop
     const filteredTasks = showCompletedTasks
@@ -51,7 +55,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 filteredTasks.map((task) => (
                     <div
                         key={task.id}
-                        className="task-item-wrapper transition-all duration-200 ease-in-out overflow-visible relative hover:z-[10000] focus-within:z-[10000]"
+                        className="task-item-wrapper transition-all duration-200 ease-in-out overflow-visible relative hover:z-[10000] focus-within:z-[10000] group"
                         data-testid={`task-item-${task.id}`}
                     >
                         <TaskItem
@@ -67,6 +71,19 @@ const TaskList: React.FC<TaskListProps> = ({
                             showCompletedTasks={showCompletedTasks}
                             showSuggestionChips={showSuggestionChips}
                         />
+                        {onFocusTask && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onFocusTask(task);
+                                }}
+                                className="absolute top-1 right-1 p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                aria-label="Focus mode"
+                                title="Focus mode"
+                            >
+                                <ViewfinderCircleIcon className="h-4 w-4" />
+                            </button>
+                        )}
                     </div>
                 ))
             ) : (

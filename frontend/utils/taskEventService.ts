@@ -244,3 +244,39 @@ export const getPriorityLabel = (priority: number): string => {
 
     return priorityLabels[priority] || `Priority ${priority}`;
 };
+
+/**
+ * Plan 59: log a focus/pomodoro session on a task.
+ */
+export const logFocusSession = async (
+    taskUid: string,
+    durationSec: number,
+    startedAt?: Date,
+    endedAt?: Date
+): Promise<boolean> => {
+    const { getCsrfToken } = await import('./csrfService');
+    const response = await fetch(
+        `${API_BASE}/task/${taskUid}/focus-session`,
+        {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-csrf-token': await getCsrfToken(),
+            },
+            body: JSON.stringify({
+                duration_sec: durationSec,
+                started_at: startedAt ? startedAt.toISOString() : null,
+                ended_at: endedAt ? endedAt.toISOString() : null,
+            }),
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            i18n.t('focus.logError', 'Failed to log focus session')
+        );
+    }
+
+    return true;
+};

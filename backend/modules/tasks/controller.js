@@ -164,6 +164,46 @@ const tasksController = {
             next(error);
         }
     },
+
+    /**
+     * POST /api/task/:uid/focus-session — log a focus/pomodoro session.
+     */
+    async logFocusSession(req, res, next) {
+        try {
+            const { TaskEvent, Task } = require('../../models');
+            const { uid } = req.params;
+            const { duration_sec, started_at, ended_at } = req.body;
+
+            if (!Number.isFinite(duration_sec) || duration_sec < 1) {
+                throw new ValidationError('Invalid duration_sec');
+            }
+
+            const task = await Task.findOne({ where: { uid } });
+            if (!task) {
+                const { NotFoundError } = require('../../shared/errors');
+                throw new NotFoundError('Task not found');
+            }
+
+            await TaskEvent.create({
+                task_id: task.id,
+                user_id: req.currentUser.id,
+                event_type: 'focus_session',
+                field_name: 'focus_session',
+                old_value: null,
+                new_value: null,
+                metadata: {
+                    duration_sec,
+                    started_at: started_at || null,
+                    ended_at: ended_at || null,
+                },
+            });
+
+            res.status(201).json({ logged: true });
+        } catch (error) {
+            logError('Error logging focus session:', error);
+            next(error);
+        }
+    },
 };
 
 module.exports = tasksController;

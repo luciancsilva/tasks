@@ -1308,6 +1308,7 @@
     "createError": "Falha ao criar nota"
   },
   "task": {
+    "complete": "Concluir",
     "labels": {
       "tags": "Etiquetas",
       "project": "Projeto",
@@ -1805,6 +1806,11 @@
     "complete": "Pomodoro completo!",
     "completeMessage": "Ótimo trabalho! Hora de uma pausa.",
     "done": "Concluído"
+  },
+  "focus": {
+    "next": "Próxima",
+    "noNotes": "Sem notas para esta tarefa.",
+    "logError": "Falha ao registrar sessão de foco"
   },
   "calendar": {
     "month": "Mês",

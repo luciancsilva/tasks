@@ -36,6 +36,7 @@ import { fetchProjects } from '../../utils/projectsService';
 import { Task } from '../../entities/Task';
 import { useStore } from '../../store/useStore';
 import TaskList from './TaskList';
+import TaskFocusMode from './TaskFocusMode';
 import TodayPlan from './TodayPlan';
 import { Metrics } from '../../entities/Metrics';
 import ProductivityAssistant from '../Productivity/ProductivityAssistant';
@@ -164,6 +165,23 @@ const TasksToday: React.FC = () => {
     // Client-side pagination for Completed Today tasks (since backend returns all)
     const [completedTodayDisplayLimit, setCompletedTodayDisplayLimit] =
         useState(20);
+
+    // Plan 59: full-screen focus mode bound to a task.
+    const [focusTask, setFocusTask] = useState<Task | null>(null);
+    const [focusTaskList, setFocusTaskList] = useState<Task[]>([]);
+
+    const handleFocusTask = useCallback((task: Task, list: Task[]) => {
+        setFocusTask(task);
+        setFocusTaskList(list.filter((t) => t.uid !== task.uid));
+    }, []);
+
+    const handleFocusNext = useCallback(
+        (next: Task) => {
+            setFocusTask(next);
+            setFocusTaskList((prev) => prev.filter((t) => t.uid !== next.uid));
+        },
+        []
+    );
     const [habitActionUid, setHabitActionUid] = useState<string | null>(null);
 
     // Helper to get current task data from global store
@@ -1317,6 +1335,7 @@ const TasksToday: React.FC = () => {
     }
 
     return (
+        <>
         <div className="w-full px-2 sm:px-4 lg:px-6 pt-4 pb-8">
             <div className="w-full max-w-7xl mx-auto">
                 <div className="flex flex-col">
@@ -1900,6 +1919,12 @@ const TasksToday: React.FC = () => {
                                         onTaskCompletionToggle={
                                             handleTaskCompletionToggle
                                         }
+                                        onFocusTask={(t) =>
+                                            handleFocusTask(
+                                                t,
+                                                sortedDueTodayTasks
+                                            )
+                                        }
                                     />
 
                                     {/* Load More Buttons for Due Today Tasks */}
@@ -2154,6 +2179,18 @@ const TasksToday: React.FC = () => {
                     )}
             </div>
         </div>
+        {focusTask && (
+            <TaskFocusMode
+                task={focusTask}
+                nextTasks={focusTaskList}
+                onClose={() => {
+                    setFocusTask(null);
+                    setFocusTaskList([]);
+                }}
+                onNext={handleFocusNext}
+            />
+        )}
+        </>
     );
 };
 
