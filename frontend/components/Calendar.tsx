@@ -20,6 +20,7 @@ import CalendarDayView from './Calendar/CalendarDayView';
 import { getApiPath } from '../config/paths';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { parseDateString, getLocale } from '../utils/dateUtils';
+import { useStore } from '../store/useStore';
 
 interface CalendarEvent {
     id: string;
@@ -34,6 +35,7 @@ const Calendar: React.FC = () => {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
+    const createTaskInStore = useStore((state) => state.tasksStore.createTask);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<'month' | 'week' | 'day'>('month');
     const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -202,6 +204,29 @@ const Calendar: React.FC = () => {
         }
     };
 
+    // Plan 60: double-click on an empty day cell creates a task due that day.
+    const handleCreateOnDay = async (day: Date) => {
+        try {
+            const newTask = await createTaskInStore({
+                name: t('task.newTaskPlaceholder', 'New Task'),
+                status: 'not_started',
+                completed_at: null,
+                due_date: format(day, 'yyyy-MM-dd'),
+            } as any);
+            if (newTask?.uid) {
+                await loadTasks();
+                navigate(`/task/${newTask.uid}`, {
+                    state: {
+                        isNew: true,
+                        from: location.pathname + location.search,
+                    },
+                });
+            }
+        } catch (error) {
+            console.error('Error creating task on day:', error);
+        }
+    };
+
     const handleEventDrop = async (
         eventId: string,
         newDate: Date,
@@ -339,6 +364,7 @@ const Calendar: React.FC = () => {
                             onDateClick={handleDateClick}
                             onEventClick={handleEventClick}
                             onEventDrop={handleEventDrop}
+                            onCreateOnDay={handleCreateOnDay}
                         />
                     )}
                     {view === 'week' && (

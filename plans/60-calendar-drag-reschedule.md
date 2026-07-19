@@ -1,6 +1,6 @@
 # 60 — Calendar drag-to-reschedule + drag-to-create
 
-> **Status: PROPOSTO** — Calendar view (`Calendar.tsx`) mostra events de due_date (azul/verde) e defer_until (amber), sem drag. Hoje usa native HTML5 DnD em `CalendarMonthView.tsx:82-102` (handleDragStart/drop). Decisão aprovada: drag muda due_date + drag-to-create.
+> **Status: EXECUTADO** em 2026-07-19 — CalendarMonthView migrado de native HTML5 DnD para dnd-kit (PointerSensor, activation distance 5px). `DraggableEvent` (due_date draggable, defer não-draggable), `DroppableCell` (highlight on over), `DndContext.onDragEnd` → `onEventDrop`. Double-click em cell → `onCreateOnDay` cria task com due_date=day via store + navega. Desvio do plano: "drag-to-create" vira double-click-to-create (sem source puro); Calendar não tinha TaskModal, reutilizado `createTaskInStore` + navigate isNew. Hoje usa native HTML5 DnD em `CalendarMonthView.tsx:82-102` (handleDragStart/drop). Decisão aprovada: drag muda due_date + drag-to-create.
 > **Esforço:** Alto · **Natureza:** julgamento médio · **Modelo:** médio
 > **Branch:** `feat/60-calendar-drag` a partir da `main` · **Depende de:** -
 
