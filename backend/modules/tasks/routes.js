@@ -32,6 +32,13 @@ router.get('/task/:uid/subtasks', tasksController.listSubtasks);
 
 router.get('/task/:uid/next-iterations', tasksController.nextIterations);
 
+// Plan 59: log a focus/pomodoro session on a task.
+router.post(
+    '/task/:uid/focus-session',
+    requireTaskWriteAccess,
+    tasksController.logFocusSession
+);
+
 // Mount sub-routers for task-related routes
 router.use(attachmentsRouter);
 router.use(eventsRouter);
