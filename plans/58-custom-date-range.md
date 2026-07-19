@@ -1,6 +1,6 @@
 # 58 — Custom date range (`due_from` / `due_to`) + presets
 
-> **Status: PROPOSTO** — View.due aceita 4 buckets fixos (today/tomorrow/next_week/next_month) em `search/service.js:20-39`. Sem range arbitrário. Decisão aprovada: manter presets + adicionar custom range.
+> **Status: EXECUTADO** em 2026-07-19 — `due_from`/`due_to` (DATEONLY, YYYY-MM-DD) em `/tasks` (Op.gte/Op.lte) e `/search` (`buildDateRangeCondition`, sobrepõe bucket `due` quando setado). View persiste + valida (`due_from > due_to` → 400). SearchMenu date pickers após presets; ViewDetail chips range. Retrocompat: buckets `due='today'` etc. mantidos. Sem range arbitrário. Decisão aprovada: manter presets + adicionar custom range.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/58-custom-date-range` a partir da `main` · **Depende de:** -
 

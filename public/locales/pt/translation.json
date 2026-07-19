@@ -2089,6 +2089,7 @@
     "metadataFilters": "Filtros de metadados",
     "priorityFilter": "Prioridade",
     "dueFilter": "Vencimento",
+    "customRange": "Intervalo personalizado",
     "tagsFilter": "Etiquetas",
     "tagsAny": "Etiquetas (qualquer)",
     "allOfThese": "todas estas",

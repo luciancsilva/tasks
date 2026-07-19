@@ -7,6 +7,7 @@ const {
     validateEnergy,
     validateTimeMax,
     validateTagsAny,
+    validateDateRange,
 } = require('./validation');
 const { NotFoundError } = require('../../shared/errors');
 
@@ -36,6 +37,8 @@ class ViewsService {
             energy,
             time_max,
             due,
+            due_from,
+            due_to,
             defer,
             tags,
             tags_any,
@@ -48,6 +51,7 @@ class ViewsService {
         const validatedEnergy = validateEnergy(energy);
         const validatedTimeMax = validateTimeMax(time_max);
         const validatedTagsAny = validateTagsAny(tags_any);
+        const validatedDateRange = validateDateRange(due_from, due_to);
 
         return viewsRepository.createForUser(userId, {
             name: validatedName,
@@ -57,6 +61,8 @@ class ViewsService {
             energy: validatedEnergy,
             time_max: validatedTimeMax,
             due: due || null,
+            due_from: validatedDateRange.due_from,
+            due_to: validatedDateRange.due_to,
             defer: defer || null,
             tags: tags || [],
             tags_any: validatedTagsAny,
@@ -80,6 +86,8 @@ class ViewsService {
             energy,
             time_max,
             due,
+            due_from,
+            due_to,
             defer,
             tags,
             tags_any,
@@ -97,6 +105,11 @@ class ViewsService {
         if (time_max !== undefined)
             updates.time_max = validateTimeMax(time_max);
         if (due !== undefined) updates.due = due;
+        if (due_from !== undefined || due_to !== undefined) {
+            const range = validateDateRange(due_from, due_to);
+            updates.due_from = range.due_from;
+            updates.due_to = range.due_to;
+        }
         if (defer !== undefined) updates.defer = defer;
         if (tags !== undefined) updates.tags = tags;
         if (tags_any !== undefined)

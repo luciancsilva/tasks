@@ -462,6 +462,18 @@ async function filterTasksByParams(
         whereClause.priority = Task.getPriorityValue(params.priority);
     }
 
+    // Plan 58: custom due-date range (absolute, day granularity).
+    if (params.due_from || params.due_to) {
+        const range = {};
+        if (params.due_from) range[Op.gte] = new Date(params.due_from);
+        if (params.due_to) {
+            const end = new Date(params.due_to);
+            end.setHours(23, 59, 59, 999);
+            range[Op.lte] = end;
+        }
+        whereClause.due_date = range;
+    }
+
     // Plan 51: mental-energy filter. 'low'/'medium'/'high' (or numeric
     // 0/1/2). Bad strings yield no-op (consistent with priority).
     if (params.energy !== undefined && params.energy !== null) {

@@ -64,6 +64,18 @@ module.exports = (sequelize) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            // Plan 58: custom due-date range (absolute, day granularity).
+            // Overrides `due` bucket when set.
+            due_from: {
+                type: DataTypes.DATEONLY,
+                allowNull: true,
+                defaultValue: null,
+            },
+            due_to: {
+                type: DataTypes.DATEONLY,
+                allowNull: true,
+                defaultValue: null,
+            },
             defer: {
                 type: DataTypes.STRING,
                 allowNull: true,

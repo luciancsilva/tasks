@@ -8,6 +8,8 @@ interface SearchParams {
     energy?: string;
     time_max?: string;
     due?: string;
+    due_from?: string;
+    due_to?: string;
     defer?: string;
     tags?: string[];
     tags_any?: string[];
@@ -68,6 +70,14 @@ export const searchUniversal = async (
 
         if (params.due) {
             queryParams.append('due', params.due);
+        }
+
+        if (params.due_from) {
+            queryParams.append('due_from', params.due_from);
+        }
+
+        if (params.due_to) {
+            queryParams.append('due_to', params.due_to);
         }
 
         if (params.defer) {
