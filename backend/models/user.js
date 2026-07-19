@@ -269,6 +269,34 @@ module.exports = (sequelize) => {
                 allowNull: true,
                 defaultValue: null,
             },
+            weekly_review_enabled: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: true,
+            },
+            weekly_review_day: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: 'friday',
+                validate: {
+                    isIn: [
+                        [
+                            'sunday',
+                            'monday',
+                            'tuesday',
+                            'wednesday',
+                            'thursday',
+                            'friday',
+                            'saturday',
+                        ],
+                    ],
+                },
+            },
+            weekly_review_time: {
+                type: DataTypes.STRING,
+                allowNull: false,
+                defaultValue: '16:00',
+            },
         },
         {
             tableName: 'users',
