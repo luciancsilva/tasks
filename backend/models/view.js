@@ -79,6 +79,24 @@ module.exports = (sequelize) => {
                     this.setDataValue('tags', JSON.stringify(value));
                 },
             },
+            // Plan 57: saved-view OR tag filter (tasks with ANY of these tags).
+            // Combined with `tags` (AND) above.
+            tags_any: {
+                type: DataTypes.TEXT,
+                allowNull: true,
+                defaultValue: null,
+                get() {
+                    const rawValue = this.getDataValue('tags_any');
+                    return rawValue ? JSON.parse(rawValue) : [];
+                },
+                set(value) {
+                    if (value === null || value === undefined) {
+                        this.setDataValue('tags_any', null);
+                    } else {
+                        this.setDataValue('tags_any', JSON.stringify(value));
+                    }
+                },
+            },
             extras: {
                 type: DataTypes.TEXT,
                 allowNull: true,

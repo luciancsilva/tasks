@@ -160,7 +160,6 @@ wizard, task comments, composer `!priority`, inbox bulk.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `57-multi-tag-and-or.md` | `tags_any` (OR) + `tags` (AND) combináveis + View `tags_any` JSON + SearchMenu dois campos "Todas"/"Qualquer" | Médio | médio | - |
 | `58-custom-date-range.md` | `due_from`/`due_to` em `/tasks` + `/search` + View colunas + SearchMenu date pickers (presets mantidos) | Médio | médio | - |
 | `59-task-focus-mode.md` | `TaskFocusMode` full-screen + Pomodoro bind (`current_task_uid`) + Next + TaskEvent `focus_session` + endpoint log | Alto | médio | - |
 | `60-calendar-drag-reschedule.md` | dnd-kit em CalendarMonthView: drag muda `due_date` + double-click-to-create; defer não-draggable | Alto | médio | - |
@@ -196,6 +195,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `57-multi-tag-and-or.md` | `tags_any` (OR) + `tags` (AND) combináveis + View `tags_any` JSON + SearchMenu dois campos "Todas"/"Qualquer" | EXECUTADO (2026-07-19) |
 | `55-weekly-review-notification.md` | Notification type `weekly_review` + pref `weeklyReview` + cron diário 16h filtra por `weekly_review_day` + suggested | EXECUTADO (2026-07-19) |
 | `54b-weekly-review-sections.md` | 7 seções (inbox/stale/stalled/waiting/someday/goals/upcoming) com agregação reusando services + UI ReviewSection | EXECUTADO (2026-07-19) |
 | `54a-weekly-review-route-checklist.md` | Módulo `reviews` + rotas `/reviews/*` + `User.last_reviewed_at` + rota `/review` + shell + sidebar entry | EXECUTADO (2026-07-19) |

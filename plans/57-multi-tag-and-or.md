@@ -1,6 +1,6 @@
 # 57 — Multi-tag filter: AND + OR (`tags` + `tags_any`)
 
-> **Status: PROPOSTO** — `/tasks?tag=` aceita UMA tag exata (`query-builders.js:407`). Search endpoint aceita csv `tags` (AND). View.tags é array JSON (AND). Sem OR. Decisão aprovada: dois campos explícitos — `tags` (AND, todas) + `tags_any` (OR, qualquer).
+> **Status: EXECUTADO** em 2026-07-19 — `tags_any` (csv, OR) em `/tasks` e `/search` combinável com `tags`/`tag` (AND) via intersection de id sets (tasks) e subquery literal (search). View `tags_any` TEXT+JSON persiste e filtra. SearchMenu dois blocos "Tags (all)" + "Tags (any)". Desvios do plano: migration usa `safeAddColumns` (utils/migration-utils, não `SAFE_ADD_COLUMNS` shared); `sources`/in-app N/A; SaveViewModal não recebe tags (fluxo save inline no SearchMenu cobre `tags_any`). Search endpoint aceita csv `tags` (AND). View.tags é array JSON (AND). Sem OR. Decisão aprovada: dois campos explícitos — `tags` (AND, todas) + `tags_any` (OR, qualquer).
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/57-multi-tag-or` a partir da `main` · **Depende de:** -
 

@@ -19,6 +19,7 @@ function parseSearchParams(query) {
         limit: limitParam,
         offset: offsetParam,
         excludeSubtasks,
+        tags_any: tagsAnyParam,
     } = query;
 
     const searchQuery = q ? q.trim() : '';
@@ -28,6 +29,14 @@ function parseSearchParams(query) {
         : ['Task', 'Project', 'Area', 'Note', 'Tag', 'Person'];
 
     const tagNames = tagsParam ? tagsParam.split(',').map((t) => t.trim()) : [];
+
+    // Plan 57: tags_any — OR semantics (task has ANY of these tags).
+    const tagAnyNames = tagsAnyParam
+        ? tagsAnyParam
+              .split(',')
+              .map((t) => t.trim())
+              .filter(Boolean)
+        : [];
 
     const extras =
         extrasParam && typeof extrasParam === 'string'
@@ -51,6 +60,7 @@ function parseSearchParams(query) {
         due,
         defer,
         tagNames,
+        tagAnyNames,
         recurring,
         extras: new Set(extras),
         hasPagination,

@@ -60,6 +60,7 @@ interface View {
     due: string | null;
     defer: string | null;
     tags: string[];
+    tags_any?: string[];
     extras: string[] | ViewExtras | null;
     is_pinned: boolean;
 }
@@ -482,6 +483,11 @@ const ViewDetail: React.FC = () => {
                     normalizedView.tags && normalizedView.tags.length > 0
                         ? normalizedView.tags
                         : undefined,
+                tags_any:
+                    normalizedView.tags_any &&
+                    normalizedView.tags_any.length > 0
+                        ? normalizedView.tags_any
+                        : undefined,
                 extras:
                     Array.isArray(normalizedView.extras) &&
                     normalizedView.extras.length > 0
@@ -786,6 +792,8 @@ const ViewDetail: React.FC = () => {
 
                                 {/* Filter chips */}
                                 {(view.tags.length > 0 ||
+                                    (view.tags_any &&
+                                        view.tags_any.length > 0) ||
                                     view.filters.length > 0 ||
                                     view.search_query ||
                                     view.priority ||
@@ -818,6 +826,31 @@ const ViewDetail: React.FC = () => {
                                                 </span>
                                             );
                                         })}
+                                        {view.tags_any &&
+                                            view.tags_any.map((tag) => {
+                                                const color = getTagColor(tag);
+                                                return (
+                                                    <span
+                                                        key={`any-${tag}`}
+                                                        className={
+                                                            color
+                                                                ? 'px-2 py-0.5 rounded text-xs font-medium text-white border border-dashed border-white/40'
+                                                                : 'px-2 py-0.5 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded text-xs font-medium border border-dashed border-green-400'
+                                                        }
+                                                        style={
+                                                            color
+                                                                ? {
+                                                                      backgroundColor:
+                                                                          color,
+                                                                  }
+                                                                : undefined
+                                                        }
+                                                    >
+                                                        {t('search.anyPrefix', 'any:')}{' '}
+                                                        {tag}
+                                                    </span>
+                                                );
+                                            })}
                                         {view.search_query && (
                                             <span className="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs font-medium">
                                                 &quot;{view.search_query}&quot;

@@ -10,6 +10,7 @@ interface SearchParams {
     due?: string;
     defer?: string;
     tags?: string[];
+    tags_any?: string[];
     extras?: string[];
     limit?: number;
     offset?: number;
@@ -75,6 +76,10 @@ export const searchUniversal = async (
 
         if (params.tags && params.tags.length > 0) {
             queryParams.append('tags', params.tags.join(','));
+        }
+
+        if (params.tags_any && params.tags_any.length > 0) {
+            queryParams.append('tags_any', params.tags_any.join(','));
         }
 
         if (params.extras && params.extras.length > 0) {
