@@ -6,6 +6,19 @@ import { getCsrfToken } from './csrfService';
 import i18n from '../i18n';
 
 // API functions
+export const fetchInboxStaleCount = async (): Promise<number> => {
+    const response = await fetch(getApiPath('inbox/stale-count'), {
+        credentials: 'include',
+        headers: { Accept: 'application/json' },
+    });
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.loadError', 'Failed to fetch inbox items.')
+    );
+    const result = await response.json();
+    return typeof result.stale_count === 'number' ? result.stale_count : 0;
+};
+
 export const fetchInboxItems = async (
     limit: number = 20,
     offset: number = 0

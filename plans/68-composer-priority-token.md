@@ -1,6 +1,7 @@
 # 68 — Composer syntax: `!priority` token
 
-> **Status: PROPOSTO** — Inbox parseia `#tag`/`+project`/`@person`/`$area` (`inboxProcessingService.js`). Sem token para priority. Decisão aprovada: só `!priority` (high/medium/low).
+> **Status: EXECUTADO** em 2026-07-19 — `parsePriority` (`!high`/`!medium`/`!low`, primeiro vence) + `!` no strip de `cleanTextFromTagsAndProjects` + `parsed_priority` em `processInboxItem`/`analyzeText`; conversão inbox→task aplica priority (parse client-side em `InboxItemDetail`).
+> **Status original: PROPOSTO** — Inbox parseia `#tag`/`+project`/`@person`/`$area` (`inboxProcessingService.js`). Sem token para priority. Decisão aprovada: só `!priority` (high/medium/low).
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/68-composer-priority-token` a partir da `main` · **Depende de:** -
 

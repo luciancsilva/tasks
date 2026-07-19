@@ -1247,7 +1247,9 @@
     "removePerson": "Remover pessoa",
     "linkPreview": "Prévia do link",
     "linkPreviewError": "Não foi possível obter os detalhes do link",
-    "aboutInbox": "Sobre a caixa de entrada"
+    "aboutInbox": "Sobre a caixa de entrada",
+    "staleWarning": "{{count}} itens na caixa de entrada há mais de 48h — processe-os",
+    "staleDot": "Caixa de entrada tem itens com mais de 48h"
   },
   "dateFormats": {
     "long": "EEEE, d 'de' MMMM 'de' yyyy",

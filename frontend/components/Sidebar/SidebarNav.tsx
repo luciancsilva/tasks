@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Location } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import {
     CalendarDaysIcon,
     InboxIcon,
@@ -14,7 +15,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useStore } from '../../store/useStore';
-import { loadInboxItemsToStore } from '../../utils/inboxService';
+import { loadInboxItemsToStore, fetchInboxStaleCount } from '../../utils/inboxService';
 
 interface SidebarNavProps {
     handleNavClick: (path: string, title: string, icon: JSX.Element) => void;
@@ -35,6 +36,11 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     const calendarEnabled = useStore((state) => state.userSettingsStore.calendarEnabled);
 
     const inboxItemsCount = store.inboxStore.pagination.total;
+
+    // Plan 65: red dot when inbox has unprocessed items older than 48h.
+    const { data: staleCount } = useSWR<number>('inbox-stale-count', fetchInboxStaleCount, {
+        refreshInterval: 60000,
+    });
 
     useEffect(() => {
         loadInboxItemsToStore(false).catch(console.error);
@@ -174,6 +180,16 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
                                                 : inboxItemsCount}
                                         </span>
                                     )}
+                                {link.path === '/inbox' && (staleCount ?? 0) > 0 && (
+                                    <span
+                                        className="h-2 w-2 rounded-full bg-red-500"
+                                        title={t(
+                                            'inbox.staleDot',
+                                            'Inbox has items over 48h old'
+                                        )}
+                                        data-testid="inbox-stale-dot"
+                                    />
+                                )}
                                 {link.path === '/tasks?status=active' && (
                                     <div
                                         role="button"

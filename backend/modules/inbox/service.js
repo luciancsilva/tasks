@@ -151,6 +151,13 @@ class InboxService {
         validateContent(content);
         return processInboxItem(content);
     }
+
+    /**
+     * Plan 65: count of stale ('added' > 48h) inbox items for a user.
+     */
+    async getStaleCount(userId) {
+        return inboxRepository.countStale(userId);
+    }
 }
 
 module.exports = new InboxService();

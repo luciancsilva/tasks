@@ -1,6 +1,7 @@
 # 65 — Inbox stale alert (>48h unprocessed)
 
-> **Status: PROPOSTO** — Inbox items sem alerta de staleness. Item não-processado fica indefinidamente. Sem badge/banner.
+> **Status: EXECUTADO** em 2026-07-19 — `countStale`/`getStaleCount` + `GET /inbox/stale-count`; sidebar ponto vermelho, banner na página Inbox e borda vermelha em items 'added' >48h (SWR refresh 60s). Threshold hard-coded 48h (campo User fora do escopo v1).
+> **Status original: PROPOSTO** — Inbox items sem alerta de staleness. Item não-processado fica indefinidamente. Sem badge/banner.
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/65-inbox-stale-alert` a partir da `main` · **Depende de:** -
 

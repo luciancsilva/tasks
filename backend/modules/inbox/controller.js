@@ -114,6 +114,20 @@ const inboxController = {
     },
 
     /**
+     * GET /api/inbox/stale-count
+     * Plan 65: count of 'added' items older than the stale threshold (48h).
+     */
+    async staleCount(req, res, next) {
+        try {
+            const userId = requireUserId(req);
+            const count = await inboxService.getStaleCount(userId);
+            res.json({ stale_count: count });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    /**
      * POST /api/inbox/analyze-text
      * Analyze text content without creating an inbox item.
      */

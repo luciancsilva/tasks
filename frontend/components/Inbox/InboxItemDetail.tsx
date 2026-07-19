@@ -301,10 +301,10 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
 
         let i = 0;
         while (i < tokens.length) {
-            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$')) {
+            if (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$') || tokens[i].startsWith('!')) {
                 while (
                     i < tokens.length &&
-                    (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$'))
+                    (tokens[i].startsWith('#') || tokens[i].startsWith('+') || tokens[i].startsWith('@') || tokens[i].startsWith('$') || tokens[i].startsWith('!'))
                 ) {
                     i++;
                 }
@@ -315,6 +315,21 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
         }
 
         return cleanedTokens.join(' ').trim();
+    };
+
+    // Plan 68: parse !high/!medium/!low. First wins on multiples.
+    const PRIORITY_VALUES = ['high', 'medium', 'low'];
+    const parsePriority = (text: string): string | null => {
+        const tokens = tokenizeText(text.trim());
+        for (const token of tokens) {
+            if (token.startsWith('!')) {
+                const value = token.slice(1).toLowerCase();
+                if (PRIORITY_VALUES.includes(value)) {
+                    return value;
+                }
+            }
+        }
+        return null;
     };
 
     const fullContent = item.content || '';
@@ -510,7 +525,12 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             const newTask: Task = {
                 name: payload.cleanedContent || displayText,
                 status: 'not_started',
-                priority: null,
+                // Plan 68: !priority token parsed from composer text.
+                priority: parsePriority(payload.sourceText) as
+                    | 'high'
+                    | 'medium'
+                    | 'low'
+                    | null,
                 tags: payload.tagObjects,
                 project_uid: payload.projectUid,
                 assigned_to: assignedToUid,
@@ -881,6 +901,12 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
             </div>
         );
 
+    // Plan 65: highlight unprocessed items older than 48h.
+    const isStale =
+        item.status === 'added' &&
+        !!item.created_at &&
+        Date.now() - new Date(item.created_at).getTime() > 48 * 3600000;
+
     return (
         <div ref={containerRef}>
             {isEditing ? (
@@ -900,7 +926,11 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                     multiline={hasLongContent}
                 />
             ) : (
-                <InboxCard className="w-full">
+                <InboxCard
+                    className={`w-full ${
+                        isStale ? 'border-red-300 dark:border-red-700' : ''
+                    }`}
+                >
                     <div className="px-4 py-3">
                         <div className="flex items-center gap-3">
                             <div

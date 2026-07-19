@@ -15,6 +15,7 @@ describe('inboxProcessingService', () => {
                 parsed_people: [],
                 parsed_areas: [],
                 cleaned_content: 'https://example.com/page',
+                parsed_priority: null,
                 suggested_type: null,
                 suggested_reason: 'url_detected',
             });
@@ -30,6 +31,7 @@ describe('inboxProcessingService', () => {
                 parsed_people: [],
                 parsed_areas: [],
                 cleaned_content: 'https://example.com/page',
+                parsed_priority: null,
                 suggested_type: 'note',
                 suggested_reason: 'url_detected',
             });
@@ -45,6 +47,7 @@ describe('inboxProcessingService', () => {
                 parsed_people: [],
                 parsed_areas: [],
                 cleaned_content: 'https://example.com/test-page',
+                parsed_priority: null,
                 suggested_type: null,
                 suggested_reason: 'url_detected',
             });
@@ -60,6 +63,7 @@ describe('inboxProcessingService', () => {
                 parsed_people: [],
                 parsed_areas: [],
                 cleaned_content: 'Just some regular text',
+                parsed_priority: null,
                 suggested_type: null,
                 suggested_reason: null,
             });

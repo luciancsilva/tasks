@@ -1,5 +1,6 @@
 'use strict';
 
+const { Op } = require('sequelize');
 const { InboxItem } = require('../../models');
 
 const PUBLIC_ATTRIBUTES = [
@@ -80,6 +81,20 @@ class InboxRepository {
                 status: 'added',
             },
             raw: true,
+        });
+    }
+
+    /**
+     * Plan 65: count 'added' items older than the stale threshold (default 48h).
+     */
+    async countStale(userId, hoursThreshold = 48) {
+        const cutoff = new Date(Date.now() - hoursThreshold * 3600000);
+        return this.model.count({
+            where: {
+                user_id: userId,
+                status: 'added',
+                created_at: { [Op.lt]: cutoff },
+            },
         });
     }
 
