@@ -1193,7 +1193,9 @@
     "removePerson": "Remove person",
     "linkPreview": "Link preview",
     "linkPreviewError": "Could not fetch link details",
-    "aboutInbox": "About Inbox"
+    "aboutInbox": "About Inbox",
+    "staleWarning": "{{count}} items in inbox for over 48h — process them",
+    "staleDot": "Inbox has items over 48h old"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",

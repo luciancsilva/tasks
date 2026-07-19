@@ -7,6 +7,7 @@ const inboxController = require('./controller');
 // All routes require authentication (handled by app.js middleware)
 
 router.get('/inbox', inboxController.list);
+router.get('/inbox/stale-count', inboxController.staleCount);
 router.post('/inbox', inboxController.create);
 router.post('/inbox/analyze-text', inboxController.analyzeText);
 router.get('/inbox/:uid', inboxController.getOne);

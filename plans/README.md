@@ -163,11 +163,9 @@ wizard, task comments, composer `!priority`, inbox bulk.
 | `62-quick-add-overlay.md` | Ctrl+Space → overlay mini-input (portal) → Inbox; intercept capture phase (funciona em inputs); token parsing | Médio | médio | - |
 | `63-bulk-ops-tasks.md` | `POST /tasks/bulk` atômico (status/priority/due/energy/time/assigned) + `/tasks/bulk-delete` + TaskList checkbox + toolbar | Médio | médio | 51, 52 |
 | `64-subtask-drag-reorder.md` | `PATCH /task/:uid/subtasks/reorder` atômico + dnd-kit em TaskSubtasksSection + drag handle `⠿` | Médio | médio | - |
-| `65-inbox-stale-alert.md` | `GET /inbox/stale-count` (>48h) + sidebar ponto vermelho + Inbox banner + items destacados | Baixo | baixo | - |
 | `66-inbox-triage-wizard.md` | InboxItemDetail footer 6 botões GTD (Ação/2-min/Projeto/Ref/Someday/Lixo) + `analyzeText` parse + `is_someday`/done | Médio | médio | 49 |
 | `67a-task-comments-backend.md` | Migration `comments` + model + módulo `comments` (CRUD) + access rw/ro + notif `comment_added` para owner | Médio | médio | - |
 | `67b-task-comments-frontend.md` | `TaskCommentsCard` (SWR) + post/edit/delete (autor) + mount TaskDetails + `commentsService.ts` | Médio | médio | 67a |
-| `68-composer-priority-token.md` | `parsePriority` (`!high`/`!medium`/`!low`) em `inboxProcessingService` + strip clean + `parsed_priority` em analyzeText | Baixo | baixo | - |
 | `69-inbox-bulk-process.md` | `POST /inbox/bulk` (process-to-tasks com shared tags/project) + `/inbox/bulk-delete` + `/inbox/bulk-mark-processed` + selection UI | Médio | médio | 68 |
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
@@ -191,6 +189,8 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `68-composer-priority-token.md` | `parsePriority` (`!high`/`!medium`/`!low`, primeiro vence) + `!` no strip de `cleanTextFromTagsAndProjects` + `parsed_priority` em `processInboxItem`/`analyzeText` + conversão inbox→task aplica priority | EXECUTADO (2026-07-19) |
+| `65-inbox-stale-alert.md` | `countStale`/`GET /inbox/stale-count` (>48h) + sidebar ponto vermelho + banner Inbox + borda vermelha em items stale (SWR 60s); threshold hard-coded 48h | EXECUTADO (2026-07-19) |
 | `61-today-plan-reorder.md` | Coluna `today_order` (migration) + builders PATCH + `order_by=today_order:asc` nulls-last + TaskList dnd-kit (`SortableTaskRow` drag handle `⠿`) + TodayPlan sort por today_order ou fallback + handleReorder persiste índices + entity TS | EXECUTADO (2026-07-19) |
 | `60-calendar-drag-reschedule.md` | dnd-kit em CalendarMonthView: drag muda `due_date` + double-click-to-create; defer não-draggable | EXECUTADO (2026-07-19) |
 | `59-task-focus-mode.md` | `TaskFocusMode` full-screen + Pomodoro bind (`current_task_uid`) + Next + TaskEvent `focus_session` + endpoint log | EXECUTADO (2026-07-19) |

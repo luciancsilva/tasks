@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import useSWR from 'swr';
 import { Task } from '../../entities/Task';
 import { Project } from '../../entities/Project';
 import { Note } from '../../entities/Note';
@@ -9,6 +10,7 @@ import {
     processInboxItemWithStore,
     deleteInboxItemWithStore,
     updateInboxItemWithStore,
+    fetchInboxStaleCount,
 } from '../../utils/inboxService';
 import InboxItemDetail from './InboxItemDetail';
 import { useToast } from '../Shared/ToastContext';
@@ -53,6 +55,13 @@ const InboxItems: React.FC = () => {
 
     const [projects, setProjects] = useState<Project[]>([]);
     const [people, setPeople] = useState<Person[]>([]);
+
+    // Plan 65: unprocessed items older than 48h.
+    const { data: staleCount } = useSWR<number>(
+        'inbox-stale-count',
+        fetchInboxStaleCount,
+        { refreshInterval: 60000 }
+    );
 
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
@@ -518,6 +527,21 @@ const InboxItems: React.FC = () => {
                     openNoteModal={handleOpenNoteModal}
                     cardClassName="mb-4"
                 />
+
+                {(staleCount ?? 0) > 0 && (
+                    <div
+                        className="mb-4 p-3 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-200 text-sm flex items-center justify-between"
+                        data-testid="inbox-stale-banner"
+                    >
+                        <span>
+                            {t(
+                                'inbox.staleWarning',
+                                '{{count}} items in inbox for over 48h — process them',
+                                { count: staleCount }
+                            )}
+                        </span>
+                    </div>
+                )}
 
                 {inboxItems.length > 0 && (
                     <div className="space-y-4">

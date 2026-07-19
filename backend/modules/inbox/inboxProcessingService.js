@@ -349,6 +349,32 @@ const parseAreaRefs = (text) => {
     return matches;
 };
 
+// Plan 68: recognized priority token values. First match wins on multiples.
+const PRIORITY_VALUES = ['high', 'medium', 'low'];
+
+/**
+ * Parse priority token (!high/!medium/!low) from text.
+ * @param {string} text - Text to parse
+ * @returns {string[]} Array of priority names; first wins on multiples.
+ */
+const parsePriority = (text) => {
+    const trimmedText = text.trim();
+    const matches = [];
+
+    const tokens = tokenizeText(trimmedText);
+
+    for (const token of tokens) {
+        if (token.startsWith('!')) {
+            const value = token.slice(1).toLowerCase();
+            if (PRIORITY_VALUES.includes(value) && !matches.includes(value)) {
+                matches.push(value);
+            }
+        }
+    }
+
+    return matches;
+};
+
 /**
  * Clean text by removing tags and project references (consecutive groups anywhere)
  * @param {string} text - Text to clean
@@ -361,12 +387,13 @@ const cleanTextFromTagsAndProjects = (text) => {
 
     let i = 0;
     while (i < tokens.length) {
-        // Check if current token starts a tag/project group
+        // Check if current token starts a tag/project/priority group
         if (
             tokens[i].startsWith('#') ||
             tokens[i].startsWith('+') ||
             tokens[i].startsWith('@') ||
-            tokens[i].startsWith('$')
+            tokens[i].startsWith('$') ||
+            tokens[i].startsWith('!')
         ) {
             // Skip this entire consecutive group
             while (
@@ -374,7 +401,8 @@ const cleanTextFromTagsAndProjects = (text) => {
                 (tokens[i].startsWith('#') ||
                     tokens[i].startsWith('+') ||
                     tokens[i].startsWith('@') ||
-                    tokens[i].startsWith('$'))
+                    tokens[i].startsWith('$') ||
+                    tokens[i].startsWith('!'))
             ) {
                 i++;
             }
@@ -478,6 +506,7 @@ const processInboxItem = (content) => {
     const projects = parseProjectRefs(content);
     const people = parsePeopleRefs(content);
     const areas = parseAreaRefs(content);
+    const priorities = parsePriority(content);
     const cleanedContent = cleanTextFromTagsAndProjects(content);
 
     // Generate suggestion
@@ -494,6 +523,7 @@ const processInboxItem = (content) => {
         parsed_people: people,
         parsed_areas: areas,
         cleaned_content: cleanedContent,
+        parsed_priority: priorities[0] || null,
         suggested_type: suggestion.type,
         suggested_reason: suggestion.reason,
     };
@@ -513,6 +543,7 @@ module.exports = {
     parseProjectRefs,
     parsePeopleRefs,
     parseAreaRefs,
+    parsePriority,
     cleanTextFromTagsAndProjects,
     tokenizeText,
 
