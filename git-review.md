@@ -92,3 +92,31 @@ reconsiderar.
 Ao final de uma sincronização, entregue: commits avaliados, decisão e
 justificativa de cada um, operações git feitas, conflitos e como foram
 resolvidos, resultado dos testes, e riscos remanescentes.
+
+## Registro de avaliações (para não reavaliar)
+
+Ledger de commits upstream já julgados. Numa próxima sync, comece medindo
+`main..upstream/main` e **ignore os que já constam aqui como SKIP** — só avalie
+commits novos (acima do "medido até" mais recente). Isto substitui reler o diff
+de cada um.
+
+**Medido até: upstream `96d0cb4d` (v1.3.0-rc.3) em 2026-07-19.** Os 12 commits
+`main..upstream/main` nesse ponto foram julgados: 10 SKIP (já cobertos pela
+reescrita do fork ou não aplicáveis), 2 pendentes de decisão do dono.
+
+| Commit | Decisão | Motivo |
+|---|---|---|
+| `96d0cb4d`, `cff9ed43` | SKIP | releases (só bump de versão) |
+| `2df928b9` templates+marketplace | SKIP | parte local já portada = plano 23; marketplace excluído por decisão do dono |
+| `4464446b` per-user area overrides (shared projects) | SKIP | já presente: `migrations/20260714000001-create-user-project-areas.js` + model + service |
+| `50fd39b5` idempotent index em user_project_areas | SKIP | a migration do fork já usa `safeAddIndex` (idempotente por construção) |
+| `34279159` stale due_date em detalhe de shared project | SKIP | `TaskDetails.tsx` já refaz `fetchTaskByUid(uid)` fresh no mount e atualiza o store |
+| `e5983e8d` MCP shared-project permissions | SKIP | `mcp/tools/{task,note,project}Tools.js` já usam `permissionsService` (getAccess/ACCESS) — planos 14a/b/c |
+| `56bcc797` tags seedSystemTags SQLITE_BUSY | SKIP | `seedSystemTagsForUser(userId, transaction)` do fork já recebe e propaga a tx |
+| `7b3a3538` notes copy button em code blocks | SKIP | `MarkdownRenderer.tsx` já tem `handleCopy`/`navigator.clipboard` |
+| `4ee7a437` docker DB_FILE redirect | SKIP | fork tem `backend/cmd/start.sh` próprio + backup offsite R2; path de volume upstream não se aplica |
+| `4cd17ef6` uuid → `crypto.randomUUID()` | **PENDENTE (dono)** | `uuid ~11.1.0` ainda é dep aqui (usado em `models/notification.js`, `migrations/20250623000001-add-uuid-to-tasks.js`, `scripts/add-sample-users.js`). Higiene: remove 1 dependência. Baixo risco/valor. Apply/Adapt possível |
+| `46de009f` N+1 de notificação/métricas | **PARCIAL → PENDENTE (dono)** | 1ª metade (N+1 de notificação no scheduler: dueTask/deferredTask/dueProject) **já feita** = plano 44. 2ª metade **NÃO coberta**: 3 padrões query-per-task em `tasks/core/serializers.js` + `operations/list.js` + `queries/metrics-*.js` (serialização/dashboard lists), + pool Sequelize=5, `wal_autocheckpoint=200`, índice composto `notifications(user_id,type,created_at)`. Arquivos muito reescritos aqui → **Adapt** (reimplementar intenção), esforço médio. Registrar como plano se o dono quiser |
+
+Regra ao adicionar linhas: registre TODA decisão (Apply/Adapt/Skip) com motivo de
+uma linha, e atualize o "medido até" para o topo de `upstream/main` da sync.
