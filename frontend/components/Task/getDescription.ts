@@ -17,6 +17,7 @@ export const getDescription = (
             someday: 'Tasks without urgency or specific due date',
             completed: "Tasks you've completed",
             allTasks: 'All tasks from different projects and priorities',
+            stale: 'Tasks not updated in a while',
         };
 
         // Check for project_id first
@@ -67,6 +68,13 @@ export const getDescription = (
             if (query.get('type') === 'someday') {
                 return t('taskViews.someday');
             }
+            if (query.get('type') === 'stale') {
+                const days = query.get('stale_days') || '30';
+                return t('taskViews.stale', {
+                    defaultValue: `Not updated in ${days} days`,
+                    days,
+                });
+            }
             if (query.get('status') === 'done') {
                 return t('taskViews.completed');
             }
@@ -82,6 +90,10 @@ export const getDescription = (
                 return defaultDescriptions.upcoming;
             if (query.get('type') === 'someday')
                 return defaultDescriptions.someday;
+            if (query.get('type') === 'stale') {
+                const days = query.get('stale_days') || '30';
+                return `Not updated in ${days} days`;
+            }
             if (query.get('status') === 'done')
                 return defaultDescriptions.completed;
             return defaultDescriptions.allTasks;

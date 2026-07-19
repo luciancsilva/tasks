@@ -8,6 +8,7 @@ import {
     MoonIcon,
     CheckCircleIcon,
     Bars4Icon,
+    ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 export const getTitleAndIcon = (
@@ -27,6 +28,7 @@ export const getTitleAndIcon = (
             someday: 'Someday',
             completed: 'Completed',
             allTasks: 'All Tasks',
+            stale: 'Stale tasks',
         };
         const projectId = query.get('project_id');
         if (projectId) {
@@ -66,6 +68,12 @@ export const getTitleAndIcon = (
                     icon: MoonIcon,
                 };
             }
+            if (query.get('type') === 'stale') {
+                return {
+                    title: t('taskViews.stale', defaultTitles.stale),
+                    icon: ExclamationTriangleIcon,
+                };
+            }
             if (query.get('status') === 'done') {
                 return { title: t('sidebar.completed'), icon: CheckCircleIcon };
             }
@@ -84,6 +92,11 @@ export const getTitleAndIcon = (
                 return { title: defaultTitles.upcoming, icon: ClockIcon };
             if (query.get('type') === 'someday')
                 return { title: defaultTitles.someday, icon: MoonIcon };
+            if (query.get('type') === 'stale')
+                return {
+                    title: defaultTitles.stale,
+                    icon: ExclamationTriangleIcon,
+                };
             if (query.get('status') === 'done')
                 return {
                     title: defaultTitles.completed,
