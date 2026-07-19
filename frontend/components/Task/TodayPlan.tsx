@@ -32,6 +32,17 @@ const TodayPlan: React.FC<TodayPlanProps> = ({
     const sortedTasks = React.useMemo(() => {
         if (safeTodayPlanTasks.length === 0) return [];
 
+        // Plan 61: if every task has a manual today_order, honor it (ASC)
+        // and skip the default in-progress-first / priority sort.
+        const allHaveOrder = safeTodayPlanTasks.every(
+            (task) => task.today_order != null
+        );
+        if (allHaveOrder) {
+            return [...safeTodayPlanTasks].sort(
+                (a, b) => (a.today_order! - b.today_order!)
+            );
+        }
+
         // Separate in-progress and non-in-progress tasks
         const inProgressTasks = safeTodayPlanTasks.filter(
             (task) => task.status === 'in_progress' || task.status === 1
@@ -48,6 +59,19 @@ const TodayPlan: React.FC<TodayPlanProps> = ({
         // Return in-progress tasks first, followed by others
         return [...sortedInProgress, ...sortedOthers];
     }, [safeTodayPlanTasks]);
+
+    // Plan 61: persist new today_order for every task in the reordered list.
+    // Assigns sequential indices so the manual order wins next render.
+    const handleReorder = React.useCallback(
+        async (reordered: Task[]) => {
+            for (let i = 0; i < reordered.length; i++) {
+                if (reordered[i].today_order !== i) {
+                    await onTaskUpdate({ ...reordered[i], today_order: i });
+                }
+            }
+        },
+        [onTaskUpdate]
+    );
 
     if (sortedTasks.length === 0) {
         return (
@@ -82,6 +106,8 @@ const TodayPlan: React.FC<TodayPlanProps> = ({
                 projects={projects}
                 onToggleToday={onToggleToday}
                 onTaskCompletionToggle={onTaskCompletionToggle}
+                enableDrag
+                onReorder={handleReorder}
             />
         </>
     );

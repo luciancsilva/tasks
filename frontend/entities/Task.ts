@@ -42,6 +42,9 @@ export interface Task {
     // Display/sequencing order within a project. Drives GTD sequential
     // projects (plan 53a): lowest order, not-done task is the next action.
     order?: number | null;
+    // Plan 61: manual order of the Today Plan list. null = fall back to the
+    // default priority/due-date sort (see TodayPlan.tsx).
+    today_order?: number | null;
     subtasks?: Task[];
     parent_child_logic_executed?: boolean;
     attachments?: Attachment[];

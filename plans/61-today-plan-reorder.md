@@ -1,5 +1,7 @@
 # 61 — Today Plan manual reorder (`today_order`)
 
+> **Status: EXECUTADO** em 2026-07-19 — Coluna `today_order` (migration `20260718000013`) + builders PATCH aceitam `today_order` (null limpa) + `order_by=today_order:asc` com nulls-last no query-builder + `TaskList` dnd-kit (`SortableTaskRow` com drag handle `⠿`, listeners só no handle pra não conflitar com clicks) + `TodayPlan` sort por `today_order` quando todas têm, senão fallback + `handleReorder` persiste índices sequenciais via PATCH + entity TS + i18n. Testes backend (3) + frontend (3) verdes.
+
 > **Status: PROPOSTO** — Today Plan section sorted por `sortTasksByPriorityDueDateProject` (`TodayPlan.tsx:32-50`), não user-arrangeable. Decisão aprovada: coluna `today_order` server-side.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/61-today-reorder` a partir da `main` · **Depende de:** -

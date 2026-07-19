@@ -218,6 +218,16 @@ function buildTaskAttributes(body, userId, timezone, isUpdate = false) {
         }
     }
 
+    // Plan 61: manual Today Plan order. null clears (fall back to default sort).
+    if (body.today_order !== undefined) {
+        if (body.today_order === null) {
+            attrs.today_order = null;
+        } else {
+            const parsed = Number(body.today_order);
+            attrs.today_order = Number.isFinite(parsed) ? parsed : null;
+        }
+    }
+
     return attrs;
 }
 
@@ -348,6 +358,16 @@ function buildUpdateAttributes(body, task, timezone) {
         } else {
             const parsed = Number(body.time_estimate);
             attrs.time_estimate = Number.isFinite(parsed) ? parsed : null;
+        }
+    }
+
+    // Plan 61: manual Today Plan order. null clears (fall back to default sort).
+    if (body.today_order !== undefined) {
+        if (body.today_order === null) {
+            attrs.today_order = null;
+        } else {
+            const parsed = Number(body.today_order);
+            attrs.today_order = Number.isFinite(parsed) ? parsed : null;
         }
     }
 

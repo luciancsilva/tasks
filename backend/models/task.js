@@ -176,6 +176,13 @@ module.exports = (sequelize) => {
                 allowNull: true,
                 comment: 'Order position for subtasks within a parent task',
             },
+            // Plan 61: manual order of the Today Plan list. null = fall back
+            // to the default priority/due-date sort (see TodayPlan.tsx).
+            today_order: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                defaultValue: null,
+            },
             completed_at: {
                 type: DataTypes.DATE,
                 allowNull: true,
