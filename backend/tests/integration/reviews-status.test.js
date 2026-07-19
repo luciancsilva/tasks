@@ -1,4 +1,5 @@
 const request = require('supertest');
+const moment = require('moment-timezone');
 const app = require('../../app');
 const { User } = require('../../models');
 const { createTestUser } = require('../helpers/testUtils');
@@ -60,14 +61,15 @@ describe('Reviews Routes', () => {
 
     describe('days_since is timezone-aware', () => {
         it('counts days by user local day, not server wall clock', async () => {
-            // User on a far-west timezone. last_reviewed_at 6h ago is still same local day.
+            // User on a far-west timezone. Anchor last_reviewed_at to the start
+            // of the user's *local* day so it is unambiguously "today" in their
+            // timezone regardless of the server wall clock (deterministic, not
+            // flaky). days_since must count local calendar days, so this is 0.
+            const tz = 'Etc/GMT+12';
+            await User.update({ timezone: tz }, { where: { id: user.id } });
+            const startOfLocalDay = moment.tz(tz).startOf('day').toDate();
             await User.update(
-                { timezone: 'Etc/GMT+12' },
-                { where: { id: user.id } }
-            );
-            const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
-            await User.update(
-                { last_reviewed_at: sixHoursAgo },
+                { last_reviewed_at: startOfLocalDay },
                 { where: { id: user.id } }
             );
 
