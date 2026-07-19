@@ -2654,6 +2654,8 @@
     "due": "Pendente",
     "markComplete": "Marcar concluída",
     "sectionPlaceholder": "Em breve",
+    "empty": "Tudo em dia",
+    "openFull": "Abrir lista completa",
     "section": {
       "inbox": "Inbox",
       "stale": "Tarefas paradas",

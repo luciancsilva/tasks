@@ -79,7 +79,7 @@ describe('Reviews Routes', () => {
     });
 
     describe('GET /api/reviews/sections', () => {
-        it('returns 7 shell sections with ready:false', async () => {
+        it('returns 7 sections with expected ids', async () => {
             const response = await agent.get('/api/reviews/sections');
 
             expect(response.status).toBe(200);
@@ -94,11 +94,6 @@ describe('Reviews Routes', () => {
                 'goals',
                 'upcoming',
             ]);
-            response.body.sections.forEach((s) => {
-                expect(s.ready).toBe(false);
-                expect(s.count).toBeNull();
-                expect(s.items).toEqual([]);
-            });
         });
 
         it('requires authentication', async () => {

@@ -1,7 +1,57 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import type { ReviewSectionData } from '../../utils/reviewsService';
+
+interface ReviewItemRowProps {
+    item: {
+        uid: string;
+        name: string;
+        type: string;
+        href: string;
+        meta?: Record<string, unknown>;
+    };
+}
+
+const ReviewItemRow: React.FC<ReviewItemRowProps> = ({ item }) => {
+    const navigate = useNavigate();
+    const meta = item.meta || {};
+    return (
+        <button
+            onClick={() => navigate(item.href)}
+            className="w-full text-left p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex items-center justify-between"
+        >
+            <span className="truncate">{item.name}</span>
+            <span className="flex items-center gap-2 text-xs">
+                {typeof meta.days_stale === 'number' && (
+                    <span className="text-red-500 dark:text-red-400">
+                        {meta.days_stale}d
+                    </span>
+                )}
+                {typeof meta.waiting_since_days === 'number' && (
+                    <span className="text-amber-500 dark:text-amber-400">
+                        {meta.waiting_since_days}d
+                    </span>
+                )}
+                {typeof meta.due_date === 'string' &&
+                    meta.due_date && (
+                        <span className="text-gray-500 dark:text-gray-400">
+                            {new Date(meta.due_date).toLocaleDateString()}
+                        </span>
+                    )}
+            </span>
+        </button>
+    );
+};
+
+interface ReviewItem {
+    uid: string;
+    name: string;
+    type: string;
+    href: string;
+    meta?: Record<string, unknown>;
+}
 
 interface ReviewSectionProps {
     section: ReviewSectionData;
@@ -17,6 +67,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
     onToggle,
 }) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [open, setOpen] = useState(true);
 
     const isAlert = ALERT_SECTIONS.has(section.id);
@@ -57,11 +108,34 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({
                 </span>
             </div>
             {open && (
-                <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-700">
-                    {section.ready ? null : (
-                        <span className="italic">
+                <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+                    {section.ready && section.items.length > 0 && (
+                        <div className="space-y-1">
+                            {section.items.map((item) => (
+                                <ReviewItemRow
+                                    key={(item as ReviewItem).uid}
+                                    item={item as ReviewItem}
+                                />
+                            ))}
+                        </div>
+                    )}
+                    {section.ready && section.items.length === 0 && (
+                        <p className="text-sm text-gray-400 dark:text-gray-500">
+                            {t('review.empty', 'All clear')}
+                        </p>
+                    )}
+                    {!section.ready && (
+                        <p className="text-sm italic text-gray-400 dark:text-gray-500">
                             {t('review.sectionPlaceholder', 'Coming soon')}
-                        </span>
+                        </p>
+                    )}
+                    {section.href && (
+                        <button
+                            onClick={() => navigate(section.href)}
+                            className="text-xs text-blue-500 dark:text-blue-400 mt-2 hover:underline"
+                        >
+                            {t('review.openFull', 'Open full list')}
+                        </button>
                     )}
                 </div>
             )}
