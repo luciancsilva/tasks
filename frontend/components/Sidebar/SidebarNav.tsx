@@ -10,6 +10,7 @@ import {
     Squares2X2Icon,
     ViewColumnsIcon,
     SparklesIcon,
+    ClipboardDocumentCheckIcon,
 } from '@heroicons/react/24/solid';
 import { PlusCircleIcon } from '@heroicons/react/24/outline';
 import { useStore } from '../../store/useStore';
@@ -55,6 +56,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
             path: '/upcoming?status=active',
             title: t('sidebar.upcoming', 'Upcoming'),
             icon: <ClockIcon className="h-5 w-5" />,
+        },
+        {
+            // Plan 54a: Weekly Review hub.
+            path: '/review',
+            title: t('sidebar.weeklyReview', 'Weekly Review'),
+            icon: <ClipboardDocumentCheckIcon className="h-5 w-5" />,
         },
         {
             // Plan 49: native Someday/Maybe list.
@@ -110,6 +117,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({
     });
 
     const isActive = (path: string, query?: string) => {
+        if (path === '/review') {
+            const isPathMatch = location.pathname === '/review';
+            return isPathMatch
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+                : 'text-gray-700 dark:text-gray-300';
+        }
         if (path === '/inbox' || path === '/today' || path === '/calendar' || path === '/eisenhower' || path === '/kanban') {
             const isPathMatch = location.pathname === path;
             return isPathMatch

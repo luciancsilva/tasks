@@ -32,6 +32,7 @@ import KanbanBoard from './components/Kanban/KanbanBoard';
 import PeopleList from './components/People/PeopleList';
 import PersonDetails from './components/People/PersonDetails';
 import Templates from './components/Templates/Templates';
+import WeeklyReview from './components/Review/WeeklyReview';
 import { setCurrentUser as setUserInStorage } from './utils/userUtils';
 import { getApiPath, getLocalesPath } from './config/paths';
 import { useStore } from './store/useStore';
@@ -249,6 +250,10 @@ const App: React.FC = () => {
                             <Route path="/eisenhower" element={<EisenhowerMatrix />} />
                             <Route path="/kanban" element={<KanbanBoard />} />
                             <Route path="/inbox" element={<InboxItems />} />
+                            <Route
+                                path="/review"
+                                element={<WeeklyReview />}
+                            />
                             <Route path="/habits" element={<Habits />} />
                             <Route
                                 path="/habit/:uid"
