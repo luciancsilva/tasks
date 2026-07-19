@@ -33,6 +33,7 @@ const getCronExpression = (frequency) => {
         deferred_tasks: '*/5 * * * *',
         due_tasks: '*/15 * * * *',
         due_projects: '*/15 * * * *',
+        weekly_review_daily: '0 16 * * *',
     };
     return expressions[frequency];
 };
@@ -46,6 +47,8 @@ const createJobHandler = (frequency) => async () => {
         await processDueTasks();
     } else if (frequency === 'due_projects') {
         await processDueProjects();
+    } else if (frequency === 'weekly_review_daily') {
+        await processWeeklyReviewNotifications();
     } else {
         await processSummariesForFrequency(frequency);
     }
@@ -65,6 +68,7 @@ const createJobEntries = () => {
         'deferred_tasks',
         'due_tasks',
         'due_projects',
+        'weekly_review_daily',
     ];
 
     return frequencies.map((frequency) => {
@@ -165,6 +169,17 @@ const processDueProjects = async () => {
     }
 };
 
+const processWeeklyReviewNotifications = async () => {
+    try {
+        const {
+            processWeeklyReviewNotifications: process,
+        } = require('../reviews/reviewNotificationService');
+        return await process();
+    } catch (error) {
+        throw error;
+    }
+};
+
 const initialize = async () => {
     if (schedulerState.isInitialized) {
         return schedulerState;
@@ -220,6 +235,7 @@ module.exports = {
     processDeferredTasks,
     processDueTasks,
     processDueProjects,
+    processWeeklyReviewNotifications,
     _createSchedulerState: createSchedulerState,
     _shouldDisableScheduler: shouldDisableScheduler,
     _getCronExpression: getCronExpression,

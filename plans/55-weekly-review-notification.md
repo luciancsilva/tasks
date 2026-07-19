@@ -1,6 +1,6 @@
 # 55 — Notificação `weekly_review` agendada
 
-> **Status: PROPOSTO** — Sem notificação de Weekly Review hoje. Notification types (`notification.js:31-`) não incluem `weekly_review`. Cron `taskScheduler.js:55-68` não tem frequência para review. User sem lembrete externo.
+> **Status: EXECUTADO** em 2026-07-19 — Notification type `weekly_review` + pref `weeklyReview` (default in-app true) + campos User (`weekly_review_enabled`/`weekly_review_day`/`weekly_review_time`) + cron diário 16h (`weekly_review_daily`) com handler `processWeeklyReviewNotifications` filtrando por dia (tz do user) + `suggested`. Desvio do plano: `sources` não inclui `'in-app'` (validator do model só aceita telegram/mobile/email); in-app é implícito pela row existir, conforme padrão `dueTaskService`. Notification types (`notification.js:31-`) não incluem `weekly_review`. Cron `taskScheduler.js:55-68` não tem frequência para review. User sem lembrete externo.
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/55-weekly-review-notification` a partir da `main` · **Depende de:** 54a (`last_reviewed_at`)
 
