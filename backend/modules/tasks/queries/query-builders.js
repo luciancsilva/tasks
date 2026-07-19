@@ -557,6 +557,40 @@ async function filterTasksByParams(
         }
     }
 
+    // Plan 57: tags_any (csv of tag names) — OR semantics.
+    // Combined with `tag` (singular AND) via intersection of id sets.
+    if (params.tags_any) {
+        const tagNames = params.tags_any
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+        if (tagNames.length > 0) {
+            const anyTaggedIds = await sequelize.query(
+                `SELECT DISTINCT tt.task_id FROM tasks_tags tt
+                 INNER JOIN tags ON tags.id = tt.tag_id
+                 WHERE tags.name IN (:names)`,
+                {
+                    replacements: { names: tagNames },
+                    type: QueryTypes.SELECT,
+                }
+            );
+            const idList = anyTaggedIds.map((r) => r.task_id);
+            if (idList.length === 0) {
+                return [];
+            }
+            // Intersect with existing tag (AND) filter if present
+            if (tagFilteredTaskIds) {
+                const set = new Set(tagFilteredTaskIds);
+                tagFilteredTaskIds = idList.filter((id) => set.has(id));
+                if (tagFilteredTaskIds.length === 0) {
+                    return [];
+                }
+            } else {
+                tagFilteredTaskIds = idList;
+            }
+        }
+    }
+
     if (tagFilteredTaskIds) {
         whereClause.id = {
             ...(whereClause.id || {}),

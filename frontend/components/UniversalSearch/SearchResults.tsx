@@ -20,6 +20,7 @@ interface SearchResultsProps {
     selectedDue: string | null;
     selectedDefer: string | null;
     selectedTags: string[];
+    selectedTagsAny: string[];
     selectedExtras: string[];
     onClose: () => void;
 }
@@ -44,6 +45,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     selectedDue,
     selectedDefer,
     selectedTags,
+    selectedTagsAny,
     selectedExtras,
     onClose,
 }) => {
@@ -64,6 +66,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 !selectedDue &&
                 !selectedDefer &&
                 selectedTags.length === 0 &&
+                selectedTagsAny.length === 0 &&
                 selectedExtras.length === 0
             ) {
                 setResults([]);
@@ -81,6 +84,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                     due: selectedDue || undefined,
                     defer: selectedDefer || undefined,
                     tags: selectedTags.length > 0 ? selectedTags : undefined,
+                    tags_any:
+                        selectedTagsAny.length > 0
+                            ? selectedTagsAny
+                            : undefined,
                     extras:
                         selectedExtras.length > 0 ? selectedExtras : undefined,
                 });
@@ -104,6 +111,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         selectedDue,
         selectedDefer,
         selectedTags,
+        selectedTagsAny,
         selectedExtras,
     ]);
 
@@ -212,7 +220,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         !selectedEnergy &&
         !selectedTimeMax &&
         !selectedDue &&
-        selectedTags.length === 0
+        selectedTags.length === 0 &&
+        selectedTagsAny.length === 0
     ) {
         return (
             <div

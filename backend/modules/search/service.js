@@ -53,7 +53,8 @@ class SearchService {
         params,
         dueDateCondition,
         deferDateCondition,
-        nowDate
+        nowDate,
+        tagAnyIds
     ) {
         const {
             searchQuery,
@@ -193,6 +194,19 @@ class SearchService {
             extraConditions.push({ project_id: { [Op.ne]: null } });
         }
 
+        // Plan 57: tags_any (OR) — task matches if it has ANY of the given tag ids.
+        if (tagAnyIds && tagAnyIds.length > 0) {
+            const idList = tagAnyIds.join(',');
+            extraConditions.push(
+                sequelize.where(
+                    sequelize.literal(
+                        `(SELECT COUNT(*) FROM tasks_tags tt2 INNER JOIN tags t2 ON t2.id = tt2.tag_id WHERE tt2.task_id = Task.id AND t2.id IN (${idList}))`
+                    ),
+                    { [Op.gte]: 1 }
+                )
+            );
+        }
+
         if (extraConditions.length > 0) {
             conditions[Op.and] = extraConditions;
         }
@@ -242,6 +256,7 @@ class SearchService {
         userId,
         params,
         tagIds,
+        tagAnyIds,
         dueDateCondition,
         deferDateCondition,
         nowDate,
@@ -252,7 +267,8 @@ class SearchService {
             params,
             dueDateCondition,
             deferDateCondition,
-            nowDate
+            nowDate,
+            tagAnyIds
         );
         const { include, tagInclude } = this.buildTaskInclude(
             tagIds,
@@ -575,6 +591,7 @@ class SearchService {
         const {
             filterTypes,
             tagNames,
+            tagAnyNames,
             due,
             defer,
             hasPagination,
@@ -588,6 +605,15 @@ class SearchService {
             tagNames
         );
         if (tagNames.length > 0 && tagIds.length === 0) {
+            return { results: [] };
+        }
+
+        // Plan 57: tags_any (OR) — resolve to ids; empty result short-circuits.
+        const tagAnyIds = await searchRepository.findTagIdsByNames(
+            userId,
+            tagAnyNames || []
+        );
+        if (tagAnyNames && tagAnyNames.length > 0 && tagAnyIds.length === 0) {
             return { results: [] };
         }
 
@@ -616,6 +642,7 @@ class SearchService {
                 userId,
                 params,
                 tagIds,
+                tagAnyIds,
                 dueDateCondition,
                 deferDateCondition,
                 nowDate,

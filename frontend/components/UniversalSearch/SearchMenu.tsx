@@ -117,6 +117,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
     const [selectedDue, setSelectedDue] = useState<string | null>(null);
     const [selectedDefer, setSelectedDefer] = useState<string | null>(null);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    // Plan 57: tags_any — OR semantics (task has ANY of these tags).
+    const [selectedTagsAny, setSelectedTagsAny] = useState<string[]>([]);
     const [selectedExtras, setSelectedExtras] = useState<string[]>([]);
     const [availableTags, setAvailableTags] = useState<
         Array<{ id: number; name: string }>
@@ -175,6 +177,14 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         );
     };
 
+    const handleTagAnyToggle = (tagName: string) => {
+        setSelectedTagsAny((prev) =>
+            prev.includes(tagName)
+                ? prev.filter((t) => t !== tagName)
+                : [...prev, tagName]
+        );
+    };
+
     const handleExtrasToggle = (extra: string) => {
         setSelectedExtras((prev) =>
             prev.includes(extra)
@@ -210,6 +220,8 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                     due: selectedDue || null,
                     defer: selectedDefer || null,
                     tags: selectedTags.length > 0 ? selectedTags : null,
+                    tags_any:
+                        selectedTagsAny.length > 0 ? selectedTagsAny : null,
                     extras: selectedExtras.length > 0 ? selectedExtras : null,
                 }),
             });
@@ -500,6 +512,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
         selectedDue ||
         selectedDefer ||
         selectedTags.length > 0 ||
+        selectedTagsAny.length > 0 ||
         selectedExtras.length > 0;
 
     return (
@@ -694,7 +707,15 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                             {availableTags.length > 0 && (
                                 <div>
                                     <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-                                        {t('search.tagsFilter', 'Tags')}
+                                        {t('search.tagsFilter', 'Tags')}{' '}
+                                        <span className="text-gray-400">
+                                            (
+                                            {t(
+                                                'search.allOfThese',
+                                                'all of these'
+                                            )}
+                                            )
+                                        </span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {availableTags.map((tag) => (
@@ -707,6 +728,38 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                                                 )}
                                                 onToggle={() =>
                                                     handleTagToggle(tag.name)
+                                                }
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Tags (any) Filters — Plan 57 OR semantics */}
+                            {availableTags.length > 0 && (
+                                <div>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+                                        {t('search.tagsAny', 'Tags (any)')}{' '}
+                                        <span className="text-gray-400">
+                                            (
+                                            {t(
+                                                'search.anyOfThese',
+                                                'any of these'
+                                            )}
+                                            )
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {availableTags.map((tag) => (
+                                            <FilterBadge
+                                                key={`any-${tag.id}`}
+                                                name={tag.name}
+                                                color="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                                                isSelected={selectedTagsAny.includes(
+                                                    tag.name
+                                                )}
+                                                onToggle={() =>
+                                                    handleTagAnyToggle(tag.name)
                                                 }
                                             />
                                         ))}
@@ -835,6 +888,7 @@ const SearchMenu: React.FC<SearchMenuProps> = ({
                 selectedDue={selectedDue}
                 selectedDefer={selectedDefer}
                 selectedTags={selectedTags}
+                selectedTagsAny={selectedTagsAny}
                 selectedExtras={selectedExtras}
                 onClose={onClose}
             />

@@ -6,6 +6,7 @@ const {
     validateExtras,
     validateEnergy,
     validateTimeMax,
+    validateTagsAny,
 } = require('./validation');
 const { NotFoundError } = require('../../shared/errors');
 
@@ -37,6 +38,7 @@ class ViewsService {
             due,
             defer,
             tags,
+            tags_any,
             extras,
             recurring,
         } = data;
@@ -45,6 +47,7 @@ class ViewsService {
         const validatedExtras = validateExtras(extras);
         const validatedEnergy = validateEnergy(energy);
         const validatedTimeMax = validateTimeMax(time_max);
+        const validatedTagsAny = validateTagsAny(tags_any);
 
         return viewsRepository.createForUser(userId, {
             name: validatedName,
@@ -56,6 +59,7 @@ class ViewsService {
             due: due || null,
             defer: defer || null,
             tags: tags || [],
+            tags_any: validatedTagsAny,
             extras: validatedExtras || [],
             recurring: recurring || null,
             is_pinned: false,
@@ -78,6 +82,7 @@ class ViewsService {
             due,
             defer,
             tags,
+            tags_any,
             extras,
             recurring,
             is_pinned,
@@ -94,6 +99,8 @@ class ViewsService {
         if (due !== undefined) updates.due = due;
         if (defer !== undefined) updates.defer = defer;
         if (tags !== undefined) updates.tags = tags;
+        if (tags_any !== undefined)
+            updates.tags_any = validateTagsAny(tags_any);
         if (extras !== undefined) updates.extras = validateExtras(extras);
         if (recurring !== undefined) updates.recurring = recurring;
         if (is_pinned !== undefined) updates.is_pinned = is_pinned;

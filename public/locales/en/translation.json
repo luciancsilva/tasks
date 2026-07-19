@@ -2145,6 +2145,10 @@
     "deferUntilFilter": "Defer Until",
     "deferUntil": ", defer until",
     "tagsFilter": "Tags",
+    "tagsAny": "Tags (any)",
+    "allOfThese": "all of these",
+    "anyOfThese": "any of these",
+    "anyPrefix": "any:",
     "extrasFilter": {
       "isRecurring": "is Recurring",
       "isOverdue": "is Overdue",

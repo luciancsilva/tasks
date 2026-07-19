@@ -47,6 +47,18 @@ function validateName(name) {
     return name.trim();
 }
 
+// Plan 57: saved-view OR tag filter. null/undefined pass through (no filter);
+// array of non-empty strings kept; anything else rejects with 400.
+function validateTagsAny(tagsAny) {
+    if (tagsAny === undefined || tagsAny === null) {
+        return null;
+    }
+    if (!Array.isArray(tagsAny)) {
+        throw new ValidationError('tags_any must be an array');
+    }
+    return tagsAny.filter((t) => typeof t === 'string' && t.trim().length > 0);
+}
+
 // `extras` carries two unrelated shapes in the same TEXT+JSON column:
 //   - the legacy array of string flags (recurring, overdue, has_content, ...),
 //     consumed by the search service;
@@ -81,4 +93,5 @@ module.exports = {
     validateExtras,
     validateEnergy,
     validateTimeMax,
+    validateTagsAny,
 };
