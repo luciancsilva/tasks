@@ -6,6 +6,7 @@ import {
     TrashIcon,
     ShareIcon,
     CameraIcon,
+    QueueListIcon,
 } from '@heroicons/react/24/outline';
 import BannerBadge from '../Shared/BannerBadge';
 import { Project } from '../../entities/Project';
@@ -108,6 +109,15 @@ const ProjectBanner: React.FC<ProjectBannerProps> = ({
                             {getStatusIcon(project.status)}
                             <span className="text-xs text-white/90 font-medium">
                                 {t(`projectStatus.${project.status}`)}
+                            </span>
+                        </BannerBadge>
+                    )}
+
+                    {project.execution_mode === 'sequential' && (
+                        <BannerBadge>
+                            <QueueListIcon className="h-3 w-3 text-white/70 flex-shrink-0 mt-0.5" />
+                            <span className="text-xs text-white/90 font-medium">
+                                {t('projects.sequential', 'Sequential')}
                             </span>
                         </BannerBadge>
                     )}

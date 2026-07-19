@@ -32,6 +32,7 @@ export interface Project {
     goal?: Goal | null;
     Goal?: Goal | null;
     is_maintenance?: boolean;
+    execution_mode?: 'parallel' | 'sequential';
     tags?: Tag[];
     priority?: PriorityType;
     tasks?: Task[];

@@ -76,6 +76,7 @@ function registerProjectTools(server, context, tools) {
                     tags: proj.Tags ? proj.Tags.map((t) => t.name) : [],
                     due_date_at: proj.due_date_at,
                     pin_to_sidebar: proj.pin_to_sidebar,
+                    execution_mode: proj.execution_mode,
                     created_at: proj.created_at,
                     updated_at: proj.updated_at,
                 };
@@ -147,6 +148,7 @@ function registerProjectTools(server, context, tools) {
                 tags: proj.Tags ? proj.Tags.map((t) => t.name) : [],
                 due_date_at: proj.due_date_at,
                 pin_to_sidebar: proj.pin_to_sidebar,
+                execution_mode: proj.execution_mode,
                 created_at: proj.created_at,
                 updated_at: proj.updated_at,
             };
@@ -210,6 +212,12 @@ function registerProjectTools(server, context, tools) {
                     description:
                         'Image URL (upload via POST /api/upload/project-image first)',
                 },
+                execution_mode: {
+                    type: 'string',
+                    enum: ['parallel', 'sequential'],
+                    description:
+                        "GTD execution mode. 'sequential' hides all but the first not-done task from action lists.",
+                },
             },
             required: ['name'],
         },
@@ -223,6 +231,7 @@ function registerProjectTools(server, context, tools) {
                 area_id: params.area_id || null,
                 due_date_at: params.due_date_at || null,
                 image_url: params.image_url || null,
+                execution_mode: params.execution_mode || 'parallel',
             };
 
             const project = await Project.create(projectData);
@@ -258,6 +267,7 @@ function registerProjectTools(server, context, tools) {
                     ? reloadedProject.Tags.map((t) => t.name)
                     : [],
                 due_date_at: reloadedProject.due_date_at,
+                execution_mode: reloadedProject.execution_mode,
                 created_at: reloadedProject.created_at,
             };
 
@@ -323,6 +333,12 @@ function registerProjectTools(server, context, tools) {
                     description:
                         'Image URL (upload via POST /api/upload/project-image first)',
                 },
+                execution_mode: {
+                    type: 'string',
+                    enum: ['parallel', 'sequential'],
+                    description:
+                        "GTD execution mode. 'sequential' hides all but the first not-done task from action lists.",
+                },
             },
             required: ['uid'],
         },
@@ -361,6 +377,8 @@ function registerProjectTools(server, context, tools) {
             if (params.image_url !== undefined)
                 updates.image_url =
                     params.image_url === '' ? null : params.image_url;
+            if (params.execution_mode !== undefined)
+                updates.execution_mode = params.execution_mode;
 
             await project.update(updates);
 
@@ -384,6 +402,7 @@ function registerProjectTools(server, context, tools) {
                     : [],
                 due_date_at: reloadedProject.due_date_at,
                 pin_to_sidebar: reloadedProject.pin_to_sidebar,
+                execution_mode: reloadedProject.execution_mode,
                 updated_at: reloadedProject.updated_at,
             };
 

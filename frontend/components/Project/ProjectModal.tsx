@@ -23,6 +23,7 @@ import {
     PlayIcon,
     SwatchIcon,
     FlagIcon,
+    QueueListIcon,
 } from '@heroicons/react/24/outline';
 import ColorPicker from '../Shared/ColorPicker';
 import GoalDropdown from '../Shared/GoalDropdown';
@@ -55,6 +56,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             tags: [],
             priority: null,
             due_date_at: null,
+            execution_mode: 'parallel',
         }
     );
 
@@ -86,6 +88,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
         priority: false,
         dueDate: false,
         color: false,
+        executionMode: false,
     });
 
     const { showSuccessToast, showErrorToast } = useToast();
@@ -706,6 +709,72 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                                 </div>
                                             )}
 
+                                            {expandedSections.executionMode && (
+                                                <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 px-4">
+                                                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                                                        {t(
+                                                            'projects.executionMode',
+                                                            'Execution mode'
+                                                        )}
+                                                    </h3>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setFormData(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        execution_mode:
+                                                                            'parallel',
+                                                                    })
+                                                                )
+                                                            }
+                                                            className={`px-3 py-2 rounded text-sm ${
+                                                                (formData.execution_mode ||
+                                                                    'parallel') ===
+                                                                'parallel'
+                                                                    ? 'bg-blue-600 text-white'
+                                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                            }`}
+                                                        >
+                                                            {t(
+                                                                'projects.executionModeParallel',
+                                                                'Parallel'
+                                                            )}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setFormData(
+                                                                    (prev) => ({
+                                                                        ...prev,
+                                                                        execution_mode:
+                                                                            'sequential',
+                                                                    })
+                                                                )
+                                                            }
+                                                            className={`px-3 py-2 rounded text-sm ${
+                                                                formData.execution_mode ===
+                                                                'sequential'
+                                                                    ? 'bg-blue-600 text-white'
+                                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                            }`}
+                                                        >
+                                                            {t(
+                                                                'projects.executionModeSequential',
+                                                                'Sequential'
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {t(
+                                                            'projects.executionModeHelp',
+                                                            'Sequential: only the next action shows in Today/Upcoming. Completing it reveals the next.'
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            )}
+
                                             {expandedSections.color && (
                                                 <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 px-4">
                                                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
@@ -878,6 +947,29 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                                     className="absolute -top-1 -right-1 w-3 h-3 rounded-full border border-white dark:border-gray-800"
                                                     style={{ backgroundColor: formData.color }}
                                                 />
+                                            )}
+                                        </button>
+
+                                        {/* Execution Mode Toggle */}
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                toggleSection('executionMode')
+                                            }
+                                            className={`relative p-2 rounded-full transition-colors ${
+                                                expandedSections.executionMode
+                                                    ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
+                                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                            }`}
+                                            title={t(
+                                                'projects.executionMode',
+                                                'Execution mode'
+                                            )}
+                                        >
+                                            <QueueListIcon className="h-5 w-5" />
+                                            {formData.execution_mode ===
+                                                'sequential' && (
+                                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></span>
                                             )}
                                         </button>
                                     </div>

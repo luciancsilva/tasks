@@ -1,6 +1,6 @@
 # 53a — Projects sequential vs parallel (backend)
 
-> **Status: PROPOSTO** — Todos projetos são paralelos hoje. Subtasks têm `order` (`task.js:153`) mas é display order, não dependency. GTD "sequential project" = só a próxima action visível; completar revela a seguinte. Sem `execution_mode` flag.
+> **Status: EXECUTADO** em 2026-07-19 — `execution_mode` (parallel/sequential) em `Project`, correlated subquery em `today`/`upcoming` oculta non-next de projetos sequential (bypass com `project_uid`/`project_id`), MCP `create_project`/`update_project`/`list_projects`/`get_project` expõem o campo, 11+2 testes de integração. Ver "Desvios da execução" abaixo — várias premissas do plano estavam desatualizadas.
 > **Esforço:** Médio · **Natureza:** julgamento médio · **Modelo:** médio
 > **Branch:** `feat/53-projects-sequential` a partir da `main` · **Depende de:** -
 
@@ -169,6 +169,18 @@ cd backend && npx eslint --fix models/project.js modules/projects/service.js mod
 
 ## Commit
 `feat(projects): sequential vs parallel execution_mode (backend)` — "Implements plans/53a". Branch `feat/53-projects-sequential`, sem merge/push. 53a + 53b mesma branch.
+
+## Desvios da execução
+
+- **Migration**: helper real é `safeAddColumns` de `backend/utils/migration-utils.js` (shape `{name, definition}`), não `SAFE_ADD_COLUMNS`/`shared/migration-helpers` (não existe). Arquivo `20260718000007-add-execution-mode-to-projects.js` (o `07` do plano já tinha sido consumido pelo plano 56 em outra branch não mergeada; sem colisão real já que git rastreia por nome de arquivo, não só timestamp).
+- **`Goal.horizon` NÃO usa STRING+validate** como o plano afirmava — usa `DataTypes.ENUM` de verdade (`goal.js:44`). Mantive STRING+`isIn` mesmo assim, por ser o padrão mais comum do fork para colunas adicionadas via `safeAddColumns` (ex.: `View.energy`, `stale_task_days` do plano 56) e mais seguro para `ADD COLUMN` em SQLite.
+- **Alias da query é `` `Task` ``, não `` `tasks` ``**: confirmado via `logging` do Sequelize (`FROM \`tasks\` AS \`Task\` WHERE \`Task\`.\`status\` = ...`). Os literais SQL do plano (`tasks.id`, `tasks.project_id`) estavam errados e teriam quebrado a query em runtime (`no such column: tasks.project_id`). Implementação usa `` `Task`.`id` ``/`` `Task`.`project_id` `` para a correlação com a query externa; a subquery interna (`t2`) continua referenciando a tabela física `tasks` normalmente.
+- **`case 'next'` não precisa do filtro sequencial**: já força `project_id = null` (`:325-331` antes da minha edição) — toda task de projeto (sequential ou não) já é excluída por esse case, independente do meu filtro. Apliquei o filtro só em `today` e `upcoming`, que são os únicos cases onde tasks de projeto aparecem.
+- **`Object.assign` com `Op.or` seria bug**: o plano avisava sobre isso mas errava a análise ("provavelmente não há Op.or existente" para today/upcoming — ambos JÁ têm `Op.or` no whereClause). Implementação usa `whereClause[Op.and] = [sequentialNextActionWhereClause()]` como chave irmã, evitando colisão.
+- **Bypass de `project_uid`/`project_id`**: resolvido checando os params DENTRO do case (`today`/`upcoming`), antes da aplicação genérica de `project_uid` que acontece depois do switch (`:508` original) — mais simples que interceptar depois.
+- **`next_action_task` computado em `getAll` (seção 4a) ficou fora de escopo**: o plano marcava como "opcional v1, útil para 53b". Verifiquei que 53b só pede o badge em `ProjectDetails` (página de detalhe), que já usa `getByUid` — e esse método já retorna TODAS as tasks do projeto com atributos completos (`uid`/`name`/`order`), sem a restrição de `attributes: ['id','status']` que `getAll`/`findAllWithFilters` impõe. 53b computa "next action" no cliente a partir do array já disponível; nenhuma mudança de backend necessária para isso.
+- **MCP**: a alegação do plano "list_projects/get_project: campo já vem no response" estava errada — as 4 tools (`list_projects`, `get_project`, `create_project`, `update_project`) usam objetos `serialized` curados manualmente (mesmo padrão de `is_maintenance`, que também não aparece lá). Adicionei `execution_mode` aos 4 schemas/objetos serializados e 2 testes extras.
+- Serializer de tasks (seção 6, `is_project_next_action`) confirmado fora de escopo, como o próprio plano já sinalizava.
 
 ## Fora de escopo
 - Dependências arbitrárias entre tasks (`depends_on`/`blocked_by`) — só sequential por `order`.
