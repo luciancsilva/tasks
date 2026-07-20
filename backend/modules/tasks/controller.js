@@ -148,6 +148,22 @@ const tasksController = {
     },
 
     /**
+     * PATCH /api/task/:uid/subtasks/reorder
+     */
+    async reorderSubtasks(req, res, next) {
+        try {
+            await tasksService.reorderSubtasks(
+                req.params.uid,
+                req.currentUser.id,
+                req.body.subtaskIds
+            );
+            res.json({ success: true });
+        } catch (error) {
+            logError('Error reordering subtasks:', error);
+            next(error);
+        }
+    },
+    /**
      * GET /api/task/:uid/next-iterations
      */
     async nextIterations(req, res, next) {

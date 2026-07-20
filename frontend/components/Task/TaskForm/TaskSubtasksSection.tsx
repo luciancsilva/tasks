@@ -1,12 +1,30 @@
 import React, { useState, useRef } from 'react';
-import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from 'react-i18next';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+
 import { Task } from '../../../entities/Task';
-import TaskPriorityIcon from '../../Shared/Icons/TaskPriorityIcon';
-import { toggleTaskCompletion } from '../../../utils/tasksService';
+import { toggleTaskCompletion, reorderSubtasks } from '../../../utils/tasksService';
+import SortableSubtaskItem from './SortableSubtaskItem';
 
 interface TaskSubtasksSectionProps {
     parentTaskId: number;
+    parentTaskUid?: string;
     subtasks: Task[];
     onSubtasksChange: (subtasks: Task[]) => void;
     onSubtaskUpdate?: (subtask: Task) => Promise<void>;
@@ -15,6 +33,7 @@ interface TaskSubtasksSectionProps {
 
 const TaskSubtasksSection: React.FC<TaskSubtasksSectionProps> = ({
     parentTaskId,
+    parentTaskUid,
     subtasks,
     onSubtasksChange,
     onSubtaskUpdate,
@@ -27,6 +46,38 @@ const TaskSubtasksSection: React.FC<TaskSubtasksSectionProps> = ({
     const { t } = useTranslation();
     const subtasksSectionRef = useRef<HTMLDivElement>(null);
     const addInputRef = useRef<HTMLInputElement>(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { delay: 100, tolerance: 5 },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (over && active.id !== over.id) {
+            const oldIndex = subtasks.findIndex((s, i) => (s.uid || `new-${i}`) === active.id);
+            const newIndex = subtasks.findIndex((s, i) => (s.uid || `new-${i}`) === over.id);
+
+            if (oldIndex !== -1 && newIndex !== -1) {
+                const updatedSubtasks = arrayMove(subtasks, oldIndex, newIndex);
+                onSubtasksChange(updatedSubtasks);
+
+                const validUids = updatedSubtasks.filter(s => s.uid && !s.isNew).map(s => s.uid!);
+                if (validUids.length > 0 && parentTaskUid) {
+                    try {
+                        await reorderSubtasks(parentTaskUid, validUids);
+                    } catch (error) {
+                        console.error('Error reordering subtasks in background:', error);
+                        // Revert optimistic update could be implemented here
+                    }
+                }
+            }
+        }
+    };
 
     const scrollToBottom = () => {
         setTimeout(() => {
@@ -168,100 +219,35 @@ const TaskSubtasksSection: React.FC<TaskSubtasksSectionProps> = ({
                     {t('loading.subtasks', 'Loading subtasks...')}
                 </div>
             ) : subtasks.length > 0 ? (
-                <div className="space-y-1">
-                    {subtasks.map((subtask, index) => (
-                        <div
-                            key={subtask.id || index}
-                            className="rounded-lg shadow-sm bg-white dark:bg-gray-900 border-2 border-gray-50 dark:border-gray-800"
-                        >
-                            {editingIndex === index ? (
-                                <div className="px-3 py-2.5 flex items-center space-x-3 overflow-hidden">
-                                    <div className="flex-shrink-0">
-                                        <TaskPriorityIcon
-                                            priority={subtask.priority || 'low'}
-                                            status={
-                                                subtask.status || 'not_started'
-                                            }
-                                            onToggleCompletion={() => handleToggleSubtaskCompletion(subtask, index)}
-                                        />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={editingName}
-                                        onChange={(e) =>
-                                            setEditingName(e.target.value)
-                                        }
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                handleSaveEdit();
-                                            } else if (e.key === 'Escape') {
-                                                handleCancelEdit();
-                                            }
-                                        }}
-                                        onBlur={handleSaveEdit}
-                                        className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white overflow-hidden"
-                                        autoFocus
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={handleCancelEdit}
-                                        className="p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-400"
-                                        title={t('actions.cancel', 'Cancel')}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="px-3 py-2.5 flex items-center justify-between overflow-hidden">
-                                    <div className="flex items-center space-x-3 flex-1 min-w-0 overflow-hidden">
-                                        <div className="flex-shrink-0">
-                                            <TaskPriorityIcon
-                                                priority={
-                                                    subtask.priority || 'low'
-                                                }
-                                                status={
-                                                    subtask.status ||
-                                                    'not_started'
-                                                }
-                                                onToggleCompletion={() => handleToggleSubtaskCompletion(subtask, index)}
-                                            />
-                                        </div>
-                                        <span
-                                            className={`text-sm flex-1 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 break-all ${
-                                                subtask.status === 'done' ||
-                                                subtask.status === 2 ||
-                                                subtask.status === 'archived' ||
-                                                subtask.status === 3
-                                                    ? 'text-gray-500 dark:text-gray-400'
-                                                    : 'text-gray-900 dark:text-gray-100'
-                                            }`}
-                                            onClick={() =>
-                                                handleEditSubtask(index)
-                                            }
-                                            title={t(
-                                                'actions.clickToEdit',
-                                                'Click to edit'
-                                            )}
-                                        >
-                                            {subtask.name}
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleDeleteSubtask(index)
-                                        }
-                                        className="p-1 text-red-500 hover:text-red-700 dark:hover:text-red-400"
-                                        title={t('actions.delete', 'Delete')}
-                                    >
-                                        <TrashIcon className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            )}
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                    modifiers={[restrictToVerticalAxis]}
+                >
+                    <SortableContext
+                        items={subtasks.map((s, i) => s.uid || `new-${i}`)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <div className="space-y-1">
+                            {subtasks.map((subtask, index) => (
+                                <SortableSubtaskItem
+                                    key={subtask.uid || `new-${index}`}
+                                    subtask={subtask}
+                                    index={index}
+                                    editingIndex={editingIndex}
+                                    editingName={editingName}
+                                    onEdit={handleEditSubtask}
+                                    onDelete={handleDeleteSubtask}
+                                    onToggleCompletion={handleToggleSubtaskCompletion}
+                                    onEditingNameChange={setEditingName}
+                                    onSaveEdit={handleSaveEdit}
+                                    onCancelEdit={handleCancelEdit}
+                                />
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </SortableContext>
+                </DndContext>
             ) : (
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                     {t('subtasks.noSubtasks', 'No subtasks yet')}

@@ -316,6 +316,7 @@ const aiAssistantModule = require('./modules/ai-assistant');
 const peopleModule = require('./modules/people');
 const templatesModule = require('./modules/templates');
 const reviewsModule = require('./modules/reviews');
+const commentsModule = require('./modules/comments');
 
 // Swagger documentation - enabled by default, protected by authentication
 // Mounted on /api-docs to avoid conflicts with API routes
@@ -407,6 +408,7 @@ const registerApiRoutes = (basePath) => {
     app.use(basePath, peopleModule.routes);
     app.use(basePath, templatesModule.routes);
     app.use(basePath, reviewsModule.routes);
+    app.use(basePath, commentsModule.routes);
 };
 
 // Register routes at both /api and /api/v1 (if versioned) to maintain backwards compatibility

@@ -14,3 +14,4 @@ export { default as TaskSomedayCard } from './TaskSomedayCard';
 export { default as TaskWaitingSinceCard } from './TaskWaitingSinceCard';
 export { default as TaskEnergyCard } from './TaskEnergyCard';
 export { default as TaskTimeEstimateCard } from './TaskTimeEstimateCard';
+export { default as TaskCommentsCard } from './TaskCommentsCard';

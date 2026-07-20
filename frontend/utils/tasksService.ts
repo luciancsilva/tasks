@@ -214,6 +214,24 @@ export const fetchTaskByUid = async (uid: string): Promise<Task> => {
     return await response.json();
 };
 
+export const listSubtasks = async (uid: string): Promise<Task[]> => {
+    return handleAuthResponse(
+        fetch(getApiPath(`/task/${uid}/subtasks`), {
+            headers: getDefaultHeaders(),
+        })
+    );
+};
+
+export const reorderSubtasks = async (taskUid: string, subtaskIds: string[]): Promise<void> => {
+    return handleAuthResponse(
+        fetch(getApiPath(`/task/${taskUid}/subtasks/reorder`), {
+            method: 'PATCH',
+            headers: await getPostHeadersWithCsrf(),
+            body: JSON.stringify({ subtaskIds }),
+        })
+    );
+};
+
 export const fetchSubtasks = async (parentTaskUid: string): Promise<Task[]> => {
     try {
         const response = await fetch(getApiPath(`task/${parentTaskUid}/subtasks`), {

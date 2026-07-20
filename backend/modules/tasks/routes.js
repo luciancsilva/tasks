@@ -30,6 +30,12 @@ router.delete('/task/:uid', requireTaskWriteAccess, tasksController.delete);
 
 router.get('/task/:uid/subtasks', tasksController.listSubtasks);
 
+router.patch(
+    '/task/:uid/subtasks/reorder',
+    requireTaskWriteAccess,
+    tasksController.reorderSubtasks
+);
+
 router.get('/task/:uid/next-iterations', tasksController.nextIterations);
 
 // Plan 59: log a focus/pomodoro session on a task.

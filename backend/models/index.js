@@ -96,6 +96,7 @@ const CalendarToken = require('./calendar_token')(sequelize);
 const Goal = require('./goal')(sequelize);
 const Person = require('./person')(sequelize);
 const UserProjectArea = require('./user_project_area')(sequelize);
+const Comment = require('./comment')(sequelize);
 
 User.hasMany(Area, { foreignKey: 'user_id' });
 Area.belongsTo(User, { foreignKey: 'user_id' });
@@ -153,6 +154,10 @@ Task.hasMany(Task, {
     foreignKey: 'parent_task_id',
     onDelete: 'CASCADE',
 });
+
+Comment.belongsTo(Task, { foreignKey: 'task_id', onDelete: 'CASCADE' });
+Comment.belongsTo(User, { foreignKey: 'user_id' });
+Task.hasMany(Comment, { foreignKey: 'task_id', onDelete: 'CASCADE' });
 
 Task.belongsTo(Task, {
     as: 'RecurringParent',
@@ -398,4 +403,5 @@ module.exports = {
     CalendarToken,
     Person,
     UserProjectArea,
+    Comment,
 };

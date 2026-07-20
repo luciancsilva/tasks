@@ -19,6 +19,7 @@ const TaskSubtasksCard: React.FC<TaskSubtasksCardProps> = ({
         <div className="rounded-lg shadow-sm bg-white dark:bg-gray-900 border-2 border-gray-50 dark:border-gray-800 p-6">
             <TaskSubtasksSection
                 parentTaskId={task.id!}
+                parentTaskUid={task.uid}
                 subtasks={subtasks}
                 onSubtasksChange={onSubtasksChange}
                 onSave={onSave}

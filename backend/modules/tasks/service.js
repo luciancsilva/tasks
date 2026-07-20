@@ -798,6 +798,7 @@ const tasksService = {
         }
 
         const task = await taskRepository.findByUid(uid);
+
         if (!task) {
             return [];
         }
@@ -813,6 +814,45 @@ const tasksService = {
         }
 
         return result.subtasks;
+    },
+
+    /**
+     * Reorders subtasks given an array of subtask UIDs.
+     */
+    async reorderSubtasks(parentUid, userId, subtaskIds) {
+        if (!Array.isArray(subtaskIds)) {
+            throw new ValidationError('subtaskIds must be an array');
+        }
+
+        const parent = await taskRepository.findByUid(parentUid);
+        if (!parent) {
+            throw new NotFoundError('Parent task not found.');
+        }
+
+        // Validate access
+        const pAccess = await permissionsService.getAccess(
+            userId,
+            'task',
+            parentUid
+        );
+        if (pAccess !== 'write' && pAccess !== 'owner') {
+            throw new ForbiddenError('No write access to parent task');
+        }
+
+        await sequelize.transaction(async (t) => {
+            const promises = subtaskIds.map((subUid, index) => {
+                return taskRepository.bulkUpdate(
+                    { order: index + 1 },
+                    {
+                        where: { uid: subUid, parent_task_id: parent.id },
+                        transaction: t,
+                    }
+                );
+            });
+            await Promise.all(promises);
+        });
+
+        return { success: true };
     },
 
     /**

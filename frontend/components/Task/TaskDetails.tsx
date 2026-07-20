@@ -37,6 +37,7 @@ import {
     TaskWaitingSinceCard,
     TaskEnergyCard,
     TaskTimeEstimateCard,
+    TaskCommentsCard,
 } from './TaskDetails/';
 import TaskAIInsights, { TaskAIInsightsHandle } from '../AI/TaskAIInsights';
 import {
@@ -1399,6 +1400,7 @@ const TaskDetails: React.FC = () => {
                                     onSubtasksChange={setPendingSubtasks}
                                     onSave={handleSaveSubtasks}
                                 />
+                                <TaskCommentsCard task={task} />
                                 <TaskRecurrenceCard
                                     task={task}
                                     parentTask={parentTask}
