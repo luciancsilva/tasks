@@ -23,7 +23,7 @@ import {
     ExclamationTriangleIcon,
     SparklesIcon,
 } from '@heroicons/react/24/outline';
-import { fetchTasks, updateTask, deleteTask } from '../../utils/tasksService';
+import { fetchTasks, updateTask, deleteTask, bulkUpdateTasks, bulkDeleteTasks } from '../../utils/tasksService';
 import {
     isTaskDone,
     isTaskActive,
@@ -36,6 +36,7 @@ import { fetchProjects } from '../../utils/projectsService';
 import { Task } from '../../entities/Task';
 import { useStore } from '../../store/useStore';
 import TaskList from './TaskList';
+import BulkToolbar from './BulkToolbar';
 import TaskFocusMode from './TaskFocusMode';
 import TodayPlan from './TodayPlan';
 import { Metrics } from '../../entities/Metrics';
@@ -183,6 +184,50 @@ const TasksToday: React.FC = () => {
         []
     );
     const [habitActionUid, setHabitActionUid] = useState<string | null>(null);
+
+    const [selectedUids, setSelectedUids] = useState<Set<string>>(new Set());
+
+    const handleToggleSelect = (uid: string) => {
+        setSelectedUids((prev) => {
+            const next = new Set(prev);
+            if (next.has(uid)) {
+                next.delete(uid);
+            } else {
+                next.add(uid);
+            }
+            return next;
+        });
+    };
+
+    const handleBulkUpdate = async (fields: Partial<Task>) => {
+        const uids = Array.from(selectedUids);
+        if (uids.length === 0) return;
+        
+        try {
+            await bulkUpdateTasks(uids, fields);
+            useStore.getState().tasksStore.fetchTasks(); // Refresh global store
+            setSelectedUids(new Set());
+        } catch (error) {
+            console.error('Failed to bulk update tasks:', error);
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        const uids = Array.from(selectedUids);
+        if (uids.length === 0) return;
+
+        try {
+            await bulkDeleteTasks(uids);
+            useStore.getState().tasksStore.fetchTasks(); // Refresh global store
+            setSelectedUids(new Set());
+        } catch (error) {
+            console.error('Failed to bulk delete tasks:', error);
+        }
+    };
+
+    const handleBulkComplete = async () => {
+        await handleBulkUpdate({ status: 'done' });
+    };
 
     // Helper to get current task data from global store
     // Metrics provides section membership (task IDs), store provides current data
@@ -1730,6 +1775,9 @@ const TasksToday: React.FC = () => {
                                         onTaskCompletionToggle={
                                             handleTaskCompletionToggle
                                         }
+                                        selectable={true}
+                                        selectedUids={selectedUids}
+                                        onToggleSelect={handleToggleSelect}
                                     />
 
                                     {/* Load More Buttons for Overdue Tasks */}
@@ -1925,6 +1973,9 @@ const TasksToday: React.FC = () => {
                                                 sortedDueTodayTasks
                                             )
                                         }
+                                        selectable={true}
+                                        selectedUids={selectedUids}
+                                        onToggleSelect={handleToggleSelect}
                                     />
 
                                     {/* Load More Buttons for Due Today Tasks */}
@@ -2033,6 +2084,9 @@ const TasksToday: React.FC = () => {
                                     projects={localProjects}
                                     onToggleToday={undefined}
                                     showSuggestionChips={true}
+                                    selectable={true}
+                                    selectedUids={selectedUids}
+                                    onToggleSelect={handleToggleSelect}
                                 />
 
                                 {suggestedDisplayLimit <
@@ -2103,6 +2157,9 @@ const TasksToday: React.FC = () => {
                                             onToggleToday={undefined}
                                             showCompletedTasks={true}
                                             isInCompletedSection={true}
+                                            selectable={true}
+                                            selectedUids={selectedUids}
+                                            onToggleSelect={handleToggleSelect}
                                         />
 
                                         {/* Load More Buttons for Completed Today Tasks */}
@@ -2190,6 +2247,12 @@ const TasksToday: React.FC = () => {
                 onNext={handleFocusNext}
             />
         )}
+        <BulkToolbar
+            selectedUids={selectedUids}
+            onClear={() => setSelectedUids(new Set())}
+            onBulkDelete={handleBulkDelete}
+            onBulkComplete={handleBulkComplete}
+        />
         </>
     );
 };

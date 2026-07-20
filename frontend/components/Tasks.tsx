@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import TaskList from './Task/TaskList';
 import GroupedTaskList from './Task/GroupedTaskList';
 import NewTask from './Task/NewTask';
+import BulkToolbar from './Task/BulkToolbar';
 import { Task } from '../entities/Task';
 import { getTitleAndIcon } from './Task/getTitleAndIcon';
 import { getDescription } from './Task/getDescription';
-import { createTask, GroupedTasks } from '../utils/tasksService';
+import { createTask, bulkUpdateTasks, bulkDeleteTasks, GroupedTasks } from '../utils/tasksService';
 import { useStore } from '../store/useStore';
 import { useToast } from './Shared/ToastContext';
 import { SortOption } from './Shared/SortFilterButton';
@@ -43,6 +44,8 @@ const Tasks: React.FC = () => {
     const [showCompleted, setShowCompleted] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [groupBy, setGroupBy] = useState<'none' | 'project'>('none');
+
+    const [selectedUids, setSelectedUids] = useState<Set<string>>(new Set());
 
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(false);
@@ -498,6 +501,52 @@ const Tasks: React.FC = () => {
         return status !== 'done' && type !== 'upcoming';
     };
 
+    const handleToggleSelect = (uid: string) => {
+        setSelectedUids((prev) => {
+            const next = new Set(prev);
+            if (next.has(uid)) {
+                next.delete(uid);
+            } else {
+                next.add(uid);
+            }
+            return next;
+        });
+    };
+
+    const handleBulkUpdate = async (fields: Partial<Task>) => {
+        const uids = Array.from(selectedUids);
+        if (uids.length === 0) return;
+        
+        try {
+            await bulkUpdateTasks(uids, fields);
+            setTasks((prev) => prev.map(t => uids.includes(t.uid!) ? { ...t, ...fields } : t));
+            setSelectedUids(new Set());
+            showSuccessToast(t('bulk.updateSuccess', 'Tasks updated successfully'));
+        } catch (error) {
+            console.error('Failed to bulk update tasks:', error);
+            setError(t('bulk.updateError', 'Failed to update tasks'));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        const uids = Array.from(selectedUids);
+        if (uids.length === 0) return;
+
+        try {
+            await bulkDeleteTasks(uids);
+            setTasks((prev) => prev.filter(t => !uids.includes(t.uid!)));
+            setSelectedUids(new Set());
+            showSuccessToast(t('bulk.deleteSuccess', 'Tasks deleted successfully'));
+        } catch (error) {
+            console.error('Failed to bulk delete tasks:', error);
+            setError(t('bulk.deleteError', 'Failed to delete tasks'));
+        }
+    };
+
+    const handleBulkComplete = async () => {
+        await handleBulkUpdate({ status: 'done' });
+    };
+
     return (
         <div
             className={`w-full pt-4 pb-8 ${isUpcomingView ? 'pl-4 sm:pl-6 md:pl-8' : 'px-2 sm:px-4 lg:px-6'}`}
@@ -909,6 +958,9 @@ const Tasks: React.FC = () => {
                                             onToggleToday={undefined}
                                             showCompletedTasks={showCompleted}
                                             searchQuery={taskSearchQuery}
+                                            selectable={true}
+                                            selectedUids={selectedUids}
+                                            onToggleSelect={handleToggleSelect}
                                         />
                                         {upcomingProjects.length > 0 && (
                                             <div className="mt-8">
@@ -983,6 +1035,9 @@ const Tasks: React.FC = () => {
                                         onToggleToday={undefined}
                                         showCompletedTasks={showCompleted}
                                         searchQuery={taskSearchQuery}
+                                        selectable={true}
+                                        selectedUids={selectedUids}
+                                        onToggleSelect={handleToggleSelect}
                                     />
                                 ) : (
                                     <TaskList
@@ -996,6 +1051,9 @@ const Tasks: React.FC = () => {
                                         projects={projects}
                                         onToggleToday={undefined}
                                         showCompletedTasks={showCompleted}
+                                        selectable={true}
+                                        selectedUids={selectedUids}
+                                        onToggleSelect={handleToggleSelect}
                                     />
                                 )}
                                 {/* Load more button - hide in upcoming view */}
@@ -1088,6 +1146,13 @@ const Tasks: React.FC = () => {
                         )}
                     </>
                 )}
+                
+                <BulkToolbar
+                    selectedUids={selectedUids}
+                    onClear={() => setSelectedUids(new Set())}
+                    onBulkDelete={handleBulkDelete}
+                    onBulkComplete={handleBulkComplete}
+                />
             </div>
         </div>
     );

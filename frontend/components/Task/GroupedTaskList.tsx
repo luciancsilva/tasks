@@ -23,6 +23,9 @@ interface GroupedTaskListProps {
     onToggleToday?: (taskId: number, task?: Task) => Promise<void>;
     showCompletedTasks?: boolean;
     searchQuery?: string;
+    selectable?: boolean;
+    selectedUids?: Set<string>;
+    onToggleSelect?: (uid: string) => void;
 }
 
 interface TaskGroup {
@@ -50,6 +53,9 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
     onToggleToday,
     showCompletedTasks = false,
     searchQuery = '',
+    selectable = false,
+    selectedUids = new Set(),
+    onToggleSelect,
 }) => {
     const { t } = useTranslation();
 
@@ -339,33 +345,31 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
                                                 {dayTasks.map((task) => (
                                                     <div
                                                         key={task.id}
-                                                        className="relative hover:z-[10000] focus-within:z-[10000]"
+                                                        className="relative hover:z-[10000] focus-within:z-[10000] flex items-center w-full"
                                                     >
-                                                        <TaskItem
-                                                            task={task}
-                                                            onTaskUpdate={
-                                                                onTaskUpdate
-                                                            }
-                                                            onTaskCompletionToggle={
-                                                                onTaskCompletionToggle
-                                                            }
-                                                            onTaskDelete={
-                                                                onTaskDelete
-                                                            }
-                                                            projects={projects}
-                                                            hideProjectName={
-                                                                hideProjectName
-                                                            }
-                                                            onToggleToday={
-                                                                onToggleToday
-                                                            }
-                                                            isUpcomingView={
-                                                                true
-                                                            }
-                                                            showCompletedTasks={
-                                                                showCompletedTasks
-                                                            }
-                                                        />
+                                                        {selectable && (
+                                                            <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedUids.has(task.uid!)}
+                                                                    onChange={() => onToggleSelect?.(task.uid!)}
+                                                                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        <div className="flex-1 min-w-0">
+                                                            <TaskItem
+                                                                task={task}
+                                                                onTaskUpdate={onTaskUpdate}
+                                                                onTaskCompletionToggle={onTaskCompletionToggle}
+                                                                onTaskDelete={onTaskDelete}
+                                                                projects={projects}
+                                                                hideProjectName={hideProjectName}
+                                                                onToggleToday={onToggleToday}
+                                                                isUpcomingView={true}
+                                                                showCompletedTasks={showCompletedTasks}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 ))}
 
@@ -439,19 +443,29 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
                                   {projectTasks.map((task) => (
                                       <div
                                           key={task.id}
-                                          className="task-item-wrapper transition-all duration-200 ease-in-out relative hover:z-[10000] focus-within:z-[10000]"
+                                          className="task-item-wrapper transition-all duration-200 ease-in-out relative hover:z-[10000] focus-within:z-[10000] flex items-center w-full"
                                       >
-                                          <TaskItem
-                                              task={task}
-                                              onTaskUpdate={onTaskUpdate}
-                                              onTaskCompletionToggle={
-                                                  onTaskCompletionToggle
-                                              }
-                                              onTaskDelete={onTaskDelete}
-                                              projects={projects}
-                                              hideProjectName={hideProjectName}
-                                              onToggleToday={onToggleToday}
-                                          />
+                                          {selectable && (
+                                              <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                                                  <input
+                                                      type="checkbox"
+                                                      checked={selectedUids.has(task.uid!)}
+                                                      onChange={() => onToggleSelect?.(task.uid!)}
+                                                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                  />
+                                              </div>
+                                          )}
+                                          <div className="flex-1 min-w-0">
+                                              <TaskItem
+                                                  task={task}
+                                                  onTaskUpdate={onTaskUpdate}
+                                                  onTaskCompletionToggle={onTaskCompletionToggle}
+                                                  onTaskDelete={onTaskDelete}
+                                                  projects={projects}
+                                                  hideProjectName={hideProjectName}
+                                                  onToggleToday={onToggleToday}
+                                              />
+                                          </div>
                                       </div>
                                   ))}
                               </div>
@@ -461,17 +475,29 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
                 : standaloneTask.map((task) => (
                       <div
                           key={task.id}
-                          className="task-item-wrapper transition-all duration-200 ease-in-out relative hover:z-[10000] focus-within:z-[10000]"
+                          className="task-item-wrapper transition-all duration-200 ease-in-out relative hover:z-[10000] focus-within:z-[10000] flex items-center w-full"
                       >
-                          <TaskItem
-                              task={task}
-                              onTaskUpdate={onTaskUpdate}
-                              onTaskCompletionToggle={onTaskCompletionToggle}
-                              onTaskDelete={onTaskDelete}
-                              projects={projects}
-                              hideProjectName={hideProjectName}
-                              onToggleToday={onToggleToday}
-                          />
+                          {selectable && (
+                              <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                                  <input
+                                      type="checkbox"
+                                      checked={selectedUids.has(task.uid!)}
+                                      onChange={() => onToggleSelect?.(task.uid!)}
+                                      className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                  />
+                              </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                              <TaskItem
+                                  task={task}
+                                  onTaskUpdate={onTaskUpdate}
+                                  onTaskCompletionToggle={onTaskCompletionToggle}
+                                  onTaskDelete={onTaskDelete}
+                                  projects={projects}
+                                  hideProjectName={hideProjectName}
+                                  onToggleToday={onToggleToday}
+                              />
+                          </div>
                       </div>
                   ))}
 
@@ -491,8 +517,18 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
                         {/* Show template only if it's not virtual */}
                         {!isVirtualTemplate && (
                             <div className="relative hover:z-[10000] focus-within:z-[10000]">
-                                <div className="flex items-center">
-                                    <div className="flex-1">
+                                <div className="flex items-center w-full">
+                                    {selectable && (
+                                        <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedUids.has(group.template.uid!)}
+                                                onChange={() => onToggleSelect?.(group.template.uid!)}
+                                                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
                                         <TaskItem
                                             task={group.template}
                                             onTaskUpdate={onTaskUpdate}
@@ -571,21 +607,33 @@ const GroupedTaskList: React.FC<GroupedTaskListProps> = ({
                                     .map((instance) => (
                                         <div
                                             key={instance.id}
-                                            className="opacity-75 hover:opacity-100 focus-within:opacity-100 transition-opacity relative hover:z-[10000] focus-within:z-[10000]"
+                                            className="opacity-75 hover:opacity-100 focus-within:opacity-100 transition-opacity relative hover:z-[10000] focus-within:z-[10000] flex items-center w-full"
                                         >
-                                            <TaskItem
-                                                task={instance}
-                                                onTaskUpdate={onTaskUpdate}
-                                                onTaskCompletionToggle={
-                                                    onTaskCompletionToggle
-                                                }
-                                                onTaskDelete={onTaskDelete}
-                                                projects={projects}
-                                                hideProjectName={
-                                                    hideProjectName
-                                                }
-                                                onToggleToday={onToggleToday}
-                                            />
+                                            {selectable && (
+                                                <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedUids.has(instance.uid!)}
+                                                        onChange={() => onToggleSelect?.(instance.uid!)}
+                                                        className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <TaskItem
+                                                    task={instance}
+                                                    onTaskUpdate={onTaskUpdate}
+                                                    onTaskCompletionToggle={
+                                                        onTaskCompletionToggle
+                                                    }
+                                                    onTaskDelete={onTaskDelete}
+                                                    projects={projects}
+                                                    hideProjectName={
+                                                        hideProjectName
+                                                    }
+                                                    onToggleToday={onToggleToday}
+                                                />
+                                            </div>
                                         </div>
                                     ))}
                             </div>

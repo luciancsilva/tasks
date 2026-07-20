@@ -220,6 +220,27 @@ const tasksController = {
             next(error);
         }
     },
+
+    async bulkUpdate(req, res, next) {
+        try {
+            const userId = req.currentUser.id;
+            const tz = req.currentUser?.timezone || 'UTC';
+            const result = await tasksService.bulkUpdate(userId, tz, req.body);
+            res.json({ updated: result.updated, failed: result.failed });
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    async bulkDelete(req, res, next) {
+        try {
+            const userId = req.currentUser.id;
+            const result = await tasksService.bulkDelete(userId, req.body);
+            res.json({ deleted: result.deleted, failed: result.failed });
+        } catch (err) {
+            next(err);
+        }
+    },
 };
 
 module.exports = tasksController;

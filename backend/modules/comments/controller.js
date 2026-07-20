@@ -1,6 +1,12 @@
 'use strict';
 const commentsService = require('./service');
-const { requireUserId } = require('../../shared/auth-helpers');
+
+function requireUserId(req) {
+    if (!req.session || !req.session.userId) {
+        throw new Error('Unauthorized'); // Basic version, might need UnauthorizedError
+    }
+    return req.session.userId;
+}
 
 async function list(req, res, next) {
     try {

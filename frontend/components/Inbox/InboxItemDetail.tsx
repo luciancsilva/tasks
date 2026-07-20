@@ -37,6 +37,9 @@ interface InboxItemDetailProps {
     openNoteModal: (note: Note | null, inboxItemUid?: string) => void;
     projects: Project[];
     people: Person[];
+    isSelected?: boolean;
+    onToggleSelect?: () => void;
+    selectionMode?: boolean;
 }
 
 const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
@@ -48,6 +51,9 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
     openNoteModal,
     projects,
     people,
+    isSelected = false,
+    onToggleSelect,
+    selectionMode = false,
 }) => {
     const { t } = useTranslation();
     const {
@@ -1001,6 +1007,19 @@ const InboxItemDetail: React.FC<InboxItemDetailProps> = ({
                 >
                     <div className="px-4 py-3">
                         <div className="flex items-center gap-3">
+                            {selectionMode && onToggleSelect && (
+                                <div className="flex-shrink-0">
+                                    <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={(e) => {
+                                            e.stopPropagation();
+                                            onToggleSelect();
+                                        }}
+                                        className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                    />
+                                </div>
+                            )}
                             <div
                                 className="flex-shrink-0"
                                 title={iconTooltip}

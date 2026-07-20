@@ -148,6 +148,69 @@ export const deleteInboxItem = async (itemUid: string): Promise<void> => {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const lastCheckTimestamp = Date.now();
 
+export const analyzeText = async (content: string) => {
+    const response = await fetch(getApiPath('inbox/analyze-text'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ content }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.analyzeError', 'Failed to analyze text.')
+    );
+    return await response.json();
+};
+
+export const bulkProcessToTasks = async (
+    uids: string[],
+    shared: { sharedTags?: string[]; sharedProjectUid?: string; sharedAreaUid?: string }
+) => {
+    const response = await fetch(getApiPath('inbox/bulk'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ uids, ...shared }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.bulkProcessError', 'Failed to bulk process inbox items.')
+    );
+    return await response.json();
+};
+
+export const bulkDeleteInbox = async (uids: string[]) => {
+    const response = await fetch(getApiPath('inbox/bulk-delete'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ uids }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.bulkDeleteError', 'Failed to bulk delete inbox items.')
+    );
+    return await response.json();
+};
+
+export const bulkMarkProcessed = async (uids: string[]) => {
+    const response = await fetch(getApiPath('inbox/bulk-mark-processed'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ uids }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('inbox.bulkMarkProcessedError', 'Failed to bulk mark processed inbox items.')
+    );
+    return await response.json();
+};
+
 // Store-aware functions
 export const loadInboxItemsToStore = async (
     isInitialLoad: boolean = false,

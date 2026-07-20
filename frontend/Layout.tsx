@@ -10,6 +10,7 @@ import NoteModal from './components/Note/NoteModal';
 import AreaModal from './components/Area/AreaModal';
 import TagModal from './components/Tag/TagModal';
 import PersonModal from './components/People/PersonModal';
+import QuickAddOverlay from './components/Shared/QuickAddOverlay';
 import { Note } from './entities/Note';
 import { Area } from './entities/Area';
 import { Tag } from './entities/Tag';
@@ -65,6 +66,20 @@ const Layout: React.FC<LayoutProps> = ({
     const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
     const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
     const [keyboardShortcuts, setKeyboardShortcuts] = useState<KeyboardShortcutsConfig | null>(null);
+    const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+
+    // Global Quick Add Listener (bypass inputs)
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.code === 'Space') {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsQuickAddOpen(true);
+            }
+        };
+        document.addEventListener('keydown', onKey, true);
+        return () => document.removeEventListener('keydown', onKey, true);
+    }, []);
 
     // Fetch keyboard shortcuts from profile
     useEffect(() => {
@@ -608,6 +623,10 @@ const Layout: React.FC<LayoutProps> = ({
                         onSave={handleSavePerson}
                         onClose={closePersonModal}
                     />
+                )}
+
+                {isQuickAddOpen && (
+                    <QuickAddOverlay onClose={() => setIsQuickAddOpen(false)} />
                 )}
             </div>
         </SidebarProvider>

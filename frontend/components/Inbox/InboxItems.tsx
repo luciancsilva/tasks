@@ -11,8 +11,12 @@ import {
     deleteInboxItemWithStore,
     updateInboxItemWithStore,
     fetchInboxStaleCount,
+    bulkProcessToTasks,
+    bulkDeleteInbox,
+    bulkMarkProcessed,
 } from '../../utils/inboxService';
 import InboxItemDetail from './InboxItemDetail';
+import InboxBulkToolbar from './InboxBulkToolbar';
 import { useToast } from '../Shared/ToastContext';
 import { useTranslation } from 'react-i18next';
 import { InboxIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
@@ -38,6 +42,58 @@ const InboxItems: React.FC = () => {
     const location = useLocation();
 
     const [hasInitialized, setHasInitialized] = useState(false);
+
+    const [selectedUids, setSelectedUids] = useState<Set<string>>(new Set());
+    const [selectionMode, setSelectionMode] = useState(false);
+
+    const toggleSelect = (uid: string) => setSelectedUids(prev => {
+        const next = new Set(prev);
+        if (next.has(uid)) {
+            next.delete(uid);
+        } else {
+            next.add(uid);
+        }
+        return next;
+    });
+
+    const handleProcessAllAsTasks = async (shared: { sharedTags?: string[]; sharedProjectUid?: string; sharedAreaUid?: string }) => {
+        try {
+            await bulkProcessToTasks([...selectedUids], shared);
+            showSuccessToast(t('inbox.bulkProcessSuccess', 'Successfully processed items.'));
+            setSelectedUids(new Set());
+            setSelectionMode(false);
+            loadInboxItemsToStore(true);
+        } catch (error) {
+            console.error(error);
+            showErrorToast(t('inbox.bulkProcessError', 'Failed to process items.'));
+        }
+    };
+
+    const handleDeleteAll = async () => {
+        try {
+            await bulkDeleteInbox([...selectedUids]);
+            showSuccessToast(t('inbox.bulkDeleteSuccess', 'Successfully deleted items.'));
+            setSelectedUids(new Set());
+            setSelectionMode(false);
+            loadInboxItemsToStore(true);
+        } catch (error) {
+            console.error(error);
+            showErrorToast(t('inbox.bulkDeleteError', 'Failed to delete items.'));
+        }
+    };
+
+    const handleMarkAllProcessed = async () => {
+        try {
+            await bulkMarkProcessed([...selectedUids]);
+            showSuccessToast(t('inbox.bulkMarkSuccess', 'Successfully marked items as processed.'));
+            setSelectedUids(new Set());
+            setSelectionMode(false);
+            loadInboxItemsToStore(true);
+        } catch (error) {
+            console.error(error);
+            showErrorToast(t('inbox.bulkMarkError', 'Failed to mark items as processed.'));
+        }
+    };
 
     const { inboxItems, isLoading, pagination } = useStore(
         (state) => state.inboxStore
@@ -440,7 +496,21 @@ const InboxItems: React.FC = () => {
                             {t('inbox.title')}
                         </h1>
                     </div>
-                    <button
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => {
+                                setSelectionMode(!selectionMode);
+                                if (selectionMode) setSelectedUids(new Set());
+                            }}
+                            className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                                selectionMode
+                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200'
+                                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                            }`}
+                        >
+                            {selectionMode ? t('common.cancel', 'Cancel') : t('bulk.select', 'Select')}
+                        </button>
+                        <button
                         onClick={() => setIsInfoExpanded(!isInfoExpanded)}
                         className={`flex items-center hover:bg-blue-100/50 dark:hover:bg-blue-800/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset rounded-lg${isInfoExpanded ? ' bg-blue-50/70 dark:bg-blue-900/20' : ''} p-2`}
                         aria-expanded={isInfoExpanded}
@@ -462,6 +532,7 @@ const InboxItems: React.FC = () => {
                                 : t('inbox.aboutInbox')}
                         </span>
                     </button>
+                    </div>
                 </div>
 
                 <div
@@ -557,6 +628,9 @@ const InboxItems: React.FC = () => {
                                     openNoteModal={handleOpenNoteModal}
                                     projects={projects}
                                     people={people}
+                                    isSelected={selectedUids.has(item.uid)}
+                                    onToggleSelect={() => toggleSelect(item.uid)}
+                                    selectionMode={selectionMode}
                                 />
                             ))}
                         </div>
@@ -673,6 +747,17 @@ const InboxItems: React.FC = () => {
                     }
                 })()}
             </div>
+
+            <InboxBulkToolbar
+                selectedUids={selectedUids}
+                onClear={() => {
+                    setSelectedUids(new Set());
+                    setSelectionMode(false);
+                }}
+                onProcessAllAsTasks={handleProcessAllAsTasks}
+                onDeleteAll={handleDeleteAll}
+                onMarkAllProcessed={handleMarkAllProcessed}
+            />
         </div>
     );
 };

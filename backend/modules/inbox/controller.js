@@ -140,6 +140,44 @@ const inboxController = {
             next(error);
         }
     },
+
+    async bulkProcess(req, res, next) {
+        try {
+            const userId = requireUserId(req);
+            const { uids, sharedTags, sharedProjectUid, sharedAreaUid } =
+                req.body;
+            const result = await inboxService.bulkProcessToTasks(userId, uids, {
+                sharedTags,
+                sharedProjectUid,
+                sharedAreaUid,
+            });
+            res.json(result);
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    async bulkDelete(req, res, next) {
+        try {
+            const userId = requireUserId(req);
+            const { uids } = req.body;
+            const result = await inboxService.bulkDelete(userId, uids);
+            res.json(result);
+        } catch (err) {
+            next(err);
+        }
+    },
+
+    async bulkMarkProcessed(req, res, next) {
+        try {
+            const userId = requireUserId(req);
+            const { uids } = req.body;
+            const result = await inboxService.bulkMarkProcessed(userId, uids);
+            res.json(result);
+        } catch (err) {
+            next(err);
+        }
+    },
 };
 
 module.exports = inboxController;

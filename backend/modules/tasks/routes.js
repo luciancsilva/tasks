@@ -20,6 +20,9 @@ router.get('/tasks', tasksController.list);
 
 router.get('/tasks/metrics', tasksController.metrics);
 
+router.post('/tasks/bulk', tasksController.bulkUpdate);
+router.post('/tasks/bulk-delete', tasksController.bulkDelete);
+
 router.post('/task', tasksController.create);
 
 router.get('/task/:uid', requireTaskReadAccess, tasksController.getOne);

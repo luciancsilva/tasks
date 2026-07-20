@@ -880,6 +880,79 @@ const tasksService = {
 
         return calculateNextIterations(task, startFromDate, timezone);
     },
+    async bulkUpdate(userId, tz, body) {
+        const { uids, fields } = body;
+        if (!Array.isArray(uids) || uids.length === 0) throw new ValidationError('uids required');
+        if (!fields || typeof fields !== 'object') throw new ValidationError('fields required');
+        
+        const allowed = ['status', 'priority', 'due_date', 'energy', 'time_estimate', 'assigned_to'];
+        const updates = {};
+        for (const k of allowed) {
+            if (fields[k] !== undefined) updates[k] = fields[k];
+        }
+        
+        if (Object.keys(updates).length === 0) throw new ValidationError('no valid fields');
+        if (updates.status !== undefined) {
+            updates.status = typeof updates.status === 'string' 
+                ? Task.getStatusValue(updates.status) 
+                : updates.status;
+        }
+        if (updates.priority !== undefined) {
+            updates.priority = parseInt(updates.priority, 10) || 0;
+        }
+        if (updates.energy !== undefined) {
+            updates.energy = parseInt(updates.energy, 10) || 0;
+        }
+
+        const updated = [];
+        const failed = [];
+        
+        await sequelize.transaction(async (t) => {
+            for (const uid of uids) {
+                try {
+                    const task = await taskRepository.findByUid(uid);
+                    if (!task || task.user_id !== userId) {
+                        failed.push({ uid, reason: 'not found' });
+                        continue;
+                    }
+                    await task.update(updates, { transaction: t });
+                    updated.push(uid);
+                } catch (e) {
+                    failed.push({ uid, reason: e.message });
+                }
+            }
+        });
+        
+        return { updated, failed };
+    },
+
+    async bulkDelete(userId, body) {
+        const { uids } = body;
+        if (!Array.isArray(uids) || uids.length === 0) throw new ValidationError('uids required');
+        
+        const deleted = [];
+        const failed = [];
+        
+        // delete method currently has its own transaction. To support atomicity in bulkDelete,
+        // we'd need to modify delete to accept a transaction option. For now, we perform deletes
+        // one by one which might not be strictly atomic if it fails halfway, but works safely.
+        // Let's modify delete if possible or just call it individually.
+        for (const uid of uids) {
+            try {
+                const task = await taskRepository.findByUid(uid);
+                if (!task || task.user_id !== userId) {
+                    failed.push({ uid, reason: 'not found' });
+                    continue;
+                }
+                await this.delete(uid); // Reusing delete
+                deleted.push(uid);
+            } catch (e) {
+                failed.push({ uid, reason: e.message });
+            }
+        }
+        
+        return { deleted, failed };
+    },
 };
 
 module.exports = tasksService;

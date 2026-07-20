@@ -39,6 +39,9 @@ interface TaskListProps {
     // drag handle (⠿) is shown; the parent owns persistence via onReorder.
     enableDrag?: boolean;
     onReorder?: (reordered: Task[]) => void;
+    selectable?: boolean;
+    selectedUids?: Set<string>;
+    onToggleSelect?: (uid: string) => void;
 }
 
 // Plan 61: wraps each row in a dnd-kit sortable. Listeners attach only to the
@@ -96,6 +99,9 @@ const TaskList: React.FC<TaskListProps> = ({
     onFocusTask,
     enableDrag = false,
     onReorder,
+    selectable = false,
+    selectedUids = new Set(),
+    onToggleSelect,
 }) => {
     // Conditionally filter tasks based on showCompletedTasks prop
     const filteredTasks = showCompletedTasks
@@ -130,65 +136,91 @@ const TaskList: React.FC<TaskListProps> = ({
     const renderRow = (task: Task, draggable: boolean) =>
         draggable ? (
             <SortableTaskRow key={task.id} task={task}>
-                <TaskItem
-                    task={task}
-                    onTaskUpdate={onTaskUpdate}
-                    onTaskCompletionToggle={onTaskCompletionToggle}
-                    onTaskDelete={onTaskDelete}
-                    projects={projects}
-                    hideProjectName={hideProjectName}
-                    onToggleToday={onToggleToday}
-                    isInCompletedSection={isInCompletedSection}
-                    isUpcomingView={isUpcomingView}
-                    showCompletedTasks={showCompletedTasks}
-                    showSuggestionChips={showSuggestionChips}
-                />
-                {onFocusTask && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onFocusTask(task);
-                        }}
-                        className="absolute top-1 right-1 p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
-                        aria-label="Focus mode"
-                        title="Focus mode"
-                    >
-                        <ViewfinderCircleIcon className="h-4 w-4" />
-                    </button>
-                )}
+                <div className="flex items-center w-full">
+                    {selectable && (
+                        <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                            <input
+                                type="checkbox"
+                                checked={selectedUids.has(task.uid!)}
+                                onChange={() => onToggleSelect?.(task.uid!)}
+                                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                            />
+                        </div>
+                    )}
+                    <div className="flex-1 min-w-0 relative">
+                        <TaskItem
+                            task={task}
+                            onTaskUpdate={onTaskUpdate}
+                            onTaskCompletionToggle={onTaskCompletionToggle}
+                            onTaskDelete={onTaskDelete}
+                            projects={projects}
+                            hideProjectName={hideProjectName}
+                            onToggleToday={onToggleToday}
+                            isInCompletedSection={isInCompletedSection}
+                            isUpcomingView={isUpcomingView}
+                            showCompletedTasks={showCompletedTasks}
+                            showSuggestionChips={showSuggestionChips}
+                        />
+                        {onFocusTask && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onFocusTask(task);
+                                }}
+                                className="absolute top-1 right-1 p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                aria-label="Focus mode"
+                                title="Focus mode"
+                            >
+                                <ViewfinderCircleIcon className="h-4 w-4" />
+                            </button>
+                        )}
+                    </div>
+                </div>
             </SortableTaskRow>
         ) : (
             <div
                 key={task.id}
-                className="task-item-wrapper transition-all duration-200 ease-in-out overflow-visible relative hover:z-[10000] focus-within:z-[10000] group"
+                className="task-item-wrapper transition-all duration-200 ease-in-out overflow-visible relative hover:z-[10000] focus-within:z-[10000] group flex items-center w-full"
                 data-testid={`task-item-${task.id}`}
             >
-                <TaskItem
-                    task={task}
-                    onTaskUpdate={onTaskUpdate}
-                    onTaskCompletionToggle={onTaskCompletionToggle}
-                    onTaskDelete={onTaskDelete}
-                    projects={projects}
-                    hideProjectName={hideProjectName}
-                    onToggleToday={onToggleToday}
-                    isInCompletedSection={isInCompletedSection}
-                    isUpcomingView={isUpcomingView}
-                    showCompletedTasks={showCompletedTasks}
-                    showSuggestionChips={showSuggestionChips}
-                />
-                {onFocusTask && (
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onFocusTask(task);
-                        }}
-                        className="absolute top-1 right-1 p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
-                        aria-label="Focus mode"
-                        title="Focus mode"
-                    >
-                        <ViewfinderCircleIcon className="h-4 w-4" />
-                    </button>
+                {selectable && (
+                    <div className="flex-shrink-0 flex items-center pr-3 pl-1">
+                        <input
+                            type="checkbox"
+                            checked={selectedUids.has(task.uid!)}
+                            onChange={() => onToggleSelect?.(task.uid!)}
+                            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+                        />
+                    </div>
                 )}
+                <div className="flex-1 min-w-0 relative">
+                    <TaskItem
+                        task={task}
+                        onTaskUpdate={onTaskUpdate}
+                        onTaskCompletionToggle={onTaskCompletionToggle}
+                        onTaskDelete={onTaskDelete}
+                        projects={projects}
+                        hideProjectName={hideProjectName}
+                        onToggleToday={onToggleToday}
+                        isInCompletedSection={isInCompletedSection}
+                        isUpcomingView={isUpcomingView}
+                        showCompletedTasks={showCompletedTasks}
+                        showSuggestionChips={showSuggestionChips}
+                    />
+                    {onFocusTask && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onFocusTask(task);
+                            }}
+                            className="absolute top-1 right-1 p-1 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                            aria-label="Focus mode"
+                            title="Focus mode"
+                        >
+                            <ViewfinderCircleIcon className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
             </div>
         );
 

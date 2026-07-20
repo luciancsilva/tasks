@@ -232,6 +232,26 @@ export const reorderSubtasks = async (taskUid: string, subtaskIds: string[]): Pr
     );
 };
 
+export const bulkUpdateTasks = async (uids: string[], fields: Partial<Task>): Promise<{ updated: string[], failed: any[] }> => {
+    return handleAuthResponse(
+        fetch(getApiPath('/tasks/bulk'), {
+            method: 'POST',
+            headers: await getPostHeadersWithCsrf(),
+            body: JSON.stringify({ uids, fields }),
+        })
+    );
+};
+
+export const bulkDeleteTasks = async (uids: string[]): Promise<{ deleted: string[], failed: any[] }> => {
+    return handleAuthResponse(
+        fetch(getApiPath('/tasks/bulk-delete'), {
+            method: 'POST',
+            headers: await getPostHeadersWithCsrf(),
+            body: JSON.stringify({ uids }),
+        })
+    );
+};
+
 export const fetchSubtasks = async (parentTaskUid: string): Promise<Task[]> => {
     try {
         const response = await fetch(getApiPath(`task/${parentTaskUid}/subtasks`), {
