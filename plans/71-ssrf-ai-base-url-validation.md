@@ -1,5 +1,15 @@
 # Plan 71: Validate and restrict base URL in AI assistant provider configuration
 
+> **Status: EXECUTADO** em 2026-07-20 — validação de `ai_base_url` no save-time
+> (`users/service.js`: HTTPS + bloqueio de nomes/IPs privados literais).
+> **Endurecido 2026-07-20:** o save-time NÃO resolvia DNS (assimétrico com o
+> plano 70), então um host que resolve p/ IP privado (ex.: metadata
+> `169.254.169.254`) passava — SSRF autenticado. Agora `getOpenAIClient` valida
+> no REQUEST-time via `assertPublicUrl` (reusado de `url/service`, resolve DNS),
+> pois a config é consumida pelo cron por dias (anti-rebinding). Teste
+> `ai-base-url-ssrf.test.js`. Residual: OpenAI SDK pode seguir redirect
+> público→interno (só o host inicial é validado).
+
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
 > next step. If anything in the "STOP conditions" section occurs, stop and

@@ -166,8 +166,8 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 | `72-perf-n-plus-one-recurring-tasks.md` | N+1: batch-fetch de parent UIDs em `serializeTasks` (findAll+Map, elimina findById por task) + teste. Rejeição anterior ("já implementado") estava incorreta — o N+1 estava vivo | EXECUTADO (2026-07-20) |
 | `64-subtask-drag-reorder.md` | reorder de subtasks (PATCH + dnd-kit). **Fix 2026-07-20:** check de acesso comparava `getAccess` com `'write'`/`'owner'` (nunca retornados) → 403 em toda chamada, inclusive a do dono; corrigido p/ `'rw'`/`'admin'` + teste. A feature nunca funcionara | EXECUTADO (2026-07-20) |
 | `74-test-backend-coverage-config.md` | Config de cobertura do Jest incluiu `modules/`, removeu `routes/` obsoleto | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
-| `71-ssrf-ai-base-url-validation.md` | SSRF: validação de protocolo/host em `ai_base_url` do provedor de IA | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
-| `70-ssrf-caldav-strict-resolution.md` | SSRF: DNS/IP strict validation na checagem de URLs CalDAV | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
+| `71-ssrf-ai-base-url-validation.md` | SSRF: validação de `ai_base_url`. **Endurecido 2026-07-20:** save-time não resolvia DNS → host resolvendo p/ IP privado (metadata) passava; agora `getOpenAIClient` valida no request-time via `assertPublicUrl` (DNS) + teste | EXECUTADO (2026-07-20) |
+| `70-ssrf-caldav-strict-resolution.md` | SSRF: DNS/IP strict validation na checagem de URLs CalDAV. Re-verificado 2026-07-20 (residual baixo: IPv4-mapped IPv6) | EXECUTADO (2026-07-20) |
 | `69-inbox-bulk-process.md` | inbox bulk (process/delete/mark-processed), escopado por `user_id`, delete/mark transacionais | EXECUTADO (2026-07-19) |
 | `67b-task-comments-frontend.md` | `TaskCommentsCard` (SWR) + `commentsService`, montado em TaskDetails | EXECUTADO (2026-07-19) |
 | `67a-task-comments-backend.md` | módulo comments (CRUD + access rw/ro + notif). Fix 2026-07-20: `UnauthorizedError` no `requireUserId` | EXECUTADO (2026-07-19) |

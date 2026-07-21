@@ -1,5 +1,8 @@
 # Plan 74: Fix backend test coverage configuration
 
+> **Status: EXECUTADO** em 2026-07-20 — config de cobertura do Jest passou a
+> incluir `modules/` e removeu `routes/` obsoleto (commit `8e0f5e05`).
+
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
 > next step. If anything in the "STOP conditions" section occurs, stop and

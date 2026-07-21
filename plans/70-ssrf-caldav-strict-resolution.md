@@ -1,5 +1,12 @@
 # Plan 70: Use strict resolution to prevent SSRF bypasses in CalDAV connectivity
 
+> **Status: EXECUTADO** em 2026-07-20 — `validateCalDAVUrl` faz protocol check +
+> `isPrivateOrLocalhost` + `resolveAndValidateHostname` (DNS lookup, rejeita se
+> qualquer IP resolvido é privado; anti-rebinding), redirects desabilitados no
+> fetch. Revisado nesta rodada: `isPrivateIP` cobre 127/10/172.16/192.168/
+> 169.254/0/100.64/198.18/broadcast + IPv6 ::1/fc/fd/fe80. Gap residual de baixa
+> severidade: IPv4-mapped IPv6 (`::ffff:x.x.x.x`) tratado como público.
+
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
 > next step. If anything in the "STOP conditions" section occurs, stop and
