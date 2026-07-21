@@ -9,7 +9,11 @@ const DAY = 24 * 60 * 60 * 1000;
 
 const moment = require('moment-timezone');
 const todayName = () =>
-    moment.tz('UTC').format('dddd').toLowerCase();
+    moment.tz('UTC').locale('en').format('dddd').toLowerCase();
+// The handler fires only when the user's local hour matches weekly_review_time,
+// so fixtures have to name the hour the run actually happens in.
+const currentHour = () => moment.tz('UTC').format('HH:00');
+const otherHour = () => moment.tz('UTC').add(1, 'hour').format('HH:00');
 
 describe('Weekly Review notification (55)', () => {
     let user;
@@ -25,6 +29,7 @@ describe('Weekly Review notification (55)', () => {
             {
                 weekly_review_enabled: true,
                 weekly_review_day: todayName(),
+                weekly_review_time: currentHour(),
                 last_reviewed_at: new Date(Date.now() - 10 * DAY),
                 ...overrides,
             },
@@ -71,6 +76,12 @@ describe('Weekly Review notification (55)', () => {
     it('skips user whose review day is not today', async () => {
         const otherDay = todayName() === 'friday' ? 'monday' : 'friday';
         await setReviewState({ weekly_review_day: otherDay });
+        await processWeeklyReviewNotifications();
+        expect(await countNotifs()).toBe(0);
+    });
+
+    it('skips user whose review hour is not the current one', async () => {
+        await setReviewState({ weekly_review_time: otherHour() });
         await processWeeklyReviewNotifications();
         expect(await countNotifs()).toBe(0);
     });

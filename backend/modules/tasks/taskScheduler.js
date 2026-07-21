@@ -33,7 +33,9 @@ const getCronExpression = (frequency) => {
         deferred_tasks: '*/5 * * * *',
         due_tasks: '*/15 * * * *',
         due_projects: '*/15 * * * *',
-        weekly_review_daily: '0 16 * * *',
+        // Hourly: the handler picks the users whose local weekly_review_time
+        // matches the current hour in their own timezone.
+        weekly_review_hourly: '0 * * * *',
     };
     return expressions[frequency];
 };
@@ -47,7 +49,7 @@ const createJobHandler = (frequency) => async () => {
         await processDueTasks();
     } else if (frequency === 'due_projects') {
         await processDueProjects();
-    } else if (frequency === 'weekly_review_daily') {
+    } else if (frequency === 'weekly_review_hourly') {
         await processWeeklyReviewNotifications();
     } else {
         await processSummariesForFrequency(frequency);
@@ -68,7 +70,7 @@ const createJobEntries = () => {
         'deferred_tasks',
         'due_tasks',
         'due_projects',
-        'weekly_review_daily',
+        'weekly_review_hourly',
     ];
 
     return frequencies.map((frequency) => {

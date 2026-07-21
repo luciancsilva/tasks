@@ -1,6 +1,16 @@
 # 55 — Notificação `weekly_review` agendada
 
 > **Status: EXECUTADO** em 2026-07-19 — Notification type `weekly_review` + pref `weeklyReview` (default in-app true) + campos User (`weekly_review_enabled`/`weekly_review_day`/`weekly_review_time`) + cron diário 16h (`weekly_review_daily`) com handler `processWeeklyReviewNotifications` filtrando por dia (tz do user) + `suggested`. Desvio do plano: `sources` não inclui `'in-app'` (validator do model só aceita telegram/mobile/email); in-app é implícito pela row existir, conforme padrão `dueTaskService`. Notification types (`notification.js:31-`) não incluem `weekly_review`. Cron `taskScheduler.js:55-68` não tem frequência para review. User sem lembrete externo.
+>
+> **Revisão de 2026-07-21:** o plano criava `weekly_review_time` e nunca o lia —
+> o cron era fixo em `'0 16 * * *'` com `timezone: 'UTC'`, então o lembrete caía
+> às 13h para quem está em `America/Sao_Paulo` e o campo era decorativo. A
+> frequência virou `weekly_review_hourly` (`'0 * * * *'`) e o handler só dispara
+> quando a hora local do usuário bate com `weekly_review_time` — continua 1x por
+> semana, agora na hora certa. Também fixado `now.locale('en')` antes de
+> `format('dddd')`: `weekly_review_day` guarda nomes em inglês, e um
+> `moment.locale()` global em qualquer lugar do processo faria o filtro de dia
+> parar de casar em silêncio. Teste novo: hora diferente da configurada → skip.
 > **Esforço:** Baixo · **Natureza:** julgamento baixo · **Modelo:** baixo
 > **Branch:** `feat/55-weekly-review-notification` a partir da `main` · **Depende de:** 54a (`last_reviewed_at`)
 

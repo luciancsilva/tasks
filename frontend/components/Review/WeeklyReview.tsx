@@ -11,7 +11,7 @@ import ReviewSection from './ReviewSection';
 
 const WeeklyReview: React.FC = () => {
     const { t } = useTranslation();
-    const { showSuccessToast } = useToast();
+    const { showSuccessToast, showErrorToast } = useToast();
     const {
         data: status,
         mutate: mutateStatus,
@@ -32,7 +32,7 @@ const WeeklyReview: React.FC = () => {
                 t('review.completed', 'Weekly review marked complete')
             );
         } catch {
-            showSuccessToast(t('review.failed', 'Failed to mark complete'));
+            showErrorToast(t('review.failed', 'Failed to mark complete'));
         }
     };
 

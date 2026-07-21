@@ -7,10 +7,29 @@ const {
     shouldSendTelegramNotification,
 } = require('../../utils/notificationPreferences');
 
+const DEFAULT_REVIEW_TIME = '16:00';
+
 /**
- * Daily cron handler: notify users whose weekly review is due today
- * (matches weekly_review_day in their timezone) and not yet completed
- * within 7 days.
+ * Parse the stored `HH:mm` preference into an hour, falling back to the model
+ * default. Minutes are ignored: the cron ticks hourly, so the reminder lands at
+ * the top of the configured hour.
+ */
+function targetHour(value) {
+    const [hours] = String(value || DEFAULT_REVIEW_TIME).split(':');
+    const parsed = Number.parseInt(hours, 10);
+    return Number.isInteger(parsed) && parsed >= 0 && parsed <= 23
+        ? parsed
+        : 16;
+}
+
+/**
+ * Hourly cron handler: notify users whose weekly review is due (matches
+ * weekly_review_day AND weekly_review_time in their own timezone) and was not
+ * completed within the last 7 days.
+ *
+ * Runs hourly rather than once a day because the reminder has to land at the
+ * user's configured local hour; a single daily tick can only ever fire at one
+ * fixed UTC hour, which is the wrong local time for everyone else.
  */
 async function processWeeklyReviewNotifications() {
     const users = await User.findAll({
@@ -29,8 +48,11 @@ async function processWeeklyReviewNotifications() {
     for (const user of users) {
         const tz = user.timezone || 'UTC';
         const now = moment.tz(tz);
-        const todayName = now.format('dddd').toLowerCase();
+        // Pin the locale: weekly_review_day stores English day names, and a
+        // global moment.locale() elsewhere would silently stop every match.
+        const todayName = now.locale('en').format('dddd').toLowerCase();
         if (user.weekly_review_day !== todayName) continue;
+        if (now.hour() !== targetHour(user.weekly_review_time)) continue;
 
         const status = await reviewsService.getStatus(user.id);
         if (!status.suggested) continue;
