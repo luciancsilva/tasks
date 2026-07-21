@@ -164,13 +164,17 @@
     "commandPaletteShort": "Paleta de Comandos (Ctrl+K)",
     "review": "Revisão",
     "weeklyReview": "Revisão Semanal",
+    "someday": "Algum dia/Talvez",
+    "waiting": "Aguardando",
     "next7Days": "Próximos 7 dias",
     "somedayMaybe": "Algum dia/Talvez",
     "analytics": "Análises",
     "trash": "Lixeira",
     "appTitle": "Aplicativo de Tarefas",
     "toggleThemeDark": "Alternar tema (atualmente escuro)",
-    "toggleThemeLight": "Alternar tema (atualmente claro)"
+    "toggleThemeLight": "Alternar tema (atualmente claro)",
+    "addPersonAriaLabel": "Adicionar pessoa",
+    "addPersonTitle": "Adicionar pessoa"
   },
   "navigation": {
     "home": "Início",
@@ -859,7 +863,15 @@
       "uploadError": "Falha ao enviar a imagem",
       "default": "Padrão",
       "assetHelp": "PNG, JPG, GIF, WebP, SVG ou ICO, até 2 MB. Recomendado: logo largo de cerca de 300x72px, favicon quadrado de 32x32px."
-    }
+    },
+    "aiApiKeyLabel": "Chave de API",
+    "aiBaseUrlLabel": "URL base",
+    "aiModelLabel": "Nome do modelo",
+    "aiProviderLabel": "Provedor de IA",
+    "inboxStaleHours": "Limite de estagnação da caixa de entrada (horas)",
+    "inboxStaleHoursDesc": "Número de horas até um item não processado da caixa de entrada ser considerado parado.",
+    "staleTaskDays": "Limite de tarefa parada (dias)",
+    "staleTaskDaysDesc": "Número de dias até uma tarefa inativa ser considerada parada."
   },
   "productivity": {
     "stalledProjects": "Projetos parados",
@@ -1120,7 +1132,10 @@
     "loadingDetails": "Carregando os detalhes do projeto...",
     "shareError": "Falha ao compartilhar recurso",
     "revokeShareError": "Falha ao revogar compartilhamento",
-    "loadSharesError": "Falha ao carregar compartilhamentos"
+    "loadSharesError": "Falha ao carregar compartilhamentos",
+    "initialTask": "Próxima ação inicial",
+    "initialTaskPlaceholder": "ex.: Quebrar o projeto em tarefas",
+    "initialTaskPrefix": "Próxima ação de: "
   },
   "errors": {
     "required": "Este campo é obrigatório",
@@ -1267,7 +1282,15 @@
     "linkPreviewError": "Não foi possível obter os detalhes do link",
     "aboutInbox": "Sobre a caixa de entrada",
     "staleWarning": "{{count}} itens na caixa de entrada há mais de 48h — processe-os",
-    "staleDot": "Caixa de entrada tem itens com mais de 48h"
+    "staleDot": "Caixa de entrada tem itens com mais de 48h",
+    "analyzeError": "Falha ao analisar o texto.",
+    "bulkDeleteError": "Falha ao excluir os itens.",
+    "bulkDeleteSuccess": "Itens excluídos com sucesso.",
+    "bulkMarkError": "Falha ao marcar os itens como processados.",
+    "bulkMarkProcessedError": "Falha ao marcar em lote os itens da caixa de entrada como processados.",
+    "bulkMarkSuccess": "Itens marcados como processados.",
+    "bulkProcessError": "Falha ao processar os itens.",
+    "bulkProcessSuccess": "Itens processados com sucesso."
   },
   "dateFormats": {
     "long": "EEEE, d 'de' MMMM 'de' yyyy",
@@ -1514,7 +1537,16 @@
     "statusNotStarted": "Não iniciada",
     "statusInProgress": "Em andamento",
     "statusArchived": "Arquivada",
-    "statusWaiting": "Aguardando"
+    "statusWaiting": "Aguardando",
+    "comments": "Comentários",
+    "newTaskPlaceholder": "Nova tarefa",
+    "someday": "Algum dia/Talvez",
+    "somedayActive": "Oculta das listas de ação. Revise periodicamente.",
+    "somedayInactive": "Marque para tirar esta tarefa das listas de ação.",
+    "somedayToggleAria": "Alternar Algum dia/Talvez",
+    "waitingSince": "Aguardando desde",
+    "waitingSinceClear": "Limpar",
+    "waitingSinceHelp": "Usado para destacar cobranças atrasadas na visão Aguardando."
   },
   "projects": {
     "loading": "Carregando projetos...",
@@ -1597,7 +1629,12 @@
     },
     "fromTemplate": "A partir de modelo",
     "savedAsTemplate": "\"{{name}}\" salvo como modelo.",
-    "saveAsTemplateError": "Falha ao salvar o projeto como modelo."
+    "saveAsTemplateError": "Falha ao salvar o projeto como modelo.",
+    "executionMode": "Modo de execução",
+    "executionModeParallel": "Paralelo",
+    "executionModeSequential": "Sequencial",
+    "nextAction": "Próxima ação",
+    "sequential": "Sequencial"
   },
   "projectItem": {
     "edit": "Editar",
@@ -2099,7 +2136,15 @@
     "noSavedViews": "Nenhuma visualização salva",
     "addError": "Falha ao criar visualização",
     "deleteError": "Falha ao excluir visualização",
-    "viewSavedSuccessfully": "Visualização salva com sucesso!"
+    "viewSavedSuccessfully": "Visualização salva com sucesso!",
+    "anyEnergy": "Qualquer",
+    "anyPerson": "Qualquer pessoa",
+    "anyStatus": "Qualquer",
+    "anyTime": "Qualquer",
+    "assignedToLabel": "Atribuído a",
+    "energyLabel": "Energia:",
+    "taskStatusLabel": "Status da tarefa",
+    "timeMaxLabel": "Tempo ≤:"
   },
   "search": {
     "placeholder": "Pesquisar ou digite ? para ajuda...",
@@ -2217,7 +2262,13 @@
     "groupCount": "{{label}} ({{count}})",
     "titleShortcut": "Pesquisar (Ctrl+K)",
     "ariaLabel": "Pesquisar",
-    "requestFailed": "Falha na solicitação de pesquisa"
+    "requestFailed": "Falha na solicitação de pesquisa",
+    "energy": "energia",
+    "energyFilter": "Energia",
+    "minutes": "min",
+    "timeFilter": "Tempo disponível",
+    "withEnergy": ", com",
+    "withTimeMax": ", ≤"
   },
   "subtasks": {
     "placeholder": "Adicionar uma subtarefa...",
@@ -2529,7 +2580,8 @@
     "cancel": "Cancelar",
     "clickToEdit": "Clique para editar",
     "delete": "Excluir",
-    "add": "Adicionar"
+    "add": "Adicionar",
+    "complete": "Concluir"
   },
   "next": "Próximo",
   "altText": {
@@ -2693,10 +2745,10 @@
     "failed": "Falha ao marcar como concluído",
     "title": "Revisão Semanal",
     "lastCompleted": "Última:",
-    "due": "Vence",
+    "due": "Revisão atrasada",
     "markComplete": "Marcar como concluído",
     "section": {
-      "inbox": "Inbox",
+      "inbox": "Caixa de Entrada",
       "stale": "Tarefas paradas",
       "stalled": "Projetos parados",
       "waiting": "Aguardando",
@@ -2711,6 +2763,20 @@
     "select": "Selecionar",
     "markComplete": "Marcar como Concluído",
     "delete": "Excluir",
-    "clearSelection": "Limpar seleção"
+    "clearSelection": "Limpar seleção",
+    "deleteError": "Falha ao excluir as tarefas",
+    "deleteSuccess": "Tarefas excluídas com sucesso",
+    "updateError": "Falha ao atualizar as tarefas",
+    "updateSuccess": "Tarefas atualizadas com sucesso"
+  },
+  "comment": {
+    "confirmDelete": "Excluir este comentário?",
+    "placeholder": "Adicionar um comentário...",
+    "post": "Publicar"
+  },
+  "quickAdd": {
+    "hint": "Enter = capturar na Caixa de Entrada · Esc = fechar",
+    "placeholder": "Capture qualquer coisa... #etiqueta +projeto @pessoa $área !prioridade",
+    "saving": "Salvando..."
   }
 }

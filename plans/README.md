@@ -125,7 +125,14 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-*(nenhum plano aberto)* — o `75` fechou os residuais de SSRF; ver "Executados".
+Reportado pelo dono em 2026-07-21: a Revisão Semanal não é utilizável como
+ferramenta de trabalho. Não é dívida de risco, é dívida que bloqueia o ritual
+GTD que motivou os planos 54a/54b.
+
+| Arquivo | O quê | Esforço | Modelo | Depende de |
+|---|---|---|---|---|
+| `76a-weekly-review-real-task-list.md` | A revisão reimplementou a linha de tarefa e por isso perdeu tags, vencido, seleção múltipla e drag — tudo já pronto em `TaskList`. Backend passa a serializar Tasks de verdade; frontend troca `ReviewItemRow` por `TaskList` + `BulkToolbar` + chips de filtro | M | médio | 54b, 63, 61 |
+| `76b-task-quick-actions-menu.md` | Menu `⋯` por linha para mudar vencimento/prioridade/someday sem abrir a tarefa (modelo Mindwtr). Serve todas as listas, não só a revisão | M | médio | 76a |
 
 ### Prioridade BAIXA
 

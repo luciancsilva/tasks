@@ -163,13 +163,17 @@
     "commandPaletteShort": "Command Palette (Ctrl+K)",
     "review": "Review",
     "weeklyReview": "Weekly Review",
+    "someday": "Someday/Maybe",
+    "waiting": "Waiting for",
     "next7Days": "Next 7 Days",
     "somedayMaybe": "Someday/Maybe",
     "analytics": "Analytics",
     "trash": "Trash",
     "appTitle": "Tasks application",
     "toggleThemeDark": "Toggle theme (currently dark)",
-    "toggleThemeLight": "Toggle theme (currently light)"
+    "toggleThemeLight": "Toggle theme (currently light)",
+    "addPersonAriaLabel": "Add Person",
+    "addPersonTitle": "Add Person"
   },
   "navigation": {
     "home": "Home",
@@ -807,7 +811,15 @@
       "uploadError": "Failed to upload image",
       "default": "Default",
       "assetHelp": "PNG, JPG, GIF, WebP, SVG or ICO, up to 2 MB. Recommended: wide logo around 300x72px, square favicon 32x32px."
-    }
+    },
+    "aiApiKeyLabel": "API Key",
+    "aiBaseUrlLabel": "Base URL",
+    "aiModelLabel": "Model Name",
+    "aiProviderLabel": "AI Provider",
+    "inboxStaleHours": "Inbox stale threshold (hours)",
+    "inboxStaleHoursDesc": "Number of hours before an unprocessed inbox item is considered stale.",
+    "staleTaskDays": "Stale task threshold (days)",
+    "staleTaskDaysDesc": "Number of days before an inactive task is considered stale."
   },
   "productivity": {
     "stalledProjects": "Stalled Projects",
@@ -1066,7 +1078,10 @@
     "loadingDetails": "Loading project details...",
     "shareError": "Failed to share resource",
     "revokeShareError": "Failed to revoke share",
-    "loadSharesError": "Failed to load shares"
+    "loadSharesError": "Failed to load shares",
+    "initialTask": "Initial next action",
+    "initialTaskPlaceholder": "e.g. Break down project into tasks",
+    "initialTaskPrefix": "Next action for: "
   },
   "errors": {
     "required": "This field is required",
@@ -1213,7 +1228,15 @@
     "linkPreviewError": "Could not fetch link details",
     "aboutInbox": "About Inbox",
     "staleWarning": "{{count}} items in inbox for over 48h — process them",
-    "staleDot": "Inbox has items over 48h old"
+    "staleDot": "Inbox has items over 48h old",
+    "analyzeError": "Failed to analyze text.",
+    "bulkDeleteError": "Failed to delete items.",
+    "bulkDeleteSuccess": "Successfully deleted items.",
+    "bulkMarkError": "Failed to mark items as processed.",
+    "bulkMarkProcessedError": "Failed to bulk mark processed inbox items.",
+    "bulkMarkSuccess": "Successfully marked items as processed.",
+    "bulkProcessError": "Failed to process items.",
+    "bulkProcessSuccess": "Successfully processed items."
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -1453,7 +1476,16 @@
     "statusNotStarted": "Not Started",
     "statusInProgress": "In Progress",
     "statusArchived": "Archived",
-    "statusWaiting": "Waiting"
+    "statusWaiting": "Waiting",
+    "comments": "Comments",
+    "newTaskPlaceholder": "New Task",
+    "someday": "Someday/Maybe",
+    "somedayActive": "Hidden from action lists. Review periodically.",
+    "somedayInactive": "Mark to defer this task out of action lists.",
+    "somedayToggleAria": "Toggle Someday",
+    "waitingSince": "Waiting since",
+    "waitingSinceClear": "Clear",
+    "waitingSinceHelp": "Used to surface follow-up overdue in the Waiting view."
   },
   "subtasks": {
     "placeholder": "Add a subtask...",
@@ -1526,7 +1558,12 @@
     },
     "fromTemplate": "From Template",
     "savedAsTemplate": "\"{{name}}\" saved as template.",
-    "saveAsTemplateError": "Failed to save project as template."
+    "saveAsTemplateError": "Failed to save project as template.",
+    "executionMode": "Execution mode",
+    "executionModeParallel": "Parallel",
+    "executionModeSequential": "Sequential",
+    "nextAction": "Next action",
+    "sequential": "Sequential"
   },
   "projectStatus": {
     "not_started": "Not Started",
@@ -2150,7 +2187,15 @@
     "noSavedViews": "No saved views",
     "addError": "Failed to create view",
     "deleteError": "Failed to delete view",
-    "viewSavedSuccessfully": "View saved successfully!"
+    "viewSavedSuccessfully": "View saved successfully!",
+    "anyEnergy": "Any",
+    "anyPerson": "Anyone",
+    "anyStatus": "Any",
+    "anyTime": "Any",
+    "assignedToLabel": "Assigned to",
+    "energyLabel": "Energy:",
+    "taskStatusLabel": "Task status",
+    "timeMaxLabel": "Time ≤:"
   },
   "search": {
     "placeholder": "Search or type ? for help...",
@@ -2262,7 +2307,13 @@
     "groupCount": "{{label}} ({{count}})",
     "titleShortcut": "Search (Ctrl+K)",
     "ariaLabel": "Search",
-    "requestFailed": "Search request failed"
+    "requestFailed": "Search request failed",
+    "energy": "energy",
+    "energyFilter": "Energy",
+    "minutes": "min",
+    "timeFilter": "Time available",
+    "withEnergy": ", with",
+    "withTimeMax": ", ≤"
   },
   "backup": {
     "title": "Backup & Restore",
@@ -2432,7 +2483,8 @@
     "cancel": "Cancel",
     "clickToEdit": "Click to edit",
     "delete": "Delete",
-    "add": "Add"
+    "add": "Add",
+    "complete": "Complete"
   },
   "next": "Next",
   "altText": {
@@ -2614,6 +2666,20 @@
     "select": "Select",
     "markComplete": "Mark Complete",
     "delete": "Delete",
-    "clearSelection": "Clear selection"
+    "clearSelection": "Clear selection",
+    "deleteError": "Failed to delete tasks",
+    "deleteSuccess": "Tasks deleted successfully",
+    "updateError": "Failed to update tasks",
+    "updateSuccess": "Tasks updated successfully"
+  },
+  "comment": {
+    "confirmDelete": "Delete this comment?",
+    "placeholder": "Add a comment...",
+    "post": "Post"
+  },
+  "quickAdd": {
+    "hint": "Enter = capture to Inbox · Esc = close",
+    "placeholder": "Capture anything... #tag +project @person $area !priority",
+    "saving": "Saving..."
   }
 }
