@@ -19,7 +19,13 @@ class CommentsService {
         if (access === 'none') throw new ForbiddenError('No access');
         return Comment.findAll({
             where: { task_id: task.id },
-            include: [{ model: User, attributes: ['id', 'name', 'email'] }],
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['uid', 'name', 'email'],
+                },
+            ],
             order: [['created_at', 'ASC']],
         });
     }
@@ -63,7 +69,13 @@ class CommentsService {
         // Fetch comment with user to return
         return Comment.findOne({
             where: { id: comment.id },
-            include: [{ model: User, attributes: ['id', 'name', 'email'] }],
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['uid', 'name', 'email'],
+                },
+            ],
         });
     }
 
@@ -77,7 +89,13 @@ class CommentsService {
         await comment.update({ content: content.trim() });
         return Comment.findOne({
             where: { id: comment.id },
-            include: [{ model: User, attributes: ['id', 'name', 'email'] }],
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['uid', 'name', 'email'],
+                },
+            ],
         });
     }
 

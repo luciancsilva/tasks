@@ -2,6 +2,26 @@
 
 > **Status: EXECUTADO** em 2026-07-19 — `TaskCommentsCard` (SWR) + post/edit/
 > delete pelo autor + `commentsService.ts`, montado em TaskDetails.
+>
+> **A feature nunca funcionou; consertada em 2026-07-21** (4 defeitos em cadeia,
+> nenhum visível na suíte):
+> 1. `useStore(s => s.authStore.user)` — não existe slice `authStore` → o card
+>    **derrubava o TaskDetails inteiro** ao montar (`Cannot read properties of
+>    undefined (reading 'user')`). Trocado por `getCurrentUser()`.
+> 2. `Comment.belongsTo(User)` sem alias → Sequelize serializa a chave como
+>    `User`, e o card lê `comment.user` → autor sempre vazio. Associação passou a
+>    ter `as: 'user'`.
+> 3. A comparação de autoria usava `id` numérico, que `/api/current_user` não
+>    devolve (só `uid`). Backend agora expõe `uid` no include; comparação por
+>    `uid`, com guarda — antes `undefined === undefined` mostrava os botões de
+>    editar/apagar em **todo** comentário.
+> 4. `commentsService.ts` não mandava CSRF token nem usava `getApiPath`. Toda
+>    escrita respondia 403 fora de teste — a suíte não pegou porque o middleware
+>    de CSRF é desligado quando `NODE_ENV=test`. Reescrito no padrão do repo
+>    (`getPostHeadersWithCsrf` + `handleAuthResponse` + `getApiPath`).
+>
+> Testes novos em `comments.test.js`: shape do autor (`user.uid`, sem `id`, sem
+> `User`) e 403 para não-autor no PATCH.
 
 > **Status: PROPOSTO** — UI de comments no TaskDetails. Backend no plano 67a.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio

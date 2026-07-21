@@ -156,7 +156,9 @@ Task.hasMany(Task, {
 });
 
 Comment.belongsTo(Task, { foreignKey: 'task_id', onDelete: 'CASCADE' });
-Comment.belongsTo(User, { foreignKey: 'user_id' });
+// Aliased so the serialized comment carries `user`, which is what the client
+// reads. Without it Sequelize keys the association by model name (`User`).
+Comment.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 Task.hasMany(Comment, { foreignKey: 'task_id', onDelete: 'CASCADE' });
 
 Task.belongsTo(Task, {

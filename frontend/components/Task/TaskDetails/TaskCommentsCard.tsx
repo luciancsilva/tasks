@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import { fetchComments, createComment, updateComment, deleteComment } from '../../../utils/commentsService';
 import { Task } from '../../../entities/Task';
-import { useStore } from '../../../store/useStore';
+import { getCurrentUser } from '../../../utils/userUtils';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import { Comment } from '../../../entities/Comment';
 
@@ -15,7 +15,7 @@ const TaskCommentsCard: React.FC<TaskCommentsCardProps> = ({ task }) => {
     const [editingUid, setEditingUid] = useState<string | null>(null);
     const [editContent, setEditContent] = useState('');
     const { data, mutate: mutateComments } = useSWR(task.uid ? `/api/task/${task.uid}/comments` : null, () => fetchComments(task.uid));
-    const currentUser = useStore(s => s.authStore.user);
+    const currentUser = getCurrentUser();
 
     const handleCreate = async () => {
         if (!newContent.trim()) return;
@@ -49,7 +49,8 @@ const TaskCommentsCard: React.FC<TaskCommentsCardProps> = ({ task }) => {
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-medium">{c.user?.name}</span>
                             <div className="flex gap-1">
-                                {c.user?.id === currentUser?.id && (
+                                {!!currentUser?.uid &&
+                                    c.user?.uid === currentUser.uid && (
                                     <>
                                         <button onClick={() => { setEditingUid(c.uid); setEditContent(c.content); }} className="text-xs text-blue-500">{t('common.edit', 'Edit')}</button>
                                         <button onClick={() => handleDelete(c.uid)} className="text-xs text-red-500">{t('common.delete', 'Delete')}</button>
