@@ -125,8 +125,12 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-*(nenhum plano aberto)* — os SSRF autenticados (70, 71) foram fechados; ver
-"Executados".
+Residuais de baixa severidade da review de cobertura total (2026-07-20). Não
+bloqueiam; hardening de SSRF.
+
+| Arquivo | O quê | Esforço | Modelo | Depende de |
+|---|---|---|---|---|
+| `75-ssrf-residuals-mapped-ipv6-and-redirects.md` | IPv4-mapped IPv6 (`::ffff:x`) tratado como público em 3 cópias de `isPrivateIP` + redirect público→interno no path de IA | P+M | médio | 70, 71 (DONE) |
 
 ### Prioridade BAIXA
 
