@@ -133,6 +133,7 @@ GTD que motivou os planos 54a/54b.
 |---|---|---|---|---|
 | `76a-weekly-review-real-task-list.md` | A revisão reimplementou a linha de tarefa e por isso perdeu tags, vencido, seleção múltipla e drag — tudo já pronto em `TaskList`. Backend passa a serializar Tasks de verdade; frontend troca `ReviewItemRow` por `TaskList` + `BulkToolbar` + chips de filtro | M | médio | 54b, 63, 61 |
 | `76b-task-quick-actions-menu.md` | Menu `⋯` por linha para mudar vencimento/prioridade/someday sem abrir a tarefa (modelo Mindwtr). Serve todas as listas, não só a revisão | M | médio | 76a |
+| `77-upcoming-day-list.md` | Próximos: 7 colunas de `min-w-64` estouram a viewport e truncam todo título. Empilha os dias (o `flex-col` do mobile já existe), colapsa rotinas em "+N rotinas", header com contagem + tempo somado, e drag entre dias grava `due_date` | M | médio | 52 |
 
 ### Prioridade BAIXA
 
