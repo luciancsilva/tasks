@@ -3,7 +3,7 @@ module.exports = {
     setupFilesAfterEnv: ['<rootDir>/tests/helpers/setup.js'],
     testMatch: ['<rootDir>/tests/**/*.test.js', '<rootDir>/tests/**/*.spec.js'],
     collectCoverageFrom: [
-        'routes/**/*.js',
+        'modules/**/*.js',
         'models/**/*.js',
         'middleware/**/*.js',
         'services/**/*.js',
