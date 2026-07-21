@@ -28,6 +28,15 @@ function getOpenAIClient(user) {
     if (provider === 'openrouter') {
         config.baseURL = 'https://openrouter.ai/api/v1';
     } else if (provider === 'custom' && user?.ai_base_url) {
+        // Defense-in-depth: validate URL even though it was checked at save time
+        try {
+            const url = new URL(user.ai_base_url);
+            if (url.protocol !== 'https:') {
+                throw new Error('ai_base_url must use HTTPS');
+            }
+        } catch {
+            throw new Error('Invalid ai_base_url configuration');
+        }
         config.baseURL = user.ai_base_url;
     }
     return new OpenAI(config);

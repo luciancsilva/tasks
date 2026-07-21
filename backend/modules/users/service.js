@@ -164,8 +164,60 @@ class UsersService {
             allowedUpdates.ai_api_key = data.ai_api_key;
         if (data.ai_model !== undefined)
             allowedUpdates.ai_model = data.ai_model;
-        if (data.ai_base_url !== undefined)
+        if (data.ai_base_url !== undefined) {
+            if (data.ai_base_url) {
+                try {
+                    const url = new URL(data.ai_base_url);
+                    if (url.protocol !== 'https:') throw new Error();
+                    const host = url.hostname
+                        .toLowerCase()
+                        .replace(/^\[|\]$/g, '');
+                    // Block known-private hostnames
+                    if (
+                        host === 'localhost' ||
+                        host.endsWith('.local') ||
+                        host.endsWith('.internal') ||
+                        host.endsWith('.localhost')
+                    ) {
+                        throw new Error();
+                    }
+                    // Block private/loopback/link-local IPs
+                    const net = require('net');
+                    if (net.isIPv4(host)) {
+                        const parts = host.split('.').map(Number);
+                        const [a, b] = parts;
+                        if (
+                            a === 127 ||
+                            a === 10 ||
+                            a === 0 ||
+                            (a === 172 && b >= 16 && b <= 31) ||
+                            (a === 192 && b === 168) ||
+                            (a === 169 && b === 254) ||
+                            (a === 100 && b >= 64 && b <= 127)
+                        ) {
+                            throw new Error();
+                        }
+                    } else if (net.isIPv6(host)) {
+                        if (
+                            host === '::1' ||
+                            host === '::' ||
+                            host.startsWith('fc') ||
+                            host.startsWith('fd') ||
+                            host.startsWith('fe80')
+                        ) {
+                            throw new Error();
+                        }
+                    }
+                } catch (err) {
+                    if (err instanceof ValidationError) throw err;
+                    throw new ValidationError(
+                        'Invalid ai_base_url',
+                        'ai_base_url'
+                    );
+                }
+            }
             allowedUpdates.ai_base_url = data.ai_base_url;
+        }
 
         if (features !== undefined) {
             let currentFeatures = user.features;
