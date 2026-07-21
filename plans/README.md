@@ -131,7 +131,6 @@ degradação de scheduler.
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
-| `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
 | `70-ssrf-caldav-strict-resolution.md` | SSRF: Strict DNS/IP validation na checagem de URLs CalDAV | P | pro | DONE |
 | `71-ssrf-ai-base-url-validation.md` | SSRF: Validação de protocolo e host em `ai_base_url` do provedor de IA | P | pro | DONE |
 | `72-perf-n-plus-one-recurring-tasks.md` | N+1 Queries: Batch fetch de parent task UIDs em `serializeTasks` | P | pro | REJECTED — already implemented in current code |
@@ -193,6 +192,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `39-ssrf-url-title.md` | SSRF: `/api/url/title` — assertPublicUrl guard com DNS resolution + redirect validation em fetch/http/proxy paths | EXECUTADO (2026-07-20) |
 | `66-inbox-triage-wizard.md` | Footer 6 botões GTD (Ação/2-min/Projeto/Referência/Someday/Lixo); `buildTaskForConversion` extraído; 2-min→done, Someday→is_someday. Fix backend: `completed_at` no create-done. Fix crash: `InboxItemDetail` destruturava `peopleStore` inexistente (crash on mount desde plano 26) → `people` via prop | EXECUTADO (2026-07-19) |
 | `68-composer-priority-token.md` | `parsePriority` (`!high`/`!medium`/`!low`, primeiro vence) + `!` no strip de `cleanTextFromTagsAndProjects` + `parsed_priority` em `processInboxItem`/`analyzeText` + conversão inbox→task aplica priority | EXECUTADO (2026-07-19) |
 | `65-inbox-stale-alert.md` | `countStale`/`GET /inbox/stale-count` (>48h) + sidebar ponto vermelho + banner Inbox + borda vermelha em items stale (SWR 60s); threshold hard-coded 48h | EXECUTADO (2026-07-19) |
