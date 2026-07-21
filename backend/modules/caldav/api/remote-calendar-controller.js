@@ -1,39 +1,91 @@
 const axios = require('axios');
 const { URL } = require('url');
+const dns = require('dns');
+const net = require('net');
 const { AppError } = require('../../../shared/errors/AppError');
 const RemoteCalendarRepository = require('../repositories/remote-calendar-repository');
 const CalendarRepository = require('../repositories/calendar-repository');
 const encryptionService = require('../services/encryption-service');
 
+/**
+ * Check whether an IP address string falls in a private, loopback,
+ * link-local, or otherwise non-routable range.
+ * Handles both IPv4 and IPv6.
+ */
+function isPrivateIP(ip) {
+    if (!ip) return true;
+
+    // IPv4
+    if (net.isIPv4(ip)) {
+        const parts = ip.split('.').map(Number);
+        const [a, b] = parts;
+        // 127.0.0.0/8 — loopback (catches 127.1, 127.0.0.1, etc.)
+        if (a === 127) return true;
+        // 10.0.0.0/8
+        if (a === 10) return true;
+        // 172.16.0.0/12
+        if (a === 172 && b >= 16 && b <= 31) return true;
+        // 192.168.0.0/16
+        if (a === 192 && b === 168) return true;
+        // 169.254.0.0/16 — link-local
+        if (a === 169 && b === 254) return true;
+        // 0.0.0.0/8
+        if (a === 0) return true;
+        // 100.64.0.0/10 — shared address space (CGNAT)
+        if (a === 100 && b >= 64 && b <= 127) return true;
+        // 198.18.0.0/15 — benchmarking
+        if (a === 198 && (b === 18 || b === 19)) return true;
+        // 255.255.255.255 — broadcast
+        if (parts.every((p) => p === 255)) return true;
+        return false;
+    }
+
+    // IPv6
+    if (net.isIPv6(ip)) {
+        const normalized = ip.toLowerCase();
+        // ::1 loopback
+        if (
+            normalized === '::1' ||
+            normalized === '0000:0000:0000:0000:0000:0000:0000:0001'
+        )
+            return true;
+        // :: unspecified
+        if (normalized === '::') return true;
+        // fc00::/7 — unique local (fc.. and fd..)
+        if (normalized.startsWith('fc') || normalized.startsWith('fd'))
+            return true;
+        // fe80::/10 — link-local
+        if (normalized.startsWith('fe80')) return true;
+        return false;
+    }
+
+    // Not a valid IP at all — treat as unsafe
+    return true;
+}
+
+/**
+ * Check whether a hostname is private or localhost.
+ * Works on both raw hostnames and IP-address strings.
+ * For non-IP hostnames, only checks the string; DNS resolution
+ * happens separately in resolveAndValidateHostname().
+ */
 function isPrivateOrLocalhost(hostname) {
     if (!hostname) return true;
 
-    const lower = hostname.toLowerCase();
+    const lower = hostname.toLowerCase().replace(/^\[|\]$/g, '');
 
-    if (lower === 'localhost' || lower === '127.0.0.1' || lower === '::1') {
-        return true;
+    if (lower === 'localhost') return true;
+
+    // If it's a valid IP, do the numeric range check
+    if (net.isIP(lower)) {
+        return isPrivateIP(lower);
     }
 
-    if (lower.startsWith('192.168.') || lower.startsWith('10.')) {
-        return true;
-    }
-
-    if (lower.startsWith('172.')) {
-        const parts = lower.split('.');
-        const second = parseInt(parts[1], 10);
-        if (second >= 16 && second <= 31) {
-            return true;
-        }
-    }
-
-    if (lower.startsWith('169.254.')) {
-        return true;
-    }
-
+    // Hostname ending in .local or .internal
     if (
-        lower.startsWith('[::1]') ||
-        lower.startsWith('[fc') ||
-        lower.startsWith('[fd')
+        lower.endsWith('.local') ||
+        lower.endsWith('.internal') ||
+        lower.endsWith('.localhost')
     ) {
         return true;
     }
@@ -41,7 +93,55 @@ function isPrivateOrLocalhost(hostname) {
     return false;
 }
 
-function validateCalDAVUrl(urlString) {
+/**
+ * Resolve hostname via DNS and validate that all resolved addresses
+ * are public. Prevents DNS rebinding attacks.
+ * @param {string} hostname
+ * @returns {Promise<string>} first resolved public IP
+ */
+async function resolveAndValidateHostname(hostname) {
+    // Skip resolution for IP literals — already validated by isPrivateOrLocalhost
+    if (net.isIP(hostname)) {
+        return hostname;
+    }
+
+    return new Promise((resolve, reject) => {
+        dns.lookup(hostname, { all: true }, (err, addresses) => {
+            if (err) {
+                reject(
+                    new AppError(`Cannot resolve hostname: ${hostname}`, 400)
+                );
+                return;
+            }
+
+            if (!addresses || addresses.length === 0) {
+                reject(
+                    new AppError(
+                        `No addresses found for hostname: ${hostname}`,
+                        400
+                    )
+                );
+                return;
+            }
+
+            for (const entry of addresses) {
+                if (isPrivateIP(entry.address)) {
+                    reject(
+                        new AppError(
+                            'Cannot connect to private, local, or internal network addresses',
+                            400
+                        )
+                    );
+                    return;
+                }
+            }
+
+            resolve(addresses[0].address);
+        });
+    });
+}
+
+async function validateCalDAVUrl(urlString) {
     try {
         const url = new URL(urlString);
 
@@ -58,6 +158,9 @@ function validateCalDAVUrl(urlString) {
                 400
             );
         }
+
+        // Resolve DNS and validate resolved IPs against private ranges
+        await resolveAndValidateHostname(url.hostname);
 
         return url.href;
     } catch (error) {
@@ -190,7 +293,7 @@ class RemoteCalendarController {
                 : `/${calendar_path}`;
             const fullUrl = `${baseUrl}${path}`;
 
-            validateCalDAVUrl(fullUrl);
+            await validateCalDAVUrl(fullUrl);
 
             const passwordEncrypted = encryptionService.encrypt(password);
 
@@ -265,7 +368,7 @@ class RemoteCalendarController {
                     newCalendarPath || remoteCalendar.calendar_path;
                 const fullUrl = `${finalServerUrl}${finalCalendarPath}`;
 
-                validateCalDAVUrl(fullUrl);
+                await validateCalDAVUrl(fullUrl);
 
                 if (newServerUrl) updates.server_url = newServerUrl;
                 if (newCalendarPath) updates.calendar_path = newCalendarPath;
@@ -357,7 +460,7 @@ class RemoteCalendarController {
                 : `/${calendar_path}`;
             const testUrl = `${baseUrl}${path}`;
 
-            const validatedUrl = validateCalDAVUrl(testUrl);
+            const validatedUrl = await validateCalDAVUrl(testUrl);
 
             const parsedUrl = new URL(validatedUrl);
             if (isPrivateOrLocalhost(parsedUrl.hostname)) {

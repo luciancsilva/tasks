@@ -3,7 +3,85 @@
 const https = require('https');
 const http = require('http');
 const { URL } = require('url');
+const dns = require('dns');
+const net = require('net');
 const { logError } = require('../../services/logService');
+
+/**
+ * Check whether an IP address falls in a private, loopback,
+ * link-local, or otherwise non-routable range.
+ */
+function isPrivateIP(ip) {
+    if (!ip) return true;
+
+    if (net.isIPv4(ip)) {
+        const parts = ip.split('.').map(Number);
+        const [a, b] = parts;
+        if (a === 127) return true; // loopback
+        if (a === 10) return true; // 10.0.0.0/8
+        if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
+        if (a === 192 && b === 168) return true; // 192.168.0.0/16
+        if (a === 169 && b === 254) return true; // link-local
+        if (a === 0) return true; // 0.0.0.0/8
+        if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
+        if (a === 198 && (b === 18 || b === 19)) return true; // benchmarking
+        if (parts.every((p) => p === 255)) return true; // broadcast
+        return false;
+    }
+
+    if (net.isIPv6(ip)) {
+        const n = ip.toLowerCase();
+        if (n === '::1' || n === '::') return true;
+        if (n.startsWith('fc') || n.startsWith('fd')) return true;
+        if (n.startsWith('fe80')) return true;
+        return false;
+    }
+
+    return true; // not a valid IP → treat as unsafe
+}
+
+/**
+ * SSRF guard: resolve hostname via DNS, reject if any resolved IP is
+ * private/loopback/link-local. Must be called before every outbound
+ * fetch AND on every redirect target.
+ * @param {string} urlString — full URL to validate
+ * @throws {Error} if the URL targets a private address
+ */
+async function assertPublicUrl(urlString) {
+    const parsed = new URL(urlString);
+
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+        throw new Error('SSRF: only http/https allowed');
+    }
+
+    const hostname = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+
+    // Block known-private hostnames
+    if (
+        hostname === 'localhost' ||
+        hostname.endsWith('.local') ||
+        hostname.endsWith('.internal') ||
+        hostname.endsWith('.localhost')
+    ) {
+        throw new Error('SSRF: private hostname blocked');
+    }
+
+    // If it's already an IP literal, check directly
+    if (net.isIP(hostname)) {
+        if (isPrivateIP(hostname)) {
+            throw new Error('SSRF: private IP blocked');
+        }
+        return;
+    }
+
+    // Resolve hostname and validate all addresses
+    const addresses = await dns.promises.lookup(hostname, { all: true });
+    for (const entry of addresses) {
+        if (isPrivateIP(entry.address)) {
+            throw new Error('SSRF: resolved IP is private');
+        }
+    }
+}
 
 let nodeFetchInstance = null;
 try {
@@ -195,35 +273,56 @@ const finalizeMetadata = (metadata, sourceUrl) => {
 };
 
 async function fetchMetadataViaFetch(normalizedUrl) {
-    const response = await fetchWithTimeout(
-        normalizedUrl,
-        {
-            method: 'GET',
-            redirect: 'follow',
-            headers: {
-                'User-Agent':
-                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    let currentUrl = normalizedUrl;
+    const maxRedirects = 5;
+
+    for (let i = 0; i <= maxRedirects; i++) {
+        const response = await fetchWithTimeout(
+            currentUrl,
+            {
+                method: 'GET',
+                redirect: 'manual',
+                headers: {
+                    'User-Agent':
+                        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                    Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                },
             },
-        },
-        7000
-    );
+            7000
+        );
 
-    if (!response || !response.ok) {
-        return null;
+        if (!response) return null;
+
+        // Handle redirects with SSRF validation
+        if (
+            [301, 302, 303, 307, 308].includes(response.status) &&
+            response.headers.get('location')
+        ) {
+            const redirectUrl = new URL(
+                response.headers.get('location'),
+                currentUrl
+            ).href;
+            try {
+                await assertPublicUrl(redirectUrl);
+            } catch {
+                return null; // SSRF: redirect to private address blocked
+            }
+            currentUrl = redirectUrl;
+            continue;
+        }
+
+        if (!response.ok) return null;
+
+        const contentType = response.headers.get('content-type');
+        if (contentType && !contentType.includes('text/html')) return null;
+
+        const html = await response.text();
+        if (!html) return null;
+
+        return finalizeMetadata(extractMetadataFromHtml(html), currentUrl);
     }
 
-    const contentType = response.headers.get('content-type');
-    if (contentType && !contentType.includes('text/html')) {
-        return null;
-    }
-
-    const html = await response.text();
-    if (!html) {
-        return null;
-    }
-
-    return finalizeMetadata(extractMetadataFromHtml(html), normalizedUrl);
+    return null; // too many redirects
 }
 
 function fetchMetadataViaHttp(normalizedUrl, maxRedirects = 5) {
@@ -284,8 +383,16 @@ function fetchMetadataViaHttp(normalizedUrl, maxRedirects = 5) {
                             res.headers.location,
                             currentUrl
                         ).href;
-                        res.resume();
-                        makeRequest(redirectUrl, redirectCount + 1);
+                        // SSRF guard: validate redirect target
+                        assertPublicUrl(redirectUrl)
+                            .then(() => {
+                                res.resume();
+                                makeRequest(redirectUrl, redirectCount + 1);
+                            })
+                            .catch(() => {
+                                res.resume();
+                                conclude(null);
+                            });
                         return;
                     }
 
@@ -396,6 +503,13 @@ async function fetchUrlMetadata(url) {
         !normalizedUrl.startsWith('https://')
     ) {
         normalizedUrl = `https://${normalizedUrl}`;
+    }
+
+    // SSRF guard: block private/loopback/link-local before any fetch
+    try {
+        await assertPublicUrl(normalizedUrl);
+    } catch {
+        return null;
     }
 
     try {

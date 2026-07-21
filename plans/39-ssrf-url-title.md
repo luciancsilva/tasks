@@ -1,6 +1,8 @@
 # 39 — SSRF em `/api/url/title` e extração de URL
 
-> **Status: PROPOSTO** — o fetch de metadados de URL (título de link no Inbox/Notes) busca qualquer host server-side e segue redirect sem blocklist; usuário logado varre a rede interna e lê metadata de cloud.
+> **Status: EXECUTADO** em 2026-07-20 — assertPublicUrl guard com DNS resolution
+> adicionado a fetchUrlMetadata (initial), fetchMetadataViaFetch (redirect:manual),
+> e makeRequest (redirect callback). Todas as 3 vias de fetch bloqueiam IPs privados.
 > **Esforço:** Médio · **Natureza:** julgamento · **Modelo:** médio (sonnet)
 > **Branch:** main · **Depende de:** -
 
