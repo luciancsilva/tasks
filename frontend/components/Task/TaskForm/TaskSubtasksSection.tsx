@@ -66,7 +66,11 @@ const TaskSubtasksSection: React.FC<TaskSubtasksSectionProps> = ({
                 const updatedSubtasks = arrayMove(subtasks, oldIndex, newIndex);
                 onSubtasksChange(updatedSubtasks);
 
-                const validUids = updatedSubtasks.filter(s => s.uid && !s.isNew).map(s => s.uid!);
+                // Subtasks not yet persisted have no uid, so filtering on uid
+                // alone already excludes them.
+                const validUids = updatedSubtasks
+                    .filter((s) => s.uid)
+                    .map((s) => s.uid!);
                 if (validUids.length > 0 && parentTaskUid) {
                     try {
                         await reorderSubtasks(parentTaskUid, validUids);

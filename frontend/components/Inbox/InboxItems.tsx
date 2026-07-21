@@ -416,7 +416,7 @@ const InboxItems: React.FC = () => {
                         name: initialTaskName,
                         project_uid: createdProject.uid,
                         status: 'not_started',
-                        priority: PriorityType.Medium,
+                        priority: 'medium',
                         is_maintenance: false,
                         is_someday: false,
                         tags: [],

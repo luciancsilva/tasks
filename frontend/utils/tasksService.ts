@@ -215,41 +215,74 @@ export const fetchTaskByUid = async (uid: string): Promise<Task> => {
 };
 
 export const listSubtasks = async (uid: string): Promise<Task[]> => {
-    return handleAuthResponse(
-        fetch(getApiPath(`/task/${uid}/subtasks`), {
+    const response = await fetch(
+        getApiPath(`task/${encodeURIComponent(uid)}/subtasks`),
+        {
+            credentials: 'include',
             headers: getDefaultHeaders(),
-        })
+        }
     );
+
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToLoadSubtasks', 'Failed to fetch subtasks.')
+    );
+    return await response.json();
 };
 
-export const reorderSubtasks = async (taskUid: string, subtaskIds: string[]): Promise<void> => {
-    return handleAuthResponse(
-        fetch(getApiPath(`/task/${taskUid}/subtasks/reorder`), {
+export const reorderSubtasks = async (
+    taskUid: string,
+    subtaskIds: string[]
+): Promise<void> => {
+    const response = await fetch(
+        getApiPath(`task/${encodeURIComponent(taskUid)}/subtasks/reorder`),
+        {
             method: 'PATCH',
+            credentials: 'include',
             headers: await getPostHeadersWithCsrf(),
             body: JSON.stringify({ subtaskIds }),
-        })
+        }
+    );
+
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToReorderSubtasks', 'Failed to reorder subtasks.')
     );
 };
 
-export const bulkUpdateTasks = async (uids: string[], fields: Partial<Task>): Promise<{ updated: string[], failed: any[] }> => {
-    return handleAuthResponse(
-        fetch(getApiPath('/tasks/bulk'), {
-            method: 'POST',
-            headers: await getPostHeadersWithCsrf(),
-            body: JSON.stringify({ uids, fields }),
-        })
+export const bulkUpdateTasks = async (
+    uids: string[],
+    fields: Partial<Task>
+): Promise<{ updated: string[]; failed: any[] }> => {
+    const response = await fetch(getApiPath('tasks/bulk'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ uids, fields }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToUpdateTasks', 'Failed to update tasks.')
     );
+    return await response.json();
 };
 
-export const bulkDeleteTasks = async (uids: string[]): Promise<{ deleted: string[], failed: any[] }> => {
-    return handleAuthResponse(
-        fetch(getApiPath('/tasks/bulk-delete'), {
-            method: 'POST',
-            headers: await getPostHeadersWithCsrf(),
-            body: JSON.stringify({ uids }),
-        })
+export const bulkDeleteTasks = async (
+    uids: string[]
+): Promise<{ deleted: string[]; failed: any[] }> => {
+    const response = await fetch(getApiPath('tasks/bulk-delete'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: await getPostHeadersWithCsrf(),
+        body: JSON.stringify({ uids }),
+    });
+
+    await handleAuthResponse(
+        response,
+        i18n.t('errors.failedToDeleteTasks', 'Failed to delete tasks.')
     );
+    return await response.json();
 };
 
 export const fetchSubtasks = async (parentTaskUid: string): Promise<Task[]> => {
