@@ -132,6 +132,10 @@ degradação de scheduler.
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` busca qualquer host e segue redirect sem blocklist (loopback/privado/metadata de cloud) | Médio | médio | - |
+| `70-ssrf-caldav-strict-resolution.md` | SSRF: Strict DNS/IP validation na checagem de URLs CalDAV | P | pro | DONE |
+| `71-ssrf-ai-base-url-validation.md` | SSRF: Validação de protocolo e host em `ai_base_url` do provedor de IA | P | pro | DONE |
+| `72-perf-n-plus-one-recurring-tasks.md` | N+1 Queries: Batch fetch de parent task UIDs em `serializeTasks` | P | pro | REJECTED — already implemented in current code |
+| `73-perf-caldav-sync-batch-query.md` | N+1 Queries: Bulk fetch de tarefas na fase de merge do CalDAV sync | M | pro | REJECTED — already implemented in current code |
 
 ### Prioridade BAIXA
 
@@ -140,6 +144,7 @@ Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta
 
 | Arquivo | O quê | Esforço | Modelo | Depende de |
 |---|---|---|---|---|
+| `74-test-backend-coverage-config.md` | Configuração do Jest no backend aponta para pastas erradas, mascarando cobertura real | P | flash | DONE |
 
 #### Roadmap GTD — Lotes 1-3 (2026-07-18)
 
