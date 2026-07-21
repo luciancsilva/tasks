@@ -835,7 +835,7 @@ const tasksService = {
             'task',
             parentUid
         );
-        if (pAccess !== 'write' && pAccess !== 'owner') {
+        if (pAccess !== 'rw' && pAccess !== 'admin') {
             throw new ForbiddenError('No write access to parent task');
         }
 
@@ -882,20 +882,31 @@ const tasksService = {
     },
     async bulkUpdate(userId, tz, body) {
         const { uids, fields } = body;
-        if (!Array.isArray(uids) || uids.length === 0) throw new ValidationError('uids required');
-        if (!fields || typeof fields !== 'object') throw new ValidationError('fields required');
-        
-        const allowed = ['status', 'priority', 'due_date', 'energy', 'time_estimate', 'assigned_to'];
+        if (!Array.isArray(uids) || uids.length === 0)
+            throw new ValidationError('uids required');
+        if (!fields || typeof fields !== 'object')
+            throw new ValidationError('fields required');
+
+        const allowed = [
+            'status',
+            'priority',
+            'due_date',
+            'energy',
+            'time_estimate',
+            'assigned_to',
+        ];
         const updates = {};
         for (const k of allowed) {
             if (fields[k] !== undefined) updates[k] = fields[k];
         }
-        
-        if (Object.keys(updates).length === 0) throw new ValidationError('no valid fields');
+
+        if (Object.keys(updates).length === 0)
+            throw new ValidationError('no valid fields');
         if (updates.status !== undefined) {
-            updates.status = typeof updates.status === 'string' 
-                ? Task.getStatusValue(updates.status) 
-                : updates.status;
+            updates.status =
+                typeof updates.status === 'string'
+                    ? Task.getStatusValue(updates.status)
+                    : updates.status;
         }
         if (updates.priority !== undefined) {
             updates.priority = parseInt(updates.priority, 10) || 0;
@@ -906,7 +917,7 @@ const tasksService = {
 
         const updated = [];
         const failed = [];
-        
+
         await sequelize.transaction(async (t) => {
             for (const uid of uids) {
                 try {
@@ -922,17 +933,18 @@ const tasksService = {
                 }
             }
         });
-        
+
         return { updated, failed };
     },
 
     async bulkDelete(userId, body) {
         const { uids } = body;
-        if (!Array.isArray(uids) || uids.length === 0) throw new ValidationError('uids required');
-        
+        if (!Array.isArray(uids) || uids.length === 0)
+            throw new ValidationError('uids required');
+
         const deleted = [];
         const failed = [];
-        
+
         // delete method currently has its own transaction. To support atomicity in bulkDelete,
         // we'd need to modify delete to accept a transaction option. For now, we perform deletes
         // one by one which might not be strictly atomic if it fails halfway, but works safely.
@@ -950,7 +962,7 @@ const tasksService = {
                 failed.push({ uid, reason: e.message });
             }
         }
-        
+
         return { deleted, failed };
     },
 };
