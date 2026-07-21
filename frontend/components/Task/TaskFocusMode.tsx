@@ -84,6 +84,11 @@ const TaskFocusMode: React.FC<TaskFocusModeProps> = ({
                 <div className="flex items-center gap-3 shrink-0">
                     <PomodoroTimer
                         currentTaskUid={currentTask.uid}
+                        defaultTimeSec={
+                            currentTask.time_estimate
+                                ? currentTask.time_estimate * 60
+                                : undefined
+                        }
                         onPomodoroComplete={(dur) =>
                             void logSession(currentTask.uid as string, dur)
                         }

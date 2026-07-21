@@ -11,6 +11,7 @@ interface PomodoroTimerProps {
     className?: string;
     // Plan 59: bind timer to a task for focus mode logging.
     currentTaskUid?: string;
+    defaultTimeSec?: number;
     onPomodoroComplete?: (durationSec: number) => void;
 }
 
@@ -26,19 +27,26 @@ interface PomodoroState {
 
 const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     className = '',
+    currentTaskUid,
+    defaultTimeSec,
     onPomodoroComplete,
 }) => {
     const { t } = useTranslation();
+    const initialTime = defaultTimeSec || DEFAULT_TIME;
     const [isActive, setIsActive] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
+    const [timeLeft, setTimeLeft] = useState(initialTime);
     const [isRunning, setIsRunning] = useState(false);
     const [showCompletionMessage, setShowCompletionMessage] = useState(false);
     const [startTime, setStartTime] = useState<number | null>(null);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    const storageKey = currentTaskUid
+        ? `${POMODORO_STORAGE_KEY}_${currentTaskUid}`
+        : POMODORO_STORAGE_KEY;
+
     // Load state from localStorage on mount
     useEffect(() => {
-        const savedState = localStorage.getItem(POMODORO_STORAGE_KEY);
+        const savedState = localStorage.getItem(storageKey);
         if (savedState) {
             try {
                 const state: PomodoroState = JSON.parse(savedState);
@@ -51,7 +59,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                         const elapsed = Math.floor(
                             (Date.now() - state.startTime) / 1000
                         );
-                        const newTimeLeft = Math.max(0, DEFAULT_TIME - elapsed);
+                        const newTimeLeft = Math.max(0, initialTime - elapsed);
 
                         setTimeLeft(newTimeLeft);
                         if (newTimeLeft > 0) {
@@ -69,8 +77,9 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             } catch (error) {
                 console.error('Failed to load pomodoro state:', error);
             }
+            }
         }
-    }, []);
+    }, [storageKey, initialTime]);
 
     // Save state to localStorage whenever it changes
     useEffect(() => {
@@ -80,8 +89,12 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             isRunning,
             startTime: startTime || undefined,
         };
-        localStorage.setItem(POMODORO_STORAGE_KEY, JSON.stringify(state));
-    }, [isActive, timeLeft, isRunning, startTime]);
+        if (isActive) {
+            localStorage.setItem(storageKey, JSON.stringify(state));
+        } else {
+            localStorage.removeItem(storageKey);
+        }
+    }, [isActive, timeLeft, isRunning, startTime, storageKey]);
 
     useEffect(() => {
         if (isRunning && timeLeft > 0) {
@@ -91,7 +104,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                         setIsRunning(false);
                         setShowCompletionMessage(true);
                         if (onPomodoroComplete) {
-                            onPomodoroComplete(DEFAULT_TIME);
+                            onPomodoroComplete(initialTime);
                         }
                         return 0;
                     }
@@ -110,7 +123,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
                 clearInterval(intervalRef.current);
             }
         };
-    }, [isRunning, timeLeft]);
+    }, [isRunning, timeLeft, initialTime, onPomodoroComplete]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -120,7 +133,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 
     const handleTomatoClick = () => {
         setIsActive(true);
-        setTimeLeft(DEFAULT_TIME);
+        setTimeLeft(initialTime);
         setIsRunning(false);
         setStartTime(null);
     };
@@ -128,7 +141,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     const handlePlayPause = () => {
         if (!isRunning) {
             // Starting the timer - set start time based on current progress
-            const elapsedTime = DEFAULT_TIME - timeLeft;
+            const elapsedTime = initialTime - timeLeft;
             setStartTime(Date.now() - elapsedTime * 1000);
         }
         setIsRunning(!isRunning);
@@ -136,7 +149,7 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
 
     const handleReset = () => {
         setIsRunning(false);
-        setTimeLeft(DEFAULT_TIME);
+        setTimeLeft(initialTime);
         setStartTime(null);
         setShowCompletionMessage(false);
     };
@@ -144,10 +157,10 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     const handleClose = () => {
         setIsActive(false);
         setIsRunning(false);
-        setTimeLeft(DEFAULT_TIME);
+        setTimeLeft(initialTime);
         setStartTime(null);
         setShowCompletionMessage(false);
-        localStorage.removeItem(POMODORO_STORAGE_KEY);
+        localStorage.removeItem(storageKey);
     };
 
     // Tomato SVG Icon
