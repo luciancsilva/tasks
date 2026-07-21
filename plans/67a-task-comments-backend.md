@@ -1,5 +1,11 @@
 # 67a — Task comments (backend: model + module + notif)
 
+> **Status: EXECUTADO** em 2026-07-19 — migration `comments` + model + módulo
+> CRUD com access rw/ro + notif `comment_added` para o owner. **Fix 2026-07-20:**
+> `requireUserId` lançava `Error('Unauthorized')` genérico (mapeado p/ 500);
+> passou a lançar `UnauthorizedError` (401). Rotas montam atrás de `requireAuth`,
+> então é defesa em profundidade.
+
 > **Status: PROPOSTO** — Sem comments em tasks. Notification type `comment_added` JÁ EXISTE no enum (`notification.js:37`) mas nunca é produzido. Decisão aprovada: plain text + edit/delete flat, sem @mention, rw comenta/ro lê.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/67-task-comments` a partir da `main` · **Depende de:** -

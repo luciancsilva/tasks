@@ -1,5 +1,13 @@
 # 64 — Subtask drag reorder
 
+> **Status: EXECUTADO** em 2026-07-19 — `PATCH /task/:uid/subtasks/reorder`
+> (transacional) + dnd-kit em TaskSubtasksSection. **Fix 2026-07-20:** o check de
+> acesso no service comparava o retorno de `getAccess` com `'write'`/`'owner'`,
+> valores que ele nunca retorna (`'none'|'ro'|'rw'|'admin'`), então lançava
+> ForbiddenError em toda chamada — inclusive a do dono. A feature nunca funcionou
+> (nenhum teste cobria a rota). Corrigido para `'rw'`/`'admin'` + teste
+> `subtasks-reorder.test.js`. Contrato frontend (`{ subtaskIds }`) confere.
+
 > **Status: PROPOSTO** — Subtasks têm `order` (`task.js:153`) mas é display/insertion order, sem drag. `TaskSubtasksSection.tsx` add/edit/delete only. dnd-kit já dep.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/64-subtask-drag` a partir da `main` · **Depende de:** -

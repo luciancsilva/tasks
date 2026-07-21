@@ -1,5 +1,10 @@
 # 62 — Quick-add hotkey universal (Ctrl+Space → overlay → Inbox)
 
+> **Status: EXECUTADO** em 2026-07-19 — `QuickAddOverlay` (portal, listener em
+> capture phase) via Ctrl+Space captura direto pra Inbox. Em 2026-07-20 um guard
+> WIP que desabilitava o atalho dentro de inputs foi revertido para honrar a
+> spec deste plano ("funciona em inputs", critério de pronto).
+
 > **Status: PROPOSTO** — Hoje 6 Alt+Shift+ create-only, falham dentro inputs, abrem modais (não captura inline). Decisão aprovada: Ctrl+Space → overlay mini-input → Inbox.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/62-quick-add-overlay` a partir da `main` · **Depende de:** -

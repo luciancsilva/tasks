@@ -1,5 +1,9 @@
 # 69 — Inbox bulk process (select + process-all/delete-all/mark-all)
 
+> **Status: EXECUTADO** em 2026-07-19 — `POST /inbox/bulk` (process-to-tasks) +
+> `/inbox/bulk-delete` + `/inbox/bulk-mark-processed` + selection UI. Revisado
+> 2026-07-20: escopado por `user_id`; delete/mark-processed em transação.
+
 > **Status: PROPOSTO** — Inbox item-a-item sem bulk. Decisão aprovada: checkbox multi + toolbar (Process all as Task / Delete all / Mark all processed).
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/69-inbox-bulk` a partir da `main` · **Depende de:** -

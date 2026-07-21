@@ -1,5 +1,8 @@
 # 67b — Task comments (frontend: card + UI)
 
+> **Status: EXECUTADO** em 2026-07-19 — `TaskCommentsCard` (SWR) + post/edit/
+> delete pelo autor + `commentsService.ts`, montado em TaskDetails.
+
 > **Status: PROPOSTO** — UI de comments no TaskDetails. Backend no plano 67a.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/67-task-comments` · **Depende de:** 67a

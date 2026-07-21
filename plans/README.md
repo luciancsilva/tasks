@@ -125,49 +125,21 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-Achados da auditoria de descoberta de 2026-07-18 (rodada map-only). Nenhum arrisca
-perda de dados em massa, mas há SSRF autenticado, divergência de contadores e
-degradação de scheduler.
-
-| Arquivo | O quê | Esforço | Modelo | Depende de |
-|---|---|---|---|---|
-| `70-ssrf-caldav-strict-resolution.md` | SSRF: Strict DNS/IP validation na checagem de URLs CalDAV | P | pro | DONE |
-| `71-ssrf-ai-base-url-validation.md` | SSRF: Validação de protocolo e host em `ai_base_url` do provedor de IA | P | pro | DONE |
+*(nenhum plano aberto)* — os SSRF autenticados (70, 71) foram fechados; ver
+"Executados".
 
 ### Prioridade BAIXA
 
-Achados do code-review do lote 24–32 (2026-07-18) e da auditoria de descoberta de
-2026-07-18. Nenhum arrisca dados.
+*(nenhum plano aberto)* — a config de cobertura (74) foi corrigida; ver
+"Executados".
 
-| Arquivo | O quê | Esforço | Modelo | Depende de |
-|---|---|---|---|---|
-| `74-test-backend-coverage-config.md` | Configuração do Jest no backend aponta para pastas erradas, mascarando cobertura real | P | flash | DONE |
+#### Roadmap GTD — Lotes 1-3 — **concluído**
 
-#### Roadmap GTD — Lotes 1-3 (2026-07-18)
-
-Features aprovadas na auditoria GTD (Fases 1-4). Risco baixo (nenhum toca dado
-existente sem migration `safeAddColumns`); valor alto. Ordem de execução sugerida
-pela coluna "Depende de", não pelo número. 24 planos (`49`-`69`, com `53`/`54`/`67`
-quebrados em a/b). Reescritos com detalhe máximo (trechos de código, assinaturas,
-shapes de request/response) para execução por modelos menos capazes.
-
-**Lote 1 — GTD core (49-56):** Someday/Waiting nativos, energy/time, sequential
-projects, Weekly Review (rota+seções+notif+stale).
-
-**Lote 2 — Engajar (57-62):** multi-tag OR, custom date range, focus mode,
-calendar drag, today reorder, quick-add overlay.
-
-**Lote 3 — UX/Inbox (63-69):** bulk ops, subtask drag, inbox stale alert, triage
-wizard, task comments, composer `!priority`, inbox bulk.
-
-| Arquivo | O quê | Esforço | Modelo | Depende de |
-|---|---|---|---|---|
-| `62-quick-add-overlay.md` | Ctrl+Space → overlay mini-input (portal) → Inbox; intercept capture phase (funciona em inputs); token parsing | Médio | médio | - |
-| `63-bulk-ops-tasks.md` | `POST /tasks/bulk` atômico (status/priority/due/energy/time/assigned) + `/tasks/bulk-delete` + TaskList checkbox + toolbar | Médio | médio | 51, 52 |
-| `64-subtask-drag-reorder.md` | `PATCH /task/:uid/subtasks/reorder` atômico + dnd-kit em TaskSubtasksSection + drag handle `⠿` | Médio | médio | - |
-| `67a-task-comments-backend.md` | Migration `comments` + model + módulo `comments` (CRUD) + access rw/ro + notif `comment_added` para owner | Médio | médio | - |
-| `67b-task-comments-frontend.md` | `TaskCommentsCard` (SWR) + post/edit/delete (autor) + mount TaskDetails + `commentsService.ts` | Médio | médio | 67a |
-| `69-inbox-bulk-process.md` | `POST /inbox/bulk` (process-to-tasks com shared tags/project) + `/inbox/bulk-delete` + `/inbox/bulk-mark-processed` + selection UI | Médio | médio | 68 |
+Os 24 planos do roadmap GTD (`49`–`69`, com `53`/`54`/`67` em a/b) foram todos
+executados — ver a tabela "Executados". Na revisão de 2026-07-20 (planos ≥ #40)
+o único defeito funcional encontrado foi o `64` (reorder de subtasks estava morto
+por um check de acesso incorreto); os demais passaram na revisão de
+IDOR/N+1/atomicidade/migration.
 
 O lote de correções/melhorias reportado pelo dono em 2026-07-17 (planos 24–32) foi
 executado em 2026-07-18 — ver tabela "Executados".
@@ -192,6 +164,15 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 |---|---|---|
 | `73-perf-caldav-sync-batch-query.md` | N+1: pré-busca de todas as tarefas existentes (por UID, escopada por `user_id`) num `findAll`+Map na fase de merge do CalDAV, elimina findOne por change. Rejeição anterior ("já implementado") estava incorreta | EXECUTADO (2026-07-20) |
 | `72-perf-n-plus-one-recurring-tasks.md` | N+1: batch-fetch de parent UIDs em `serializeTasks` (findAll+Map, elimina findById por task) + teste. Rejeição anterior ("já implementado") estava incorreta — o N+1 estava vivo | EXECUTADO (2026-07-20) |
+| `64-subtask-drag-reorder.md` | reorder de subtasks (PATCH + dnd-kit). **Fix 2026-07-20:** check de acesso comparava `getAccess` com `'write'`/`'owner'` (nunca retornados) → 403 em toda chamada, inclusive a do dono; corrigido p/ `'rw'`/`'admin'` + teste. A feature nunca funcionara | EXECUTADO (2026-07-20) |
+| `74-test-backend-coverage-config.md` | Config de cobertura do Jest incluiu `modules/`, removeu `routes/` obsoleto | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
+| `71-ssrf-ai-base-url-validation.md` | SSRF: validação de protocolo/host em `ai_base_url` do provedor de IA | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
+| `70-ssrf-caldav-strict-resolution.md` | SSRF: DNS/IP strict validation na checagem de URLs CalDAV | EXECUTADO (2026-07-20, carregado como DONE — não re-verificado nesta rodada) |
+| `69-inbox-bulk-process.md` | inbox bulk (process/delete/mark-processed), escopado por `user_id`, delete/mark transacionais | EXECUTADO (2026-07-19) |
+| `67b-task-comments-frontend.md` | `TaskCommentsCard` (SWR) + `commentsService`, montado em TaskDetails | EXECUTADO (2026-07-19) |
+| `67a-task-comments-backend.md` | módulo comments (CRUD + access rw/ro + notif). Fix 2026-07-20: `UnauthorizedError` no `requireUserId` | EXECUTADO (2026-07-19) |
+| `63-bulk-ops-tasks.md` | `POST /tasks/bulk` transacional + bulk-delete, escopado por `user_id`, validação via model | EXECUTADO (2026-07-19) |
+| `62-quick-add-overlay.md` | QuickAddOverlay (portal, capture phase) via Ctrl+Space → Inbox. Guard WIP que desabilitava dentro de inputs revertido p/ a spec (2026-07-20) | EXECUTADO (2026-07-19) |
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` — assertPublicUrl guard com DNS resolution + redirect validation em fetch/http/proxy paths | EXECUTADO (2026-07-20) |
 | `66-inbox-triage-wizard.md` | Footer 6 botões GTD (Ação/2-min/Projeto/Referência/Someday/Lixo); `buildTaskForConversion` extraído; 2-min→done, Someday→is_someday. Fix backend: `completed_at` no create-done. Fix crash: `InboxItemDetail` destruturava `peopleStore` inexistente (crash on mount desde plano 26) → `people` via prop | EXECUTADO (2026-07-19) |
 | `68-composer-priority-token.md` | `parsePriority` (`!high`/`!medium`/`!low`, primeiro vence) + `!` no strip de `cleanTextFromTagsAndProjects` + `parsed_priority` em `processInboxItem`/`analyzeText` + conversão inbox→task aplica priority | EXECUTADO (2026-07-19) |

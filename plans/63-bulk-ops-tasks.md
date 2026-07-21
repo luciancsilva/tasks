@@ -1,5 +1,10 @@
 # 63 — Bulk ops tasks (status / priority+due / delete+complete / energy+time+assigned)
 
+> **Status: EXECUTADO** em 2026-07-19 — `POST /tasks/bulk` (transacional,
+> escopado por `user_id`, campos via allowlist com validação do model) +
+> `/tasks/bulk-delete` + checkbox/toolbar no TaskList. Revisado 2026-07-20: sem
+> IDOR, sem gap de validação (model faz backstop de energy/time).
+
 > **Status: PROPOSTO** — Sem bulk ops. Decisão aprovada: checkbox por row + floating toolbar. Operações: status, priority+due_date, delete+complete, energy+time+assigned.
 > **Esforço:** Médio · **Natureza:** julgamento baixo · **Modelo:** médio
 > **Branch:** `feat/63-bulk-ops-tasks` a partir da `main` · **Depende de:** 51, 52 (energy/time)
