@@ -4,6 +4,7 @@ const OpenAI = require('openai');
 const moment = require('moment-timezone');
 const { User, Goal, Project, Area } = require('../../models');
 const { computeTaskMetrics } = require('../tasks/queries/metrics-computation');
+const { assertPublicUrl } = require('../url/service');
 
 const PRIORITY_LABELS = { 0: 'low', 1: 'medium', 2: 'high' };
 const STATUS_LABELS = {
@@ -16,7 +17,7 @@ const STATUS_LABELS = {
     6: 'planned',
 };
 
-function getOpenAIClient(user) {
+async function getOpenAIClient(user) {
     const provider = user?.ai_provider || 'openai';
     const apiKey = user?.ai_api_key || process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -28,15 +29,22 @@ function getOpenAIClient(user) {
     if (provider === 'openrouter') {
         config.baseURL = 'https://openrouter.ai/api/v1';
     } else if (provider === 'custom' && user?.ai_base_url) {
-        // Defense-in-depth: validate URL even though it was checked at save time
+        // Validate at request time, not just save time: the config is stored
+        // once and consumed by the daily-brief cron for days afterwards, so a
+        // host that resolves public at save and is repointed to a private IP
+        // later would otherwise sail through (DNS rebinding). assertPublicUrl
+        // resolves DNS and rejects any private/loopback/link-local target,
+        // matching the CalDAV path.
+        let url;
         try {
-            const url = new URL(user.ai_base_url);
-            if (url.protocol !== 'https:') {
-                throw new Error('ai_base_url must use HTTPS');
-            }
+            url = new URL(user.ai_base_url);
         } catch {
             throw new Error('Invalid ai_base_url configuration');
         }
+        if (url.protocol !== 'https:') {
+            throw new Error('ai_base_url must use HTTPS');
+        }
+        await assertPublicUrl(user.ai_base_url);
         config.baseURL = user.ai_base_url;
     }
     return new OpenAI(config);
@@ -244,7 +252,7 @@ async function generateDailyBrief(userId) {
     const context = await fetchUserContext(userId);
     const contextSummary = buildContextSummary(context);
 
-    const client = getOpenAIClient(context.user);
+    const client = await getOpenAIClient(context.user);
 
     const systemPrompt = `You are a productivity assistant in Tududi. Return a daily brief as JSON. Keep every field very short — no full sentences, no filler words.
 
@@ -371,7 +379,7 @@ async function generateTaskInsights(taskContext, userId) {
     const user = await User.findByPk(userId, {
         attributes: ['ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
     });
-    const client = getOpenAIClient(user);
+    const client = await getOpenAIClient(user);
 
     const {
         taskUid,
@@ -550,7 +558,7 @@ async function generateProjectInsights(projectContext, userId) {
     const user = await User.findByPk(userId, {
         attributes: ['ai_provider', 'ai_api_key', 'ai_model', 'ai_base_url'],
     });
-    const client = getOpenAIClient(user);
+    const client = await getOpenAIClient(user);
 
     const {
         projectUid,
@@ -651,7 +659,7 @@ async function testAiConfig(userId, configData) {
     };
 
     try {
-        const client = getOpenAIClient(userMock);
+        const client = await getOpenAIClient(userMock);
         const modelToTest = getAiModel(userMock);
 
         // Simples completion call para testar a config
@@ -668,6 +676,7 @@ async function testAiConfig(userId, configData) {
 }
 
 module.exports = {
+    getOpenAIClient,
     generateDailyBrief,
     getCachedBrief,
     generateTaskInsights,

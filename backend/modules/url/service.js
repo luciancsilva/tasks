@@ -635,3 +635,5 @@ class UrlService {
 }
 
 module.exports = new UrlService();
+// SSRF guard reused by other outbound-fetch callers (e.g. AI custom base URL).
+module.exports.assertPublicUrl = assertPublicUrl;
