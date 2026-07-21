@@ -76,7 +76,8 @@ describe('ProjectModal — execution mode (plan 53b)', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(onSave).toHaveBeenCalledWith(
-            expect.objectContaining({ execution_mode: 'sequential' })
+            expect.objectContaining({ execution_mode: 'sequential' }),
+            expect.any(String)
         );
     });
 });

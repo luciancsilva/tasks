@@ -406,9 +406,25 @@ const InboxItems: React.FC = () => {
         await createTaskAndHandleConversion(task);
     };
 
-    const handleSaveProject = async (project: Project) => {
+    const handleSaveProject = async (project: Project, initialTaskName?: string) => {
         try {
-            await createProject(project);
+            const createdProject = await createProject(project);
+
+            if (initialTaskName && initialTaskName.trim().length > 0) {
+                try {
+                    await createTask({
+                        name: initialTaskName,
+                        project_uid: createdProject.uid,
+                        status: 'not_started',
+                        priority: PriorityType.Medium,
+                        is_maintenance: false,
+                        is_someday: false,
+                        tags: [],
+                    } as unknown as Task);
+                } catch (taskError) {
+                    console.error('Failed to create initial task:', taskError);
+                }
+            }
 
             const updatedProjects = await fetchProjects();
             setProjects(updatedProjects);

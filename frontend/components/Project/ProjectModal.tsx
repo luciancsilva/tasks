@@ -32,7 +32,7 @@ import { fetchGoals } from '../../utils/goalsService';
 interface ProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (project: Project) => void;
+    onSave: (project: Project, initialTaskName?: string) => void;
     onDelete?: (projectUid: string) => Promise<void>;
     project?: Project;
     areas: Area[];
@@ -47,6 +47,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     areas,
 }) => {
     const [modalJustOpened, setModalJustOpened] = useState(false);
+    const [initialTaskName, setInitialTaskName] = useState('');
     const [formData, setFormData] = useState<Project>(
         project || {
             name: '',
@@ -273,12 +274,41 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             setModalJustOpened(true);
+            if (project) {
+                setFormData(project);
+                setInitialTaskName('');
+            } else {
+                setFormData({
+                    name: '',
+                    description: '',
+                    project_state: 'active',
+                    execution_mode: 'parallel',
+                    priority: 'Medium' as any,
+                    is_maintenance: false,
+                    tags: [],
+                    project_group: '',
+                } as Project);
+                setInitialTaskName('');
+            }
+            setError(null);
+            setTimeout(() => {
+                if (nameInputRef.current) {
+                    nameInputRef.current.focus();
+                }
+            }, 100);
+
             const timer = setTimeout(() => {
                 setModalJustOpened(false);
             }, 200); // Prevent backdrop clicks for 200ms after opening
             return () => clearTimeout(timer);
         }
-    }, [isOpen]);
+    }, [isOpen, project]);
+
+    useEffect(() => {
+        if (!project?.uid && formData.name && modalJustOpened) {
+            setInitialTaskName(t('project.initialTaskPrefix', 'Next action for: ') + formData.name);
+        }
+    }, [formData.name, project?.uid, modalJustOpened, t]);
 
     const handleDueDateChange = (value: string) => {
         setFormData((prev) => ({
@@ -325,7 +355,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             };
 
             // Save the project and wait for it to complete
-            await onSave(projectData);
+            await onSave(projectData, initialTaskName);
 
             showSuccessToast(
                 project
@@ -534,6 +564,20 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                                                 {error && (
                                                     <div className="mt-2 text-red-500 text-sm font-medium">
                                                         {error}
+                                                    </div>
+                                                )}
+                                                {!project?.uid && (
+                                                    <div className="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                            {t('project.initialTask', 'Initial next action')}
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={initialTaskName}
+                                                            onChange={(e) => setInitialTaskName(e.target.value)}
+                                                            className="block w-full text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border-none rounded focus:ring-1 focus:ring-blue-500 py-2 px-3"
+                                                            placeholder={t('project.initialTaskPlaceholder', 'e.g. Break down project into tasks')}
+                                                        />
                                                     </div>
                                                 )}
                                             </div>
