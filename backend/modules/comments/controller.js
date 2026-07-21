@@ -1,9 +1,10 @@
 'use strict';
 const commentsService = require('./service');
+const { UnauthorizedError } = require('../../shared/errors');
 
 function requireUserId(req) {
     if (!req.session || !req.session.userId) {
-        throw new Error('Unauthorized'); // Basic version, might need UnauthorizedError
+        throw new UnauthorizedError('Unauthorized');
     }
     return req.session.userId;
 }
