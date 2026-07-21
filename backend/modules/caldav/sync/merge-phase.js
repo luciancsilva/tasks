@@ -21,6 +21,29 @@ class MergePhase {
             errors: [],
         };
 
+        const uidsToFetch = [];
+        for (const change of changedTasks) {
+            if (change.action === 'delete') {
+                uidsToFetch.push(this._extractUidFromHref(change.href));
+            } else if (
+                change.action === 'create_or_update' &&
+                change.task &&
+                change.task.uid
+            ) {
+                uidsToFetch.push(change.task.uid);
+            }
+        }
+
+        const tasksByUid = new Map();
+        if (uidsToFetch.length > 0) {
+            const existingTasks = await Task.findAll({
+                where: { uid: uidsToFetch, user_id: calendar.user_id },
+            });
+            for (const task of existingTasks) {
+                tasksByUid.set(task.uid, task);
+            }
+        }
+
         for (const change of changedTasks) {
             try {
                 if (change.action === 'delete') {
@@ -28,14 +51,16 @@ class MergePhase {
                         change,
                         calendar,
                         dryRun,
-                        results
+                        results,
+                        tasksByUid
                     );
                 } else if (change.action === 'create_or_update') {
                     await this._handleCreateOrUpdate(
                         change,
                         calendar,
                         dryRun,
-                        results
+                        results,
+                        tasksByUid
                     );
                 }
             } catch (error) {
@@ -57,11 +82,9 @@ class MergePhase {
         return results;
     }
 
-    async _handleDeletion(change, calendar, dryRun, results) {
+    async _handleDeletion(change, calendar, dryRun, results, tasksByUid) {
         const uid = this._extractUidFromHref(change.href);
-        const existingTask = await Task.findOne({
-            where: { uid, user_id: calendar.user_id },
-        });
+        const existingTask = tasksByUid.get(uid);
 
         if (!existingTask) {
             logger.logInfo(
@@ -110,7 +133,7 @@ class MergePhase {
         logger.logInfo(`Task ${uid} deleted`);
     }
 
-    async _handleCreateOrUpdate(change, calendar, dryRun, results) {
+    async _handleCreateOrUpdate(change, calendar, dryRun, results, tasksByUid) {
         const { task: remoteTask, etag, href } = change;
 
         // Ensure the remote task has a UID. Some CalDAV servers may omit the
@@ -138,9 +161,7 @@ class MergePhase {
             );
         }
 
-        const existingTask = await Task.findOne({
-            where: { uid: remoteTask.uid, user_id: calendar.user_id },
-        });
+        const existingTask = tasksByUid.get(remoteTask.uid);
 
         if (!existingTask) {
             await this._createNewTask(

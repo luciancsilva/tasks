@@ -1,5 +1,11 @@
 # Plan 73: Batch queries in CalDAV sync loop
 
+> **Status: EXECUTADO** em 2026-07-20 — `MergePhase.execute` pré-busca todas as
+> tarefas existentes (por UID, escopadas por `user_id`) num único `findAll` +
+> Map, eliminando o `findOne` por change em delete/create-update. A rejeição
+> anterior ("já implementado") estava incorreta: o N+1 estava vivo. Cobertura
+> por `caldav-merge-phase-rollback` e `caldav-delete-missing-method`.
+
 > **Executor instructions**: Follow this plan step by step. Run every
 > verification command and confirm the expected result before moving to the
 > next step. If anything in the "STOP conditions" section occurs, stop and

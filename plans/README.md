@@ -133,7 +133,6 @@ degradação de scheduler.
 |---|---|---|---|---|
 | `70-ssrf-caldav-strict-resolution.md` | SSRF: Strict DNS/IP validation na checagem de URLs CalDAV | P | pro | DONE |
 | `71-ssrf-ai-base-url-validation.md` | SSRF: Validação de protocolo e host em `ai_base_url` do provedor de IA | P | pro | DONE |
-| `73-perf-caldav-sync-batch-query.md` | N+1 Queries: Bulk fetch de tarefas na fase de merge do CalDAV sync | M | pro | REJECTED — already implemented in current code |
 
 ### Prioridade BAIXA
 
@@ -191,6 +190,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `73-perf-caldav-sync-batch-query.md` | N+1: pré-busca de todas as tarefas existentes (por UID, escopada por `user_id`) num `findAll`+Map na fase de merge do CalDAV, elimina findOne por change. Rejeição anterior ("já implementado") estava incorreta | EXECUTADO (2026-07-20) |
 | `72-perf-n-plus-one-recurring-tasks.md` | N+1: batch-fetch de parent UIDs em `serializeTasks` (findAll+Map, elimina findById por task) + teste. Rejeição anterior ("já implementado") estava incorreta — o N+1 estava vivo | EXECUTADO (2026-07-20) |
 | `39-ssrf-url-title.md` | SSRF: `/api/url/title` — assertPublicUrl guard com DNS resolution + redirect validation em fetch/http/proxy paths | EXECUTADO (2026-07-20) |
 | `66-inbox-triage-wizard.md` | Footer 6 botões GTD (Ação/2-min/Projeto/Referência/Someday/Lixo); `buildTaskForConversion` extraído; 2-min→done, Someday→is_someday. Fix backend: `completed_at` no create-done. Fix crash: `InboxItemDetail` destruturava `peopleStore` inexistente (crash on mount desde plano 26) → `people` via prop | EXECUTADO (2026-07-19) |
