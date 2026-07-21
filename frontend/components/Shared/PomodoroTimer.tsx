@@ -77,7 +77,6 @@ const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
             } catch (error) {
                 console.error('Failed to load pomodoro state:', error);
             }
-            }
         }
     }, [storageKey, initialTime]);
 
