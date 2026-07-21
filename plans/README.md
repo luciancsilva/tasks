@@ -125,12 +125,7 @@ Dentro de cada prioridade, do menor para o maior esforço.
 
 ### Prioridade MÉDIA
 
-Residuais de baixa severidade da review de cobertura total (2026-07-20). Não
-bloqueiam; hardening de SSRF.
-
-| Arquivo | O quê | Esforço | Modelo | Depende de |
-|---|---|---|---|---|
-| `75-ssrf-residuals-mapped-ipv6-and-redirects.md` | IPv4-mapped IPv6 (`::ffff:x`) tratado como público em 3 cópias de `isPrivateIP` + redirect público→interno no path de IA | P+M | médio | 70, 71 (DONE) |
+*(nenhum plano aberto)* — o `75` fechou os residuais de SSRF; ver "Executados".
 
 ### Prioridade BAIXA
 
@@ -166,6 +161,7 @@ módulos passam por `requireAuth` (nenhuma rota montada antes de `app.js:384`).
 
 | Arquivo | O quê | Status |
 |---|---|---|
+| `75-ssrf-residuals-mapped-ipv6-and-redirects.md` | SSRF: guard único em `backend/shared/net/ssrf.js` (as 3 cópias de `isPrivateIP` viraram import) classificando IPv6 por **bytes**, não por prefixo de string + fetch que revalida cada redirect no path de IA. **O diagnóstico do plano estava errado** — o parser de URL reescreve `::ffff:169.254.169.254` para `::ffff:a9fe:a9fe`, então o regex dotted proposto seria dead code; o vetor real (mapped hex, 6to4, NAT64) era mais amplo. Ver "Correção do diagnóstico" no plano | EXECUTADO (2026-07-21) |
 | `73-perf-caldav-sync-batch-query.md` | N+1: pré-busca de todas as tarefas existentes (por UID, escopada por `user_id`) num `findAll`+Map na fase de merge do CalDAV, elimina findOne por change. Rejeição anterior ("já implementado") estava incorreta | EXECUTADO (2026-07-20) |
 | `72-perf-n-plus-one-recurring-tasks.md` | N+1: batch-fetch de parent UIDs em `serializeTasks` (findAll+Map, elimina findById por task) + teste. Rejeição anterior ("já implementado") estava incorreta — o N+1 estava vivo | EXECUTADO (2026-07-20) |
 | `64-subtask-drag-reorder.md` | reorder de subtasks (PATCH + dnd-kit). **Fix 2026-07-20:** check de acesso comparava `getAccess` com `'write'`/`'owner'` (nunca retornados) → 403 em toda chamada, inclusive a do dono; corrigido p/ `'rw'`/`'admin'` + teste. A feature nunca funcionara | EXECUTADO (2026-07-20) |

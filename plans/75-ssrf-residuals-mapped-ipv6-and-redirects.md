@@ -1,3 +1,8 @@
+> **Status: EXECUTADO** em 2026-07-21 — **com replanejamento: o item 1 abaixo
+> estava tecnicamente errado.** Ver "Correção do diagnóstico" no fim do arquivo.
+> Item 2 implementado (não virou risco aceito). Escolhida a **Opção B** (helper
+> único em `backend/shared/net/ssrf.js`), não a Opção A.
+
 # Plan 75 — SSRF residuais: IPv4-mapped IPv6 + redirect-following
 
 > **Status: PROPOSTO** — residuais de baixa severidade encontrados na review de
@@ -120,3 +125,67 @@ o path de IA (OpenAI SDK v6, `getOpenAIClient`) **não**.
 `fix(security): reject IPv4-mapped IPv6 private addresses (Plan 75)` — "Implements
 plans/75". Item 2 em commit próprio se implementado. Sem push sem autorização.
 ```
+
+---
+
+## Correção do diagnóstico (2026-07-21, na execução)
+
+O item 1 acima **não teria corrigido nada**. O fix proposto casa a forma
+*dotted* (`::ffff:169.254.169.254`) com regex, mas ela nunca chega ao guard:
+
+```
+new URL('http://[::ffff:169.254.169.254]/').hostname  →  '[::ffff:a9fe:a9fe]'
+```
+
+O parser WHATWG reescreve o literal para a forma hex canônica. Os **três** sites
+tiram o host de `new URL(...)` (`url/service.js` `parsed.hostname`,
+`remote-calendar-controller.js:155` `url.hostname`, `users/service.js:172`
+`url.hostname`), então o regex dotted seria dead code nos três. O que precisava
+ser bloqueado era exatamente a forma que o plano descartou como "edge raro, fora
+de escopo v1".
+
+Consequência: o vetor era **mais amplo** do que o plano registrou. Passavam pelo
+guard, antes desta execução:
+
+| Entrada | Host visto pelo guard | Antes |
+|---|---|---|
+| `https://[::ffff:169.254.169.254]/v1` | `::ffff:a9fe:a9fe` | ✗ passava |
+| `https://[0:0:0:0:0:ffff:a9fe:a9fe]/` | `::ffff:a9fe:a9fe` | ✗ passava |
+| `https://[2002:a9fe:a9fe::1]/` (6to4) | idem | ✗ passava |
+| `https://[64:ff9b::a9fe:a9fe]/` (NAT64) | idem | ✗ passava |
+| `https://[0000:…:0001]/` (`::1` expandido) | idem | ✗ passava em `url/service` |
+
+Classificar IPv6 por prefixo de string é o erro de fundo — a mesma rede tem
+várias grafias legais. O fix compara **bytes**: `expandIPv6()` normaliza
+qualquer grafia (dotted, hex, expandida, zone id `%eth0`) para 16 bytes, e os
+ranges são testados numericamente. Formas que embutem IPv4 (mapped `::ffff:0:0/96`,
+6to4 `2002::/16`, NAT64 `64:ff9b::/96`) delegam ao teste IPv4.
+
+### Opção B em vez de A
+A lógica correta tem ~130 linhas; triplicá-la garantia divergência — que já
+existia (o CalDAV cobria `0000:…:0001`, o `url/service` não; o `users/service`
+inline não tinha nem `198.18/15` nem broadcast). Helper único em
+`backend/shared/net/ssrf.js`: `expandIPv6`, `isPrivateIP`, `isPrivateHostname`,
+`assertPublicUrl`, `createSsrfSafeFetch`. Os 3 sites importam; `url/service`
+re-exporta `assertPublicUrl` para não quebrar quem já o importava.
+
+Endurecimentos que vieram junto: IPv4 `>= 224` (multicast/reservado/broadcast,
+antes só o broadcast exato), IPv6 `ff00::/8`, Teredo `2001::/32`, `::/96`
+inteiro.
+
+### Item 2 — implementado, não aceito como risco
+`openai` v6.45 aceita `fetch` custom (`client.d.ts:98`). `createSsrfSafeFetch()`
+faz `redirect: 'manual'` e revalida cada hop com `assertPublicUrl`, máx. 3 hops.
+Só é instalado no provider `custom`. `301/302/303` são **recusados** em vez de
+seguidos: convertem POST em GET e descartam o body, então um endpoint
+OpenAI-compatível que os devolve está mal configurado — melhor falhar visível.
+
+### Testes
+`backend/tests/unit/ssrf-guard.test.js` (novo, 46 casos: grafias equivalentes,
+ranges v4/v6, embutidos, redirect guard) + 2 casos em
+`backend/tests/integration/ai-base-url-ssrf.test.js`. Suíte: **159 / 1929** verde.
+
+### Não feito
+`::ffff:0:1.2.3.4` (IPv4-translated, `::ffff:0:0:0/96`) não é tratado como
+embutido — cai no ramo genérico e só é bloqueado se o prefixo casar outro range.
+Formato deprecado (RFC 2765), não emitido por `dns.lookup` nem pelo parser de URL.
