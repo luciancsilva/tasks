@@ -7,8 +7,9 @@ const { createTestUser } = require('../helpers/testUtils');
 
 const DAY = 24 * 60 * 60 * 1000;
 
+const moment = require('moment-timezone');
 const todayName = () =>
-    new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    moment.tz('UTC').format('dddd').toLowerCase();
 
 describe('Weekly Review notification (55)', () => {
     let user;
