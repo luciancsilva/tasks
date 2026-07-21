@@ -2,16 +2,22 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ClockIcon } from '@heroicons/react/24/outline';
 
+import type { ProfileFormData } from '../types';
+
 interface ProductivityTabProps {
     isActive: boolean;
     pomodoroEnabled: boolean;
     onTogglePomodoro: () => void;
+    formData: ProfileFormData;
+    onChangeField: (field: keyof ProfileFormData, value: any) => void;
 }
 
 const ProductivityTab: React.FC<ProductivityTabProps> = ({
     isActive,
     pomodoroEnabled,
     onTogglePomodoro,
+    formData,
+    onChangeField,
 }) => {
     const { t } = useTranslation();
 
@@ -55,6 +61,47 @@ const ProductivityTab: React.FC<ProductivityTabProps> = ({
                                     : 'translate-x-0'
                             }`}
                         ></span>
+                    </div>
+                </div>
+                <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {t('profile.staleTaskDays', 'Stale task threshold (days)')}
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {t('profile.staleTaskDaysDesc', 'Number of days before an inactive task is considered stale.')}
+                        </p>
+                    </div>
+                    <div>
+                        <input
+                            type="number"
+                            min="1"
+                            max="365"
+                            value={formData.stale_task_days || 30}
+                            onChange={(e) => onChangeField('stale_task_days', parseInt(e.target.value, 10))}
+                            className="block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        />
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between py-4 border-b border-gray-200 dark:border-gray-700">
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {t('profile.inboxStaleHours', 'Inbox stale threshold (hours)')}
+                        </label>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {t('profile.inboxStaleHoursDesc', 'Number of hours before an unprocessed inbox item is considered stale.')}
+                        </p>
+                    </div>
+                    <div>
+                        <input
+                            type="number"
+                            min="1"
+                            max="720"
+                            value={formData.inbox_stale_hours || 48}
+                            onChange={(e) => onChangeField('inbox_stale_hours', parseInt(e.target.value, 10))}
+                            className="block w-24 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        />
                     </div>
                 </div>
             </div>

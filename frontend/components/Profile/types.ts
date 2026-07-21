@@ -76,6 +76,8 @@ export interface Profile {
     ai_model?: string;
     ai_base_url?: string;
     has_ai_api_key?: boolean;
+    inbox_stale_hours?: number;
+    stale_task_days?: number;
 }
 
 export interface TelegramBotInfo {

@@ -1402,6 +1402,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({
                                             },
                                         }))
                                     }
+                                    formData={formData}
+                                    onChangeField={handleChange}
                                 />
 
                                 <FeaturesTab

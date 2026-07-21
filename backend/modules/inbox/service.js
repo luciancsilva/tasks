@@ -247,10 +247,15 @@ class InboxService {
     }
 
     /**
-     * Plan 65: count of stale ('added' > 48h) inbox items for a user.
+     * Plan 65: count of stale inbox items for a user.
      */
     async getStaleCount(userId) {
-        return inboxRepository.countStale(userId);
+        const { User } = require('../../models');
+        const user = await User.findByPk(userId, {
+            attributes: ['inbox_stale_hours'],
+        });
+        const hoursThreshold = user?.inbox_stale_hours || 48;
+        return inboxRepository.countStale(userId, hoursThreshold);
     }
 }
 

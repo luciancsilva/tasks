@@ -258,10 +258,19 @@ module.exports = (sequelize) => {
             stale_task_days: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                defaultValue: 30,
+                defaultValue: 30, // threshold in days before a task is considered 'stale'
+                validate: {
+                    min: 1, // must be at least 1 day
+                    max: 365, // cap at 1 year
+                },
+            },
+            inbox_stale_hours: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 48,
                 validate: {
                     min: 1,
-                    max: 365,
+                    max: 720,
                 },
             },
             last_reviewed_at: {
