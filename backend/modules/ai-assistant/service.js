@@ -4,7 +4,10 @@ const OpenAI = require('openai');
 const moment = require('moment-timezone');
 const { User, Goal, Project, Area } = require('../../models');
 const { computeTaskMetrics } = require('../tasks/queries/metrics-computation');
-const { assertPublicUrl } = require('../url/service');
+const {
+    assertPublicUrl,
+    createSsrfSafeFetch,
+} = require('../../shared/net/ssrf');
 
 const PRIORITY_LABELS = { 0: 'low', 1: 'medium', 2: 'high' };
 const STATUS_LABELS = {
@@ -46,6 +49,11 @@ async function getOpenAIClient(user) {
         }
         await assertPublicUrl(user.ai_base_url);
         config.baseURL = user.ai_base_url;
+        // Validating the entry point is not enough: the SDK follows redirects
+        // itself, so a public host answering 307 with an internal Location
+        // would slip past the check above (Plan 75). This fetch re-asserts
+        // every hop.
+        config.fetch = createSsrfSafeFetch();
     }
     return new OpenAI(config);
 }

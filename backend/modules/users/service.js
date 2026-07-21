@@ -1,5 +1,7 @@
 'use strict';
 
+const { isPrivateHostname } = require('../../shared/net/ssrf');
+
 const FEATURE_KEYS = [
     'task_intelligence_enabled',
     'auto_suggest_next_actions_enabled',
@@ -169,44 +171,11 @@ class UsersService {
                 try {
                     const url = new URL(data.ai_base_url);
                     if (url.protocol !== 'https:') throw new Error();
-                    const host = url.hostname
-                        .toLowerCase()
-                        .replace(/^\[|\]$/g, '');
-                    // Block known-private hostnames
-                    if (
-                        host === 'localhost' ||
-                        host.endsWith('.local') ||
-                        host.endsWith('.internal') ||
-                        host.endsWith('.localhost')
-                    ) {
+                    // Literal check only — DNS resolution happens at request
+                    // time in getOpenAIClient (Plan 71), because a host that
+                    // resolves public today can be repointed tomorrow.
+                    if (isPrivateHostname(url.hostname)) {
                         throw new Error();
-                    }
-                    // Block private/loopback/link-local IPs
-                    const net = require('net');
-                    if (net.isIPv4(host)) {
-                        const parts = host.split('.').map(Number);
-                        const [a, b] = parts;
-                        if (
-                            a === 127 ||
-                            a === 10 ||
-                            a === 0 ||
-                            (a === 172 && b >= 16 && b <= 31) ||
-                            (a === 192 && b === 168) ||
-                            (a === 169 && b === 254) ||
-                            (a === 100 && b >= 64 && b <= 127)
-                        ) {
-                            throw new Error();
-                        }
-                    } else if (net.isIPv6(host)) {
-                        if (
-                            host === '::1' ||
-                            host === '::' ||
-                            host.startsWith('fc') ||
-                            host.startsWith('fd') ||
-                            host.startsWith('fe80')
-                        ) {
-                            throw new Error();
-                        }
                     }
                 } catch (err) {
                     if (err instanceof ValidationError) throw err;

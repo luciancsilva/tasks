@@ -50,6 +50,34 @@ describe('ai_base_url SSRF guard at request time', () => {
         expect(lookupSpy).not.toHaveBeenCalled();
     });
 
+    // Plan 75: `new URL()` rewrites this host to `::ffff:a9fe:a9fe`, so the old
+    // prefix-matching guard saw an unknown IPv6 and let the metadata endpoint
+    // through.
+    it('rejects an IPv4-mapped IPv6 literal pointing at cloud metadata', async () => {
+        lookupSpy = jest.spyOn(dns.promises, 'lookup');
+        await expect(
+            getOpenAIClient(customUser('https://[::ffff:169.254.169.254]/v1'))
+        ).rejects.toThrow(/private|SSRF/i);
+        expect(lookupSpy).not.toHaveBeenCalled();
+    });
+
+    it('installs the redirect-revalidating fetch on custom providers only', async () => {
+        lookupSpy = jest
+            .spyOn(dns.promises, 'lookup')
+            .mockResolvedValue([{ address: '93.184.216.34', family: 4 }]);
+
+        const custom = await getOpenAIClient(
+            customUser('https://llm.example.com/v1')
+        );
+        expect(typeof custom._options.fetch).toBe('function');
+
+        const openai = await getOpenAIClient({
+            ai_provider: 'openai',
+            ai_api_key: 'sk-test',
+        });
+        expect(openai._options.fetch).toBeUndefined();
+    });
+
     it('rejects a non-HTTPS custom base URL', async () => {
         await expect(
             getOpenAIClient(customUser('http://llm.example.com/v1'))
