@@ -21,7 +21,8 @@ async function serializeTask(
     task,
     userTimezone = 'UTC',
     options = {},
-    moveCountMap = null
+    moveCountMap = null,
+    parentUidMap = null
 ) {
     if (!task) {
         throw new Error('Task is null or undefined');
@@ -68,13 +69,17 @@ async function serializeTask(
 
     let recurringParentUid = null;
     if (taskJson.recurring_parent_id) {
-        const parentTask = await taskRepository.findById(
-            taskJson.recurring_parent_id,
-            {
-                attributes: ['uid'],
-            }
-        );
-        recurringParentUid = parentTask?.uid || null;
+        if (parentUidMap && parentUidMap.has(taskJson.recurring_parent_id)) {
+            recurringParentUid = parentUidMap.get(taskJson.recurring_parent_id);
+        } else {
+            const parentTask = await taskRepository.findById(
+                taskJson.recurring_parent_id,
+                {
+                    attributes: ['uid'],
+                }
+            );
+            recurringParentUid = parentTask?.uid || null;
+        }
     }
 
     return {
@@ -140,9 +145,35 @@ async function serializeTasks(tasks, userTimezone = 'UTC', options = {}) {
     const taskIds = tasks.map((task) => task.id);
     const moveCountMap = await getTaskTodayMoveCounts(taskIds);
 
+    const parentIdsToFetch = [
+        ...new Set(
+            tasks
+                .map((task) => (task.toJSON ? task.toJSON() : task))
+                .map((taskJson) => taskJson.recurring_parent_id)
+                .filter(Boolean)
+        ),
+    ];
+
+    const parentUidMap = new Map();
+    if (parentIdsToFetch.length > 0) {
+        const parents = await taskRepository.findAll(
+            { id: parentIdsToFetch },
+            { attributes: ['id', 'uid'] }
+        );
+        parents.forEach((p) => {
+            parentUidMap.set(p.id, p.uid);
+        });
+    }
+
     return await Promise.all(
         tasks.map((task) =>
-            serializeTask(task, userTimezone, options, moveCountMap)
+            serializeTask(
+                task,
+                userTimezone,
+                options,
+                moveCountMap,
+                parentUidMap
+            )
         )
     );
 }
