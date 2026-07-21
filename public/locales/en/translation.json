@@ -1149,6 +1149,16 @@
     "extractTitleFromTextError": "Failed to extract title from text"
   },
   "inbox": {
+    "bulkConfirmDelete": "Delete {{count}} items?",
+    "bulkProcessAllAsTask": "Process all as Task",
+    "bulkMarkAllProcessed": "Mark all processed",
+    "bulkDeleteAll": "Delete all",
+    "triageAction": "Action",
+    "triageTwoMin": "2-min action",
+    "triageProject": "Project",
+    "triageReference": "Reference",
+    "triageSomeday": "Someday",
+    "triageTrash": "Trash",
     "title": "Inbox",
     "empty": "Your inbox is empty",
     "emptyDescription": "Capture thoughts and ideas quickly using the ⚡ icon in the top navbar or the + button in the sidebar",
@@ -1195,13 +1205,7 @@
     "linkPreviewError": "Could not fetch link details",
     "aboutInbox": "About Inbox",
     "staleWarning": "{{count}} items in inbox for over 48h — process them",
-    "staleDot": "Inbox has items over 48h old",
-    "triageAction": "Action",
-    "triageTwoMin": "2-min action",
-    "triageProject": "Project",
-    "triageReference": "Reference",
-    "triageSomeday": "Someday",
-    "triageTrash": "Trash"
+    "staleDot": "Inbox has items over 48h old"
   },
   "dateFormats": {
     "long": "EEEE, MMMM d, yyyy",
@@ -1260,6 +1264,14 @@
     "createError": "Failed to create note"
   },
   "task": {
+    "energy": "Energy",
+    "energyNone": "No energy level",
+    "energyLow": "Low",
+    "energyMedium": "Medium",
+    "energyHigh": "High",
+    "timeEstimate": "Time estimate",
+    "timeEstimatePlaceholder": "minutes",
+    "timeEstimateUnit": "min",
     "complete": "Complete",
     "labels": {
       "tags": "Tags",
@@ -2569,15 +2581,15 @@
     "createProject": "Create Project"
   },
   "review": {
-    "title": "Weekly Review",
+    "empty": "All clear",
+    "sectionPlaceholder": "Coming soon",
+    "openFull": "Open full list",
     "completed": "Weekly review marked complete",
-    "failed": "Failed to mark review complete",
+    "failed": "Failed to mark complete",
+    "title": "Weekly Review",
     "lastCompleted": "Last:",
     "due": "Due",
     "markComplete": "Mark complete",
-    "sectionPlaceholder": "Coming soon",
-    "empty": "All clear",
-    "openFull": "Open full list",
     "section": {
       "inbox": "Inbox",
       "stale": "Stale tasks",
@@ -2587,5 +2599,13 @@
       "goals": "Goals",
       "upcoming": "Upcoming"
     }
+  },
+  "bulk": {
+    "confirmDelete": "Delete {{count}} tasks?",
+    "selected": "selected",
+    "select": "Select",
+    "markComplete": "Mark Complete",
+    "delete": "Delete",
+    "clearSelection": "Clear selection"
   }
 }

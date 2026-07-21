@@ -1203,6 +1203,16 @@
     "extractTitleFromTextError": "Falha ao extrair o título do texto"
   },
   "inbox": {
+    "bulkConfirmDelete": "Excluir {{count}} itens?",
+    "bulkProcessAllAsTask": "Processar tudo como Tarefa",
+    "bulkMarkAllProcessed": "Marcar tudo como processado",
+    "bulkDeleteAll": "Excluir tudo",
+    "triageAction": "Ação",
+    "triageTwoMin": "Ação de 2 min",
+    "triageProject": "Projeto",
+    "triageReference": "Referência",
+    "triageSomeday": "Algum dia",
+    "triageTrash": "Lixo",
     "title": "Caixa de entrada",
     "empty": "Sua caixa de entrada está vazia",
     "emptyDescription": "Capture pensamentos e ideias rapidamente usando o ícone ⚡ na barra de navegação superior ou o botão + na barra lateral",
@@ -1249,13 +1259,7 @@
     "linkPreviewError": "Não foi possível obter os detalhes do link",
     "aboutInbox": "Sobre a caixa de entrada",
     "staleWarning": "{{count}} itens na caixa de entrada há mais de 48h — processe-os",
-    "staleDot": "Caixa de entrada tem itens com mais de 48h",
-    "triageAction": "Ação",
-    "triageTwoMin": "Ação de 2 min",
-    "triageProject": "Projeto",
-    "triageReference": "Referência",
-    "triageSomeday": "Algum dia",
-    "triageTrash": "Lixo"
+    "staleDot": "Caixa de entrada tem itens com mais de 48h"
   },
   "dateFormats": {
     "long": "EEEE, d 'de' MMMM 'de' yyyy",
@@ -1316,6 +1320,14 @@
     "createError": "Falha ao criar nota"
   },
   "task": {
+    "energy": "Energia",
+    "energyNone": "Sem nível de energia",
+    "energyLow": "Baixa",
+    "energyMedium": "Média",
+    "energyHigh": "Alta",
+    "timeEstimate": "Estimativa de tempo",
+    "timeEstimatePlaceholder": "minutos",
+    "timeEstimateUnit": "min",
     "complete": "Concluir",
     "labels": {
       "tags": "Etiquetas",
@@ -1816,8 +1828,8 @@
     "done": "Concluído"
   },
   "focus": {
-    "next": "Próxima",
-    "noNotes": "Sem notas para esta tarefa.",
+    "next": "Próximo",
+    "noNotes": "Nenhuma nota para esta tarefa.",
     "logError": "Falha ao registrar sessão de foco"
   },
   "calendar": {
@@ -2666,15 +2678,15 @@
     "createProject": "Criar Projeto"
   },
   "review": {
-    "title": "Revisão Semanal",
-    "completed": "Revisão semanal marcada como concluída",
-    "failed": "Falha ao marcar a revisão como concluída",
-    "lastCompleted": "Última:",
-    "due": "Pendente",
-    "markComplete": "Marcar concluída",
+    "empty": "Tudo limpo",
     "sectionPlaceholder": "Em breve",
-    "empty": "Tudo em dia",
     "openFull": "Abrir lista completa",
+    "completed": "Revisão semanal marcada como concluída",
+    "failed": "Falha ao marcar como concluído",
+    "title": "Revisão Semanal",
+    "lastCompleted": "Última:",
+    "due": "Vence",
+    "markComplete": "Marcar como concluído",
     "section": {
       "inbox": "Inbox",
       "stale": "Tarefas paradas",
@@ -2684,5 +2696,13 @@
       "goals": "Metas",
       "upcoming": "Próximas"
     }
+  },
+  "bulk": {
+    "confirmDelete": "Excluir {{count}} tarefas?",
+    "selected": "selecionado(s)",
+    "select": "Selecionar",
+    "markComplete": "Marcar como Concluído",
+    "delete": "Excluir",
+    "clearSelection": "Limpar seleção"
   }
 }
